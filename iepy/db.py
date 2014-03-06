@@ -14,7 +14,7 @@ class DocumentConnector(object):
 
     ### Basic administration and pre-process
 
-    def create_document(self, identifier, text, metadata=None, title=None):
+    def create_document(self, identifier, text, metadata=None):
         """Creates a new Document with text ready to be inserted on the
         information extraction pipeline (ie, ready to be tokenized, POS Tagged,
         etc).
@@ -26,12 +26,23 @@ class DocumentConnector(object):
         with your document. IEPy will do nothing with it except guarranting that
         such information will be preserved.
         """
+        if metadata is None:
+            metadata = {}
+        doc = IEDocument(human_identifier=identifier, text=text, metadata=metadata)
+        doc.save()
+        return doc
+
+    def get_raw_documents(self):
+        """returns an interator of documents that lack the text field, or it's
+        empty.
+        """
         pass
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given
-        step"""
-        pass
+        step."""
+        if not isinstance(step, PreProcessSteps):
+            return None
 
     def store_preprocess_output(self, document, step, output):
         pass
