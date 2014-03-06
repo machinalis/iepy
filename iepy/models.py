@@ -45,3 +45,4 @@ class IEDocument(DynamicDocument):
     tokens = fields.ListField(fields.StringField())
     sentences = fields.ListField(fields.StringField())
     entities = fields.ListField(fields.ReferenceField('Entity'))
+    meta = {'collection': 'iedocuments'}
