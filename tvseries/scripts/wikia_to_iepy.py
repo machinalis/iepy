@@ -12,12 +12,15 @@ Options:
   --season-tag-pattern=<season-pattern>  Wikia tag pattern for seasson episodes [default: Season %i]
 """
 from gzip import GzipFile
+import logging
 
 from docopt import docopt
 
 import xmltodict
 
 from iepy.db import DocumentConnector
+
+logger = logging.getLogger(__name__)
 
 
 def build_pages_dict(dump_path):
@@ -42,7 +45,6 @@ def get_episode(pages_dict, number_of_seassons, all_tag, season_tag_pattern):
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
-    print opts
     db = DocumentConnector(opts['<dbname>'])
     pages_dict = build_pages_dict(opts['<wikia_zipped_xml_dump_file>'])
     eps = get_episode(pages_dict, int(opts['<nr_of_seassons>']),
@@ -58,5 +60,4 @@ if __name__ == '__main__':
                     'seasson': seasson_nr,
                     'source': opts['<wikia_zipped_xml_dump_file>']
                 })
-        print 'Dumped %i episodes from season %i' % (len(seasson), seasson_nr)
-
+        logger.info('Dumped %i episodes from season %i', len(seasson), seasson_nr)
