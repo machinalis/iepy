@@ -46,3 +46,14 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
 
+class TestDocumentsFiltersForPreprocess(TestCase):
+
+    def test_raw_documents_are_filtered(self):
+        doc1 = IEDocFactory(text='')
+        doc2 = IEDocFactory(text='')
+        doc3 = IEDocFactory(text='')
+        doc1.save()
+
+
+    def get_documents_lacking_preprocess(self):
+        pass
