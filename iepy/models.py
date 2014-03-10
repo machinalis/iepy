@@ -27,8 +27,14 @@ class Entity(DynamicDocument):
 
 
 class TextChunk(DynamicDocument):
-    document_id = fields.ObjectIdField(required=True)
-    text_chunk = fields.StringField(required=True)
+    document = fields.ReferenceField('IEDocument', required=True)
+    text = fields.StringField(required=True)
+
+    tokens = fields.ListField(fields.StringField())
+    sentences = fields.ListField(fields.IntField())  # not sure what it's in here
+    postags = fields.ListField(fields.StringField())
+
+    # Maybe this field needs to be de-normalized
     entities = fields.ListField(fields.ReferenceField('Entity'))
 
 
@@ -44,9 +50,17 @@ class IEDocument(DynamicDocument):
     # Fields and stuff that is computed while traveling the pre-process pipeline
     preprocess_metadata = fields.DictField()
     tokens = fields.ListField(fields.StringField())
-    segments = fields.ListField(fields.StringField())
+    sentences = fields.ListField(fields.IntField())  # it's a list of token-offsets
+    postags = fields.ListField(fields.StringField())
     entities = fields.ListField(fields.ReferenceField('Entity'))
     meta = {'collection': 'iedocuments'}
+
+    # Mapping of preprocess steps and fields where the result is stored.
+    preprocess_fields_mapping = {
+        PreProcessSteps.tokenization: 'tokens',
+        PreProcessSteps.segmentation: 'segments',
+        PreProcessSteps.tagging: 'postags',
+    }
 
     def was_preprocess_done(self, step):
         return step.name in self.preprocess_metadata.keys()
@@ -55,10 +69,8 @@ class IEDocument(DynamicDocument):
         """Set the result in the internal representation.
         Explicit save mus be triggered after this call.
         """
-        if step == PreProcessSteps.tokenization:
-            self.tokens = result
-        if step == PreProcessSteps.segmentation:
-            self.segments = result
+        field_name = self.preprocess_fields_mapping[step]
+        setattr(self, field_name, result)
         self.preprocess_metadata[step.name] = {
             'done_at': datetime.now(),
         }
@@ -68,7 +80,6 @@ class IEDocument(DynamicDocument):
         If such result was never set, None will be returned instead"""
         if not self.was_preprocess_done(step):
             return None
-        elif step == PreProcessSteps.tokenization:
-            return self.tokens
-        elif step == PreProcessSteps.segmentation:
-            return self.segments
+        else:
+            field_name = self.preprocess_fields_mapping[step]
+            return getattr(self, field_name)
