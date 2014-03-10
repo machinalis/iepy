@@ -3,7 +3,7 @@ from mongoengine import connect as mongoconnect
 from iepy.models import IEDocument, PreProcessSteps
 
 
-class DocumentConnector(object):
+class DocumentManager(object):
 
     def __init__(self, db_name):
         self.db_name = db_name
