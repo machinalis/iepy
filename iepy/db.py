@@ -1,6 +1,6 @@
 from mongoengine import connect as mongoconnect
 
-from iepy.models import IEDocument, PreProcessSteps
+from iepy.models import IEDocument, PreProcessSteps, InvalidPreprocessSteps
 
 
 class DocumentManager(object):
@@ -42,7 +42,7 @@ class DocumentManager(object):
         """Returns an iterator of documents that shall be processed on the given
         step."""
         if not isinstance(step, PreProcessSteps):
-            return None
+            raise InvalidPreprocessSteps
         query = {'preprocess_metadata__%s__exists' % step.name: False}
         return IEDocument.objects(**query)
 

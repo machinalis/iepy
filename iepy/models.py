@@ -11,6 +11,10 @@ class PreProcessSteps(Enum):
     nerc = 4
 
 
+class InvalidPreprocessSteps(Exception):
+    pass
+
+
 ENTITY_KINDS = (
     ('person', u'Person'),
     ('location', u'Location'),
@@ -69,12 +73,15 @@ class IEDocument(DynamicDocument):
         """Set the result in the internal representation.
         Explicit save mus be triggered after this call.
         """
+        if not isinstance(step, PreProcessSteps):
+            raise InvalidPreprocessSteps
+
         field_name = self.preprocess_fields_mapping[step]
         setattr(self, field_name, result)
         self.preprocess_metadata[step.name] = {
             'done_at': datetime.now(),
         }
-        return self
+        return self  # So it's easily chaninable with a .save() if desired
 
     def get_preprocess_result(self, step):
         """Returns the stored result for the asked preprocess step.
