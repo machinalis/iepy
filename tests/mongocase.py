@@ -5,7 +5,7 @@ from mongoengine.connection import get_connection, disconnect
 from iepy.db import DocumentManager
 
 
-class MongoTestCase(TestCase):
+class DocumentManagerTestCase(TestCase):
     """
         TestCase class that clear the collection between the tests
     """
@@ -22,7 +22,7 @@ class MongoTestCase(TestCase):
         for cname in db.collection_names():
             if cname != 'system.indexes':
                 db.drop_collection(cname)
-        super(MongoTestCase, self).setUp()
+        super(DocumentManagerTestCase, self).setUp()
 
     @classmethod
     def tearDownClass(cls):
