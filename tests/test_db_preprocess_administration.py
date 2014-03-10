@@ -56,3 +56,13 @@ class TestDocumentsFiltersForPreprocess(DocumentManagerTestCase):
         self.assertIn(doc1, raws)
         self.assertNotIn(doc2, raws)
 
+    def test_untokenized_documents_are_filtered(self):
+        doc1 = IEDocFactory(text='').save()
+        doc2 = IEDocFactory(text='something').save()
+        doc3 = IEDocFactory(text='something nice').save()
+        step = PreProcessSteps.tokenization
+        doc3.set_preprocess_result(step, doc3.text.split()).save()
+        untokeneds = self.manager.get_documents_lacking_preprocess(step)
+        self.assertIn(doc1, untokeneds)
+        self.assertIn(doc2, untokeneds)
+        self.assertNotIn(doc3, untokeneds)

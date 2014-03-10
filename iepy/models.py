@@ -74,6 +74,7 @@ class IEDocument(DynamicDocument):
         self.preprocess_metadata[step.name] = {
             'done_at': datetime.now(),
         }
+        return self
 
     def get_preprocess_result(self, step):
         """Returns the stored result for the asked preprocess step.
