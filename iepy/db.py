@@ -43,9 +43,8 @@ class DocumentManager(object):
         step."""
         if not isinstance(step, PreProcessSteps):
             return None
-
-    def store_preprocess_output(self, document, step, output):
-        pass
+        query = {'preprocess_metadata__%s__exists' % step.name: False}
+        return IEDocument.objects(**query)
 
     ### Accessors, filters and projections used on IE itself
 
