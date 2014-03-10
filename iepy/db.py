@@ -36,7 +36,7 @@ class DocumentManager(object):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        pass
+        return IEDocument.objects(text='')
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given
