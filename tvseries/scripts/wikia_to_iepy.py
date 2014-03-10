@@ -18,7 +18,7 @@ from docopt import docopt
 
 import xmltodict
 
-from iepy.db import DocumentConnector
+from iepy.db import DocumentManager
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ def get_episode(pages_dict, number_of_seassons, all_tag, season_tag_pattern):
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
-    db = DocumentConnector(opts['<dbname>'])
+    db = DocumentManager(opts['<dbname>'])
     pages_dict = build_pages_dict(opts['<wikia_zipped_xml_dump_file>'])
     eps = get_episode(pages_dict, int(opts['<nr_of_seassons>']),
                       opts['--all-episodes-tag'],

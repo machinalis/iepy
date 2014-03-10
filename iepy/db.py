@@ -3,7 +3,7 @@ from mongoengine import connect as mongoconnect
 from iepy.models import IEDocument, PreProcessSteps
 
 
-class DocumentConnector(object):
+class DocumentManager(object):
 
     def __init__(self, db_name):
         self.db_name = db_name
@@ -36,7 +36,7 @@ class DocumentConnector(object):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        pass
+        return IEDocument.objects(text='')
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given

@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from iepy.models import PreProcessSteps
 from factories import IEDocFactory
+from documentmanager_case import DocumentManagerTestCase
 
 
 class TestDocumentsPreprocessMetadata(TestCase):
@@ -45,4 +46,13 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertTrue(doc.was_preprocess_done(step))
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
+
+class TestDocumentsFiltersForPreprocess(DocumentManagerTestCase):
+
+    def test_raw_documents_are_filtered(self):
+        doc1 = IEDocFactory(text='').save()
+        doc2 = IEDocFactory(text='something').save()
+        raws = self.manager.get_raw_documents()
+        self.assertIn(doc1, raws)
+        self.assertNotIn(doc2, raws)
 
