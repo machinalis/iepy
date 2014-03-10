@@ -4,7 +4,7 @@ from iepy.models import PreProcessSteps
 from factories import IEDocFactory
 
 
-class TestPreprocessAdministration(TestCase):
+class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_preprocess_steps(self):
         self.assertEqual(
@@ -36,3 +36,13 @@ class TestPreprocessAdministration(TestCase):
         doc.set_preprocess_result(step, pathetic_segments)
         self.assertTrue(doc.was_preprocess_done(step))
         self.assertEqual(doc.get_preprocess_result(step), pathetic_segments)
+
+    def test_setting_tagging_result_can_be_later_retrieved(self):
+        doc = IEDocFactory(text='Some sentence. And some other. Indeed!')
+        pathetic_tags = ['NN' for token in doc.text.split()]
+        step = PreProcessSteps.tagging
+        doc.set_preprocess_result(step, pathetic_tags)
+        self.assertTrue(doc.was_preprocess_done(step))
+        self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
+
+
