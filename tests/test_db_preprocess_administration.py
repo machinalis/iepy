@@ -1,8 +1,10 @@
 from unittest import TestCase
+import mock
 
-from iepy.models import PreProcessSteps
-from factories import IEDocFactory
 from documentmanager_case import DocumentManagerTestCase
+from iepy.models import PreProcessSteps, InvalidPreprocessSteps
+from factories import IEDocFactory
+from timelapse import timekeeper
 
 
 class TestDocumentsPreprocessMetadata(TestCase):
@@ -47,7 +49,40 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
 
-class TestDocumentsFiltersForPreprocess(DocumentManagerTestCase):
+class TestStorePreprocessStepsLateralEffects(TestCase):
+    step = PreProcessSteps.tokenization
+
+    def test_if_step_is_not_preprocessstep_error_is_raised(self):
+        doc1 = IEDocFactory(text='').save()
+        self.assertRaises(InvalidPreprocessSteps,
+                          doc1.set_preprocess_result, 'spell it', [])
+
+    def test_doc_is_returned(self):
+        doc1 = IEDocFactory(text='')
+        r = doc1.set_preprocess_result(self.step, [])
+        self.assertEqual(r, doc1)
+
+    def test_save_is_not_called_inside_of_set_method(self):
+        doc1 = IEDocFactory(text='')
+        with mock.patch.object(doc1, 'save') as save:
+            doc1.set_preprocess_result(self.step, [])
+            self.assertFalse(save.called)
+
+    def test_preprocess_metadata_is_created_after_call(self):
+        doc1 = IEDocFactory(text='')
+        self.assertNotIn(self.step.name, doc1.preprocess_metadata)
+        doc1.set_preprocess_result(self.step, [])
+        self.assertIn(self.step.name, doc1.preprocess_metadata)
+
+    def test_preprocess_metadata_has_done_at(self):
+        doc1 = IEDocFactory(text='')
+        with timekeeper() as interval:
+            doc1.set_preprocess_result(self.step, [])
+        mdata = doc1.preprocess_metadata[self.step.name]
+        interval.assertHasDate(mdata['done_at'])
+
+
+class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
 
     def test_raw_documents_are_filtered(self):
         doc1 = IEDocFactory(text='').save()
