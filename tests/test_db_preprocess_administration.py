@@ -76,7 +76,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
 
-class TestStorePreprocessOutousSideEffects(TestCase):
+class TestStorePreprocessOutputSideEffects(TestCase):
     # Just one step. We'll assume that for the others is the same
     step = PreProcessSteps.tokenization
 
