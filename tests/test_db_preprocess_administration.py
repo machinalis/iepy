@@ -53,8 +53,8 @@ class TestDocumentsPreprocessMetadata(TestCase):
         segments = [7, 3, 0]
         step = PreProcessSteps.segmentation
         self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        # also must be strictly ascending
         segments = [0, 0, 3]
-        # must be strictly ascending
         self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
         self.assertFalse(doc.was_preprocess_done(step))
 
