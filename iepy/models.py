@@ -75,6 +75,17 @@ class IEDocument(DynamicDocument):
         """
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
+        if step == PreProcessSteps.segmentation:
+            if filter(lambda x: not isinstance(x, int), result):
+                raise ValueError('Segmentation result shall only contain ints')
+            if sorted(result) != result:
+                raise ValueError('Segmentation result shall be ordered.')
+            if len(set(result)) < len(result):
+                raise ValueError(
+                    'Segmentation result shall not contain duplicates.')
+            if result[-1] >= len(self.tokens):
+                raise ValueError(
+                    'Segmentation result be offsets of tokens.')
 
         field_name = self.preprocess_fields_mapping[step]
         setattr(self, field_name, result)
