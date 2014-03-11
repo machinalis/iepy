@@ -76,7 +76,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
 
-class TestStorePreprocessOutousSideEffects(TestCase):
+class TestStorePreprocessOutputSideEffects(TestCase):
     # Just one step. We'll assume that for the others is the same
     step = PreProcessSteps.tokenization
 
@@ -123,9 +123,27 @@ class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
         doc1 = IEDocFactory(text='').save()
         doc2 = IEDocFactory(text='something').save()
         doc3 = IEDocFactory(text='something nice').save()
+        doc4 = IEDocFactory(text='').save()
         step = PreProcessSteps.tokenization
         doc3.set_preprocess_result(step, doc3.text.split()).save()
+        doc4.set_preprocess_result(step, []).save()
         untokeneds = self.manager.get_documents_lacking_preprocess(step)
         self.assertIn(doc1, untokeneds)
         self.assertIn(doc2, untokeneds)
         self.assertNotIn(doc3, untokeneds)
+        self.assertNotIn(doc4, untokeneds)
+
+    def test_unsegmented_documents_are_filtered(self):
+        doc1 = IEDocFactory(text='something nice').save()
+        doc2 = IEDocFactory(text='something nicer').save()
+        doc3 = IEDocFactory(text='something event nicer').save()
+        tkn = PreProcessSteps.tokenization
+        doc2.set_preprocess_result(tkn, doc2.text.split()).save()
+        doc3.set_preprocess_result(tkn, doc3.text.split()).save()
+        step = PreProcessSteps.segmentation
+        doc3.set_preprocess_result(step, [0]).save()
+        unsegmented = self.manager.get_documents_lacking_preprocess(step)
+        self.assertIn(doc1, unsegmented)
+        self.assertIn(doc2, unsegmented)
+        self.assertNotIn(doc3, unsegmented)
+
