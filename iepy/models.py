@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from enum import Enum
-from mongoengine import DynamicDocument, fields
+from mongoengine import DynamicDocument, EmbeddedDocument, fields
 
 
 class PreProcessSteps(Enum):
@@ -23,23 +23,36 @@ ENTITY_KINDS = (
 
 
 class Entity(DynamicDocument):
-    string = fields.StringField()
+    canonical_form = fields.StringField()
     kind = fields.StringField(choices=ENTITY_KINDS)
 
     def __unicode__(self):
         return u'%s (%s)' % (self.string, self.kind)
 
 
+class EntityOccurrence(EmbeddedDocument):
+    entity_reference = fields.ReferenceField('Entity', required=True)
+    offset = fields.IntField(required=True)  # Offset in tokens wrt to document
+    alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
+
+
+class EntityInChunk(EmbeddedDocument):
+    canonical_form = fields.StringField(required=True)
+    kind = fields.StringField(choices=ENTITY_KINDS, required=True)
+    offset = fields.IntField(required=True)  # Offset in tokens wrt to chunk
+    alias = fields.StringField() # Alias used in 
+
+
 class TextChunk(DynamicDocument):
     document = fields.ReferenceField('IEDocument', required=True)
     text = fields.StringField(required=True)
+    offset = fields.IntField()  # Offset in tokens wrt document
 
+    # The following lists have the same length, correspond 1-to-1
     tokens = fields.ListField(fields.StringField())
-    sentences = fields.ListField(fields.IntField())  # not sure what it's in here
     postags = fields.ListField(fields.StringField())
 
-    # Maybe this field needs to be de-normalized
-    entities = fields.ListField(fields.ReferenceField('Entity'))
+    entities = fields.ListField(fields.EmbeddedDocumentField(EntityInChunk))
 
 
 class IEDocument(DynamicDocument):
@@ -56,7 +69,7 @@ class IEDocument(DynamicDocument):
     tokens = fields.ListField(fields.StringField())
     sentences = fields.ListField(fields.IntField())  # it's a list of token-offsets
     postags = fields.ListField(fields.StringField())
-    entities = fields.ListField(fields.ReferenceField('Entity'))
+    entities = fields.ListField(fields.EmbeddedDocumentField(EntityOccurrence))
     meta = {'collection': 'iedocuments'}
 
     # Mapping of preprocess steps and fields where the result is stored.
