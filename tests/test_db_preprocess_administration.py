@@ -67,13 +67,23 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertTrue(doc.was_preprocess_done(step))
         self.assertEqual(doc.get_preprocess_result(step), simple_segments)
 
+    def test_cannot_set_tagging_result_of_different_cardinality_than_tokens(self):
+        doc = IEDocFactory(text='Some sentence')
+        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        step = PreProcessSteps.tagging
+        for tags in [['NN'], ['NN', 'POS', 'VB']]:
+            self.assertRaises(ValueError, doc.set_preprocess_result, step, tags)
+            self.assertFalse(doc.was_preprocess_done(step))
+
     def test_setting_tagging_result_can_be_later_retrieved(self):
         doc = IEDocFactory(text='Some sentence. And some other. Indeed!')
-        pathetic_tags = ['NN' for token in doc.text.split()]
+        tokens = doc.text.split()
+        doc.set_preprocess_result(PreProcessSteps.tokenization, tokens)
+        simeple_tags = ['NN' for token in tokens]
         step = PreProcessSteps.tagging
-        doc.set_preprocess_result(step, pathetic_tags)
+        doc.set_preprocess_result(step, simeple_tags)
         self.assertTrue(doc.was_preprocess_done(step))
-        self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
+        self.assertEqual(doc.get_preprocess_result(step), simeple_tags)
 
 
 class TestStorePreprocessOutputSideEffects(TestCase):

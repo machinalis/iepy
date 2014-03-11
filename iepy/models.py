@@ -86,6 +86,10 @@ class IEDocument(DynamicDocument):
             if result[-1] >= len(self.tokens):
                 raise ValueError(
                     'Segmentation result be offsets of tokens.')
+        elif step == PreProcessSteps.tagging:
+            if len(result) != len(self.tokens):
+                raise ValueError(
+                    'Tagging result must have same cardinality than tokens')
 
         field_name = self.preprocess_fields_mapping[step]
         setattr(self, field_name, result)
