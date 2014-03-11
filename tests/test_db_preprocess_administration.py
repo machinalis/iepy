@@ -26,19 +26,46 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_setting_tokenization_result_can_be_later_retrieved(self):
         doc = IEDocFactory()
-        pathetic_tkns = doc.text.split()
+        simple_tokens = doc.text.split()
         step = PreProcessSteps.tokenization
-        doc.set_preprocess_result(step, pathetic_tkns)
+        doc.set_preprocess_result(step, simple_tokens)
         self.assertTrue(doc.was_preprocess_done(step))
-        self.assertEqual(doc.get_preprocess_result(step), pathetic_tkns)
+        self.assertEqual(doc.get_preprocess_result(step), simple_tokens)
+
+    def test_cannot_set_segmentation_if_not_tokenization_stored(self):
+        doc = IEDocFactory(text='Some sentence.')
+        segments = [0]
+        step = PreProcessSteps.segmentation
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        self.assertFalse(doc.was_preprocess_done(step))
+
+    def test_cannot_set_segmentation_larger_than_tokens(self):
+        # segmentation numers must be valid indexes of tokens list
+        doc = IEDocFactory(text='Some sentence.')
+        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        segments = [35]
+        step = PreProcessSteps.segmentation
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        self.assertFalse(doc.was_preprocess_done(step))
+
+    def test_segmentation_result_must_be_order_list_of_numbers(self):
+        doc = IEDocFactory(text='Some sentence . And some other . Indeed!')
+        segments = [7, 3, 0]
+        step = PreProcessSteps.segmentation
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        # also must be strictly ascending
+        segments = [0, 0, 3]
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        self.assertFalse(doc.was_preprocess_done(step))
 
     def test_setting_segmentation_result_can_be_later_retrieved(self):
-        doc = IEDocFactory(text='Some sentence. And some other. Indeed!')
-        pathetic_segments = map(lambda s: s.strip(), doc.text.split('.'))
+        doc = IEDocFactory(text='Some sentence . And some other . Indeed!')
+        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        simple_segments = [0, 3, 7]
         step = PreProcessSteps.segmentation
-        doc.set_preprocess_result(step, pathetic_segments)
+        doc.set_preprocess_result(step, simple_segments)
         self.assertTrue(doc.was_preprocess_done(step))
-        self.assertEqual(doc.get_preprocess_result(step), pathetic_segments)
+        self.assertEqual(doc.get_preprocess_result(step), simple_segments)
 
     def test_setting_tagging_result_can_be_later_retrieved(self):
         doc = IEDocFactory(text='Some sentence. And some other. Indeed!')
@@ -49,7 +76,8 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertEqual(doc.get_preprocess_result(step), pathetic_tags)
 
 
-class TestStorePreprocessStepsLateralEffects(TestCase):
+class TestStorePreprocessOutousSideEffects(TestCase):
+    # Just one step. We'll assume that for the others is the same
     step = PreProcessSteps.tokenization
 
     def test_if_step_is_not_preprocessstep_error_is_raised(self):
