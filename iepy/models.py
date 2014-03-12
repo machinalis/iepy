@@ -76,7 +76,6 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
 
 
 class Entity(DynamicDocument):
-    key = 
     canonical_form = fields.StringField()
     kind = fields.StringField(choices=ENTITY_KINDS)
 
@@ -114,7 +113,9 @@ class TextChunk(DynamicDocument):
         Build a chunk based in the given documents, using the tokens in the
         range [token_offset:token_offset_end] (note that this has the usual
         python-range semantics)
-        
+
+        use the given text as reference (it should be a human readable
+        representation of the chunk
         """
         # FIXME: is it possible to not need the text? perhaps having the
         # token character offsets
