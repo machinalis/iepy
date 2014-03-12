@@ -1,6 +1,6 @@
-#from datetime import datetime
 import logging
 import factory
+import nltk
 
 from iepy.models import IEDocument, Entity, PreProcessSteps
 
@@ -32,16 +32,13 @@ class SegmentedIEDocFactory(factory.Factory):
     
     @factory.post_generation
     def init(self, create, extracted, **kwargs):
-        tokens = ['Lorem', 'ipsum', '.', 'Yaba', 'daba', 'du', '!', '%i']
-        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
-        sentences = [0, 3, 7, 8]
+        tokens = []
+        sentences = [0]
+        for sent in nltk.sent_tokenize(self.text):
+            sent_tokens = nltk.word_tokenize(sent)
+            tokens.extend(sent_tokens)            
+            sentences.append(sentences[-1] + len(sent_tokens))
+            
+        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)        
         self.set_preprocess_result(PreProcessSteps.segmentation, sentences)
-        
-    #tokens = factory.Sequence(lambda n: ['Lorem', 'ipsum', '.', 'Yaba', 'daba', 
-    #                                                    'du', '!', '%i' % n])
-    #sentences = [0, 3, 7, 8]
-    #preprocess_metadata = { 
-    #    PreProcessSteps.tokenization.name: { 'done_at': datetime.now() },
-    #    PreProcessSteps.segmentation.name: { 'done_at': datetime.now() },
-    #}
 
