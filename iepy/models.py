@@ -41,9 +41,11 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
         raise ValueError("lo must not be negative")
     if xl > xr:
         raise ValueError("This function requires xl <= xr ")
+    # Special case: empty range:
+    if lo == hi:
+        return lo, hi
     # Reduce range for both left and right endpoints
     while lo < hi:
-        print "global bisect %d:%d" % (lo, hi)
         mid = (lo+hi) // 2
         v = key(a[mid])
         if xl <= v and xr <= v:
@@ -57,7 +59,6 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     rlo, rhi = mid, hi
     # Find left bisection point
     while llo < lhi:
-        print "bisect left %d:%d" % (llo, lhi)
         mid = (llo+lhi) // 2
         if key(a[mid]) < xl:
             llo = mid+1
@@ -65,7 +66,6 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
             lhi = mid
     # Find right bisection point
     while rlo < rhi:
-        print "bisect right %d:%d" % (rlo, rhi)
         mid = (rlo+rhi) // 2
         if xr <= key(a[mid]):
             rhi = mid
@@ -76,7 +76,8 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
 
 
 class Entity(DynamicDocument):
-    canonical_form = fields.StringField()
+    key = fields.StringField(required=True, unique=True)
+    canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS)
 
     def __unicode__(self):
@@ -84,12 +85,13 @@ class Entity(DynamicDocument):
 
 
 class EntityOccurrence(EmbeddedDocument):
-    entity_reference = fields.ReferenceField('Entity', required=True)
+    entity = fields.ReferenceField('Entity', required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
 
 
 class EntityInChunk(EmbeddedDocument):
+    key = fields.StringField(required=True)
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to chunk
@@ -132,9 +134,10 @@ class TextChunk(DynamicDocument):
         entities = []
         for o in document.entities[l:r]:
             entities.append(EntityInChunk(
-                canonical_form=o.entity_reference.canonical_form,
-                kind=o.entity_reference.kind,
-                offset=o.offset - l,
+                key=o.entity.key,
+                canonical_form=o.entity.canonical_form,
+                kind=o.entity.kind,
+                offset=o.offset - token_offset,
                 alias=o.alias,
             ))
         self.entities = entities
@@ -158,6 +161,7 @@ class IEDocument(DynamicDocument):
     postags = fields.ListField(fields.StringField())
 
     sentences = fields.ListField(fields.IntField())  # it's a list of token-offsets
+    # Occurrences of entites, sorted by offset
     entities = fields.ListField(fields.EmbeddedDocumentField(EntityOccurrence))
     meta = {'collection': 'iedocuments'}
 
