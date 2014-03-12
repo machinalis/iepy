@@ -71,7 +71,7 @@ class IEDocument(DynamicDocument):
 
     def set_preprocess_result(self, step, result):
         """Set the result in the internal representation.
-        Explicit save mus be triggered after this call.
+        Explicit save must be triggered after this call.
         """
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
@@ -83,9 +83,9 @@ class IEDocument(DynamicDocument):
             if len(set(result)) < len(result):
                 raise ValueError(
                     'Segmentation result shall not contain duplicates.')
-            if result[-1] >= len(self.tokens):
+            if result[0] != 0 or result[-1] != len(self.tokens):
                 raise ValueError(
-                    'Segmentation result be offsets of tokens.')
+                    'Segmentation result must be offsets of tokens.')
         elif step == PreProcessSteps.tagging:
             if len(result) != len(self.tokens):
                 raise ValueError(
@@ -96,7 +96,7 @@ class IEDocument(DynamicDocument):
         self.preprocess_metadata[step.name] = {
             'done_at': datetime.now(),
         }
-        return self  # So it's easily chaninable with a .save() if desired
+        return self  # So it's easily chainable with a .save() if desired
 
     def get_preprocess_result(self, step):
         """Returns the stored result for the asked preprocess step.
@@ -106,3 +106,4 @@ class IEDocument(DynamicDocument):
         else:
             field_name = self.preprocess_fields_mapping[step]
             return getattr(self, field_name)
+
