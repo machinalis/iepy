@@ -48,8 +48,8 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
         self.assertFalse(doc.was_preprocess_done(step))
 
-    def test_segmentation_result_must_be_order_list_of_numbers(self):
-        doc = IEDocFactory(text='Some sentence . And some other . Indeed!')
+    def test_segmentation_result_must_be_ordered_list_of_numbers(self):
+        doc = IEDocFactory(text='Some sentence . And some other . Indeed !')
         segments = [7, 3, 0]
         step = PreProcessSteps.segmentation
         self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
@@ -59,9 +59,9 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertFalse(doc.was_preprocess_done(step))
 
     def test_setting_segmentation_result_can_be_later_retrieved(self):
-        doc = IEDocFactory(text='Some sentence . And some other . Indeed!')
+        doc = IEDocFactory(text='Some sentence . And some other . Indeed !')
         doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
-        simple_segments = [0, 3, 7]
+        simple_segments = [0, 3, 7, 9]
         step = PreProcessSteps.segmentation
         doc.set_preprocess_result(step, simple_segments)
         self.assertTrue(doc.was_preprocess_done(step))
@@ -76,7 +76,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
             self.assertFalse(doc.was_preprocess_done(step))
 
     def test_setting_tagging_result_can_be_later_retrieved(self):
-        doc = IEDocFactory(text='Some sentence. And some other. Indeed!')
+        doc = IEDocFactory(text='Some sentence. And some other. Indeed !')
         tokens = doc.text.split()
         doc.set_preprocess_result(PreProcessSteps.tokenization, tokens)
         simeple_tags = ['NN' for token in tokens]
@@ -146,12 +146,12 @@ class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
     def test_unsegmented_documents_are_filtered(self):
         doc1 = IEDocFactory(text='something nice').save()
         doc2 = IEDocFactory(text='something nicer').save()
-        doc3 = IEDocFactory(text='something event nicer').save()
+        doc3 = IEDocFactory(text='something even nicer').save()
         tkn = PreProcessSteps.tokenization
         doc2.set_preprocess_result(tkn, doc2.text.split()).save()
         doc3.set_preprocess_result(tkn, doc3.text.split()).save()
         step = PreProcessSteps.segmentation
-        doc3.set_preprocess_result(step, [0]).save()
+        doc3.set_preprocess_result(step, [0, 3]).save()
         unsegmented = self.manager.get_documents_lacking_preprocess(step)
         self.assertIn(doc1, unsegmented)
         self.assertIn(doc2, unsegmented)
