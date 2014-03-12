@@ -4,7 +4,7 @@ from iepy.models import IEDocument, PreProcessSteps, InvalidPreprocessSteps
 
 
 def connect(db_name):
-    mongoconnect(self.db_name)
+    mongoconnect(db_name)
 
 class DocumentManager(object):
 

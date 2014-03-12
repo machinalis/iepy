@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from mongoengine.connection import get_connection, disconnect
 
-from iepy.db import DocumentManager
+from iepy.db import DocumentManager, connect
 
 
 class DocumentManagerTestCase(TestCase):
@@ -14,7 +14,8 @@ class DocumentManagerTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         disconnect()
-        cls.manager = DocumentManager(cls.mongodb_name)
+        connect(cls.mongodb_name)
+        cls.manager = DocumentManager()
 
     def setUp(self):
         from mongoengine.connection import get_db
