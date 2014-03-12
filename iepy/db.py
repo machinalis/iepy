@@ -3,14 +3,10 @@ from mongoengine import connect as mongoconnect
 from iepy.models import IEDocument, PreProcessSteps, InvalidPreprocessSteps
 
 
+def connect(db_name):
+    mongoconnect(db_name)
+
 class DocumentManager(object):
-
-    def __init__(self, db_name):
-        self.db_name = db_name
-        self.connect()
-
-    def connect(self):
-        mongoconnect(self.db_name)
 
     ### Basic administration and pre-process
 
@@ -61,3 +57,7 @@ class DocumentManager(object):
         co-exist.
         """
         pass
+
+class TextChunkManager(object):
+    pass
+
