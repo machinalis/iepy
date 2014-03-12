@@ -55,8 +55,6 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
             break
     llo, lhi = lo, mid
     rlo, rhi = mid, hi
-    assert lo <= llo <= lhi <= hi
-    assert lo <= rlo <= rhi <= hi
     # Find left bisection point
     while llo < lhi:
         print "bisect left %d:%d" % (llo, lhi)
@@ -69,7 +67,7 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     while rlo < rhi:
         print "bisect right %d:%d" % (rlo, rhi)
         mid = (rlo+rhi) // 2
-        if xr < key(a[mid]):
+        if xr <= key(a[mid]):
             rhi = mid
         else:
             rlo = mid+1
@@ -78,6 +76,7 @@ def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
 
 
 class Entity(DynamicDocument):
+    key = 
     canonical_form = fields.StringField()
     kind = fields.StringField(choices=ENTITY_KINDS)
 
@@ -111,6 +110,12 @@ class TextChunk(DynamicDocument):
 
     @classmethod
     def build(cls, document, token_offset, token_offset_end, text):
+        """
+        Build a chunk based in the given documents, using the tokens in the
+        range [token_offset:token_offset_end] (note that this has the usual
+        python-range semantics)
+        
+        """
         # FIXME: is it possible to not need the text? perhaps having the
         # token character offsets
         self = cls()
@@ -119,9 +124,20 @@ class TextChunk(DynamicDocument):
         self.offset = token_offset
         self.tokens = document.tokens[token_offset:token_offset_end]
         self.postags = document.postags[token_offset:token_offset_end]
-        entities_l = bisect.bisect_left(document.entities,)
+        l, r = interval_offsets(
+            document.entities,
+            token_offset, token_offset_end,
+            key=lambda occ:occ.offset)
+        entities = []
+        for o in document.entities[l:r]:
+            entities.append(EntityInChunk(
+                canonical_form=o.entity_reference.canonical_form,
+                kind=o.entity_reference.kind,
+                offset=o.offset - l,
+                alias=o.alias,
+            ))
+        self.entities = entities
         return self
-        
 
 class IEDocument(DynamicDocument):
     human_identifier = fields.StringField(required=True, unique=True)
