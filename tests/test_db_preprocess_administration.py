@@ -3,7 +3,7 @@ import mock
 
 from documentmanager_case import DocumentManagerTestCase
 from iepy.models import PreProcessSteps, InvalidPreprocessSteps
-from factories import IEDocFactory
+from factories import IEDocFactory, SegmentedIEDocFactory
 from timelapse import timekeeper
 
 
@@ -156,4 +156,20 @@ class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
         self.assertIn(doc1, unsegmented)
         self.assertIn(doc2, unsegmented)
         self.assertNotIn(doc3, unsegmented)
+
+
+class TestDocumentSentenceIterator(TestCase):
+    
+    def test_right_number_of_sentences_are_returned(self):
+        doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        segmentation = doc.get_preprocess_result(PreProcessSteps.segmentation)
+        sentences = [s for s in doc.get_sentences()]
+        self.assertEqual(len(segmentation)-1, len(sentences))
+        
+    def test_tokens_are_preserved(self):
+        doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
+        sentences = [s for s in doc.get_sentences()]
+        output_tokens = sum(sentences, [])
+        self.assertEqual(tokens, output_tokens)
 

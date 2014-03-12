@@ -213,3 +213,13 @@ class IEDocument(DynamicDocument):
             field_name = self.preprocess_fields_mapping[step]
             return getattr(self, field_name)
 
+    def get_sentences(self):
+        """Iterator over the sentences, each sentence being a list of tokens.
+        """
+        tokens = self.tokens
+        sentences = self.sentences
+        start = 0
+        for i, end in enumerate(sentences[1:]):
+            yield tokens[start:end]
+            start = end
+
