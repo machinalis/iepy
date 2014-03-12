@@ -62,7 +62,7 @@ class IEDocument(DynamicDocument):
     # Mapping of preprocess steps and fields where the result is stored.
     preprocess_fields_mapping = {
         PreProcessSteps.tokenization: 'tokens',
-        PreProcessSteps.segmentation: 'segments',
+        PreProcessSteps.segmentation: 'sentences',
         PreProcessSteps.tagging: 'postags',
     }
 
