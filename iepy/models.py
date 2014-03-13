@@ -222,4 +222,3 @@ class IEDocument(DynamicDocument):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
-
