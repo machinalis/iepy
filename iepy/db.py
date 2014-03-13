@@ -67,3 +67,6 @@ class TextChunkManager(object):
         key_a, key_b = entity_a.key, entity_b.key
         return TextChunk.objects(entities__key=key_a)(entities__key=key_b)
 
+    def chunks_with_both_kinds(self, kind_a, kind_b):
+        return TextChunk.objects(entities__kind=kind_a)(entities__kind=kind_b)
+

@@ -182,13 +182,14 @@ class TestChunkFilters(ManagerTestCase):
 
     ManagerClass = TextChunkManager
 
-    def test_both_entities(self):
+    def setUp(self):
+        super(TestChunkFilters, self).setUp()
         d = IEDocFactory()
         d.save()
         # Build 3 chunks, referring to 2 entities:
         #  * chunk 1 refers to A
         #  * chunk 2 refers to A+B
-        #  * chunk 3 refers to B
+        #  * chunk 3 refers to B, twice
 
         c1 = TextChunkFactory(document=d)
         c1.entities.append(EntityInChunk(
@@ -200,18 +201,38 @@ class TestChunkFilters(ManagerTestCase):
             key="A", canonical_form="Entity1", kind="person", offset=1
         ))
         c2.entities.append(EntityInChunk(
-            key="B", canonical_form="Entity2", kind="person", offset=1
+            key="B", canonical_form="Entity2", kind="location", offset=1
         ))
         c2.save()
         c3 = TextChunkFactory(document=d)
         c3.entities.append(EntityInChunk(
-            key="B", canonical_form="Entity1", kind="person", offset=1
+            key="B", canonical_form="Entity2", kind="location", offset=1
+        ))
+        c3.entities.append(EntityInChunk(
+            key="B", canonical_form="Entity2", kind="location", offset=2
         ))
         c3.save()
+        self.c1, self.c2, self.c3 = c1, c2, c3
+
+    def test_both_entities(self):
         # Request for entities A and B, only chunk2 should be returned
         ea = Entity(key="A")
         eb = Entity(key="B")
         chunks = self.manager.chunks_with_both_entities(ea, eb)
         self.assertEqual(len(chunks), 1)
-        self.assertEqual(chunks[0], c2)
+        self.assertEqual(chunks[0], self.c2)
+
+    def test_both_kinds(self):
+        # Request for kinds person+location, only chunk2 should be returned
+        chunks = self.manager.chunks_with_both_kinds("person", "location")
+        self.assertEqual(len(chunks), 1)
+        self.assertEqual(chunks[0], self.c2)
+
+    def test_both_kinds(self):
+        # Request for kinds location+location. Only chunk3 should be returned
+        # because it has 2 locations. chunk2 has a single location, so it is
+        # not valid
+        chunks = self.manager.chunks_with_both_kinds("location", "location")
+        self.assertEqual(len(chunks), 1)
+        self.assertEqual(chunks[0], self.c3)
 
