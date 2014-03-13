@@ -1,6 +1,7 @@
 from mongoengine import connect as mongoconnect
 
-from iepy.models import IEDocument, PreProcessSteps, InvalidPreprocessSteps
+from iepy.models import (IEDocument, PreProcessSteps, InvalidPreprocessSteps,
+    TextChunk)
 
 
 def connect(db_name):
@@ -59,5 +60,8 @@ class DocumentManager(object):
         pass
 
 class TextChunkManager(object):
-    pass
+
+    def chunks_with_both_entities(self, entity_a, entity_b):
+        key_a, key_b = entity_a.key, entity_b.key
+        return TextChunk.objects(entities__key=key_a)(entities__key=key_b)
 
