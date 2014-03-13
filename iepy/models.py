@@ -22,7 +22,7 @@ ENTITY_KINDS = (
     ('organization', u'Organization')
 )
 
-def interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
+def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     """
        
     Returns a pair (l,r) that satisfies:
@@ -127,7 +127,7 @@ class TextChunk(DynamicDocument):
         self.offset = token_offset
         self.tokens = document.tokens[token_offset:token_offset_end]
         self.postags = document.postags[token_offset:token_offset_end]
-        l, r = interval_offsets(
+        l, r = _interval_offsets(
             document.entities,
             token_offset, token_offset_end,
             key=lambda occ:occ.offset)
