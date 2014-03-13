@@ -2,12 +2,28 @@ import logging
 import factory
 import nltk
 
-from iepy.models import IEDocument, Entity, PreProcessSteps
+from iepy.models import (IEDocument, Entity, PreProcessSteps, EntityInChunk,
+    TextChunk)
 
 
 # In general, we are not interested on the debug and info messages
 # of Factory-Boy itself
 logging.getLogger("factory").setLevel(logging.WARN)
+
+
+class EntityFactory(factory.Factory):
+    FACTORY_FOR = Entity
+    key = factory.Sequence(lambda n: 'id:%i' % n)
+    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
+    kind = 'person'
+
+
+class EntityInChunkFactory(factory.Factory):
+    FACTORY_FOR = EntityInChunk
+    key = factory.Sequence(lambda n: 'id:%i' % n)
+    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
+    kind = 'person'
+    offset = 0
 
 
 class IEDocFactory(factory.Factory):
@@ -17,11 +33,14 @@ class IEDocFactory(factory.Factory):
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
-class EntityFactory(factory.Factory):
-    FACTORY_FOR = Entity
-    key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
+class TextChunkFactory(factory.Factory):
+    FACTORY_FOR = TextChunk
+    document = factory.SubFactory(IEDocFactory)
+    text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
+    offset = factory.Sequence(lambda n: n*3)
+    tokens = ['lorem', 'ipsum', 'dolor']
+    postags = ['NN', 'NN', 'V']
+    entities = []
 
 
 class SegmentedIEDocFactory(factory.Factory):
