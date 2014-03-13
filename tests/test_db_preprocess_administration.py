@@ -1,9 +1,11 @@
 from unittest import TestCase
 import mock
 
-from documentmanager_case import DocumentManagerTestCase
-from iepy.models import PreProcessSteps, InvalidPreprocessSteps
-from factories import IEDocFactory, SegmentedIEDocFactory
+from manager_case import ManagerTestCase
+from iepy.db import DocumentManager, TextChunkManager
+from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
+    EntityInChunk, Entity)
+from factories import IEDocFactory, SegmentedIEDocFactory, TextChunkFactory
 from timelapse import timekeeper
 
 
@@ -120,7 +122,9 @@ class TestStorePreprocessOutputSideEffects(TestCase):
         interval.assertHasDate(mdata['done_at'])
 
 
-class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
+class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
+
+    ManagerClass = DocumentManager
 
     def test_raw_documents_are_filtered(self):
         doc1 = IEDocFactory(text='').save()
@@ -159,17 +163,55 @@ class TestDocumentManagerFiltersForPreprocess(DocumentManagerTestCase):
 
 
 class TestDocumentSentenceIterator(TestCase):
-    
+
     def test_right_number_of_sentences_are_returned(self):
         doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
         segmentation = doc.get_preprocess_result(PreProcessSteps.segmentation)
         sentences = [s for s in doc.get_sentences()]
-        self.assertEqual(len(segmentation)-1, len(sentences))
-        
+        self.assertEqual(len(segmentation) - 1, len(sentences))
+
     def test_tokens_are_preserved(self):
         doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
         tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
         sentences = [s for s in doc.get_sentences()]
         output_tokens = sum(sentences, [])
         self.assertEqual(tokens, output_tokens)
+
+
+class TestChunkFilters(ManagerTestCase):
+
+    ManagerClass = TextChunkManager
+
+    def test_both_entities(self):
+        d = IEDocFactory()
+        d.save()
+        # Build 3 chunks, referring to 2 entities:
+        #  * chunk 1 refers to A
+        #  * chunk 2 refers to A+B
+        #  * chunk 3 refers to B
+
+        c1 = TextChunkFactory(document=d)
+        c1.entities.append(EntityInChunk(
+            key="A", canonical_form="Entity1", kind="person", offset=1
+        ))
+        c1.save()
+        c2 = TextChunkFactory(document=d)
+        c2.entities.append(EntityInChunk(
+            key="A", canonical_form="Entity1", kind="person", offset=1
+        ))
+        c2.entities.append(EntityInChunk(
+            key="B", canonical_form="Entity2", kind="person", offset=1
+        ))
+        c2.save()
+        c3 = TextChunkFactory(document=d)
+        c3.entities.append(EntityInChunk(
+            key="B", canonical_form="Entity1", kind="person", offset=1
+        ))
+        c3.save()
+        # Request for entities A and B, only chunk2 should be returned
+        ea = Entity(key="A")
+        eb = Entity(key="B")
+        chunks = self.manager.chunks_with_both_entities(ea, eb)
+        self.assertEqual(len(chunks), 1)
+        self.assertEqual(chunks[0], c2)
 

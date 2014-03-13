@@ -3,6 +3,7 @@ import unittest
 from .factories import IEDocFactory, EntityFactory
 from iepy.models import TextChunk, EntityOccurrence
 
+
 class TextChunkTest(unittest.TestCase):
 
     def setUp(self):
@@ -50,13 +51,13 @@ class TextChunkTest(unittest.TestCase):
         self.assertEqual(e.key, e2.key)
         self.assertEqual(e.canonical_form, e2.canonical_form)
         self.assertEqual(e.kind, e2.kind)
-        self.assertEqual(e.offset, 3-2)
+        self.assertEqual(e.offset, 3 - 2)
         self.assertEqual(e.alias, "D")
         # Check second and last one
         e = c.entities[1]
         self.assertEqual(e.key, e1.key)
         self.assertEqual(e.canonical_form, e1.canonical_form)
         self.assertEqual(e.kind, e1.kind)
-        self.assertEqual(e.offset, 4-2)
+        self.assertEqual(e.offset, 4 - 2)
         self.assertEqual(e.alias, "E")
 
