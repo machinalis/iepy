@@ -4,7 +4,7 @@ import mock
 from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextChunkManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
-    EntityInChunk, Entity)
+                         EntityInChunk, Entity)
 from factories import IEDocFactory, SegmentedIEDocFactory, TextChunkFactory
 from timelapse import timekeeper
 
@@ -126,6 +126,13 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
 
     ManagerClass = DocumentManager
 
+    def test_manager_itself_iterates_over_all_documents(self):
+        doc1 = IEDocFactory(text='').save()
+        doc2 = IEDocFactory(text='something').save()
+        doc3 = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!').save()
+        self.assertIn(doc1, self.manager)
+
+
     def test_raw_documents_are_filtered(self):
         doc1 = IEDocFactory(text='').save()
         doc2 = IEDocFactory(text='something').save()
@@ -235,4 +242,3 @@ class TestChunkFilters(ManagerTestCase):
         chunks = self.manager.chunks_with_both_kinds("location", "location")
         self.assertEqual(len(chunks), 1)
         self.assertEqual(chunks[0], self.c3)
-

@@ -43,10 +43,8 @@ class TextChunkFactory(factory.Factory):
     entities = []
 
 
-class SegmentedIEDocFactory(factory.Factory):
+class SegmentedIEDocFactory(IEDocFactory):
     FACTORY_FOR = IEDocument
-    human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
-    title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum. Yaba daba du! %i' % n)
 
     @factory.post_generation
@@ -60,4 +58,3 @@ class SegmentedIEDocFactory(factory.Factory):
 
         self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
         self.set_preprocess_result(PreProcessSteps.segmentation, sentences)
-

@@ -10,6 +10,10 @@ def connect(db_name):
 
 
 class DocumentManager(object):
+    """Wrapper to the db-access, so it's not that impossible to switch
+    from mongodb to something else if needed.
+    Most (if not all) the methods here could be implemented
+    """
 
     ### Basic administration and pre-process
 
@@ -30,6 +34,9 @@ class DocumentManager(object):
         doc = IEDocument(human_identifier=identifier, text=text, metadata=metadata)
         doc.save()
         return doc
+
+    def __iter__(self):
+        return IEDocument.objects
 
     def get_raw_documents(self):
         """returns an interator of documents that lack the text field, or it's
@@ -89,4 +96,3 @@ class TextChunkManager(object):
             objects = db.text_chunk.aggregate(pipeline)
             chunks = TextChunk.objects.in_bulk([c['id'] for c in objects[u'result']]).values()
             return chunks
-
