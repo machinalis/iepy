@@ -4,7 +4,7 @@ import mock
 from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextChunkManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
-    EntityInChunk, Entity)
+                         EntityInChunk, Entity)
 from factories import IEDocFactory, SegmentedIEDocFactory, TextChunkFactory
 from timelapse import timekeeper
 
