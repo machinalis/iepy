@@ -1,7 +1,7 @@
 from unittest import TestCase
 import mock
 
-from documentmanager_case import ManagerTestCase
+from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextChunkManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
     EntityInChunk, Entity)
