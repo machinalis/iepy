@@ -20,7 +20,7 @@ class PreProcessPipeline(object):
 
     def walk_document(self, doc):
         """Computes all the missing pre-process steps for the given document"""
-        for step in self.step_runners():
+        for step in self.step_runners:
             step(doc)
         return
 
@@ -42,11 +42,8 @@ class PreProcessPipeline(object):
 
 
 class BasePreProcessStepRunner(object):
-
-    def __init__(self, step):
-        if not isinstance(step, PreProcessSteps):
-            raise ValueError()
-        self.step = step
+    # If it's for a particular step, you can write
+    # step = PreProcessSteps.something
 
     def __call__(self, doc):
         # You'll have to:
@@ -57,5 +54,3 @@ class BasePreProcessStepRunner(object):
         #    - raise?
         # - store pre process results on the document
         raise NotImplementedError
-
-
