@@ -37,7 +37,7 @@ class TextChunkFactory(factory.Factory):
     FACTORY_FOR = TextChunk
     document = factory.SubFactory(IEDocFactory)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
-    offset = factory.Sequence(lambda n: n*3)
+    offset = factory.Sequence(lambda n: n * 3)
     tokens = ['lorem', 'ipsum', 'dolor']
     postags = ['NN', 'NN', 'V']
     entities = []
@@ -48,16 +48,16 @@ class SegmentedIEDocFactory(factory.Factory):
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
     title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum. Yaba daba du! %i' % n)
-    
+
     @factory.post_generation
     def init(self, create, extracted, **kwargs):
         tokens = []
         sentences = [0]
         for sent in nltk.sent_tokenize(self.text):
             sent_tokens = nltk.word_tokenize(sent)
-            tokens.extend(sent_tokens)            
+            tokens.extend(sent_tokens)
             sentences.append(sentences[-1] + len(sent_tokens))
-            
-        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)        
+
+        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
         self.set_preprocess_result(PreProcessSteps.segmentation, sentences)
 

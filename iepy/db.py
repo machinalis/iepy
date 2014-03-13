@@ -7,6 +7,7 @@ from iepy.models import (IEDocument, PreProcessSteps, InvalidPreprocessSteps,
 def connect(db_name):
     mongoconnect(db_name)
 
+
 class DocumentManager(object):
 
     ### Basic administration and pre-process
@@ -20,7 +21,7 @@ class DocumentManager(object):
         one document from another. If no title is given, will be inferred from
         the identifier.
         Metadata is a dictionary where you can put whaever you want to persist
-        with your document. IEPy will do nothing with it except guarranting that
+        with your document. IEPy will do nothing with it except ensuring that
         such information will be preserved.
         """
         if metadata is None:
@@ -58,6 +59,7 @@ class DocumentManager(object):
         co-exist.
         """
         pass
+
 
 class TextChunkManager(object):
 

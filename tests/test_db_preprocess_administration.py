@@ -163,13 +163,13 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
 
 
 class TestDocumentSentenceIterator(TestCase):
-    
+
     def test_right_number_of_sentences_are_returned(self):
         doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
         segmentation = doc.get_preprocess_result(PreProcessSteps.segmentation)
         sentences = [s for s in doc.get_sentences()]
-        self.assertEqual(len(segmentation)-1, len(sentences))
-        
+        self.assertEqual(len(segmentation) - 1, len(sentences))
+
     def test_tokens_are_preserved(self):
         doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
         tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
@@ -189,7 +189,7 @@ class TestChunkFilters(ManagerTestCase):
         #  * chunk 1 refers to A
         #  * chunk 2 refers to A+B
         #  * chunk 3 refers to B
-        
+
         c1 = TextChunkFactory(document=d)
         c1.entities.append(EntityInChunk(
             key="A", canonical_form="Entity1", kind="person", offset=1

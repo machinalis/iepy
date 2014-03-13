@@ -22,11 +22,12 @@ ENTITY_KINDS = (
     ('organization', u'Organization')
 )
 
+
 def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     """
-       
+
     Returns a pair (l,r) that satisfies:
-    
+
     all(v < xl for v in a[lo:l])
     all(xl <= v < xr for v in a[l:r])
     all(xr <= v for v in a[r:hi])
@@ -46,7 +47,7 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
         return lo, hi
     # Reduce range for both left and right endpoints
     while lo < hi:
-        mid = (lo+hi) // 2
+        mid = (lo + hi) // 2
         v = key(a[mid])
         if xl <= v and xr <= v:
             hi = mid
@@ -59,20 +60,19 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     rlo, rhi = mid, hi
     # Find left bisection point
     while llo < lhi:
-        mid = (llo+lhi) // 2
+        mid = (llo + lhi) // 2
         if key(a[mid]) < xl:
-            llo = mid+1
+            llo = mid + 1
         else:
             lhi = mid
     # Find right bisection point
     while rlo < rhi:
-        mid = (rlo+rhi) // 2
+        mid = (rlo + rhi) // 2
         if xr <= key(a[mid]):
             rhi = mid
         else:
-            rlo = mid+1
+            rlo = mid + 1
     return (llo, rlo)
-
 
 
 class Entity(DynamicDocument):
@@ -95,7 +95,7 @@ class EntityInChunk(EmbeddedDocument):
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to chunk
-    alias = fields.StringField() # Alias used in 
+    alias = fields.StringField()  # Representation of the entity actually used in the text
 
 
 class TextChunk(DynamicDocument):
@@ -130,7 +130,7 @@ class TextChunk(DynamicDocument):
         l, r = _interval_offsets(
             document.entities,
             token_offset, token_offset_end,
-            key=lambda occ:occ.offset)
+            key=lambda occ: occ.offset)
         entities = []
         for o in document.entities[l:r]:
             entities.append(EntityInChunk(
@@ -142,6 +142,7 @@ class TextChunk(DynamicDocument):
             ))
         self.entities = entities
         return self
+
 
 class IEDocument(DynamicDocument):
     human_identifier = fields.StringField(required=True, unique=True)
@@ -157,7 +158,7 @@ class IEDocument(DynamicDocument):
 
     # The following 3 lists have 1 item per token
     tokens = fields.ListField(fields.StringField())
-    offsets = fields.ListField(fields.IntField()) # character offset for tokens
+    offsets = fields.ListField(fields.IntField())  # character offset for tokens
     postags = fields.ListField(fields.StringField())
 
     sentences = fields.ListField(fields.IntField())  # it's a list of token-offsets
