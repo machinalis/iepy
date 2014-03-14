@@ -2,8 +2,8 @@ import logging
 import factory
 import nltk
 
-from iepy.models import (IEDocument, Entity, PreProcessSteps, EntityInChunk,
-    TextChunk)
+from iepy.models import (IEDocument, Entity, PreProcessSteps, EntityInSegment,
+    TextSegment)
 
 
 # In general, we are not interested on the debug and info messages
@@ -18,8 +18,8 @@ class EntityFactory(factory.Factory):
     kind = 'person'
 
 
-class EntityInChunkFactory(factory.Factory):
-    FACTORY_FOR = EntityInChunk
+class EntityInSegmentFactory(factory.Factory):
+    FACTORY_FOR = EntityInSegment
     key = factory.Sequence(lambda n: 'id:%i' % n)
     canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
     kind = 'person'
@@ -33,8 +33,8 @@ class IEDocFactory(factory.Factory):
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
-class TextChunkFactory(factory.Factory):
-    FACTORY_FOR = TextChunk
+class TextSegmentFactory(factory.Factory):
+    FACTORY_FOR = TextSegment
     document = factory.SubFactory(IEDocFactory)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
     offset = factory.Sequence(lambda n: n * 3)

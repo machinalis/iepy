@@ -1,16 +1,16 @@
 import unittest
 
 from .factories import IEDocFactory, EntityFactory
-from iepy.models import TextChunk, EntityOccurrence
+from iepy.models import TextSegment, EntityOccurrence
 
 
-class TextChunkTest(unittest.TestCase):
+class TextSegmentTest(unittest.TestCase):
 
     def setUp(self):
         self.d = IEDocFactory()
 
     def test_empty(self):
-        c = TextChunk.build(self.d, 0, 0, "foo")
+        c = TextSegment.build(self.d, 0, 0, "foo")
         self.assertEqual(c.document, self.d)
         self.assertEqual(c.text, "foo")
         self.assertEqual(c.offset, 0)
@@ -23,7 +23,7 @@ class TextChunkTest(unittest.TestCase):
         d.offsets = range(7)
         d.tokens =  list("ABCDEFG")
         d.postags = list("NNVANVA")
-        c = TextChunk.build(d, 2, 5, "CDE")
+        c = TextSegment.build(d, 2, 5, "CDE")
         self.assertEqual(c.offset, 2)
         self.assertEqual(c.tokens, ["C", "D", "E"])
         self.assertEqual(c.postags, ["V", "A", "N"])
@@ -43,7 +43,7 @@ class TextChunkTest(unittest.TestCase):
             EntityOccurrence(entity=e1, offset=6, alias="G"),
         ]
         d.entities = occ
-        c = TextChunk.build(d, 2, 5, "CDE")
+        c = TextSegment.build(d, 2, 5, "CDE")
 
         self.assertEqual(len(c.entities), 2)
         # Check first entity found

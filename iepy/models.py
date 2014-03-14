@@ -89,15 +89,15 @@ class EntityOccurrence(EmbeddedDocument):
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
 
 
-class EntityInChunk(EmbeddedDocument):
+class EntityInSegment(EmbeddedDocument):
     key = fields.StringField(required=True)
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)
-    offset = fields.IntField(required=True)  # Offset in tokens wrt to chunk
+    offset = fields.IntField(required=True)  # Offset in tokens wrt to segment
     alias = fields.StringField()  # Representation of the entity actually used in the text
 
 
-class TextChunk(DynamicDocument):
+class TextSegment(DynamicDocument):
     document = fields.ReferenceField('IEDocument', required=True)
     text = fields.StringField(required=True)
     offset = fields.IntField()  # Offset in tokens wrt document
@@ -106,17 +106,17 @@ class TextChunk(DynamicDocument):
     tokens = fields.ListField(fields.StringField())
     postags = fields.ListField(fields.StringField())
 
-    entities = fields.ListField(fields.EmbeddedDocumentField(EntityInChunk))
+    entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
 
     @classmethod
     def build(cls, document, token_offset, token_offset_end, text):
         """
-        Build a chunk based in the given documents, using the tokens in the
+        Build a segment based in the given documents, using the tokens in the
         range [token_offset:token_offset_end] (note that this has the usual
         python-range semantics)
 
         use the given text as reference (it should be a human readable
-        representation of the chunk
+        representation of the segment
         """
         # FIXME: is it possible to not need the text? perhaps having the
         # token character offsets
@@ -132,7 +132,7 @@ class TextChunk(DynamicDocument):
             key=lambda occ: occ.offset)
         entities = []
         for o in document.entities[l:r]:
-            entities.append(EntityInChunk(
+            entities.append(EntityInSegment(
                 key=o.entity.key,
                 canonical_form=o.entity.canonical_form,
                 kind=o.entity.kind,

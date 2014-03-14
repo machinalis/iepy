@@ -2,10 +2,10 @@ from unittest import TestCase
 import mock
 
 from manager_case import ManagerTestCase
-from iepy.db import DocumentManager, TextChunkManager
+from iepy.db import DocumentManager, TextSegmentManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
-                         EntityInChunk, Entity)
-from factories import IEDocFactory, SegmentedIEDocFactory, TextChunkFactory
+                         EntityInSegment, Entity)
+from factories import IEDocFactory, SegmentedIEDocFactory, TextSegmentFactory
 from timelapse import timekeeper
 
 
@@ -185,60 +185,60 @@ class TestDocumentSentenceIterator(TestCase):
         self.assertEqual(tokens, output_tokens)
 
 
-class TestChunkFilters(ManagerTestCase):
+class TestSegmentFilters(ManagerTestCase):
 
-    ManagerClass = TextChunkManager
+    ManagerClass = TextSegmentManager
 
     def setUp(self):
-        super(TestChunkFilters, self).setUp()
+        super(TestSegmentFilters, self).setUp()
         d = IEDocFactory()
         d.save()
-        # Build 3 chunks, referring to 2 entities:
-        #  * chunk 1 refers to A
-        #  * chunk 2 refers to A+B
-        #  * chunk 3 refers to B, twice
+        # Build 3 Segments, referring to 2 entities:
+        #  * Segment 1 refers to A
+        #  * Segment 2 refers to A+B
+        #  * Segment 3 refers to B, twice
 
-        c1 = TextChunkFactory(document=d)
-        c1.entities.append(EntityInChunk(
+        c1 = TextSegmentFactory(document=d)
+        c1.entities.append(EntityInSegment(
             key="A", canonical_form="Entity1", kind="person", offset=1
         ))
         c1.save()
-        c2 = TextChunkFactory(document=d)
-        c2.entities.append(EntityInChunk(
+        c2 = TextSegmentFactory(document=d)
+        c2.entities.append(EntityInSegment(
             key="A", canonical_form="Entity1", kind="person", offset=1
         ))
-        c2.entities.append(EntityInChunk(
+        c2.entities.append(EntityInSegment(
             key="B", canonical_form="Entity2", kind="location", offset=1
         ))
         c2.save()
-        c3 = TextChunkFactory(document=d)
-        c3.entities.append(EntityInChunk(
+        c3 = TextSegmentFactory(document=d)
+        c3.entities.append(EntityInSegment(
             key="B", canonical_form="Entity2", kind="location", offset=1
         ))
-        c3.entities.append(EntityInChunk(
+        c3.entities.append(EntityInSegment(
             key="B", canonical_form="Entity2", kind="location", offset=2
         ))
         c3.save()
         self.c1, self.c2, self.c3 = c1, c2, c3
 
     def test_both_entities(self):
-        # Request for entities A and B, only chunk2 should be returned
+        # Request for entities A and B, only Segment 2 should be returned
         ea = Entity(key="A")
         eb = Entity(key="B")
-        chunks = self.manager.chunks_with_both_entities(ea, eb)
-        self.assertEqual(len(chunks), 1)
-        self.assertEqual(chunks[0], self.c2)
+        segments = self.manager.segments_with_both_entities(ea, eb)
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(segments[0], self.c2)
 
     def test_both_kinds(self):
-        # Request for kinds person+location, only chunk2 should be returned
-        chunks = self.manager.chunks_with_both_kinds("person", "location")
-        self.assertEqual(len(chunks), 1)
-        self.assertEqual(chunks[0], self.c2)
+        # Request for kinds person+location, only Segment 2 should be returned
+        segments = self.manager.segments_with_both_kinds("person", "location")
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(segments[0], self.c2)
 
     def test_both_kinds(self):
-        # Request for kinds location+location. Only chunk3 should be returned
-        # because it has 2 locations. chunk2 has a single location, so it is
+        # Request for kinds location+location. Only Segment 3 should be returned
+        # because it has 2 locations. Segment 2 has a single location, so it is
         # not valid
-        chunks = self.manager.chunks_with_both_kinds("location", "location")
-        self.assertEqual(len(chunks), 1)
-        self.assertEqual(chunks[0], self.c3)
+        segments = self.manager.segments_with_both_kinds("location", "location")
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(segments[0], self.c3)
