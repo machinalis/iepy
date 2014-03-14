@@ -56,8 +56,8 @@ macros = {
     "HOSTNAME4": r"www\.{AN1}{AN2}*\.{AN2}*(:[0-9]{{1,5}})?",
     "SCHEME": "mailto:|((http|https|ftp|ftps|ssh|git|news)://)",
 }
-#macros = {k: "(" + v.format(**basic_macros) + ")"
-#                                                for k, v in macros.items()}
+macros = {k: "(" + v.format(**basic_macros) + ")"
+                                                for k, v in macros.items()}
 macros.update(basic_macros)
 
 # Smiley detection
