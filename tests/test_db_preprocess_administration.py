@@ -36,7 +36,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_cannot_set_sentencer_if_not_tokenization_stored(self):
         doc = IEDocFactory(text='Some sentence.')
-        sentences = [0]
+        sentences = [0, 3]
         step = PreProcessSteps.sentencer
         self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
         self.assertFalse(doc.was_preprocess_done(step))
