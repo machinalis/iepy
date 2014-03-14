@@ -2,7 +2,7 @@ from mongoengine import connect as mongoconnect
 from mongoengine.connection import get_db
 
 from iepy.models import (IEDocument, PreProcessSteps, InvalidPreprocessSteps,
-    TextChunk)
+    TextSegment)
 
 
 def connect(db_name):
@@ -69,15 +69,15 @@ class DocumentManager(object):
         pass
 
 
-class TextChunkManager(object):
+class TextSegmentManager(object):
 
-    def chunks_with_both_entities(self, entity_a, entity_b):
+    def segments_with_both_entities(self, entity_a, entity_b):
         key_a, key_b = entity_a.key, entity_b.key
-        return TextChunk.objects(entities__key=key_a)(entities__key=key_b)
+        return TextSegment.objects(entities__key=key_a)(entities__key=key_b)
 
-    def chunks_with_both_kinds(self, kind_a, kind_b):
+    def segments_with_both_kinds(self, kind_a, kind_b):
         if kind_a != kind_b:
-            return TextChunk.objects(entities__kind=kind_a)(entities__kind=kind_b)
+            return TextSegment.objects(entities__kind=kind_a)(entities__kind=kind_b)
         else:
             # Need a different query here, we need to check that the type
             # appears twice
@@ -93,6 +93,6 @@ class TextChunkManager(object):
                 {'$project': {'_id': 0, 'id': "$_id._id"}},
             ]
 
-            objects = db.text_chunk.aggregate(pipeline)
-            chunks = TextChunk.objects.in_bulk([c['id'] for c in objects[u'result']]).values()
-            return chunks
+            objects = db.text_segment.aggregate(pipeline)
+            segments = TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values()
+            return segments
