@@ -6,7 +6,7 @@ from mongoengine import DynamicDocument, EmbeddedDocument, fields
 
 class PreProcessSteps(Enum):
     tokenization = 1
-    segmentation = 2
+    sentencer = 2
     tagging = 3
     nerc = 4
 
@@ -168,7 +168,7 @@ class IEDocument(DynamicDocument):
     # Mapping of preprocess steps and fields where the result is stored.
     preprocess_fields_mapping = {
         PreProcessSteps.tokenization: 'tokens',
-        PreProcessSteps.segmentation: 'sentences',
+        PreProcessSteps.sentencer: 'sentences',
         PreProcessSteps.tagging: 'postags',
     }
 
@@ -181,17 +181,17 @@ class IEDocument(DynamicDocument):
         """
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
-        if step == PreProcessSteps.segmentation:
+        if step == PreProcessSteps.sentencer:
             if filter(lambda x: not isinstance(x, int), result):
-                raise ValueError('Segmentation result shall only contain ints')
+                raise ValueError('Sentencer result shall only contain ints')
             if sorted(result) != result:
-                raise ValueError('Segmentation result shall be ordered.')
+                raise ValueError('Sentencer result shall be ordered.')
             if len(set(result)) < len(result):
                 raise ValueError(
-                    'Segmentation result shall not contain duplicates.')
+                    'Sentencer result shall not contain duplicates.')
             if result[0] != 0 or result[-1] != len(self.tokens):
                 raise ValueError(
-                    'Segmentation result must be offsets of tokens.')
+                    'Sentencer result must be offsets of tokens.')
         elif step == PreProcessSteps.tagging:
             if len(result) != len(self.tokens):
                 raise ValueError(

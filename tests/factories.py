@@ -43,7 +43,7 @@ class TextSegmentFactory(factory.Factory):
     entities = []
 
 
-class SegmentedIEDocFactory(IEDocFactory):
+class SentencedIEDocFactory(IEDocFactory):
     FACTORY_FOR = IEDocument
     text = factory.Sequence(lambda n: 'Lorem ipsum. Yaba daba du! %i' % n)
 
@@ -57,4 +57,4 @@ class SegmentedIEDocFactory(IEDocFactory):
             sentences.append(sentences[-1] + len(sent_tokens))
 
         self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
-        self.set_preprocess_result(PreProcessSteps.segmentation, sentences)
+        self.set_preprocess_result(PreProcessSteps.sentencer, sentences)

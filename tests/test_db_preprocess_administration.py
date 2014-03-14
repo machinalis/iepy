@@ -5,7 +5,7 @@ from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextSegmentManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
                          EntityInSegment, Entity)
-from factories import IEDocFactory, SegmentedIEDocFactory, TextSegmentFactory
+from factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory
 from timelapse import timekeeper
 
 
@@ -14,7 +14,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
     def test_preprocess_steps(self):
         self.assertEqual(
             [p.name for p in PreProcessSteps],
-            ['tokenization', 'segmentation', 'tagging', 'nerc'])
+            ['tokenization', 'sentencer', 'tagging', 'nerc'])
 
     def test_just_created_document_has_no_preprocess_done(self):
         doc = IEDocFactory()
@@ -34,40 +34,40 @@ class TestDocumentsPreprocessMetadata(TestCase):
         self.assertTrue(doc.was_preprocess_done(step))
         self.assertEqual(doc.get_preprocess_result(step), simple_tokens)
 
-    def test_cannot_set_segmentation_if_not_tokenization_stored(self):
+    def test_cannot_set_sentencer_if_not_tokenization_stored(self):
         doc = IEDocFactory(text='Some sentence.')
-        segments = [0]
-        step = PreProcessSteps.segmentation
-        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        sentences = [0]
+        step = PreProcessSteps.sentencer
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
         self.assertFalse(doc.was_preprocess_done(step))
 
-    def test_cannot_set_segmentation_larger_than_tokens(self):
-        # segmentation numers must be valid indexes of tokens list
+    def test_cannot_set_sentences_larger_than_tokens(self):
+        # sentencer numbers must be valid indexes of tokens list
         doc = IEDocFactory(text='Some sentence.')
         doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
-        segments = [35]
-        step = PreProcessSteps.segmentation
-        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        sentences = [35]
+        step = PreProcessSteps.sentencer
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
         self.assertFalse(doc.was_preprocess_done(step))
 
-    def test_segmentation_result_must_be_ordered_list_of_numbers(self):
+    def test_sentencer_result_must_be_ordered_list_of_numbers(self):
         doc = IEDocFactory(text='Some sentence . And some other . Indeed !')
-        segments = [7, 3, 0]
-        step = PreProcessSteps.segmentation
-        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        sentences = [7, 3, 0]
+        step = PreProcessSteps.sentencer
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
         # also must be strictly ascending
-        segments = [0, 0, 3]
-        self.assertRaises(ValueError, doc.set_preprocess_result, step, segments)
+        sentences = [0, 0, 3]
+        self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
         self.assertFalse(doc.was_preprocess_done(step))
 
-    def test_setting_segmentation_result_can_be_later_retrieved(self):
+    def test_setting_sentencer_result_can_be_later_retrieved(self):
         doc = IEDocFactory(text='Some sentence . And some other . Indeed !')
         doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
-        simple_segments = [0, 3, 7, 9]
-        step = PreProcessSteps.segmentation
-        doc.set_preprocess_result(step, simple_segments)
+        simple_sentences = [0, 3, 7, 9]
+        step = PreProcessSteps.sentencer
+        doc.set_preprocess_result(step, simple_sentences)
         self.assertTrue(doc.was_preprocess_done(step))
-        self.assertEqual(doc.get_preprocess_result(step), simple_segments)
+        self.assertEqual(doc.get_preprocess_result(step), simple_sentences)
 
     def test_cannot_set_tagging_result_of_different_cardinality_than_tokens(self):
         doc = IEDocFactory(text='Some sentence')
@@ -129,7 +129,7 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
     def test_manager_itself_iterates_over_all_documents(self):
         doc1 = IEDocFactory(text='').save()
         doc2 = IEDocFactory(text='something').save()
-        doc3 = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!').save()
+        doc3 = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!').save()
         self.assertIn(doc1, self.manager)
 
 
@@ -154,31 +154,31 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
         self.assertNotIn(doc3, untokeneds)
         self.assertNotIn(doc4, untokeneds)
 
-    def test_unsegmented_documents_are_filtered(self):
+    def test_unsentenced_documents_are_filtered(self):
         doc1 = IEDocFactory(text='something nice').save()
         doc2 = IEDocFactory(text='something nicer').save()
         doc3 = IEDocFactory(text='something even nicer').save()
         tkn = PreProcessSteps.tokenization
         doc2.set_preprocess_result(tkn, doc2.text.split()).save()
         doc3.set_preprocess_result(tkn, doc3.text.split()).save()
-        step = PreProcessSteps.segmentation
+        step = PreProcessSteps.sentencer
         doc3.set_preprocess_result(step, [0, 3]).save()
-        unsegmented = self.manager.get_documents_lacking_preprocess(step)
-        self.assertIn(doc1, unsegmented)
-        self.assertIn(doc2, unsegmented)
-        self.assertNotIn(doc3, unsegmented)
+        unsentenced = self.manager.get_documents_lacking_preprocess(step)
+        self.assertIn(doc1, unsentenced)
+        self.assertIn(doc2, unsentenced)
+        self.assertNotIn(doc3, unsentenced)
 
 
 class TestDocumentSentenceIterator(TestCase):
 
     def test_right_number_of_sentences_are_returned(self):
-        doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        segmentation = doc.get_preprocess_result(PreProcessSteps.segmentation)
+        doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        sentencing = doc.get_preprocess_result(PreProcessSteps.sentencer)
         sentences = [s for s in doc.get_sentences()]
-        self.assertEqual(len(segmentation) - 1, len(sentences))
+        self.assertEqual(len(sentencing) - 1, len(sentences))
 
     def test_tokens_are_preserved(self):
-        doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
         tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
         sentences = [s for s in doc.get_sentences()]
         output_tokens = sum(sentences, [])
