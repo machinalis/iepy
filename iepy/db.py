@@ -86,7 +86,7 @@ class TextSegmentManager(object):
                 {'$match': {"entities.kind": kind_a}},
                 {'$unwind': "$entities"},
                 {'$group': {
-                    '_id': {'_id':"$_id", 'k': "$entities.kind"},
+                    '_id': {'_id': "$_id", 'k': "$entities.kind"},
                     'count': {'$sum': 1}
                 }},
                 {'$match': {'_id.k': kind_a, 'count': {'$gte': 2}}},

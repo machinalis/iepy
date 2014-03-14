@@ -1,5 +1,3 @@
-from iepy.models import PreProcessSteps
-
 import logging
 
 logger = logging.getLogger(__name__)
