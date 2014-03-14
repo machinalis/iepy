@@ -31,7 +31,8 @@ class TaggerRunner(BasePreProcessStepRunner):
             
         tagged_doc = []
         for sent in doc.get_sentences():
-            tagged_sent = self.postagger.tag(sent)
+            #tagged_sent = self.postagger.tag(sent)
+            tagged_sent = self.postagger(sent)
             tagged_doc.extend([tag for token, tag in tagged_sent])
             
         doc.set_preprocess_result(PreProcessSteps.tagging, tagged_doc)
@@ -47,8 +48,9 @@ class StanfordTaggerRunner(TaggerRunner):
         postagger = POSTagger(stanford_postagger_name + 
                             '/models/english-bidirectional-distsim.tagger', 
                             stanford_postagger_name + '/stanford-postagger.jar')
+        callable_postagger = lambda x : postagger.tag(x)
         
-        TaggerRunner.__init__(self, postagger, override)
+        TaggerRunner.__init__(self, callable_postagger, override)
 
 
 def download():
