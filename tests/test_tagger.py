@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from iepy.preprocess import PreProcessPipeline
-from tests.factories import SegmentedIEDocFactory
+from tests.factories import SentencedIEDocFactory
 from iepy.models import PreProcessSteps
 from iepy.tagger import StanfordTaggerRunner
 
@@ -9,7 +9,7 @@ from iepy.tagger import StanfordTaggerRunner
 class TestStanfordTaggerRunner(TestCase):
 
     def test_tagger_is_loading_and_running(self):
-        doc = SegmentedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
         tag = StanfordTaggerRunner()
         tag(doc)
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
