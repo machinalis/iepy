@@ -52,22 +52,6 @@ class DocumentManager(object):
         query = {'preprocess_metadata__%s__exists' % step.name: False}
         return IEDocument.objects(**query)
 
-    ### Accessors, filters and projections used on IE itself
-
-    def documents_with_both_entities(self, entity_a, entity_b):
-        """Returns an iterator of tuples (document, presence, presence)
-        where there's at least a presence of entity_b preceeded by the
-        presence of the entity_a.
-        """
-        pass
-
-    def expand_entities_presence(self, document, presence_a, presence_b):
-        """
-        Returns a human readable representation of the text where some entities
-        co-exist.
-        """
-        pass
-
 
 class TextSegmentManager(object):
 
