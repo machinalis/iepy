@@ -88,6 +88,7 @@ class Entity(DynamicDocument):
 class EntityOccurrence(EmbeddedDocument):
     entity = fields.ReferenceField('Entity', required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
+    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
 
 
@@ -96,6 +97,7 @@ class EntityInSegment(EmbeddedDocument):
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to segment
+    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to segment
     alias = fields.StringField()  # Representation of the entity actually used in the text
 
 
@@ -240,3 +242,38 @@ class IEDocument(DynamicDocument):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
+
+    def build_syntactic_segments(self):
+        pass # TODO
+
+    def build_contextual_segments(self, d):
+        L = len(self.entities)
+        i = 0
+        while i+1 < L:
+            # Find 2 entities that are "close"
+            left, middle = self.entities[i:i + 1]
+            while middle.offset - left.offset > d:
+                i += 1
+                if i + 1 == L:
+                    # we're done!
+                    return
+                left, middle = self.entities[i:i + 1]
+            # Find the rightmost in the segment
+            if i + 2 < L and self.entities[i + 2].offset - middle.offset:
+                right = self.entities[i + 2]
+            else:
+                right = middle
+            # Calculate the starting/ending offsets
+            start = left.offset - d
+            end = right.offset + d
+            # Make sure that this doesn't split a token:
+            j = i
+            while j >= 0 and self.entities[j].end_offset > start:
+                start = min(start, self.entitities[j].offset)
+                j -= 1
+            j = i
+            while j < L and self.entities[j].offset < end:
+                end = max(end, self.entitities[j].offset_end)
+                j += 1
+            s = TextSegment.build(self, start, end, "...")
+
