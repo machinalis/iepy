@@ -131,7 +131,8 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
         doc2 = IEDocFactory(text='something').save()
         doc3 = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!').save()
         self.assertIn(doc1, self.manager)
-
+        self.assertIn(doc2, self.manager)
+        self.assertIn(doc3, self.manager)
 
     def test_raw_documents_are_filtered(self):
         doc1 = IEDocFactory(text='').save()
