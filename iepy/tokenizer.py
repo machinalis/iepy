@@ -4,6 +4,45 @@ import re
 import nltk.data
 from nltk.tokenize import RegexpTokenizer
 
+from iepy.models import PreProcessSteps
+from iepy.preprocess import BasePreProcessStepRunner
+
+
+class TokenizeSentencerRunner(BasePreProcessStepRunner):
+    """Does Tokenization and segmentation togheter over IEDocuments.
+
+    - If override=True, no matter if any of those steps were
+    already computed or not, will do and store them on the doc.
+    - If override=False, but one of the 2 things is done and the other
+    not, will behave completely like in the case of override=True.
+    - If override=False and both steps were done on the document, will
+    do nothing.
+    """
+    step = PreProcessSteps.tokenization
+
+    def __init__(self, override=False, lang='en'):
+        if lang != 'en':
+            # We are right now only providing english tokenization
+            # and segmentation. But if you need something else, this
+            # is a good place to do it.
+            raise NotImplemented
+        self.lang = lang
+        self.override = override
+        # we'll be doing 2 PreProcess in one here
+        self.tkn_step = PreProcessSteps.tokenization
+        self.snt_step = PreProcessSteps.sentencer
+
+    def __call__(self, doc):
+        tkn_done = doc.was_preprocess_done(self.tkn_step)
+        snt_done = doc.was_preprocess_done(self.snt_step)
+        if self.override or not (tkn_done and snt_done):
+            # Ok, let's do it
+            result = en_tokenize_and_segment(doc.text)
+            doc.set_preprocess_result(
+                self.tkn_step, zip(result['spans'], result['tokens']))
+            doc.set_preprocess_result(self.snt_step, result['sentences'])
+            doc.save()
+
 
 def en_tokenize_and_segment(text):
     """

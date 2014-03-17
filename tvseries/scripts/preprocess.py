@@ -10,6 +10,7 @@ from mwtextextractor import get_body_text
 
 from iepy.db import connect, DocumentManager
 from iepy.preprocess import PreProcessPipeline
+from iepy.tokenizer import TokenizeSentencerRunner
 
 
 def media_wiki_to_txt(doc):
@@ -25,5 +26,6 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
-    pipeline = PreProcessPipeline([media_wiki_to_txt], docs)
+    pipeline = PreProcessPipeline(
+        [media_wiki_to_txt, TokenizeSentencerRunner()], docs)
     pipeline.process_everything()
