@@ -14,7 +14,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
     def test_preprocess_steps(self):
         self.assertEqual(
             [p.name for p in PreProcessSteps],
-            ['tokenization', 'sentencer', 'tagging', 'nerc'])
+            ['tokenization', 'sentencer', 'tagging', 'nerc', 'segmentation'])
 
     def test_just_created_document_has_no_preprocess_done(self):
         doc = IEDocFactory()
@@ -236,7 +236,7 @@ class TestSegmentFilters(ManagerTestCase):
         self.assertEqual(len(segments), 1)
         self.assertEqual(segments[0], self.s2)
 
-    def test_both_kinds(self):
+    def test_both_kinds_duplicate(self):
         # Request for kinds location+location. Only Segment 3 should be returned
         # because it has 2 locations. Segment 2 has a single location, so it is
         # not valid
