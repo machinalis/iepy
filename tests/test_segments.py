@@ -11,9 +11,9 @@ class TextSegmentTest(unittest.TestCase):
         self.d = IEDocFactory()
 
     def test_empty(self):
-        c = TextSegment.build(self.d, 0, 0, "foo")
+        c = TextSegment.build(self.d, 0, 0)
         self.assertEqual(c.document, self.d)
-        self.assertEqual(c.text, "foo")
+        self.assertEqual(c.text, "")
         self.assertEqual(c.offset, 0)
         self.assertEqual(c.tokens, [])
         self.assertEqual(c.postags, [])
@@ -24,11 +24,13 @@ class TextSegmentTest(unittest.TestCase):
         d.offsets = range(7)
         d.tokens =  list("ABCDEFG")
         d.postags = list("NNVANVA")
-        c = TextSegment.build(d, 2, 5, "CDE")
+        d.text = "ABCDEFG"
+        c = TextSegment.build(d, 2, 5)
         self.assertEqual(c.offset, 2)
         self.assertEqual(c.tokens, ["C", "D", "E"])
         self.assertEqual(c.postags, ["V", "A", "N"])
         self.assertEqual(c.entities, [])
+        self.assertEqual(c.text, "CDE")
 
     def test_entities_captured(self):
         e1 = EntityFactory()
@@ -44,7 +46,7 @@ class TextSegmentTest(unittest.TestCase):
             EntityOccurrence(entity=e1, offset=6, offset_end=7, alias="G"),
         ]
         d.entities = occ
-        c = TextSegment.build(d, 2, 5, "CDE")
+        c = TextSegment.build(d, 2, 5)
 
         self.assertEqual(len(c.entities), 2)
         # Check first entity found

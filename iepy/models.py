@@ -112,7 +112,7 @@ class TextSegment(DynamicDocument):
     entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
 
     @classmethod
-    def build(cls, document, token_offset, token_offset_end, text):
+    def build(cls, document, token_offset, token_offset_end):
         """
         Build a segment based in the given documents, using the tokens in the
         range [token_offset:token_offset_end] (note that this has the usual
@@ -121,14 +121,20 @@ class TextSegment(DynamicDocument):
         use the given text as reference (it should be a human readable
         representation of the segment
         """
-        # FIXME: is it possible to not need the text? perhaps having the
-        # token character offsets
         self = cls()
         self.document = document
-        self.text = text
         self.offset = token_offset
         self.tokens = document.tokens[token_offset:token_offset_end]
         self.postags = document.postags[token_offset:token_offset_end]
+        if token_offset < len(document.offsets):
+            text_start = document.offsets[token_offset]
+        else:
+            text_start = len(document.text)
+        if token_offset_end < len(document.offsets):
+            text_end = document.offsets[token_offset_end]
+        else:
+            text_end = len(document.text)
+        self.text = document.text[text_start:text_end]
         l, r = _interval_offsets(
             document.entities,
             token_offset, token_offset_end,
@@ -291,7 +297,7 @@ class IEDocument(DynamicDocument):
                 j += 1
             if not (end == lend and start >= lstart):
                 # Not a repeat
-                s = TextSegment.build(self, start, end, "...") # FIXME: fill text
+                s = TextSegment.build(self, start, end)
                 s.save()
             lstart, lend = start, end
             i += 1
