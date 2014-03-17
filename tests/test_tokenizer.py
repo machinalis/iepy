@@ -118,10 +118,10 @@ class TestSegmentation(TestCase):
         sents = en_tokenize_and_segment(text)['sentences']
         self.assertEqual(sents[0], 0)
 
-    def test_cero_is_included_even_if_no_tokens(self):
+    def test_cero_is_all_even_if_no_tokens(self):
         text = ""
         sents = en_tokenize_and_segment(text)['sentences']
-        self.assertEqual(sents[0], 0)
+        self.assertEqual(sents, [0])
 
     def test_number_of_tokens_is_always_last(self):
         text = "The wolf killed a duck. What a pitty"

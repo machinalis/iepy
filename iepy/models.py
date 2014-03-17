@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import Enum
 from mongoengine import DynamicDocument, EmbeddedDocument, fields
 
+from iepy.utils import unzip
+
 
 class PreProcessSteps(Enum):
     tokenization = 1
@@ -167,7 +169,7 @@ class IEDocument(DynamicDocument):
 
     # Mapping of preprocess steps and fields where the result is stored.
     preprocess_fields_mapping = {
-        PreProcessSteps.tokenization: 'tokens',
+        PreProcessSteps.tokenization: ('offsets', 'tokens'),
         PreProcessSteps.sentencer: 'sentences',
         PreProcessSteps.tagging: 'postags',
     }
@@ -187,6 +189,7 @@ class IEDocument(DynamicDocument):
             if sorted(result) != result:
                 raise ValueError('Sentencer result shall be ordered.')
             if len(set(result)) < len(result):
+                print result
                 raise ValueError(
                     'Sentencer result shall not contain duplicates.')
             if result[0] != 0 or result[-1] != len(self.tokens):
@@ -198,7 +201,14 @@ class IEDocument(DynamicDocument):
                     'Tagging result must have same cardinality than tokens')
 
         field_name = self.preprocess_fields_mapping[step]
-        setattr(self, field_name, result)
+        if isinstance(field_name, tuple):
+            # Some steps are stored on several fields
+            names = field_name
+            results = unzip(result, len(names))
+            for field_name, result in zip(names, results):
+                setattr(self, field_name, result)
+        else:
+            setattr(self, field_name, result)
         self.preprocess_metadata[step.name] = {
             'done_at': datetime.now(),
         }
@@ -211,6 +221,14 @@ class IEDocument(DynamicDocument):
             return None
         else:
             field_name = self.preprocess_fields_mapping[step]
+        if isinstance(field_name, tuple):
+            # Some steps are stored on several fields
+            names = field_name
+            results = []
+            for field_name in names:
+                results.append(getattr(self, field_name))
+            return zip(*results)
+        else:
             return getattr(self, field_name)
 
     def get_sentences(self):
