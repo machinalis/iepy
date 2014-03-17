@@ -23,6 +23,8 @@ def en_tokenize_and_segment(text):
     spans = []
     sentences = [0]
     for sentence_i, sentence_j, sentence in _split_in_sentences(text):
+        if sentence_i == sentence_j:
+            continue
         for i, j in tokenizer.span_tokenize(sentence):
             spans.append(sentence_i + i)
             tokens.append(sentence[i:j])
