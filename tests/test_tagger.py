@@ -53,13 +53,9 @@ class TestStanfordTaggerRunner(TestCase):
     def test_stanford_tagger_is_called_if_found(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
         expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
-        try:
-            tag = StanfordTaggerRunner()
-        except LookupError:
-            pass
-        else:
-            tag(doc)            
-            self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
-            postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-            self.assertEqual(postags, expected_postags)
+        tag = StanfordTaggerRunner()
+        tag(doc)            
+        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
+        postags = doc.get_preprocess_result(PreProcessSteps.tagging)
+        self.assertEqual(postags, expected_postags)
 
