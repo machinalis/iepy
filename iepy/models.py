@@ -140,6 +140,7 @@ class TextSegment(DynamicDocument):
                 canonical_form=o.entity.canonical_form,
                 kind=o.entity.kind,
                 offset=o.offset - token_offset,
+                offset_end=o.offset_end - token_offset,
                 alias=o.alias,
             ))
         self.entities = entities
@@ -261,31 +262,37 @@ class IEDocument(DynamicDocument):
         """
         L = len(self.entities)
         i = 0
-        while i+1 < L:
+        lstart, lend = -1, -1
+        while i + 1 < L:
             # Find 2 entities that are "close"
-            left, middle = self.entities[i:i + 1]
-            while middle.offset - left.offset > d:
+            left, middle = self.entities[i:i + 2]
+            while middle.offset - left.offset_end >= d:
                 i += 1
                 if i + 1 == L:
                     # we're done!
                     return
-                left, middle = self.entities[i:i + 1]
+                left, middle = self.entities[i:i + 2]
             # Find the rightmost in the segment
-            if i + 2 < L and self.entities[i + 2].offset - middle.offset:
+            if i + 2 < L and self.entities[i + 2].offset - middle.offset_end < d:
                 right = self.entities[i + 2]
             else:
                 right = middle
             # Calculate the starting/ending offsets
             start = left.offset - d
-            end = right.offset + d
+            end = right.offset_end + d
             # Make sure that this doesn't split a token:
             j = i
-            while j >= 0 and self.entities[j].end_offset > start:
-                start = min(start, self.entitities[j].offset)
+            while j >= 0 and self.entities[j].offset_end > start:
+                start = min(start, self.entities[j].offset)
                 j -= 1
             j = i
             while j < L and self.entities[j].offset < end:
-                end = max(end, self.entitities[j].offset_end)
+                end = max(end, self.entities[j].offset_end)
                 j += 1
-            s = TextSegment.build(self, start, end, "...")
+            if not (end == lend and start >= lstart):
+                # Not a repeat
+                s = TextSegment.build(self, start, end, "...") # FIXME: fill text
+                s.save()
+            lstart, lend = start, end
+            i += 1
 
