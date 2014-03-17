@@ -250,14 +250,36 @@ class IEDocument(DynamicDocument):
             start = end
 
     def build_syntactic_segments(self):
-        pass # TODO
+        entity = 0
+        L = len(self.sentences)
+        for i, start in enumerate(self.sentences):
+            end = self.sentences[i + 1] if i + 1 < L else len(self.tokens)
+            # At this point, tokens[start:end] has a sentence
+            # We need to check that it has at least 2 entities before
+            # building a segment
+            n = 0
+            for entity in xrange(entity, len(self.entities)):
+                # Skip entities before start of sentence
+                # If sentences are contiguous, and start at token 0,
+                # this loop should never advance. But we don't know what the
+                # sentencer does, so it's ebtter to be careful
+                if self.entities[entity].offset >= start:
+                    break
+            for entity in xrange(entity, len(self.entities)):
+                # Count entities inside the sentence
+                if self.entities[entity].offset >= end:
+                    break
+                n += 1
+            if n >= 2:
+                s = TextSegment.build(self, start, end)
+                s.save()
 
     def build_contextual_segments(self, d):
         """
         Build all contextual text segments in a contextual way. A context is a
         contiguous piece of the document with at least 2 tokens separated by
         a distance of no more than 'd'.
-        
+
         - A candidate segment should be built around each entity,
         with k tokens ahead and behind.
         - If an nearby entity is found, extend another k tokens (only once, do

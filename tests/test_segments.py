@@ -164,4 +164,36 @@ class TestDocumentSegmenter(ManagerTestCase):
         self.assertEqual(s.offset, 92)
         self.assertEqual(len(s.tokens), 8)
         self.assertEqual(len(s.entities), 2)
-    
+
+    def test_sentence_segmenter_limits(self):
+        self.set_doc_length(100)
+        self.add_entities([1, 2, 22, 23, 61, 80])
+        self.doc.sentences = [0, 20, 50]
+        self.doc.build_syntactic_segments()
+        self.assertEqual(len(TextSegment.objects), 3)
+        s = TextSegment.objects[0]
+        self.assertEqual(s.offset, 0)
+        self.assertEqual(len(s.tokens), 20)
+        self.assertEqual(len(s.entities), 2)
+        s = TextSegment.objects[1]
+        self.assertEqual(s.offset, 20)
+        self.assertEqual(len(s.tokens), 30)
+        self.assertEqual(len(s.entities), 2)
+        s = TextSegment.objects[2]
+        self.assertEqual(s.offset, 50)
+        self.assertEqual(len(s.tokens), 50)
+        self.assertEqual(len(s.entities), 2)
+
+    def test_sentence_segmenter_requires_2_entities(self):
+        self.set_doc_length(100)
+        self.add_entities([1, 2, 22])
+        self.doc.sentences = [0, 20, 50]
+        self.doc.build_syntactic_segments()
+        self.assertEqual(len(TextSegment.objects), 1)
+        s = TextSegment.objects[0]
+        self.assertEqual(s.offset, 0)
+        self.assertEqual(len(s.tokens), 20)
+        self.assertEqual(len(s.entities), 2)
+
+
+
