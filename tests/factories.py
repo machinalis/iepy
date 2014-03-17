@@ -6,6 +6,13 @@ from iepy.models import (IEDocument, Entity, PreProcessSteps, EntityInSegment,
     TextSegment)
 
 
+def naive_tkn(text):
+    """Makes a naive tokenization returning pairs of tokens and
+    offsets. Note, generated offsets are just numbers, to make things easy.
+    """
+    return list(enumerate(text.split()))
+
+
 # In general, we are not interested on the debug and info messages
 # of Factory-Boy itself
 logging.getLogger("factory").setLevel(logging.WARN)
@@ -53,7 +60,7 @@ class SentencedIEDocFactory(IEDocFactory):
         sentences = [0]
         for sent in nltk.sent_tokenize(self.text):
             sent_tokens = nltk.word_tokenize(sent)
-            tokens.extend(sent_tokens)
+            tokens.extend(list(enumerate(sent_tokens)))
             sentences.append(sentences[-1] + len(sent_tokens))
 
         self.set_preprocess_result(PreProcessSteps.tokenization, tokens)

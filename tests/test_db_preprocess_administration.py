@@ -5,7 +5,7 @@ from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextSegmentManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
                          EntityInSegment, Entity)
-from factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory
+from factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn
 from timelapse import timekeeper
 
 
@@ -28,7 +28,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_setting_tokenization_result_can_be_later_retrieved(self):
         doc = IEDocFactory()
-        simple_tokens = doc.text.split()
+        simple_tokens = naive_tkn(doc.text)
         step = PreProcessSteps.tokenization
         doc.set_preprocess_result(step, simple_tokens)
         self.assertTrue(doc.was_preprocess_done(step))
@@ -44,7 +44,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
     def test_cannot_set_sentences_larger_than_tokens(self):
         # sentencer numbers must be valid indexes of tokens list
         doc = IEDocFactory(text='Some sentence.')
-        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        doc.set_preprocess_result(PreProcessSteps.tokenization, naive_tkn(doc.text))
         sentences = [35]
         step = PreProcessSteps.sentencer
         self.assertRaises(ValueError, doc.set_preprocess_result, step, sentences)
@@ -62,7 +62,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_setting_sentencer_result_can_be_later_retrieved(self):
         doc = IEDocFactory(text='Some sentence . And some other . Indeed !')
-        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        doc.set_preprocess_result(PreProcessSteps.tokenization, naive_tkn(doc.text))
         simple_sentences = [0, 3, 7, 9]
         step = PreProcessSteps.sentencer
         doc.set_preprocess_result(step, simple_sentences)
@@ -71,7 +71,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_cannot_set_tagging_result_of_different_cardinality_than_tokens(self):
         doc = IEDocFactory(text='Some sentence')
-        doc.set_preprocess_result(PreProcessSteps.tokenization, doc.text.split())
+        doc.set_preprocess_result(PreProcessSteps.tokenization, naive_tkn(doc.text))
         step = PreProcessSteps.tagging
         for tags in [['NN'], ['NN', 'POS', 'VB']]:
             self.assertRaises(ValueError, doc.set_preprocess_result, step, tags)
@@ -79,7 +79,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
 
     def test_setting_tagging_result_can_be_later_retrieved(self):
         doc = IEDocFactory(text='Some sentence. And some other. Indeed !')
-        tokens = doc.text.split()
+        tokens = naive_tkn(doc.text)
         doc.set_preprocess_result(PreProcessSteps.tokenization, tokens)
         simeple_tags = ['NN' for token in tokens]
         step = PreProcessSteps.tagging
@@ -146,7 +146,7 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
         doc3 = IEDocFactory(text='something nice').save()
         doc4 = IEDocFactory(text='').save()
         step = PreProcessSteps.tokenization
-        doc3.set_preprocess_result(step, doc3.text.split()).save()
+        doc3.set_preprocess_result(step, naive_tkn(doc3.text)).save()
         doc4.set_preprocess_result(step, []).save()
         untokeneds = self.manager.get_documents_lacking_preprocess(step)
         self.assertIn(doc1, untokeneds)
@@ -159,8 +159,8 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
         doc2 = IEDocFactory(text='something nicer').save()
         doc3 = IEDocFactory(text='something even nicer').save()
         tkn = PreProcessSteps.tokenization
-        doc2.set_preprocess_result(tkn, doc2.text.split()).save()
-        doc3.set_preprocess_result(tkn, doc3.text.split()).save()
+        doc2.set_preprocess_result(tkn, naive_tkn(doc2.text)).save()
+        doc3.set_preprocess_result(tkn, naive_tkn(doc3.text)).save()
         step = PreProcessSteps.sentencer
         doc3.set_preprocess_result(step, [0, 3]).save()
         unsentenced = self.manager.get_documents_lacking_preprocess(step)
@@ -179,10 +179,10 @@ class TestDocumentSentenceIterator(TestCase):
 
     def test_tokens_are_preserved(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
+        offset_tokens = doc.get_preprocess_result(PreProcessSteps.tokenization)
         sentences = [s for s in doc.get_sentences()]
         output_tokens = sum(sentences, [])
-        self.assertEqual(tokens, output_tokens)
+        self.assertEqual([t for o, t in offset_tokens], output_tokens)
 
 
 class TestSegmentFilters(ManagerTestCase):
