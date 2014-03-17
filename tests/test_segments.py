@@ -64,6 +64,7 @@ class TextSegmentTest(unittest.TestCase):
         self.assertEqual(e.offset, 4 - 2)
         self.assertEqual(e.alias, "E")
 
+
 class TestDocumentSegmenter(ManagerTestCase):
 
     ManagerClass = TextSegment
@@ -81,7 +82,7 @@ class TestDocumentSegmenter(ManagerTestCase):
             else:
                 start, length = p, 1
             self.doc.entities.append(
-                EntityOccurrence(entity=e1, offset=start, offset_end=start+length, alias="AB"),
+                EntityOccurrence(entity=e1, offset=start, offset_end=start + length, alias="AB"),
             )
 
     def setUp(self):
