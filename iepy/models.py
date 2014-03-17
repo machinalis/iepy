@@ -26,8 +26,7 @@ ENTITY_KINDS = (
 
 def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     """
-
-    Returns a pair (l,r) that satisfies:
+    Given a sorted list/tuple/array a, returns a pair (l,r) that satisfies:
 
     all(v < xl for v in a[lo:l])
     all(xl <= v < xr for v in a[l:r])
@@ -247,6 +246,19 @@ class IEDocument(DynamicDocument):
         pass # TODO
 
     def build_contextual_segments(self, d):
+        """
+        Build all contextual text segments in a contextual way. A context is a
+        contiguous piece of the document with at least 2 tokens separated by
+        a distance of no more than 'd'.
+        
+        - A candidate segment should be built around each entity,
+        with k tokens ahead and behind.
+        - If an nearby entity is found, extend another k tokens (only once, do
+        not iterate this step).
+        - If no entities are found around the "center" entity, ignore this segment
+        - multi-token entities should always be captured together
+        - if two segments overlap, keep the larger one
+        """
         L = len(self.entities)
         i = 0
         while i+1 < L:
