@@ -199,28 +199,28 @@ class TestSegmentFilters(ManagerTestCase):
         #  * Segment 2 refers to A+B
         #  * Segment 3 refers to B, twice
 
-        c1 = TextSegmentFactory(document=d)
-        c1.entities.append(EntityInSegment(
-            key="A", canonical_form="Entity1", kind="person", offset=1
+        s1 = TextSegmentFactory(document=d)
+        s1.entities.append(EntityInSegment(
+            key="A", canonical_form="Entity1", kind="person", offset=1, offset_end=2
         ))
-        c1.save()
-        c2 = TextSegmentFactory(document=d)
-        c2.entities.append(EntityInSegment(
-            key="A", canonical_form="Entity1", kind="person", offset=1
+        s1.save()
+        s2 = TextSegmentFactory(document=d)
+        s2.entities.append(EntityInSegment(
+            key="A", canonical_form="Entity1", kind="person", offset=1, offset_end=2
         ))
-        c2.entities.append(EntityInSegment(
-            key="B", canonical_form="Entity2", kind="location", offset=1
+        s2.entities.append(EntityInSegment(
+            key="B", canonical_form="Entity2", kind="location", offset=1, offset_end=2
         ))
-        c2.save()
-        c3 = TextSegmentFactory(document=d)
-        c3.entities.append(EntityInSegment(
-            key="B", canonical_form="Entity2", kind="location", offset=1
+        s2.save()
+        s3 = TextSegmentFactory(document=d)
+        s3.entities.append(EntityInSegment(
+            key="B", canonical_form="Entity2", kind="location", offset=1, offset_end=2
         ))
-        c3.entities.append(EntityInSegment(
-            key="B", canonical_form="Entity2", kind="location", offset=2
+        s3.entities.append(EntityInSegment(
+            key="B", canonical_form="Entity2", kind="location", offset=2, offset_end=3
         ))
-        c3.save()
-        self.c1, self.c2, self.c3 = c1, c2, c3
+        s3.save()
+        self.s1, self.s2, self.s3 = s1, s2, s3
 
     def test_both_entities(self):
         # Request for entities A and B, only Segment 2 should be returned
@@ -228,13 +228,13 @@ class TestSegmentFilters(ManagerTestCase):
         eb = Entity(key="B")
         segments = self.manager.segments_with_both_entities(ea, eb)
         self.assertEqual(len(segments), 1)
-        self.assertEqual(segments[0], self.c2)
+        self.assertEqual(segments[0], self.s2)
 
     def test_both_kinds(self):
         # Request for kinds person+location, only Segment 2 should be returned
         segments = self.manager.segments_with_both_kinds("person", "location")
         self.assertEqual(len(segments), 1)
-        self.assertEqual(segments[0], self.c2)
+        self.assertEqual(segments[0], self.s2)
 
     def test_both_kinds(self):
         # Request for kinds location+location. Only Segment 3 should be returned
@@ -242,4 +242,4 @@ class TestSegmentFilters(ManagerTestCase):
         # not valid
         segments = self.manager.segments_with_both_kinds("location", "location")
         self.assertEqual(len(segments), 1)
-        self.assertEqual(segments[0], self.c3)
+        self.assertEqual(segments[0], self.s3)

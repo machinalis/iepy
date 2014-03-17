@@ -31,6 +31,7 @@ class EntityInSegmentFactory(factory.Factory):
     canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
     kind = 'person'
     offset = 0
+    offset_end = 1
 
 
 class IEDocFactory(factory.Factory):
@@ -45,6 +46,7 @@ class TextSegmentFactory(factory.Factory):
     document = factory.SubFactory(IEDocFactory)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
     offset = factory.Sequence(lambda n: n * 3)
+    offset_end = factory.Sequence(lambda n: n * 3 + 1)
     tokens = ['lorem', 'ipsum', 'dolor']
     postags = ['NN', 'NN', 'V']
     entities = []
