@@ -149,4 +149,17 @@ class TestDocumentSegmenter(ManagerTestCase):
         self.assertEqual(len(s.tokens), 16)
         self.assertEqual(len(s.entities), 2)
 
+    def test_segments_on_edges(self):
+        self.set_doc_length(100)
+        self.add_entities([1, 2, 97, 98])
+        self.doc.build_contextual_segments(5)
+        self.assertEqual(len(TextSegment.objects), 2)
+        s = TextSegment.objects[0]
+        self.assertEqual(s.offset, 0)
+        self.assertEqual(len(s.tokens), 8)
+        self.assertEqual(len(s.entities), 2)
+        s = TextSegment.objects[1]
+        self.assertEqual(s.offset, 92)
+        self.assertEqual(len(s.tokens), 8)
+        self.assertEqual(len(s.entities), 2)
     

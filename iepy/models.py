@@ -278,8 +278,8 @@ class IEDocument(DynamicDocument):
             else:
                 right = middle
             # Calculate the starting/ending offsets
-            start = left.offset - d
-            end = right.offset_end + d
+            start = max(0, left.offset - d)
+            end = min(right.offset_end + d, len(self.tokens))
             # Make sure that this doesn't split a token:
             j = i
             while j >= 0 and self.entities[j].offset_end > start:
