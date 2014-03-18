@@ -31,7 +31,6 @@ class TestDocumentsPreprocessMetadata(TestCase):
         simple_tokens = naive_tkn(doc.text)
         step = PreProcessSteps.tokenization
         doc.set_preprocess_result(step, simple_tokens)
-        self.assertTrue(doc.was_preprocess_done(step))
         self.assertEqual(doc.get_preprocess_result(step), simple_tokens)
 
     def test_cannot_set_sentencer_if_not_tokenization_stored(self):
@@ -91,6 +90,28 @@ class TestDocumentsPreprocessMetadata(TestCase):
 class TestStorePreprocessOutputSideEffects(TestCase):
     # Just one step. We'll assume that for the others is the same
     step = PreProcessSteps.tokenization
+
+    def test_set_preprocess_result_calls_flag_done(self):
+        doc = IEDocFactory()
+        with mock.patch.object(doc, 'flag_preprocess_done') as flag_step_done:
+            doc.set_preprocess_result(self.step, [])
+            flag_step_done.assert_called_onde_with(self.step)
+
+    def test_flag_step_done_does_not_save(self):
+        doc1 = IEDocFactory(text='')
+        with mock.patch.object(doc1, 'save') as save:
+            doc1.flag_preprocess_done(self.step)
+            self.assertFalse(save.called)
+
+    def test_flag_step_done_returns_modified_document(self):
+        doc = IEDocFactory(text='')
+        self.assertEqual(doc, doc.flag_preprocess_done(self.step))
+
+    def test_flag_step_done_modifies_result_of_was_step_done(self):
+        doc = IEDocFactory(text='')
+        assert not doc.was_preprocess_done(self.step)
+        doc.flag_preprocess_done(self.step)
+        self.assertTrue(doc.was_preprocess_done(self.step))
 
     def test_if_step_is_not_preprocessstep_error_is_raised(self):
         doc1 = IEDocFactory(text='').save()

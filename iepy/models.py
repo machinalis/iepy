@@ -183,7 +183,7 @@ class IEDocument(DynamicDocument):
         PreProcessSteps.tagging: 'postags',
     }
 
-    def tag_preprocess_done(self, step):
+    def flag_preprocess_done(self, step):
         """Adds an internal mark for knowing that the given step was done.
         Explicit "save" shall be called after this call.
         Returns "self" so it's easily chainable with a .save() if desired
@@ -229,7 +229,7 @@ class IEDocument(DynamicDocument):
                 setattr(self, field_name, result)
         else:
             setattr(self, field_name, result)
-        return self.tag_preprocess_done(step)
+        return self.flag_preprocess_done(step)
 
     def get_preprocess_result(self, step):
         """Returns the stored result for the asked preprocess step.
