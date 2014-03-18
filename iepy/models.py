@@ -73,6 +73,9 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
             rhi = mid
         else:
             rlo = mid + 1
+    # A couple of sanity checks: left and right intervals are outside the range
+    assert lo == llo or key(a[llo - 1]) < xl
+    assert hi == rlo or key(a[rlo]) >= xr
     return (llo, rlo)
 
 
@@ -142,6 +145,7 @@ class TextSegment(DynamicDocument):
             key=lambda occ: occ.offset)
         entities = []
         for o in document.entities[l:r]:
+            assert token_offset <= o.offset < token_offset_end  # This is ensured by _interval_offsets
             entities.append(EntityInSegment(
                 key=o.entity.key,
                 canonical_form=o.entity.canonical_form,
@@ -257,3 +261,80 @@ class IEDocument(DynamicDocument):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
+
+    def build_syntactic_segments(self):
+        entity = 0
+        L = len(self.sentences)
+        for i, start in enumerate(self.sentences):
+            end = self.sentences[i + 1] if i + 1 < L else len(self.tokens)
+            # At this point, tokens[start:end] has a sentence
+            # We need to check that it has at least 2 entities before
+            # building a segment
+            n = 0
+            for entity in xrange(entity, len(self.entities)):
+                # Skip entities before start of sentence
+                # If sentences are contiguous, and start at token 0,
+                # this loop should never advance. But we don't know what the
+                # sentencer does, so it's ebtter to be careful
+                if self.entities[entity].offset >= start:
+                    break
+            for entity in xrange(entity, len(self.entities)):
+                # Count entities inside the sentence
+                if self.entities[entity].offset >= end:
+                    break
+                n += 1
+            if n >= 2:
+                s = TextSegment.build(self, start, end)
+                s.save()
+
+    def build_contextual_segments(self, d):
+        """
+        Build all contextual text segments in a contextual way. A context is a
+        contiguous piece of the document with at least 2 tokens separated by
+        a distance of no more than 'd'.
+
+        - A candidate segment should be built around each entity,
+        with k tokens ahead and behind.
+        - If an nearby entity is found, extend another k tokens (only once, do
+        not iterate this step).
+        - If no entities are found around the "center" entity, ignore this segment
+        - multi-token entities should always be captured together
+        - if two segments overlap, keep the larger one
+        """
+        L = len(self.entities)
+        i = 0
+        lstart, lend = -1, -1
+        while i + 1 < L:
+            # Find 2 entities that are "close"
+            left, middle = self.entities[i:i + 2]
+            while middle.offset - left.offset_end >= d:
+                i += 1
+                if i + 1 == L:
+                    # we're done!
+                    return
+                left, middle = self.entities[i:i + 2]
+            # Find the rightmost in the segment
+            if i + 2 < L and self.entities[i + 2].offset - middle.offset_end < d:
+                right = self.entities[i + 2]
+            else:
+                right = middle
+            # Calculate the starting/ending offsets
+            start = max(0, left.offset - d)
+            end = min(right.offset_end + d, len(self.tokens))
+            # Make sure that this doesn't split a token:
+            j = i
+            while j >= 0 and self.entities[j].offset_end > start:
+                start = min(start, self.entities[j].offset)
+                j -= 1
+            j = i
+            while j < L and self.entities[j].offset < end:
+                end = max(end, self.entities[j].offset_end)
+                j += 1
+            if not (end == lend and start >= lstart):
+                # Not a repeat
+                s = TextSegment.build(self, start, end)
+                s.save()
+            lstart, lend = start, end
+            i += 1
+
+

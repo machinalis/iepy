@@ -3,7 +3,7 @@ import unittest
 from .factories import IEDocFactory, EntityFactory
 from .manager_case import ManagerTestCase
 from iepy.models import TextSegment, EntityOccurrence
-from iepy.segmenter import SyntacticSegmenterRunner, ContextualSegmenterRunner
+
 
 class TextSegmentTest(unittest.TestCase):
 
@@ -65,6 +65,39 @@ class TextSegmentTest(unittest.TestCase):
         self.assertEqual(e.alias, "E")
 
 
+    def test_entities_captured_large(self):
+        # This is a largeish example, mostly to check that the bisection
+        # algorithm in TextSegment.build works ok
+        e1 = EntityFactory()
+        d = self.d
+        # Try several sizes+intervals
+        for L, (s, e) in [(240, (51, 142)), (1024, (80, 333)), (1023, (80, 333))]:
+            d.offsets = range(L)
+            d.tokens =  ["X"]*L
+            d.postags = ["N"]*L
+            # Add entity occurrences at prime positions (primality isn't relevant
+            # here, just a way to generate an irregular but predictable distribution)
+            # entity length is 1 for indices < 6 and of the form 6*k-1
+            # entity length is 2 for indices of the form 6*k+1
+            occ = []
+            for i in xrange(2, L):
+                if all(i % k != 0 for k in range(2, int(i ** 0.5 + 1))):
+                    if i < 6 or i % 6 == 5 or i + 1 == L:
+                        end = i+1
+                    else:
+                        end = i+2
+                    occ.append(
+                        EntityOccurrence(entity=e1, offset=i, offset_end=end, alias="X"),
+                    )
+            d.entities = occ
+            c = TextSegment.build(d, s, e)
+            # Check that the right boundaries were found
+            l = next(i for (i,e) in enumerate(d.entities) if e.offset==c.offset+c.entities[0].offset)
+            r = next(i for (i,e) in enumerate(d.entities) if e.offset==c.offset+c.entities[-1].offset)
+            self.assertTrue(d.entities[l-1].offset < s <= d.entities[l].offset)
+            self.assertTrue(d.entities[r].offset < e <= d.entities[r+1].offset)
+
+
 class TestDocumentSegmenter(ManagerTestCase):
 
     ManagerClass = TextSegment
@@ -92,25 +125,25 @@ class TestDocumentSegmenter(ManagerTestCase):
 
     def test_no_entities(self):
         self.set_doc_length(100)
-        ContextualSegmenterRunner(3)(self.doc)
+        self.doc.build_contextual_segments(3)
         self.assertEqual(len(TextSegment.objects), 0)
 
     def test_1_entity(self):
         self.set_doc_length(100)
         self.add_entities([50])
-        ContextualSegmenterRunner(3)(self.doc)
+        self.doc.build_contextual_segments(3)
         self.assertEqual(len(TextSegment.objects), 0)
 
     def test_far_entities(self):
         self.set_doc_length(100)
         self.add_entities([50, 60])
-        ContextualSegmenterRunner(5)(self.doc)
+        self.doc.build_contextual_segments(5)
         self.assertEqual(len(TextSegment.objects), 0)
 
     def test_close_entities(self):
         self.set_doc_length(100)
         self.add_entities([50, 60])
-        ContextualSegmenterRunner(10)(self.doc)
+        self.doc.build_contextual_segments(10)
         self.assertEqual(len(TextSegment.objects), 1)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 40)
@@ -120,7 +153,7 @@ class TestDocumentSegmenter(ManagerTestCase):
     def test_overlap_elimination(self):
         self.set_doc_length(100)
         self.add_entities([50, 55, 60])
-        ContextualSegmenterRunner(5)(self.doc)
+        self.doc.build_contextual_segments(5)
         self.assertEqual(len(TextSegment.objects), 1)
         # Check that the segment captured is the big one
         s = TextSegment.objects[0]
@@ -131,7 +164,7 @@ class TestDocumentSegmenter(ManagerTestCase):
     def test_entity_not_splitted(self):
         self.set_doc_length(100)
         self.add_entities([(48, 5), 55, (57, 6)])
-        ContextualSegmenterRunner(5)(self.doc)
+        self.doc.build_contextual_segments(5)
         self.assertEqual(len(TextSegment.objects), 1)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 43)
@@ -141,7 +174,7 @@ class TestDocumentSegmenter(ManagerTestCase):
     def test_valid_overlap(self):
         self.set_doc_length(100)
         self.add_entities([45, 49, 55, 60])
-        ContextualSegmenterRunner(5)(self.doc)
+        self.doc.build_contextual_segments(5)
         self.assertEqual(len(TextSegment.objects), 2)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 40)
@@ -155,7 +188,7 @@ class TestDocumentSegmenter(ManagerTestCase):
     def test_segments_on_edges(self):
         self.set_doc_length(100)
         self.add_entities([1, 2, 97, 98])
-        ContextualSegmenterRunner(5)(self.doc)
+        self.doc.build_contextual_segments(5)
         self.assertEqual(len(TextSegment.objects), 2)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 0)
@@ -170,7 +203,7 @@ class TestDocumentSegmenter(ManagerTestCase):
         self.set_doc_length(100)
         self.add_entities([1, 2, 22, 23, 61, 80])
         self.doc.sentences = [0, 20, 50]
-        SyntacticSegmenterRunner()(self.doc)
+        self.doc.build_syntactic_segments()
         self.assertEqual(len(TextSegment.objects), 3)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 0)
@@ -189,7 +222,7 @@ class TestDocumentSegmenter(ManagerTestCase):
         self.set_doc_length(100)
         self.add_entities([1, 2, 22])
         self.doc.sentences = [0, 20, 50]
-        SyntacticSegmenterRunner()(self.doc)
+        self.doc.build_syntactic_segments()
         self.assertEqual(len(TextSegment.objects), 1)
         s = TextSegment.objects[0]
         self.assertEqual(s.offset, 0)
