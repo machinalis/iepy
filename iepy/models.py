@@ -11,6 +11,7 @@ class PreProcessSteps(Enum):
     sentencer = 2
     tagging = 3
     nerc = 4
+    segmentation = 5
 
 
 class InvalidPreprocessSteps(Exception):
@@ -26,8 +27,7 @@ ENTITY_KINDS = (
 
 def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     """
-
-    Returns a pair (l,r) that satisfies:
+    Given a sorted list/tuple/array a, returns a pair (l,r) that satisfies:
 
     all(v < xl for v in a[lo:l])
     all(xl <= v < xr for v in a[l:r])
@@ -88,6 +88,7 @@ class Entity(DynamicDocument):
 class EntityOccurrence(EmbeddedDocument):
     entity = fields.ReferenceField('Entity', required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
+    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
 
 
@@ -96,6 +97,7 @@ class EntityInSegment(EmbeddedDocument):
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to segment
+    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to segment
     alias = fields.StringField()  # Representation of the entity actually used in the text
 
 
@@ -111,7 +113,7 @@ class TextSegment(DynamicDocument):
     entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
 
     @classmethod
-    def build(cls, document, token_offset, token_offset_end, text):
+    def build(cls, document, token_offset, token_offset_end):
         """
         Build a segment based in the given documents, using the tokens in the
         range [token_offset:token_offset_end] (note that this has the usual
@@ -120,14 +122,20 @@ class TextSegment(DynamicDocument):
         use the given text as reference (it should be a human readable
         representation of the segment
         """
-        # FIXME: is it possible to not need the text? perhaps having the
-        # token character offsets
         self = cls()
         self.document = document
-        self.text = text
         self.offset = token_offset
         self.tokens = document.tokens[token_offset:token_offset_end]
         self.postags = document.postags[token_offset:token_offset_end]
+        if token_offset < len(document.offsets):
+            text_start = document.offsets[token_offset]
+        else:
+            text_start = len(document.text)
+        if token_offset_end < len(document.offsets):
+            text_end = document.offsets[token_offset_end]
+        else:
+            text_end = len(document.text)
+        self.text = document.text[text_start:text_end]
         l, r = _interval_offsets(
             document.entities,
             token_offset, token_offset_end,
@@ -139,6 +147,7 @@ class TextSegment(DynamicDocument):
                 canonical_form=o.entity.canonical_form,
                 kind=o.entity.kind,
                 offset=o.offset - token_offset,
+                offset_end=o.offset_end - token_offset,
                 alias=o.alias,
             ))
         self.entities = entities
@@ -240,3 +249,5 @@ class IEDocument(DynamicDocument):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
+
+
