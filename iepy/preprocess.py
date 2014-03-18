@@ -43,12 +43,15 @@ class BasePreProcessStepRunner(object):
     # If it's for a particular step, you can write
     # step = PreProcessSteps.something
 
+    def __init__(self, override=False):
+        self.override = override
+
     def __call__(self, doc):
         # You'll have to:
-        # - check if the document satisfies pre-conditions
-        # - decide what to do if the document had that sted already done:
-        #    - skip?
-        #    - re-doit?
-        #    - raise?
-        # - store pre process results on the document
+        # - Check if the document satisfies pre-conditions, and if not, do nothing
+        # - Explicitely store pre process results on the document
+        # - Based on the "override" paramenter, and on your checks to see if the step
+        #   was already done or not, decide if you will
+        #    - skip
+        #    - re-do step.
         raise NotImplementedError
