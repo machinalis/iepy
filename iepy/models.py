@@ -73,6 +73,9 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
             rhi = mid
         else:
             rlo = mid + 1
+    # A couple of sanity checks: left and right intervals are outside the range
+    assert lo == llo or key(a[llo - 1]) < xl
+    assert hi == rlo or key(a[rlo]) >= xr
     return (llo, rlo)
 
 
@@ -142,6 +145,7 @@ class TextSegment(DynamicDocument):
             key=lambda occ: occ.offset)
         entities = []
         for o in document.entities[l:r]:
+            assert token_offset <= o.offset < token_offset_end  # This is ensured by _interval_offsets
             entities.append(EntityInSegment(
                 key=o.entity.key,
                 canonical_form=o.entity.canonical_form,

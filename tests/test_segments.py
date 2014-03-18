@@ -65,6 +65,39 @@ class TextSegmentTest(unittest.TestCase):
         self.assertEqual(e.alias, "E")
 
 
+    def test_entities_captured_large(self):
+        # This is a largeish example, mostly to check that the bisection
+        # algorithm in TextSegment.build works ok
+        e1 = EntityFactory()
+        d = self.d
+        # Try several sizes+intervals
+        for L, (s, e) in [(240, (51, 142)), (1024, (80, 333)), (1023, (80, 333))]:
+            d.offsets = range(L)
+            d.tokens =  ["X"]*L
+            d.postags = ["N"]*L
+            # Add entity occurrences at prime positions (primality isn't relevant
+            # here, just a way to generate an irregular but predictable distribution)
+            # entity length is 1 for indices < 6 and of the form 6*k-1
+            # entity length is 2 for indices of the form 6*k+1
+            occ = []
+            for i in xrange(2, L):
+                if all(i % k != 0 for k in range(2, int(i ** 0.5 + 1))):
+                    if i < 6 or i % 6 == 5 or i + 1 == L:
+                        end = i+1
+                    else:
+                        end = i+2
+                    occ.append(
+                        EntityOccurrence(entity=e1, offset=i, offset_end=end, alias="X"),
+                    )
+            d.entities = occ
+            c = TextSegment.build(d, s, e)
+            # Check that the right boundaries were found
+            l = next(i for (i,e) in enumerate(d.entities) if e.offset==c.offset+c.entities[0].offset)
+            r = next(i for (i,e) in enumerate(d.entities) if e.offset==c.offset+c.entities[-1].offset)
+            self.assertTrue(d.entities[l-1].offset < s <= d.entities[l].offset)
+            self.assertTrue(d.entities[r].offset < e <= d.entities[r+1].offset)
+
+
 class TestDocumentSegmenter(ManagerTestCase):
 
     ManagerClass = TextSegment
