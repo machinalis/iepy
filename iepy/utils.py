@@ -1,3 +1,10 @@
+from getpass import getuser
+import zipfile
+
+from appdirs import AppDirs
+
+DIRS = AppDirs('iepy', getuser())
+
 
 def unzip(zipped_list, n):
     """returns n lists with the elems of zipped_list unsplitted.
@@ -13,3 +20,8 @@ def unzip(zipped_list, n):
         if filter(lambda x: not isinstance(x, tuple) or len(x) != n, zipped_list):
             raise ValueError
         return zip(*zipped_list)
+
+
+def unzip_file(zip_path, extraction_base_path):
+    zfile = zipfile.ZipFile(zip_path)
+    zfile.extractall(extraction_base_path)
