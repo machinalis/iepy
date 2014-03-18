@@ -183,12 +183,23 @@ class IEDocument(DynamicDocument):
         PreProcessSteps.tagging: 'postags',
     }
 
+    def tag_preprocess_done(self, step):
+        """Adds an internal mark for knowing that the given step was done.
+        Explicit "save" shall be called after this call.
+        Returns "self" so it's easily chainable with a .save() if desired
+        """
+        self.preprocess_metadata[step.name] = {
+            'done_at': datetime.now(),
+        }
+        return self
+
     def was_preprocess_done(self, step):
         return step.name in self.preprocess_metadata.keys()
 
     def set_preprocess_result(self, step, result):
         """Set the result in the internal representation.
         Explicit save must be triggered after this call.
+        Returns "self" so it's easily chainable with a .save() if desired
         """
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
@@ -218,10 +229,7 @@ class IEDocument(DynamicDocument):
                 setattr(self, field_name, result)
         else:
             setattr(self, field_name, result)
-        self.preprocess_metadata[step.name] = {
-            'done_at': datetime.now(),
-        }
-        return self  # So it's easily chainable with a .save() if desired
+        return self.tag_preprocess_done(step)
 
     def get_preprocess_result(self, step):
         """Returns the stored result for the asked preprocess step.
@@ -249,5 +257,3 @@ class IEDocument(DynamicDocument):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
-
-
