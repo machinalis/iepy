@@ -48,3 +48,49 @@ class LitTagger:
         
         return result
 
+
+def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=False):
+    if not normalizer:
+        normalizer = lambda x: x
+    
+    # https://developers.google.com/freebase/v1/mql-overview
+    service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
+    #query = [{'type': '/medicine/disease', 'name': None}]
+    query = [{'type': type_name, 'name': None}]
+    if aliases:
+        query[0]['/common/topic/alias'] = []
+    
+    f = codecs.open(dest_filename, 'w', encoding='utf8')
+
+    params = { 'query': json.dumps(query) }
+    url = service_url + '?' + urllib.urlencode(params) + '&cursor'
+    response = json.loads(urllib.urlopen(url).read())
+    cursor = response['cursor']
+    
+    # write results
+    for result in response['result']:
+        name = normalizer(result['name'])
+        f.write(name + '\n')
+        if aliases:
+            for name in result['/common/topic/alias']:
+                name = normalizer(name)
+                f.write(name + '\n')    
+    
+    while cursor:
+        params = { 'query': json.dumps(query), 'cursor': cursor }
+        url = service_url + '?' + urllib.urlencode(params)
+        response = json.loads(urllib.urlopen(url).read())
+        cursor = response['cursor']
+        
+        # write results
+        for result in response['result']:
+            if result['name']:
+                name = normalizer(result['name'])
+                f.write(name + '\n')
+            if aliases:
+                for name in result['/common/topic/alias']:
+                    name = normalizer(name)
+                    f.write(name + '\n')
+        
+    f.close()
+
