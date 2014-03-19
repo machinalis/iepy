@@ -54,7 +54,7 @@ class TestStanfordTaggerRunner(TestCase):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
         expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
         tag = StanfordTaggerRunner()
-        tag(doc)            
+        tag(doc)
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
         postags = doc.get_preprocess_result(PreProcessSteps.tagging)
         self.assertEqual(postags, expected_postags)
