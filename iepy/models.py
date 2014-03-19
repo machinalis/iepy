@@ -185,6 +185,7 @@ class IEDocument(DynamicDocument):
         PreProcessSteps.tokenization: ('offsets', 'tokens'),
         PreProcessSteps.sentencer: 'sentences',
         PreProcessSteps.tagging: 'postags',
+        PreProcessSteps.nerc: 'entities',
     }
 
     def flag_preprocess_done(self, step):
