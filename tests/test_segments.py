@@ -97,6 +97,26 @@ class TextSegmentTest(unittest.TestCase):
             self.assertTrue(d.entities[l-1].offset < s <= d.entities[l].offset)
             self.assertTrue(d.entities[r].offset < e <= d.entities[r+1].offset)
 
+    def test_sentence_information(self):
+        d = self.d
+        L = 100
+        d.offsets = range(L)
+        d.tokens =  ["X"]*L
+        d.postags = ["N"]*L
+        d.sentences = [0, 5, 35, 36, 41, 90]
+        c = TextSegment.build(d, 30, 60)
+        self.assertEqual(c.sentences, [5, 6, 11])
+
+    def test_sentence_information_start(self):
+        d = self.d
+        L = 100
+        d.offsets = range(L)
+        d.tokens =  ["X"]*L
+        d.postags = ["N"]*L
+        d.sentences = [0, 5, 35, 36, 41, 90]
+        c = TextSegment.build(d, 0, 60)
+        self.assertEqual(c.sentences, [0, 5, 35, 36, 41])
+
 
 class TestDocumentSegmenter(ManagerTestCase):
 
