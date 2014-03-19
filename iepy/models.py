@@ -115,6 +115,9 @@ class TextSegment(DynamicDocument):
 
     entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
 
+    # offsets of sentence starts in this segment; relative to start of segment
+    sentences = fields.ListField(fields.IntField())  
+
     @classmethod
     def build(cls, document, token_offset, token_offset_end):
         """
@@ -139,6 +142,7 @@ class TextSegment(DynamicDocument):
         else:
             text_end = len(document.text)
         self.text = document.text[text_start:text_end]
+        # Find entities
         l, r = _interval_offsets(
             document.entities,
             token_offset, token_offset_end,
@@ -155,6 +159,9 @@ class TextSegment(DynamicDocument):
                 alias=o.alias,
             ))
         self.entities = entities
+        # Find sentences
+        l, r = _interval_offsets(document.sentences, token_offset, token_offset_end)
+        self.sentences = [o - token_offset for o in document.sentences[l:r]]
         return self
 
 
