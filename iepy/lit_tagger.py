@@ -2,6 +2,10 @@ import json
 import urllib
 import codecs
 
+from iepy.models import PreProcessSteps, Entity, EntityOccurrence
+from iepy.ner import NERRunner
+from iepy.preprocess import BasePreProcessStepRunner
+
 
 class LitTagger:
 
@@ -27,6 +31,29 @@ class LitTagger:
         self.prefixes = frozenset(prefixes)
     
     def tag(self, sent):
+        """Tagger with output a la Stanford (no start/end markers).
+        """
+        entities = self.entities(sent)
+        # dummy entity for nicer code:
+        entities.append((len(sent), len(sent)))
+        next_entity = entities.pop(0)
+        result = []
+        for i, t in enumerate(sent):
+            #print i, next_entity
+            if i >= next_entity[1]:
+                # assert entities
+                next_entity = entities.pop(0)
+            
+            if i < next_entity[0]:
+                result.append((t, 'O'))
+            elif i < next_entity[1]:
+                result.append((t, self.label))
+        
+        return result
+
+    def entities(self, sent):
+        """Return entities as a list of pairs (offset, offset_end).
+        """
         result = []
         i = 0
         while i < len(sent):
@@ -39,14 +66,52 @@ class LitTagger:
                 segment = ' '.join(sent[i:j])
             if prev_segment in self.names:
                 # label sent[i:j - 1]
-                for k in range(i, j - 1):
-                    result.append((sent[k], self.label))
+                #for k in range(i, j - 1):
+                #    result.append((sent[k], self.label))
+                result.append((i, j - 1))
                 i = j - 1
             else:
-                result.append((sent[i], 'O'))
+                #result.append((sent[i], 'O'))
                 i += 1
         
         return result
+
+
+class LitTaggerRunner(NERRunner):
+
+    def __init__(self, label, src_filename, override=False):
+        lit_tagger = LitTagger()
+        callable_lit_tagger = lambda x: lit_tagger.tag(x)
+        NERRunner.__init__(self, callable_lit_tagger, override)
+
+
+class LitTaggerRunner2(BasePreProcessStepRunner):
+
+    def __init__(self, label, src_filename, override=False):
+        self.label = label
+        self.lit_tagger = LitTagger(label, src_filename)
+    
+    def __call__(self, doc):
+        # this step does not requires PreProcessSteps.tagging:
+        if not doc.was_preprocess_done(PreProcessSteps.sentencer):
+            return
+        
+        entities = []
+        sent_offset = 0
+        for sent in doc.get_sentences():
+            sent_entities = self.lit_tagger.entities(sent)
+            
+            for (i, j) in sent_entities:
+                name = ' '.join(sent[i:j])
+                kind = self.label.lower() # XXX: should be in models.ENTITY_KINDS
+                entity, created = Entity.objects.get_or_create(key=name, 
+                            defaults={'canonical_form': name, 'kind': kind})
+                entity_oc = EntityOccurrence(entity=entity, 
+                                        offset=sent_offset + i, 
+                                        offset_end=sent_offset + j)
+                entities.append(entity_oc)
+            
+            sent_offset += len(sent)
 
 
 def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=False):
@@ -74,7 +139,7 @@ def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=Fa
         if aliases:
             for name in result['/common/topic/alias']:
                 name = normalizer(name)
-                f.write(name + '\n')    
+                f.write(name + '\n')
     
     while cursor:
         params = { 'query': json.dumps(query), 'cursor': cursor }
