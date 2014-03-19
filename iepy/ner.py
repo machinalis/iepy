@@ -1,4 +1,8 @@
+import os
+import os.path
+
 from nltk.tag.stanford import NERTagger
+import wget
 
 from iepy.models import PreProcessSteps, Entity, EntityOccurrence
 from iepy.preprocess import BasePreProcessStepRunner
@@ -57,4 +61,32 @@ class NERRunner(BasePreProcessStepRunner):
             
         doc.set_preprocess_result(PreProcessSteps.nerc, entities)
         doc.save()
+
+
+class StanfordNERRunner(NERRunner):
+
+    def __init__(self, override=False):
+        ner_path = os.path.join(DIRS.user_data_dir, stanford_ner_name)
+        if not os.path.exists(ner_path):
+            raise LookupError("Stanford NER not found. Try running the "
+                              "command download_third_party_data.py")
+
+        ner = NERTagger(
+            os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'), 
+            os.path.join(ner_path, 'stanford-ner.jar'),
+            encoding='utf8')
+            
+        callable_ner = lambda x: ner.tag(x)
+        NERRunner.__init__(self, callable_ner, override)
+
+
+def download():
+    print 'Downloading Stanford NER...'
+    if not os.path.exists(DIRS.user_data_dir):
+        os.mkdir(DIRS.user_data_dir)
+    os.chdir(DIRS.user_data_dir)
+    package_filename = '{0}.zip'.format(stanford_ner_name)
+    zip_path = os.path.join(DIRS.user_data_dir, package_filename)
+    wget.download(download_url_base + package_filename)
+    unzip_file(zip_path, DIRS.user_data_dir)
 
