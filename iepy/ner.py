@@ -44,8 +44,8 @@ class NERRunner(BasePreProcessStepRunner):
                     offset_end = i
                     name = ' '.join(sent[offset:offset_end])
                     kind = e.lower() # XXX: should be in models.ENTITY_KINDS
-                    entity = Entity(key=name, canonical_form=name, kind=kind)
-                    entity.save()
+                    entity, created = Entity.objects.get_or_create(key=name, 
+                                defaults={'canonical_form': name, 'kind': kind})
                     entity_oc = EntityOccurrence(entity=entity, 
                                             offset=sent_offset + offset, 
                                             offset_end=sent_offset + offset_end)
