@@ -85,7 +85,7 @@ class Entity(DynamicDocument):
     kind = fields.StringField(choices=ENTITY_KINDS)
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.string, self.kind)
+        return u'%s (%s)' % (self.key, self.kind)
 
 
 class EntityOccurrence(EmbeddedDocument):
@@ -185,6 +185,7 @@ class IEDocument(DynamicDocument):
         PreProcessSteps.tokenization: ('offsets', 'tokens'),
         PreProcessSteps.sentencer: 'sentences',
         PreProcessSteps.tagging: 'postags',
+        PreProcessSteps.nerc: 'entities',
     }
 
     def flag_preprocess_done(self, step):
