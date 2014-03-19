@@ -51,9 +51,10 @@ class StanfordTaggerRunner(TaggerRunner):
 
         postagger = POSTagger(
             os.path.join(tagger_path, 'models', 'english-bidirectional-distsim.tagger'),
-            os.path.join(tagger_path, 'stanford-postagger.jar'))
+            os.path.join(tagger_path, 'stanford-postagger.jar'),
+            encoding='utf8')
+            
         callable_postagger = lambda x: postagger.tag(x)
-
         TaggerRunner.__init__(self, callable_postagger, override)
 
 
