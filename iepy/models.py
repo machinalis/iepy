@@ -21,7 +21,8 @@ class InvalidPreprocessSteps(Exception):
 ENTITY_KINDS = (
     ('person', u'Person'),
     ('location', u'Location'),
-    ('organization', u'Organization')
+    ('organization', u'Organization'),
+    ('disease', u'Disease'),
 )
 
 
@@ -93,6 +94,9 @@ class EntityOccurrence(EmbeddedDocument):
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
     offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
+    
+    def __unicode__(self):
+        return u'{0} ({1}, {2})'.format(self.entity, self.offset, self.offset_end)
 
 
 class EntityInSegment(EmbeddedDocument):

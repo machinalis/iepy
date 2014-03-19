@@ -23,7 +23,7 @@ class NERRunner(BasePreProcessStepRunner):
         self.override = override
     
     def __call__(self, doc):
-        # this step not necessarily requires PreProcessSteps.tagging:
+        # this step does not necessarily requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
         if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
@@ -42,7 +42,7 @@ class NERRunner(BasePreProcessStepRunner):
                     offset = i
                     # find end:
                     i += 1
-                    while ner_sent[i][1] == e:
+                    while i < len(ner_sent) and ner_sent[i][1] == e:
                         i += 1
                     offset_end = i
                     name = ' '.join(sent[offset:offset_end])

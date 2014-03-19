@@ -80,7 +80,7 @@ class LitTagger:
 class LitTaggerRunner(NERRunner):
 
     def __init__(self, label, src_filename, override=False):
-        lit_tagger = LitTagger()
+        lit_tagger = LitTagger(label, src_filename)
         callable_lit_tagger = lambda x: lit_tagger.tag(x)
         NERRunner.__init__(self, callable_lit_tagger, override)
 
@@ -112,6 +112,9 @@ class LitTaggerRunner2(BasePreProcessStepRunner):
                 entities.append(entity_oc)
             
             sent_offset += len(sent)
+
+        doc.set_preprocess_result(PreProcessSteps.nerc, entities)
+        doc.save()
 
 
 def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=False):
