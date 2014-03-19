@@ -85,7 +85,7 @@ class Entity(DynamicDocument):
     kind = fields.StringField(choices=ENTITY_KINDS)
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.string, self.kind)
+        return u'%s (%s)' % (self.key, self.kind)
 
 
 class EntityOccurrence(EmbeddedDocument):
