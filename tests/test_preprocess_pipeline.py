@@ -1,4 +1,8 @@
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
 from unittest import TestCase
 
 from iepy.preprocess import PreProcessPipeline

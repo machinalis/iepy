@@ -81,7 +81,7 @@ class StanfordNERRunner(NERRunner):
 
 
 def download():
-    print 'Downloading Stanford NER...'
+    print('Downloading Stanford NER...')
     if not os.path.exists(DIRS.user_data_dir):
         os.mkdir(DIRS.user_data_dir)
     os.chdir(DIRS.user_data_dir)

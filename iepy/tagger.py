@@ -59,7 +59,7 @@ class StanfordTaggerRunner(TaggerRunner):
 
 
 def download():
-    print 'Downloading Stanford POS tagger...'
+    print('Downloading Stanford POS tagger...')
     if not os.path.exists(DIRS.user_data_dir):
         os.mkdir(DIRS.user_data_dir)
     os.chdir(DIRS.user_data_dir)

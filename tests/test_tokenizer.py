@@ -2,7 +2,10 @@ from unittest import TestCase
 
 import nltk
 from nltk.tokenize.punkt import PunktSentenceTokenizer
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from iepy.tokenizer import en_tokenize_and_segment, _get_tokenizer
 

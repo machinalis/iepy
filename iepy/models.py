@@ -221,7 +221,6 @@ class IEDocument(DynamicDocument):
             if sorted(result) != result:
                 raise ValueError('Sentencer result shall be ordered.')
             if len(set(result)) < len(result):
-                print result
                 raise ValueError(
                     'Sentencer result shall not contain duplicates.')
             if result[0] != 0 or result[-1] != len(self.tokens):

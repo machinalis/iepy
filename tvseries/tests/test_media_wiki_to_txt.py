@@ -1,5 +1,8 @@
 from unittest import TestCase
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from iepy.models import IEDocument
 from tvseries.scripts.preprocess import media_wiki_to_txt
