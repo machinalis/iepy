@@ -1,12 +1,16 @@
 from unittest import TestCase
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
-from manager_case import ManagerTestCase
 from iepy.db import DocumentManager, TextSegmentManager
 from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
                          EntityInSegment, Entity)
-from factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn
-from timelapse import timekeeper
+
+from .factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn
+from .manager_case import ManagerTestCase
+from .timelapse import timekeeper
 
 
 class TestDocumentsPreprocessMetadata(TestCase):

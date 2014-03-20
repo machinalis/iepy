@@ -78,5 +78,5 @@ class TextSegmentManager(object):
             ]
 
             objects = db.text_segment.aggregate(pipeline)
-            segments = TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values()
+            segments = list(TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values())
             return segments

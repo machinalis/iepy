@@ -17,7 +17,7 @@ def unzip(zipped_list, n):
     if not zipped_list:
         return tuple([[]]*n)
     else:
-        if filter(lambda x: not isinstance(x, tuple) or len(x) != n, zipped_list):
+        if not all(isinstance(x, tuple) and len(x) == n for x in zipped_list):
             raise ValueError
         return zip(*zipped_list)
 
