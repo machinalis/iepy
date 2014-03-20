@@ -80,7 +80,7 @@ class TextSegmentTest(unittest.TestCase):
             # entity length is 1 for indices < 6 and of the form 6*k-1
             # entity length is 2 for indices of the form 6*k+1
             occ = []
-            for i in xrange(2, L):
+            for i in range(2, L):
                 if all(i % k != 0 for k in range(2, int(i ** 0.5 + 1))):
                     if i < 6 or i % 6 == 5 or i + 1 == L:
                         end = i+1

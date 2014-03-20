@@ -216,7 +216,7 @@ class IEDocument(DynamicDocument):
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
         if step == PreProcessSteps.sentencer:
-            if filter(lambda x: not isinstance(x, int), result):
+            if not all(isinstance(x, int) for x in result):
                 raise ValueError('Sentencer result shall only contain ints')
             if sorted(result) != result:
                 raise ValueError('Sentencer result shall be ordered.')
@@ -255,7 +255,7 @@ class IEDocument(DynamicDocument):
             results = []
             for field_name in names:
                 results.append(getattr(self, field_name))
-            return zip(*results)
+            return list(zip(*results))
         else:
             return getattr(self, field_name)
 
@@ -278,14 +278,14 @@ class IEDocument(DynamicDocument):
             # We need to check that it has at least 2 entities before
             # building a segment
             n = 0
-            for entity in xrange(entity, len(self.entities)):
+            for entity in range(entity, len(self.entities)):
                 # Skip entities before start of sentence
                 # If sentences are contiguous, and start at token 0,
                 # this loop should never advance. But we don't know what the
                 # sentencer does, so it's ebtter to be careful
                 if self.entities[entity].offset >= start:
                     break
-            for entity in xrange(entity, len(self.entities)):
+            for entity in range(entity, len(self.entities)):
                 # Count entities inside the sentence
                 if self.entities[entity].offset >= end:
                     break
