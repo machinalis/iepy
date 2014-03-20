@@ -1,9 +1,6 @@
-argparse==1.2.1
 mongoengine==0.8.7
 pymongo==2.6.3
-wsgiref==0.1.2
 enum34==0.9.23
-nltk==2.0.4
 appdirs==1.2.0
 wget==2.0
 

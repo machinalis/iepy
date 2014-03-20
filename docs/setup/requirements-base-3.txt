@@ -1,0 +1,3 @@
+-r requirements-base.txt
+http://www.nltk.org/nltk3-alpha/nltk-3.0a3.tar.gz
+
