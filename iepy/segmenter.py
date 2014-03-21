@@ -14,7 +14,8 @@ class SyntacticSegmenterRunner(BasePreProcessStepRunner):
             return
         if self.override or not doc.was_preprocess_done(self.step):
             doc.build_syntactic_segments()
-            self.flag_preprocess_done(self.step)
+            doc.flag_preprocess_done(self.step)
+            doc.save()
 
 
 class ContextualSegmenterRunner(BasePreProcessStepRunner):
@@ -30,5 +31,6 @@ class ContextualSegmenterRunner(BasePreProcessStepRunner):
             return
         if self.override or not doc.was_preprocess_done(self.step):
             doc.build_contextual_segments(self.distance)
-            self.flag_preprocess_done(self.step)
+            doc.flag_preprocess_done(self.step)
+            doc.save()
 
