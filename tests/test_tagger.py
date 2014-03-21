@@ -10,25 +10,20 @@ class TestTaggerRunner(TestCase):
 
     def test_tagger_runner_is_calling_postagger(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
-        def postagger(sent):
-            if sent[0] == 'Some':
-                tags = expected_postags[0:3]
-            elif sent[0] == 'And':
-                tags = expected_postags[3:7]
-            elif sent[0] == 'Indeed':
-                tags = expected_postags[7:9]
-            return zip(sent, tags)
+        expected_postags = [['DT', 'NN', '.'], ['CC', 'DT', 'JJ', '.'], ['RB', '.']]
+        i = iter(expected_postags)
+        def postagger(sents):
+            return (zip(sent, next(i)) for sent in sents)
         tag = TaggerRunner(postagger)
         tag(doc)
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
         postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertEqual(postags, expected_postags)
+        self.assertEqual(postags, sum(expected_postags, []))
 
     def test_tagger_runner_not_overriding_by_default(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        postagger1 = lambda sent: [(x, 'A') for x in sent]
-        postagger2 = lambda sent: [(x, 'B') for x in sent]
+        postagger1 = lambda sents: [[(x, 'A') for x in sent] for sent in sents]
+        postagger2 = lambda sents: [[(x, 'B') for x in sent] for sent in sents]
         tag = TaggerRunner(postagger1)
         tag(doc)
         tag.postagger = postagger2 # XXX: accessing implementation
@@ -38,8 +33,8 @@ class TestTaggerRunner(TestCase):
         
     def test_tagger_runner_overriding_when_selected(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        postagger1 = lambda sent: [(x, 'A') for x in sent]
-        postagger2 = lambda sent: [(x, 'B') for x in sent]
+        postagger1 = lambda sents: [[(x, 'A') for x in sent] for sent in sents]
+        postagger2 = lambda sents: [[(x, 'B') for x in sent] for sent in sents]
         tag = TaggerRunner(postagger1, override=True)
         tag(doc)
         tag.postagger = postagger2 # XXX: accessing implementation

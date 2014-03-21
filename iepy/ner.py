@@ -32,9 +32,8 @@ class NERRunner(BasePreProcessStepRunner):
 
         entities = []
         sent_offset = 0
-        for sent in doc.get_sentences():
-            ner_sent = self.ner(sent)
-            
+        sentences = list(doc.get_sentences())
+        for sent, ner_sent in zip(sentences, self.ner(sentences)):
             i = 0
             while i < len(ner_sent):
                 t, e = ner_sent[i]
@@ -76,8 +75,7 @@ class StanfordNERRunner(NERRunner):
             os.path.join(ner_path, 'stanford-ner.jar'),
             encoding='utf8')
             
-        callable_ner = lambda x: ner.tag(x)
-        NERRunner.__init__(self, callable_ner, override)
+        super(StanfordNERRunner, self).__init__(ner.batch_tag, override)
 
 
 def download():

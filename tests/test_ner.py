@@ -20,8 +20,8 @@ class TestNERRunner(ManagerTestCase):
     }
     
     def check_ner(self, doc, entities_triples):
-        def ner(sent):
-            return [(t, self.entity_map.get(t, 'O')) for t in sent]
+        def ner(sents):
+            return [[(t, self.entity_map.get(t, 'O')) for t in sent] for sent in sents]
         ner_runner = NERRunner(ner)
         ner_runner(doc)
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
