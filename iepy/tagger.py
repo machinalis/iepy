@@ -31,11 +31,9 @@ class TaggerRunner(BasePreProcessStepRunner):
             #print 'Already done'
             return
 
-
         tagged_doc = []
-        for sent in doc.get_sentences():
-            tagged_sent = self.postagger(sent)
-            tagged_doc.extend(tag for token, tag in tagged_sent)
+        for ts in self.postagger(doc.get_sentences()):
+            tagged_doc.extend(tag for token, tag in ts)
 
         doc.set_preprocess_result(PreProcessSteps.tagging, tagged_doc)
         doc.save()
@@ -54,7 +52,7 @@ class StanfordTaggerRunner(TaggerRunner):
             os.path.join(tagger_path, 'stanford-postagger.jar'),
             encoding='utf8')
             
-        super(StanfordTaggerRunner, self).__init__(postagger.tag, override)
+        super(StanfordTaggerRunner, self).__init__(postagger.batch_tag, override)
 
 
 def download():
