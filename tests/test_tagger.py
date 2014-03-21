@@ -10,20 +10,15 @@ class TestTaggerRunner(TestCase):
 
     def test_tagger_runner_is_calling_postagger(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
+        expected_postags = [['DT', 'NN', '.'], ['CC', 'DT', 'JJ', '.'], ['RB', '.']]
+        i = iter(expected_postags)
         def postagger(sent):
-            if sent[0] == 'Some':
-                tags = expected_postags[0:3]
-            elif sent[0] == 'And':
-                tags = expected_postags[3:7]
-            elif sent[0] == 'Indeed':
-                tags = expected_postags[7:9]
-            return zip(sent, tags)
+            return zip(sent, next(i))
         tag = TaggerRunner(postagger)
         tag(doc)
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
         postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertEqual(postags, expected_postags)
+        self.assertEqual(postags, sum(expected_postags, []))
 
     def test_tagger_runner_not_overriding_by_default(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
