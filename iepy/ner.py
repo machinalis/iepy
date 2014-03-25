@@ -34,7 +34,7 @@ class NERRunner(BasePreProcessStepRunner):
         sent_offset = 0
         sentences = list(doc.get_sentences())
         for sent, ner_sent in zip(sentences, self.ner(sentences)):
-            assert len(sent) == len(ner_sent)
+            assert len(sent) == len(ner_sent), "Sentence length mismatch %r / %r" % (sent, ner_sent)
             i = 0
             while i < len(ner_sent):
                 t, e = ner_sent[i]
