@@ -27,7 +27,7 @@ def media_wiki_to_txt(doc):
         # After MW strip, titles will not be recognizable. If they dont
         # with a dot, will be very hard to split in sentences correctly.
         raw = doc.metadata['raw_text']
-        raw = re.subn(r'==(.*)==', r'==\1.==', raw)[0]
+        raw = re.subn(r'(=+)(.*)\1', r'\1\2.\1', raw)[0]
         doc.text = get_body_text(raw)
         doc.save()
 
