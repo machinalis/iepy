@@ -35,6 +35,8 @@ class TaggerRunner(BasePreProcessStepRunner):
         for ts in self.postagger(doc.get_sentences()):
             tagged_doc.extend(tag for token, tag in ts)
 
+        assert len(tagged_doc) == len(doc.tokens)
+
         doc.set_preprocess_result(PreProcessSteps.tagging, tagged_doc)
         doc.save()
 

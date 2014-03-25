@@ -12,6 +12,15 @@ stanford_ner_name = 'stanford-ner-2014-01-04'
 download_url_base = 'http://nlp.stanford.edu/software/'
 
 
+class NonTokenizingNERTagger(NERTagger):
+
+    @property
+    def _cmd(self):
+        old = super(NonTokenizingNERTagger, self)._cmd
+        old = old + ["-tokenizerFactory", "edu.stanford.nlp.process.WhitespaceTokenizer"]
+        return old
+
+
 class NERRunner(BasePreProcessStepRunner):
     """Wrapper to insert a generic callable sentence NER tagger into the pipeline.
     """
@@ -71,7 +80,7 @@ class StanfordNERRunner(NERRunner):
             raise LookupError("Stanford NER not found. Try running the "
                               "command download_third_party_data.py")
 
-        ner = NERTagger(
+        ner = NonTokenizingNERTagger(
             os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'), 
             os.path.join(ner_path, 'stanford-ner.jar'),
             encoding='utf8')
