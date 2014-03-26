@@ -7,17 +7,12 @@ from iepy.ner import NERRunner
 from iepy.preprocess import BasePreProcessStepRunner
 
 
-class LitTagger:
+class OldLitTagger:
 
     def __init__(self, label, src_filename):
         self.label = label
         self.src_filename = src_filename
-        #names = set()
-        #for filename in src_filenames:
-        #    f = open(filename)
-        #    namelist = f.read().strip().split('\n')
-        #    names.update(namelist)
-        #self.names = frozenset(names)
+        
         f = open(src_filename)
         namelist = f.read().strip().split('\n')
         self.names = frozenset(namelist)
@@ -65,13 +60,58 @@ class LitTagger:
                 prev_segment = segment
                 segment = ' '.join(sent[i:j])
             if prev_segment in self.names:
-                # label sent[i:j - 1]
-                #for k in range(i, j - 1):
-                #    result.append((sent[k], self.label))
                 result.append((i, j - 1))
                 i = j - 1
             else:
-                #result.append((sent[i], 'O'))
+                i += 1
+        
+        return result
+
+
+class LitTagger:
+    
+    def __init__(self, labels, src_filenames):
+        assert len(labels) == len(src_filenames)
+        self.labels = labels
+        self.src_filenames = src_filenames
+    
+        names = set()
+        names_map = {}
+        for label, filename in zip(labels, src_filenames):
+            f = open(filename)
+            namelist = f.read().strip().split('\n')
+            names.update(namelist)
+            for name in namelist:
+                names_map[name] = label
+        self.names = frozenset(names)
+        self.names_map = names_map
+        
+        # compute prefix closure
+        prefixes = set()
+        for name in self.names:
+            sname = name.split()
+            prefixes.update([' '.join(sname[:i]) for i in range(1, len(sname) + 1)])
+        
+        self.prefixes = frozenset(prefixes)
+
+    def entities(self, sent):
+        """Return entities as a list of pairs ((offset, offset_end), label).
+        """
+        result = []
+        i = 0
+        while i < len(sent):
+            j = i + 1
+            prev_segment = segment = ' '.join(sent[i:j])
+            #print 'check: ', segment
+            while segment in self.prefixes and j <= len(sent):
+                j += 1
+                prev_segment = segment
+                segment = ' '.join(sent[i:j])
+            if prev_segment in self.names:
+                label = self.names_map[prev_segment]
+                result.append(((i, j - 1), label))
+                i = j - 1
+            else:
                 i += 1
         
         return result
@@ -101,9 +141,18 @@ class LitTaggerRunner2(BasePreProcessStepRunner):
         for sent in doc.get_sentences():
             sent_entities = self.lit_tagger.entities(sent)
             
-            for (i, j) in sent_entities:
+            """for (i, j) in sent_entities:
                 name = ' '.join(sent[i:j])
                 kind = self.label.lower() # XXX: should be in models.ENTITY_KINDS
+                entity, created = Entity.objects.get_or_create(key=name, 
+                            defaults={'canonical_form': name, 'kind': kind})
+                entity_oc = EntityOccurrence(entity=entity, 
+                                        offset=sent_offset + i, 
+                                        offset_end=sent_offset + j)
+                entities.append(entity_oc)"""
+            for ((i, j), label) in sent_entities:
+                name = ' '.join(sent[i:j])
+                kind = label.lower() # XXX: should be in models.ENTITY_KINDS
                 entity, created = Entity.objects.get_or_create(key=name, 
                             defaults={'canonical_form': name, 'kind': kind})
                 entity_oc = EntityOccurrence(entity=entity, 
