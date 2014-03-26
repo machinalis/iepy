@@ -1,4 +1,6 @@
 docopt==0.6.1
 xmltodict==0.8.6
+# patched version of mwtemplates that installs smoothly on python3
+git+ssh://git@github.com/jmansilla/mwtemplates.git@f4bc207c7665ddef15466518a9c9adfcf801cf83#egg=mwtemplates
 mwtextextractor==0.1
 lxml==3.3.3
