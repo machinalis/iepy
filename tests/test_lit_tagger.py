@@ -89,8 +89,6 @@ class TestLitTaggerRunner(ManagerTestCase):
         
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
         entities = doc.get_preprocess_result(PreProcessSteps.nerc)
-        print doc.tokens
-        print entities
         
         self.assertEqual(len(entities), len(entities_triples))
         for e, (offset, offset_end, kind) in zip(entities, entities_triples):
