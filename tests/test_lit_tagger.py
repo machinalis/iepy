@@ -8,19 +8,21 @@ from tests.manager_case import ManagerTestCase
 
 class TestLitTagger(TestCase):
 
+    def setUp(self):
+        self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
+        f = open(self.tmp_filename1, 'w')
+        f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
+        f.close()
+        self.tmp_filename2 = 'tmp_test_lit_tagger_other.txt'
+        f = open(self.tmp_filename2, 'w')
+        f.write('MRI\nCT scan\ndrooling\n')
+        f.close()
+
     def test_tagging(self):
-        tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
-        f = open(tmp_filename1, 'w')
-        f.write('HIV\nHepatitis C\nbrain tumor\n')
-        f.close()
-        tmp_filename2 = 'tmp_test_lit_tagger_medical_test.txt'
-        f = open(tmp_filename2, 'w')
-        f.write('MRI\nCT scan\n')
-        f.close()
-        
+
         tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [tmp_filename1, tmp_filename2])
-        
+                            [self.tmp_filename1, self.tmp_filename2])
+
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
         tags = [tag for _, tag in result]
@@ -40,18 +42,9 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
-        tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
-        f = open(tmp_filename1, 'w')
-        f.write('HIV\nHepatitis C\nbrain tumor\n')
-        f.close()
-        tmp_filename2 = 'tmp_test_lit_tagger_medical_test.txt'
-        f = open(tmp_filename2, 'w')
-        f.write('MRI\nCT scan\n')
-        f.close()
-        
         tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [tmp_filename1, tmp_filename2])
-        
+                            [self.tmp_filename1, self.tmp_filename2])
+
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
         expected_entities = [((5, 6), 'DISEASE'), ((7, 9), 'DISEASE')]
@@ -73,23 +66,29 @@ class TestLitTaggerRunner(ManagerTestCase):
 
     ManagerClass = IEDocument
 
+    def setUp(self):
+        self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
+        f = open(self.tmp_filename1, 'w')
+        f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
+        f.close()
+        self.tmp_filename2 = 'tmp_test_lit_tagger_other.txt'
+        f = open(self.tmp_filename2, 'w')
+        f.write('MRI\nCT scan\ndrooling\n')
+        f.close()
+
     def test(self):
         doc = SentencedIEDocFactory(
                     text="Chase notes she's negative for HIV and Hepatitis C")
-        tmp_filename = 'tmp_test_lit_tagger.txt'
-        f = open(tmp_filename, 'w')
-        f.write('HIV\nHepatitis C\nMRI\nCT scan\nbrain tumor\n')
-        f.close()
-        
-        lit_tagger_runner = LitTaggerRunner(['DISEASE'], [tmp_filename])
+
+        lit_tagger_runner = LitTaggerRunner(['DISEASE'], [self.tmp_filename1])
         lit_tagger_runner(doc)
-        
+
         # (the tokenizer splits she's in two parts)
         entities_triples = [(6, 7, 'disease'), (8, 10, 'disease')]
-        
+
         self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
         entities = doc.get_preprocess_result(PreProcessSteps.nerc)
-        
+
         self.assertEqual(len(entities), len(entities_triples))
         for e, (offset, offset_end, kind) in zip(entities, entities_triples):
             self.assertEqual(e.offset, offset)

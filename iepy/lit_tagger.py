@@ -103,8 +103,8 @@ class LitTaggerRunner(BasePreProcessStepRunner):
             for ((i, j), label) in sent_entities:
                 name = ' '.join(sent[i:j])
                 kind = label.lower() # XXX: should be in models.ENTITY_KINDS
-                entity, created = Entity.objects.get_or_create(key=name, 
-                            defaults={'canonical_form': name, 'kind': kind})
+                entity, created = Entity.objects.get_or_create(key=name, kind=kind, 
+                            defaults={'canonical_form': name})
                 entity_oc = EntityOccurrence(entity=entity, 
                                         offset=sent_offset + i, 
                                         offset_end=sent_offset + j)

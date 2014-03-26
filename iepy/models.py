@@ -83,7 +83,7 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
 
 
 class Entity(DynamicDocument):
-    key = fields.StringField(required=True, unique=True)
+    key = fields.StringField(required=True, unique_with='kind')
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS)
 
@@ -109,6 +109,8 @@ class EntityInSegment(EmbeddedDocument):
     offset_end = fields.IntField(required=True)  # Offset in tokens wrt to segment
     alias = fields.StringField()  # Representation of the entity actually used in the text
 
+    def __unicode__(self):
+        return u'{0} ({1}) ({2}, {3})'.format(self.key, self.kind, self.offset, self.offset_end)
 
 class TextSegment(DynamicDocument):
     document = fields.ReferenceField('IEDocument', required=True)
@@ -123,6 +125,9 @@ class TextSegment(DynamicDocument):
 
     # offsets of sentence starts in this segment; relative to start of segment
     sentences = fields.ListField(fields.IntField())  
+
+    def __unicode__(self):
+        return u'{0}'.format(' '.join(self.tokens))
 
     @classmethod
     def build(cls, document, token_offset, token_offset_end):
