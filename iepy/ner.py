@@ -26,11 +26,11 @@ class NERRunner(BasePreProcessStepRunner):
     """
     # TODO: rename to ner
     step = PreProcessSteps.nerc
-    
+
     def __init__(self, ner, override=False):
         self.ner = ner
         self.override = override
-    
+
     def __call__(self, doc):
         # this step does not necessarily requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
@@ -56,18 +56,18 @@ class NERRunner(BasePreProcessStepRunner):
                         i += 1
                     offset_end = i
                     name = ' '.join(sent[offset:offset_end])
-                    kind = e.lower() # XXX: should be in models.ENTITY_KINDS
-                    entity, created = Entity.objects.get_or_create(key=name, 
-                                defaults={'canonical_form': name, 'kind': kind})
-                    entity_oc = EntityOccurrence(entity=entity, 
-                                            offset=sent_offset + offset, 
-                                            offset_end=sent_offset + offset_end)
+                    kind = e.lower()  # XXX: should be in models.ENTITY_KINDS
+                    entity, created = Entity.objects.get_or_create(
+                        key=name, defaults={'canonical_form': name, 'kind': kind})
+                    entity_oc = EntityOccurrence(
+                        entity=entity, offset=sent_offset + offset,
+                        offset_end=sent_offset + offset_end)
                     entities.append(entity_oc)
                 else:
                     i += 1
-            
+
             sent_offset += len(sent)
-            
+
         doc.set_preprocess_result(PreProcessSteps.nerc, entities)
         doc.save()
 
@@ -81,10 +81,10 @@ class StanfordNERRunner(NERRunner):
                               "command download_third_party_data.py")
 
         ner = NonTokenizingNERTagger(
-            os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'), 
+            os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'),
             os.path.join(ner_path, 'stanford-ner.jar'),
             encoding='utf8')
-            
+
         super(StanfordNERRunner, self).__init__(ner.batch_tag, override)
 
 
@@ -97,4 +97,3 @@ def download():
     zip_path = os.path.join(DIRS.user_data_dir, package_filename)
     wget.download(download_url_base + package_filename)
     unzip_file(zip_path, DIRS.user_data_dir)
-
