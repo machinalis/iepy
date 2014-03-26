@@ -1,14 +1,12 @@
 from unittest import TestCase
 
-from tests.factories import SentencedIEDocFactory
+from tests.factories import SentencedIEDocFactory, IEDocFactory
 from iepy.models import PreProcessSteps, IEDocument
 from iepy.ner import NERRunner, StanfordNERRunner
 from tests.manager_case import ManagerTestCase
 
 
-class TestNERRunner(ManagerTestCase):
-
-    ManagerClass = IEDocument
+class NERTestMixin(object):
 
     entity_map = {
         'Rami': 'PERSON',
@@ -31,6 +29,11 @@ class TestNERRunner(ManagerTestCase):
             self.assertEqual(e.offset_end, offset_end)
             self.assertEqual(e.entity.kind, kind)
 
+
+class TestNERRunner(ManagerTestCase, NERTestMixin):
+
+    ManagerClass = IEDocument
+
     def test_ner_runner_is_calling_ner(self):
         doc = SentencedIEDocFactory(
             text='Rami Eid is studying . At Stony Brook University in NY')
@@ -41,11 +44,10 @@ class TestNERRunner(ManagerTestCase):
             text='The student Rami Eid Stony Brook University in NY')
         self.check_ner(doc, [(2, 4, 'person'), (4, 7, 'organization')])
 
-    def test_if_runner_segments_can_still_keep_working(self):
-        self.fail()
 
+class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
 
-class TestStanfordNERRunner(TestCase):
+    ManagerClass = IEDocument
 
     def test_stanford_ner_is_called_if_found(self):
         doc = SentencedIEDocFactory(
@@ -61,3 +63,33 @@ class TestStanfordNERRunner(TestCase):
         self.assertEqual(entities[1].offset, 6)
         self.assertEqual(entities[1].offset_end, 9)
         self.assertEqual(entities[1].entity.kind, 'organization')
+
+    def test_runner_does_not_split_contractions(self):
+        doc = IEDocFactory()
+        tokens = list(enumerate(("I can't study with Rami Eid").split()))
+        doc.set_preprocess_result(PreProcessSteps.tokenization, tokens)
+        doc.set_preprocess_result(PreProcessSteps.sentencer, [0, len(tokens)])
+
+        ner_runner = StanfordNERRunner()
+        ner_runner(doc)
+        result = doc.get_preprocess_result(PreProcessSteps.nerc)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].offset, 4)
+        self.assertEqual(result[0].offset_end, 6)
+        self.assertEqual(result[0].alias, "Rami Eid")
+
+    def test_if_runner_segments_can_still_keep_working(self):
+        doc = IEDocFactory()
+        tokens = list(enumerate(("This is a sentence . This is another with Rami Eid").split()))
+        doc.set_preprocess_result(PreProcessSteps.tokenization, tokens)
+        doc.set_preprocess_result(PreProcessSteps.sentencer, [0, len(tokens)])
+
+        ner_runner = StanfordNERRunner()
+        ner_runner(doc)
+        result = doc.get_preprocess_result(PreProcessSteps.nerc)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].offset, 9)
+        self.assertEqual(result[0].offset_end, 10)
+        self.assertEqual(result[0].alias, "Rami Eid")
+
+

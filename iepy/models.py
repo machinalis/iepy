@@ -96,9 +96,22 @@ class EntityOccurrence(EmbeddedDocument):
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
     offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
     alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
-    
+
     def __unicode__(self):
         return u'{0} ({1}, {2})'.format(self.entity, self.offset, self.offset_end)
+
+    @classmethod
+    def build(cls, key, kind, alias, offset, offset_end):
+        entity, created = Entity.objects.get_or_create(
+            key=key,
+            kind=kind,
+            defaults={'canonical_form': alias})
+        self = cls(
+            entity=entity,
+            offset=offset,
+            offset_end=offset_end,
+            alias=alias)
+        return self
 
 
 class EntityInSegment(EmbeddedDocument):
