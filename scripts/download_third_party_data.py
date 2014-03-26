@@ -2,6 +2,7 @@ import nltk.data
 from iepy.tagger import download as download_tagger
 from iepy.ner import download as download_ner
 
+
 def download_third_party_data():
     print("Downloading punkt tokenizer")
     nltk.download("punkt", "/tmp")
