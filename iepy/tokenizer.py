@@ -39,7 +39,7 @@ class TokenizeSentencerRunner(BasePreProcessStepRunner):
             # Ok, let's do it
             result = en_tokenize_and_segment(doc.text)
             doc.set_preprocess_result(
-                self.tkn_step, zip(result['spans'], result['tokens']))
+                self.tkn_step, list(zip(result['spans'], result['tokens'])))
             doc.set_preprocess_result(self.snt_step, result['sentences'])
             doc.save()
 

@@ -223,15 +223,18 @@ class IEDocument(DynamicDocument):
             raise InvalidPreprocessSteps
         if step == PreProcessSteps.sentencer:
             if not all(isinstance(x, int) for x in result):
-                raise ValueError('Sentencer result shall only contain ints')
+                raise ValueError('Sentencer result shall only contain ints: %r' % result)
             if sorted(result) != result:
                 raise ValueError('Sentencer result shall be ordered.')
             if len(set(result)) < len(result):
                 raise ValueError(
                     'Sentencer result shall not contain duplicates.')
-            if result[0] != 0 or result[-1] != len(self.tokens):
+            if result[0] != 0:
                 raise ValueError(
-                    'Sentencer result must be offsets of tokens.')
+                    'Sentencer result must start with 0. Actual=%r' % result[0])
+            if result[-1] != len(self.tokens):
+                raise ValueError(
+                    'Sentencer result must end with token count=%d. Actual=%r' % (len(self.tokens), result[-1]))
         elif step == PreProcessSteps.tagging:
             if len(result) != len(self.tokens):
                 raise ValueError(
