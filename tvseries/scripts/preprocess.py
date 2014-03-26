@@ -13,6 +13,7 @@ from mwtextextractor import get_body_text
 from iepy.db import connect, DocumentManager
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
+from iepy.lit_tagger import LitTaggerRunner
 
 
 def media_wiki_to_txt(doc):
@@ -24,6 +25,15 @@ def media_wiki_to_txt(doc):
         doc.text = get_body_text(raw)
         doc.save()
 
+
+class TVSeriesNERRunner(LitTaggerRunner):
+
+    def __init__(self):
+        labels = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
+        filenames = ['tvseries/disease.txt', 'tvseries/symptom.txt', 'tvseries/diagnostic_test.txt']
+        super(TVSeriesNERRunner, self).__init__(labels, filenames, override=True)
+
+
 if __name__ == '__main__':
     import logging
     logger = logging.getLogger('iepy')
@@ -33,5 +43,9 @@ if __name__ == '__main__':
     connect(opts['<dbname>'])
     docs = DocumentManager()
     pipeline = PreProcessPipeline(
-        [media_wiki_to_txt, TokenizeSentencerRunner()], docs)
+                        [media_wiki_to_txt, 
+                        TokenizeSentencerRunner(), 
+                        TVSeriesNERRunner()], 
+                    docs)
     pipeline.process_everything()
+    
