@@ -24,17 +24,32 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)"""
 
     def test_entities(self):
-        tmp_filename = 'tmp_test_lit_tagger.txt'
-        f = open(tmp_filename, 'w')
-        f.write('HIV\nHepatitis C\nMRI\nCT scan\nbrain tumor\n')
+        tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
+        f = open(tmp_filename1, 'w')
+        f.write('HIV\nHepatitis C\nbrain tumor\n')
+        f.close()
+        tmp_filename2 = 'tmp_test_lit_tagger_medical_test.txt'
+        f = open(tmp_filename2, 'w')
+        f.write('MRI\nCT scan\n')
         f.close()
         
-        tagger = LitTagger(['MEDIC_STUFF'], [tmp_filename])
+        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
+                            [tmp_filename1, tmp_filename2])
         
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
-        expected_entities = [((5, 6), 'MEDIC_STUFF'), ((7, 9), 'MEDIC_STUFF')]
-        
+        expected_entities = [((5, 6), 'DISEASE'), ((7, 9), 'DISEASE')]
+        self.assertEqual(result, expected_entities)
+
+        s = "Cuddy points out that the CT scan showed the patient has a metal pin in her arm and can't undergo an MRI"
+        result = tagger.entities(s.split())
+        expected_entities = [((5, 7), 'MEDICAL_TEST'), ((21, 22), 'MEDICAL_TEST')]
+        self.assertEqual(result, expected_entities)
+
+        s = "CT scan said HIV MRI Hepatitis C"
+        result = tagger.entities(s.split())
+        expected_entities = [((0, 2), 'MEDICAL_TEST'), ((3, 4), 'DISEASE'), 
+                                ((4, 5), 'MEDICAL_TEST'), ((5, 7), 'DISEASE')]
         self.assertEqual(result, expected_entities)
 
 
