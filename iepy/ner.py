@@ -1,3 +1,4 @@
+import itertools
 import os
 import os.path
 
@@ -26,11 +27,11 @@ class NERRunner(BasePreProcessStepRunner):
     """
     # TODO: rename to ner
     step = PreProcessSteps.nerc
-    
+
     def __init__(self, ner, override=False):
-        self.ner = ner
         self.override = override
-    
+        self.ner = ner
+
     def __call__(self, doc):
         # this step does not necessarily requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
@@ -39,37 +40,56 @@ class NERRunner(BasePreProcessStepRunner):
             #print 'Already done'
             return
 
-        entities = []
-        sent_offset = 0
-        sentences = list(doc.get_sentences())
-        for sent, ner_sent in zip(sentences, self.ner(sentences)):
-            assert len(sent) == len(ner_sent), "Sentence length mismatch %r / %r" % (sent, ner_sent)
-            i = 0
-            while i < len(ner_sent):
-                t, e = ner_sent[i]
-                if e != 'O':
-                    # entity occurrence found at position i
-                    offset = i
-                    # find end:
-                    i += 1
-                    while i < len(ner_sent) and ner_sent[i][1] == e:
-                        i += 1
-                    offset_end = i
-                    name = ' '.join(sent[offset:offset_end])
-                    kind = e.lower() # XXX: should be in models.ENTITY_KINDS
-                    entity, created = Entity.objects.get_or_create(key=name, 
-                                defaults={'canonical_form': name, 'kind': kind})
-                    entity_oc = EntityOccurrence(entity=entity, 
-                                            offset=sent_offset + offset, 
-                                            offset_end=sent_offset + offset_end)
-                    entities.append(entity_oc)
-                else:
-                    i += 1
-            
-            sent_offset += len(sent)
-            
+        entities = self.execute(doc)
+
         doc.set_preprocess_result(PreProcessSteps.nerc, entities)
         doc.save()
+
+    def execute(self, doc):
+        entities = []
+        # Apply the ner algorithm which takes a list of sentences and returns
+        # a list of sentences, each being a list of NER-tokens, each of which is
+        # a pairs (tokenstring, class)
+        ner_sentences = self.ner(doc.get_sentences())
+        # Flatten the nested list above into just a list of kinds
+        ner_kinds = (k for s in ner_sentences for (_, k) in s)
+        
+        # We build a large iterator z that goes over tuples like the following:
+        #  (offset, (token, kind))
+        # offset just goes incrementally from 0
+        
+        z = itertools.chain(
+            enumerate(zip(doc.tokens, ner_kinds)),
+            # Add a sentinel last token to simplify last iteration of loop below
+            [(len(doc.tokens), (None, 'INVALID'))]
+        )
+
+        # Traverse z, looking for changes in the kind field. If there is a
+        # change of kind, we have a new set of contiguous tokens; if the kind
+        # of those isn't "O" (which means "other"), record the occurrence
+        #
+        # offset keeps the start of the current token run; last_kind keeps the kind.
+        last_kind = 'O'
+        offset = 0
+        for i, (token, kind) in z:
+            if kind != last_kind:
+                if last_kind != 'O':
+                    # Found a new entity in offset:i
+                    name = ' '.join(doc.tokens[offset:i])
+                    entities.append(EntityOccurrence.build(name, last_kind.lower(), name, offset, i))
+                # Restart offset counter at each change of entity type
+                offset = i
+            last_kind = kind
+
+        # Just a sanity check: verify that all NER tokens were consumed
+        try:
+            next(ner_kinds)
+            assert False, "ner_kinds should have been completely consumed"
+        except StopIteration:
+            # Actually the stop iteration is the expected result here
+            pass
+
+        return entities
 
 
 class StanfordNERRunner(NERRunner):
@@ -81,10 +101,10 @@ class StanfordNERRunner(NERRunner):
                               "command download_third_party_data.py")
 
         ner = NonTokenizingNERTagger(
-            os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'), 
+            os.path.join(ner_path, 'classifiers', 'english.all.3class.distsim.crf.ser.gz'),
             os.path.join(ner_path, 'stanford-ner.jar'),
             encoding='utf8')
-            
+
         super(StanfordNERRunner, self).__init__(ner.batch_tag, override)
 
 
@@ -97,4 +117,3 @@ def download():
     zip_path = os.path.join(DIRS.user_data_dir, package_filename)
     wget.download(download_url_base + package_filename)
     unzip_file(zip_path, DIRS.user_data_dir)
-
