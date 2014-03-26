@@ -7,67 +7,6 @@ from iepy.ner import NERRunner
 from iepy.preprocess import BasePreProcessStepRunner
 
 
-class OldLitTagger:
-
-    def __init__(self, label, src_filename):
-        self.label = label
-        self.src_filename = src_filename
-        
-        f = open(src_filename)
-        namelist = f.read().strip().split('\n')
-        self.names = frozenset(namelist)
-        
-        # compute prefix closure
-        prefixes = set()
-        for name in self.names:
-            sname = name.split()
-            prefixes.update([' '.join(sname[:i]) for i in range(1, len(sname) + 1)])
-        
-        self.prefixes = frozenset(prefixes)
-    
-    def tag(self, sent):
-        """Tagger with output a la Stanford (no start/end markers).
-        """
-        entities = self.entities(sent)
-        # dummy entity for nicer code:
-        entities.append((len(sent), len(sent)))
-        next_entity = entities.pop(0)
-        result = []
-        for i, t in enumerate(sent):
-            #print i, next_entity
-            if i >= next_entity[1]:
-                # assert entities
-                next_entity = entities.pop(0)
-            
-            if i < next_entity[0]:
-                result.append((t, 'O'))
-            elif i < next_entity[1]:
-                result.append((t, self.label))
-        
-        return result
-
-    def entities(self, sent):
-        """Return entities as a list of pairs (offset, offset_end).
-        """
-        result = []
-        i = 0
-        while i < len(sent):
-            j = i + 1
-            prev_segment = segment = ' '.join(sent[i:j])
-            #print 'check: ', segment
-            while segment in self.prefixes and j <= len(sent):
-                j += 1
-                prev_segment = segment
-                segment = ' '.join(sent[i:j])
-            if prev_segment in self.names:
-                result.append((i, j - 1))
-                i = j - 1
-            else:
-                i += 1
-        
-        return result
-
-
 class LitTagger:
     
     def __init__(self, labels, src_filenames):
@@ -94,6 +33,27 @@ class LitTagger:
         
         self.prefixes = frozenset(prefixes)
 
+    def tag(self, sent):
+        """Tagger with output a la Stanford (no start/end markers).
+        """
+        entities = self.entities(sent)
+        # dummy entity for nicer code:
+        entities.append((len(sent), len(sent)))
+        next_entity = entities.pop(0)
+        result = []
+        for i, t in enumerate(sent):
+            #print i, next_entity
+            if i >= next_entity[0][1]:
+                # assert entities
+                next_entity = entities.pop(0)
+            
+            if i < next_entity[0][0]:
+                result.append((t, 'O'))
+            elif i < next_entity[1]:
+                result.append((t, next_entity[1]))
+        
+        return result
+
     def entities(self, sent):
         """Return entities as a list of pairs ((offset, offset_end), label).
         """
@@ -117,15 +77,7 @@ class LitTagger:
         return result
 
 
-class LitTaggerRunner(NERRunner):
-
-    def __init__(self, label, src_filename, override=False):
-        lit_tagger = LitTagger(label, src_filename)
-        callable_lit_tagger = lambda x: lit_tagger.tag(x)
-        NERRunner.__init__(self, callable_lit_tagger, override)
-
-
-class LitTaggerRunner2(BasePreProcessStepRunner):
+class LitTaggerRunner(BasePreProcessStepRunner):
 
     def __init__(self, labels, src_filenames, override=False):
         self.lit_tagger = LitTagger(labels, src_filenames)
@@ -140,15 +92,6 @@ class LitTaggerRunner2(BasePreProcessStepRunner):
         for sent in doc.get_sentences():
             sent_entities = self.lit_tagger.entities(sent)
             
-            """for (i, j) in sent_entities:
-                name = ' '.join(sent[i:j])
-                kind = self.label.lower() # XXX: should be in models.ENTITY_KINDS
-                entity, created = Entity.objects.get_or_create(key=name, 
-                            defaults={'canonical_form': name, 'kind': kind})
-                entity_oc = EntityOccurrence(entity=entity, 
-                                        offset=sent_offset + i, 
-                                        offset_end=sent_offset + j)
-                entities.append(entity_oc)"""
             for ((i, j), label) in sent_entities:
                 name = ' '.join(sent[i:j])
                 kind = label.lower() # XXX: should be in models.ENTITY_KINDS

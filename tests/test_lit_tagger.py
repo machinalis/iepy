@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from iepy.lit_tagger import LitTagger, LitTaggerRunner, LitTaggerRunner2
+from iepy.lit_tagger import LitTagger, LitTaggerRunner
 from iepy.models import PreProcessSteps, IEDocument
 from tests.factories import SentencedIEDocFactory
 from tests.manager_case import ManagerTestCase
@@ -8,20 +8,36 @@ from tests.manager_case import ManagerTestCase
 
 class TestLitTagger(TestCase):
 
-    """def test_tagging(self):
-        tmp_filename = 'tmp_test_lit_tagger.txt'
-        f = open(tmp_filename, 'w')
-        f.write('HIV\nHepatitis C\nMRI\nCT scan\nbrain tumor\n')
+    def test_tagging(self):
+        tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
+        f = open(tmp_filename1, 'w')
+        f.write('HIV\nHepatitis C\nbrain tumor\n')
+        f.close()
+        tmp_filename2 = 'tmp_test_lit_tagger_medical_test.txt'
+        f = open(tmp_filename2, 'w')
+        f.write('MRI\nCT scan\n')
         f.close()
         
-        tagger = LitTagger(['MEDIC_STUFF'], [tmp_filename])
+        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
+                            [tmp_filename1, tmp_filename2])
         
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
         tags = [tag for _, tag in result]
-        expected_tags = ['O', 'O', 'O', 'O', 'O', 'MEDIC_STUFF', 'O', 
-                                                'MEDIC_STUFF', 'MEDIC_STUFF']
-        self.assertEqual(tags, expected_tags)"""
+        expected_tags = 'O O O O O DISEASE O DISEASE DISEASE'.split()
+        self.assertEqual(tags, expected_tags)
+
+        s = "Cuddy points out that the CT scan showed the patient has a metal pin in her arm and can't undergo an MRI"
+        result = tagger.tag(s.split())
+        tags = [tag for _, tag in result]
+        expected_tags = 'O O O O O MEDICAL_TEST MEDICAL_TEST O O O O O O O O O O O O O O MEDICAL_TEST'.split()
+        self.assertEqual(tags, expected_tags)
+
+        s = "CT scan said HIV MRI Hepatitis C"
+        result = tagger.tag(s.split())
+        tags = [tag for _, tag in result]
+        expected_tags = 'MEDICAL_TEST MEDICAL_TEST O DISEASE MEDICAL_TEST DISEASE DISEASE'.split()
+        self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
         tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
@@ -65,7 +81,7 @@ class TestLitTaggerRunner(ManagerTestCase):
         f.write('HIV\nHepatitis C\nMRI\nCT scan\nbrain tumor\n')
         f.close()
         
-        lit_tagger_runner = LitTaggerRunner2(['DISEASE'], [tmp_filename])
+        lit_tagger_runner = LitTaggerRunner(['DISEASE'], [tmp_filename])
         lit_tagger_runner(doc)
         
         # (the tokenizer splits she's in two parts)

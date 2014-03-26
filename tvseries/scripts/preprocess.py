@@ -13,7 +13,7 @@ from mwtextextractor import get_body_text
 from iepy.db import connect, DocumentManager
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
-from iepy.lit_tagger import LitTaggerRunner2
+from iepy.lit_tagger import LitTaggerRunner
 
 
 def media_wiki_to_txt(doc):
@@ -26,7 +26,7 @@ def media_wiki_to_txt(doc):
         doc.save()
 
 
-class TVSeriesNERRunner(LitTaggerRunner2):
+class TVSeriesNERRunner(LitTaggerRunner):
 
     def __init__(self):
         labels = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
