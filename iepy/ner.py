@@ -81,6 +81,14 @@ class NERRunner(BasePreProcessStepRunner):
                 offset = i
             last_kind = kind
 
+        # Just a sanity check: verify that all NER tokens were consumed
+        try:
+            next(ner_kinds)
+            assert False, "ner_kinds should have been completely consumed"
+        except StopIteration:
+            # Actually the stop iteration is the expected result here
+            pass
+
         return entities
 
 
