@@ -1,3 +1,4 @@
+import itertools
 import os
 import os.path
 
@@ -46,28 +47,39 @@ class NERRunner(BasePreProcessStepRunner):
 
     def execute(self, doc):
         entities = []
-        sent_offset = 0
-        sentences = list(doc.get_sentences())  # This must be a list, it's iterated twice.
-        for sent, ner_sent in zip(sentences, self.ner(sentences)):
-            assert len(sent) == len(ner_sent), "Sentence length mismatch %r / %r" % (sent, ner_sent)
-            i = 0
-            while i < len(ner_sent):
-                t, e = ner_sent[i]
-                if e != 'O':
-                    # entity occurrence found at position i
-                    offset = i
-                    # find end:
-                    i += 1
-                    while i < len(ner_sent) and ner_sent[i][1] == e:
-                        i += 1
-                    offset_end = i
-                    name = ' '.join(sent[offset:offset_end])
-                    kind = e.lower()  # XXX: should be in models.ENTITY_KINDS
-                    entities.append(EntityOccurrence.build(name, kind, name, sent_offset + offset, sent_offset + offset_end))
-                else:
-                    i += 1
+        # Apply the ner algorithm which takes a list of sentences and returns
+        # a list of sentences, each being a list of NER-tokens, each of which is
+        # a pairs (tokenstring, class)
+        ner_sentences = self.ner(doc.get_sentences())
+        # Flatten the nested list above into just a list of kinds
+        ner_kinds = (k for s in ner_sentences for (_, k) in s)
+        
+        # We build a large iterator z that goes over tuples like the following:
+        #  (offset, (token, kind))
+        # offset just goes incrementally from 0
+        
+        z = itertools.chain(
+            enumerate(zip(doc.tokens, ner_kinds)),
+            # Add a sentinel last token to simplify last iteration of loop below
+            [(len(doc.tokens), (None, 'INVALID'))]
+        )
 
-            sent_offset += len(sent)
+        # Traverse z, looking for changes in the kind field. If there is a
+        # change of kind, we have a new set of contiguous tokens; if the kind
+        # of those isn't "O" (which means "other"), record the occurrence
+        #
+        # offset keeps the start of the current token run; last_kind keeps the kind.
+        last_kind = 'O'
+        offset = 0
+        for i, (token, kind) in z:
+            if kind != last_kind:
+                if last_kind != 'O':
+                    # Found a new entity in offset:i
+                    name = ' '.join(doc.tokens[offset:i])
+                    entities.append(EntityOccurrence.build(name, last_kind.lower(), name, offset, i))
+                # Restart offset counter at each change of entity type
+                offset = i
+            last_kind = kind
 
         return entities
 

@@ -89,7 +89,7 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         result = doc.get_preprocess_result(PreProcessSteps.nerc)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].offset, 9)
-        self.assertEqual(result[0].offset_end, 10)
+        self.assertEqual(result[0].offset_end, 11)
         self.assertEqual(result[0].alias, "Rami Eid")
 
 
