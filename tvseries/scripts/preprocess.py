@@ -13,13 +13,10 @@ from mwtextextractor import get_body_text
 from iepy.db import connect, DocumentManager
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
-<<<<<<< HEAD
 from iepy.lit_tagger import LitTaggerRunner
-=======
 from iepy.tagger import StanfordTaggerRunner
 from iepy.ner import StanfordNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
->>>>>>> Integrated remaining preprocess steps
 
 
 def media_wiki_to_txt(doc):
