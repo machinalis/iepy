@@ -39,34 +39,7 @@ class NERRunner(BasePreProcessStepRunner):
             #print 'Already done'
             return
 
-        entities = []
-        sent_offset = 0
-        sentences = list(doc.get_sentences())
-        for sent, ner_sent in zip(sentences, self.ner(sentences)):
-            assert len(sent) == len(ner_sent), "Sentence length mismatch %r / %r" % (sent, ner_sent)
-            i = 0
-            while i < len(ner_sent):
-                t, e = ner_sent[i]
-                if e != 'O':
-                    # entity occurrence found at position i
-                    offset = i
-                    # find end:
-                    i += 1
-                    while i < len(ner_sent) and ner_sent[i][1] == e:
-                        i += 1
-                    offset_end = i
-                    name = ' '.join(sent[offset:offset_end])
-                    kind = e.lower()  # XXX: should be in models.ENTITY_KINDS
-                    entity, created = Entity.objects.get_or_create(
-                        key=name, defaults={'canonical_form': name, 'kind': kind})
-                    entity_oc = EntityOccurrence(
-                        entity=entity, offset=sent_offset + offset,
-                        offset_end=sent_offset + offset_end)
-                    entities.append(entity_oc)
-                else:
-                    i += 1
-
-            sent_offset += len(sent)
+        entities = self.execute(doc)
 
         doc.set_preprocess_result(PreProcessSteps.nerc, entities)
         doc.save()
@@ -86,6 +59,37 @@ class StanfordNERRunner(NERRunner):
             encoding='utf8')
 
         super(StanfordNERRunner, self).__init__(ner.batch_tag, override)
+
+    def execute(self, doc):
+        entities = []
+        sent_offset = 0
+        sentences = list(doc.get_sentences())
+        for sent, ner_sent in zip(sentences, self.ner(sentences)):
+            assert len(sent) == len(ner_sent), "Sentence length mismatch %r / %r" % (sent, ner_sent)
+            i = 0
+            while i < len(ner_sent):
+                t, e = ner_sent[i]
+                if e != 'O':
+                    # entity occurrence found at position i
+                    offset = i
+                    # find end:
+                    i += 1
+                    while i < len(ner_sent) and ner_sent[i][1] == e:
+                        i += 1
+                    offset_end = i
+                    name = ' '.join(sent[offset:offset_end])
+                    kind = e.lower()  # XXX: should be in models.ENTITY_KINDS
+                    entities.append(doc.new_occurrence(name, kind, offset))
+                    #entity, created = Entity.objects.get_or_create(
+                    #    key=name, defaults={'canonical_form': name, 'kind': kind})
+                    #entity_oc = EntityOccurrence(
+                    #    entity=entity, offset=sent_offset + offset,
+                    #    offset_end=sent_offset + offset_end)
+                    #entities.append(entity_oc)
+                else:
+                    i += 1
+
+            sent_offset += len(sent)
 
 
 def download():
