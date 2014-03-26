@@ -10,6 +10,10 @@ from iepy.preprocess import BasePreProcessStepRunner
 class LitTagger:
     
     def __init__(self, labels, src_filenames):
+        """The i-th label is used to tag the occurrences of the terms in the
+        i-th source file. If a term can have several labels, the last one in the
+        list is selected.
+        """
         assert len(labels) == len(src_filenames)
         self.labels = labels
         self.src_filenames = src_filenames
@@ -38,7 +42,7 @@ class LitTagger:
         """
         entities = self.entities(sent)
         # dummy entity for nicer code:
-        entities.append((len(sent), len(sent)))
+        entities.append(((len(sent), len(sent)), 'X'))
         next_entity = entities.pop(0)
         result = []
         for i, t in enumerate(sent):
@@ -49,7 +53,7 @@ class LitTagger:
             
             if i < next_entity[0][0]:
                 result.append((t, 'O'))
-            elif i < next_entity[1]:
+            elif i < next_entity[0][1]:
                 result.append((t, next_entity[1]))
         
         return result
@@ -81,10 +85,14 @@ class LitTaggerRunner(BasePreProcessStepRunner):
 
     def __init__(self, labels, src_filenames, override=False):
         self.lit_tagger = LitTagger(labels, src_filenames)
+        self.override = override
     
     def __call__(self, doc):
         # this step does not requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
+            return
+        if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
+            #print 'Already done'
             return
         
         entities = []
