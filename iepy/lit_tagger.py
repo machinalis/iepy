@@ -127,9 +127,8 @@ class LitTaggerRunner(NERRunner):
 
 class LitTaggerRunner2(BasePreProcessStepRunner):
 
-    def __init__(self, label, src_filename, override=False):
-        self.label = label
-        self.lit_tagger = LitTagger(label, src_filename)
+    def __init__(self, labels, src_filenames, override=False):
+        self.lit_tagger = LitTagger(labels, src_filenames)
     
     def __call__(self, doc):
         # this step does not requires PreProcessSteps.tagging:

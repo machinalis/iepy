@@ -23,6 +23,8 @@ ENTITY_KINDS = (
     ('location', u'Location'),
     ('organization', u'Organization'),
     ('disease', u'Disease'),
+    ('symptom', u'Symptom'),
+    ('medical_test', 'Medical Test'),
 )
 
 
