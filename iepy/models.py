@@ -278,6 +278,10 @@ class IEDocument(DynamicDocument):
             yield tokens[start:end]
             start = end
 
+    def clear_segments(self):
+        """Remove all existing segments"""
+        TextSegment.objects.filter(document=self).delete()
+
     def build_syntactic_segments(self):
         entity = 0
         L = len(self.sentences)

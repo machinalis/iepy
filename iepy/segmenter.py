@@ -14,6 +14,7 @@ class SyntacticSegmenterRunner(BasePreProcessStepRunner):
             return
         if self.override or not doc.was_preprocess_done(self.step):
             assert all(doc.entities[i].offset <= doc.entities[i + 1].offset for i in range(len(doc.entities)-1))
+            doc.clear_segments()
             doc.build_syntactic_segments()
             doc.flag_preprocess_done(self.step)
             doc.save()
@@ -31,6 +32,7 @@ class ContextualSegmenterRunner(BasePreProcessStepRunner):
         if not doc.was_preprocess_done(PreProcessSteps.nerc):
             return
         if self.override or not doc.was_preprocess_done(self.step):
+            doc.clear_segments()
             doc.build_contextual_segments(self.distance)
             doc.flag_preprocess_done(self.step)
             doc.save()
