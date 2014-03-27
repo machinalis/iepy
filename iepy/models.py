@@ -31,10 +31,10 @@ ENTITY_KINDS = BASE_ENTITY_KINDS[:]
 
 def _get_custom_entity_kinds():
     raw_custom = environ.get(_KINDS_ENV, '').strip()
-    print '\nRaw custom is: <%s>' % raw_custom
     if not raw_custom:
         return []
-    return map(lambda x:tuple(x.split(':')), raw_custom.split(','))
+    return map(lambda x: tuple(x.split(':')), raw_custom.split(','))
+
 
 def _merge_base_and_custom_kinds():
     # clean and re fill the list, taking care that's the same list object
@@ -44,6 +44,7 @@ def _merge_base_and_custom_kinds():
         ENTITY_KINDS.append(k)
     for k in _get_custom_entity_kinds():
         ENTITY_KINDS.append(k)
+
 
 def set_custom_entity_kinds(custom_entity_kinds):
     """Receives a list of tuples (kind_id, kind_label) and adds them to the
@@ -60,7 +61,6 @@ def set_custom_entity_kinds(custom_entity_kinds):
     for kind_id, kind_label in custom_entity_kinds:
         marshalled.append('%s:%s' % (kind_id, kind_label))
     environ[_KINDS_ENV] = ','.join(marshalled)
-    print 'Set to ', ','.join(marshalled)
     _merge_base_and_custom_kinds()
 
 _merge_base_and_custom_kinds()
