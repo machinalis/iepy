@@ -1,8 +1,6 @@
-from os import environ
-
 from mongoengine.base import ValidationError
 
-from iepy import models  # imported like this to make possible reload
+from iepy import models
 
 from .manager_case import ManagerTestCase
 
@@ -13,7 +11,6 @@ class ExtendableKindsTests(ManagerTestCase):
     def tearDown(self):
         super(ExtendableKindsTests, self).tearDown()
         models.set_custom_entity_kinds([])  # resets kinds to default only
-        reload(models)
 
     def get_invalid_kind(self):
         valid_ids = zip(*models.ENTITY_KINDS)[0]
@@ -51,12 +48,3 @@ class ExtendableKindsTests(ManagerTestCase):
                           key='new', kind=new_kind[0],
                           canonical_form='new')
         self.assertEqual(models.Entity.objects.count(), 0)
-
-    def test_custom_kinds_can_be_defined_by_environ_variable(self):
-        new_kind = self.get_invalid_kind()
-        environ[models._KINDS_ENV] = '%s:%s' % tuple(new_kind)
-        reload(models)
-        assert models.Entity.objects.count() == 0
-        models.Entity.objects.create(key='new', kind=new_kind[0],
-                                     canonical_form='new')
-        self.assertEqual(models.Entity.objects.count(), 1)

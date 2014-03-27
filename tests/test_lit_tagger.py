@@ -72,7 +72,6 @@ class TestLitTaggerRunner(ManagerTestCase):
         super(TestLitTaggerRunner, self).tearDown()
         from iepy import models
         models.set_custom_entity_kinds([])
-        reload(models)
 
     def setUp(self):
         self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
