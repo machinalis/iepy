@@ -5,6 +5,8 @@ from iepy.models import PreProcessSteps, IEDocument
 from tests.factories import SentencedIEDocFactory
 from tests.manager_case import ManagerTestCase
 
+NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
+
 
 class TestLitTagger(TestCase):
 
@@ -20,8 +22,8 @@ class TestLitTagger(TestCase):
 
     def test_tagging(self):
 
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [self.tmp_filename1, self.tmp_filename2])
+        tagger = LitTagger(NEW_ENTITIES,
+                           [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
@@ -29,7 +31,8 @@ class TestLitTagger(TestCase):
         expected_tags = 'O O O O O DISEASE O DISEASE DISEASE'.split()
         self.assertEqual(tags, expected_tags)
 
-        s = "Cuddy points out that the CT scan showed the patient has a metal pin in her arm and can't undergo an MRI"
+        s = ("Cuddy points out that the CT scan showed the patient has a metal "
+             "pin in her arm and can't undergo an MRI")
         result = tagger.tag(s.split())
         tags = [tag for _, tag in result]
         expected_tags = 'O O O O O MEDICAL_TEST MEDICAL_TEST O O O O O O O O O O O O O O MEDICAL_TEST'.split()
@@ -42,8 +45,8 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [self.tmp_filename1, self.tmp_filename2])
+        tagger = LitTagger(NEW_ENTITIES,
+                           [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
@@ -57,14 +60,18 @@ class TestLitTagger(TestCase):
 
         s = "CT scan said HIV MRI Hepatitis C"
         result = tagger.entities(s.split())
-        expected_entities = [((0, 2), 'MEDICAL_TEST'), ((3, 4), 'DISEASE'), 
-                                ((4, 5), 'MEDICAL_TEST'), ((5, 7), 'DISEASE')]
+        expected_entities = [((0, 2), 'MEDICAL_TEST'), ((3, 4), 'DISEASE'),
+                             ((4, 5), 'MEDICAL_TEST'), ((5, 7), 'DISEASE')]
         self.assertEqual(result, expected_entities)
 
 
 class TestLitTaggerRunner(ManagerTestCase):
-
     ManagerClass = IEDocument
+
+    def tearDown(self):
+        super(TestLitTaggerRunner, self).tearDown()
+        from iepy import models
+        models.set_custom_entity_kinds([])
 
     def setUp(self):
         self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
@@ -75,12 +82,15 @@ class TestLitTaggerRunner(ManagerTestCase):
         f = open(self.tmp_filename2, 'w')
         f.write('MRI\nCT scan\ndrooling\n')
         f.close()
+        from iepy import models
+        models.set_custom_entity_kinds(zip(map(lambda x: x.lower(), NEW_ENTITIES),
+                                           NEW_ENTITIES))  # id, label
 
     def test(self):
         doc = SentencedIEDocFactory(
-                    text="Chase notes she's negative for HIV and Hepatitis C")
+            text="Chase notes she's negative for HIV and Hepatitis C")
 
-        lit_tagger_runner = LitTaggerRunner(['DISEASE'], [self.tmp_filename1])
+        lit_tagger_runner = LitTaggerRunner(['disease'], [self.tmp_filename1])
         lit_tagger_runner(doc)
 
         # (the tokenizer splits she's in two parts)
@@ -94,4 +104,3 @@ class TestLitTaggerRunner(ManagerTestCase):
             self.assertEqual(e.offset, offset)
             self.assertEqual(e.offset_end, offset_end)
             self.assertEqual(e.entity.kind, kind)
-
