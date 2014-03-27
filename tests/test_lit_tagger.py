@@ -5,6 +5,8 @@ from iepy.models import PreProcessSteps, IEDocument
 from tests.factories import SentencedIEDocFactory
 from tests.manager_case import ManagerTestCase
 
+NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
+
 
 class TestLitTagger(TestCase):
 
@@ -20,7 +22,7 @@ class TestLitTagger(TestCase):
 
     def test_tagging(self):
 
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'],
+        tagger = LitTagger(NEW_ENTITIES,
                            [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
@@ -43,7 +45,7 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'],
+        tagger = LitTagger(NEW_ENTITIES,
                            [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
@@ -64,8 +66,13 @@ class TestLitTagger(TestCase):
 
 
 class TestLitTaggerRunner(ManagerTestCase):
-
     ManagerClass = IEDocument
+
+    def tearDown(self):
+        super(TestLitTaggerRunner, self).tearDown()
+        from iepy import models
+        models.set_custom_entity_kinds([])
+        reload(models)
 
     def setUp(self):
         self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
@@ -76,12 +83,15 @@ class TestLitTaggerRunner(ManagerTestCase):
         f = open(self.tmp_filename2, 'w')
         f.write('MRI\nCT scan\ndrooling\n')
         f.close()
+        from iepy import models
+        models.set_custom_entity_kinds(zip(map(lambda x: x.lower(), NEW_ENTITIES),
+                                           NEW_ENTITIES))  # id, label
 
     def test(self):
         doc = SentencedIEDocFactory(
             text="Chase notes she's negative for HIV and Hepatitis C")
 
-        lit_tagger_runner = LitTaggerRunner(['DISEASE'], [self.tmp_filename1])
+        lit_tagger_runner = LitTaggerRunner(['disease'], [self.tmp_filename1])
         lit_tagger_runner(doc)
 
         # (the tokenizer splits she's in two parts)
