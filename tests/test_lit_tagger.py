@@ -20,8 +20,8 @@ class TestLitTagger(TestCase):
 
     def test_tagging(self):
 
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [self.tmp_filename1, self.tmp_filename2])
+        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'],
+                           [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
@@ -29,7 +29,8 @@ class TestLitTagger(TestCase):
         expected_tags = 'O O O O O DISEASE O DISEASE DISEASE'.split()
         self.assertEqual(tags, expected_tags)
 
-        s = "Cuddy points out that the CT scan showed the patient has a metal pin in her arm and can't undergo an MRI"
+        s = ("Cuddy points out that the CT scan showed the patient has a metal "
+             "pin in her arm and can't undergo an MRI")
         result = tagger.tag(s.split())
         tags = [tag for _, tag in result]
         expected_tags = 'O O O O O MEDICAL_TEST MEDICAL_TEST O O O O O O O O O O O O O O MEDICAL_TEST'.split()
@@ -42,8 +43,8 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
-        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'], 
-                            [self.tmp_filename1, self.tmp_filename2])
+        tagger = LitTagger(['DISEASE', 'MEDICAL_TEST'],
+                           [self.tmp_filename1, self.tmp_filename2])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
@@ -57,8 +58,8 @@ class TestLitTagger(TestCase):
 
         s = "CT scan said HIV MRI Hepatitis C"
         result = tagger.entities(s.split())
-        expected_entities = [((0, 2), 'MEDICAL_TEST'), ((3, 4), 'DISEASE'), 
-                                ((4, 5), 'MEDICAL_TEST'), ((5, 7), 'DISEASE')]
+        expected_entities = [((0, 2), 'MEDICAL_TEST'), ((3, 4), 'DISEASE'),
+                             ((4, 5), 'MEDICAL_TEST'), ((5, 7), 'DISEASE')]
         self.assertEqual(result, expected_entities)
 
 
@@ -78,7 +79,7 @@ class TestLitTaggerRunner(ManagerTestCase):
 
     def test(self):
         doc = SentencedIEDocFactory(
-                    text="Chase notes she's negative for HIV and Hepatitis C")
+            text="Chase notes she's negative for HIV and Hepatitis C")
 
         lit_tagger_runner = LitTaggerRunner(['DISEASE'], [self.tmp_filename1])
         lit_tagger_runner(doc)
@@ -94,4 +95,3 @@ class TestLitTaggerRunner(ManagerTestCase):
             self.assertEqual(e.offset, offset)
             self.assertEqual(e.offset_end, offset_end)
             self.assertEqual(e.entity.kind, kind)
-
