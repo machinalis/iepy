@@ -11,6 +11,7 @@ from docopt import docopt
 from mwtextextractor import get_body_text
 
 from iepy.db import connect, DocumentManager
+from iepy.models import set_custom_entity_kinds
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.lit_tagger import LitTaggerRunner
@@ -29,11 +30,15 @@ def media_wiki_to_txt(doc):
         doc.save()
 
 
+MEDIC_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
+
+
 class TVSeriesNERRunner(LitTaggerRunner):
 
     def __init__(self):
-        labels = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
-        filenames = ['tvseries/disease.txt', 'tvseries/symptom.txt', 'tvseries/diagnostic_test.txt']
+        labels = MEDIC_ENTITIES
+        filenames = ['tvseries/disease.txt', 'tvseries/symptom.txt',
+                     'tvseries/diagnostic_test.txt']
         super(TVSeriesNERRunner, self).__init__(labels, filenames, override=True)
 
 
@@ -45,14 +50,15 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
+    set_custom_entity_kinds(zip(map(lambda x: x.lower(), MEDIC_ENTITIES),
+                                MEDIC_ENTITIES))
     pipeline = PreProcessPipeline([
-            media_wiki_to_txt,
-            TokenizeSentencerRunner(),
-            StanfordTaggerRunner(),
-            TVSeriesNERRunner(),
-            StanfordNERRunner(),
-            SyntacticSegmenterRunner(),
-        ], docs
+        media_wiki_to_txt,
+        TokenizeSentencerRunner(),
+        StanfordTaggerRunner(),
+        TVSeriesNERRunner(),
+        StanfordNERRunner(),
+        SyntacticSegmenterRunner(),
+    ], docs
     )
     pipeline.process_everything()
-
