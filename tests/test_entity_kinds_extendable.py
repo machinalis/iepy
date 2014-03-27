@@ -13,7 +13,7 @@ class ExtendableKindsTests(ManagerTestCase):
         models.set_custom_entity_kinds([])  # resets kinds to default only
 
     def get_invalid_kind(self):
-        valid_ids = zip(*models.ENTITY_KINDS)[0]
+        valid_ids = list(zip(*models.ENTITY_KINDS))[0]  # like this to run python 2 & 3
         non_valid = valid_ids[0] + '_x'
         while non_valid in valid_ids:
             non_valid += non_valid + '_x'
