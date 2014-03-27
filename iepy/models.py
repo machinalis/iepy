@@ -163,6 +163,7 @@ class EntityInSegment(EmbeddedDocument):
     def __unicode__(self):
         return u'{0} ({1}) ({2}, {3})'.format(self.key, self.kind, self.offset, self.offset_end)
 
+
 class TextSegment(DynamicDocument):
     document = fields.ReferenceField('IEDocument', required=True)
     text = fields.StringField(required=True)
