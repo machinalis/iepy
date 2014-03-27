@@ -20,34 +20,50 @@ class InvalidPreprocessSteps(Exception):
 
 
 _KINDS_ENV = 'CUSTOM_ENTITY_KINDS'
-ENTITY_KINDS = (
+BASE_ENTITY_KINDS = [
     ('person', u'Person'),
     ('location', u'Location'),
     ('organization', u'Organization'),
-    ('disease', u'Disease'),
-    ('symptom', u'Symptom'),
-    ('medical_test', 'Medical Test'),
-)
+]
+
+ENTITY_KINDS = BASE_ENTITY_KINDS[:]
 
 
+def _get_custom_entity_kinds():
+    raw_custom = environ.get(_KINDS_ENV, '').strip()
+    print '\nRaw custom is: <%s>' % raw_custom
+    if not raw_custom:
+        return []
+    return map(lambda x:tuple(x.split(':')), raw_custom.split(','))
+
+def _merge_base_and_custom_kinds():
+    # clean and re fill the list, taking care that's the same list object
+    while ENTITY_KINDS:
+        ENTITY_KINDS.pop()
+    for k in BASE_ENTITY_KINDS:
+        ENTITY_KINDS.append(k)
+    for k in _get_custom_entity_kinds():
+        ENTITY_KINDS.append(k)
 
 def set_custom_entity_kinds(custom_entity_kinds):
-    global ENTITY_KINDS
+    """Receives a list of tuples (kind_id, kind_label) and adds them to the
+    available Entity kinds.
+
+    Be aware that:
+        - each time is called, old custom entity-kinds are lost
+        - which means that calling with empty list resets kinds to default only
+        - if some entity was already created with a custom kind and you later
+          remove that kind, no warning nor error will be visible until you try
+          to save such entities.
+    """
     marshalled = []
     for kind_id, kind_label in custom_entity_kinds:
         marshalled.append('%s:%s' % (kind_id, kind_label))
-    environ.setdefault(_KINDS_ENV, ','.join(marshalled))
+    environ[_KINDS_ENV] = ','.join(marshalled)
+    print 'Set to ', ','.join(marshalled)
+    _merge_base_and_custom_kinds()
 
-
-def get_custom_entity_kinds():
-    raw_custom = environ.get(_KINDS_ENV, '').strip()
-    if not raw_custom:
-        return tuple()
-    return tuple(map(lambda x:tuple(x.split(':')), raw_custom.split(',')))
-
-ENTITY_KINDS = ENTITY_KINDS + get_custom_entity_kinds()
-
-
+_merge_base_and_custom_kinds()
 
 
 def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
