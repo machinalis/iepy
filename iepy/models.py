@@ -1,4 +1,5 @@
 from datetime import datetime
+from os import environ
 
 from enum import Enum
 from mongoengine import DynamicDocument, EmbeddedDocument, fields
@@ -18,6 +19,7 @@ class InvalidPreprocessSteps(Exception):
     pass
 
 
+_KINDS_ENV = 'CUSTOM_ENTITY_KINDS'
 ENTITY_KINDS = (
     ('person', u'Person'),
     ('location', u'Location'),
@@ -26,6 +28,26 @@ ENTITY_KINDS = (
     ('symptom', u'Symptom'),
     ('medical_test', 'Medical Test'),
 )
+
+
+
+def set_custom_entity_kinds(custom_entity_kinds):
+    global ENTITY_KINDS
+    marshalled = []
+    for kind_id, kind_label in custom_entity_kinds:
+        marshalled.append('%s:%s' % (kind_id, kind_label))
+    environ.setdefault(_KINDS_ENV, ','.join(marshalled))
+
+
+def get_custom_entity_kinds():
+    raw_custom = environ.get(_KINDS_ENV, '').strip()
+    if not raw_custom:
+        return tuple()
+    return tuple(map(lambda x:tuple(x.split(':')), raw_custom.split(',')))
+
+ENTITY_KINDS = ENTITY_KINDS + get_custom_entity_kinds()
+
+
 
 
 def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
@@ -137,7 +159,7 @@ class TextSegment(DynamicDocument):
     entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
 
     # offsets of sentence starts in this segment; relative to start of segment
-    sentences = fields.ListField(fields.IntField())  
+    sentences = fields.ListField(fields.IntField())
 
     def __unicode__(self):
         return u'{0}'.format(' '.join(self.tokens))
@@ -374,5 +396,3 @@ class IEDocument(DynamicDocument):
                 s.save()
             lstart, lend = start, end
             i += 1
-
-
