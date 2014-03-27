@@ -4,7 +4,6 @@ from mongoengine.base import ValidationError
 
 from iepy import models  # imported like this to make possible reload
 
-#from iepy.models import Entity, ENTITY_KINDS, set_custom_entity_kinds, _KINDS_ENV
 from .manager_case import ManagerTestCase
 
 
