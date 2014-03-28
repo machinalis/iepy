@@ -187,7 +187,10 @@ class BoostrappedIEPipeline(object):
         fact.
         fact is (a, b, relation).
         """
-        raise NotImplementedError
+        conf = segment.get_confidence(fact)
+        if conf is None:
+            return 0.5  # just put this in the middle
+        return conf
 
 
 def _all_entity_pairs(segment):

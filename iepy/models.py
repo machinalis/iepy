@@ -227,6 +227,11 @@ class TextSegment(DynamicDocument):
         self.sentences = [o - token_offset for o in document.sentences[l:r]]
         return self
 
+    def get_confidence(self, fact):
+        """Returns the known confidence about if this segment evicences the fact"""
+        # FIXME: to be implemented on ticket IEPY-47
+        return None
+
 
 class IEDocument(DynamicDocument):
     human_identifier = fields.StringField(required=True, unique=True)
