@@ -7,13 +7,12 @@ from iepy.models import (
     IEDocument, PreProcessSteps, InvalidPreprocessSteps, TextSegment, Entity)
 
 
-IEPYDBConnector = namedtuple('IEPYDBConnector', '_connector segments documents')
+IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
 
 
 def connect(db_name):
-    connector = mongoconnect(db_name)
     return IEPYDBConnector(
-        connector,
+        mongoconnect(db_name),
         TextSegmentManager(),
         DocumentManager(),
     )
