@@ -1,4 +1,5 @@
 from unittest import TestCase
+from tempfile import NamedTemporaryFile
 
 from iepy.lit_tagger import LitTagger, LitTaggerRunner
 from iepy.models import PreProcessSteps, IEDocument
@@ -11,19 +12,19 @@ NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
 class TestLitTagger(TestCase):
 
     def setUp(self):
-        self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
-        f = open(self.tmp_filename1, 'w')
+        f = NamedTemporaryFile(mode="w", encoding="utf8")
         f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
-        f.close()
-        self.tmp_filename2 = 'tmp_test_lit_tagger_other.txt'
-        f = open(self.tmp_filename2, 'w')
+        f.seek(0)
+        self.tmp_file1 = f
+        f = NamedTemporaryFile(mode="w", encoding="utf8")
         f.write('MRI\nCT scan\ndrooling\n')
-        f.close()
+        f.seek(0)
+        self.tmp_file2 = f
 
     def test_tagging(self):
 
         tagger = LitTagger(NEW_ENTITIES,
-                           [self.tmp_filename1, self.tmp_filename2])
+                           [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
@@ -46,7 +47,7 @@ class TestLitTagger(TestCase):
 
     def test_entities(self):
         tagger = LitTagger(NEW_ENTITIES,
-                           [self.tmp_filename1, self.tmp_filename2])
+                           [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
@@ -74,14 +75,14 @@ class TestLitTaggerRunner(ManagerTestCase):
         models.set_custom_entity_kinds([])
 
     def setUp(self):
-        self.tmp_filename1 = 'tmp_test_lit_tagger_disease.txt'
-        f = open(self.tmp_filename1, 'w')
+        f = NamedTemporaryFile(mode="w", encoding="utf8")
         f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
-        f.close()
-        self.tmp_filename2 = 'tmp_test_lit_tagger_other.txt'
-        f = open(self.tmp_filename2, 'w')
+        f.seek(0)
+        self.tmp_file1 = f
+        f = NamedTemporaryFile(mode="w", encoding="utf8")
         f.write('MRI\nCT scan\ndrooling\n')
-        f.close()
+        f.seek(0)
+        self.tmp_file2 = f
         from iepy import models
         models.set_custom_entity_kinds(zip(map(lambda x: x.lower(), NEW_ENTITIES),
                                            NEW_ENTITIES))  # id, label
@@ -90,7 +91,7 @@ class TestLitTaggerRunner(ManagerTestCase):
         doc = SentencedIEDocFactory(
             text="Chase notes she's negative for HIV and Hepatitis C")
 
-        lit_tagger_runner = LitTaggerRunner(['disease'], [self.tmp_filename1])
+        lit_tagger_runner = LitTaggerRunner(['disease'], [self.tmp_file1.name])
         lit_tagger_runner(doc)
 
         # (the tokenizer splits she's in two parts)
