@@ -1,8 +1,9 @@
+
 from mongoengine import connect as mongoconnect
 from mongoengine.connection import get_db
 
 from iepy.models import (IEDocument, PreProcessSteps, InvalidPreprocessSteps,
-    TextSegment)
+    TextSegment, Entity)
 
 
 def connect(db_name):
@@ -80,3 +81,8 @@ class TextSegmentManager(object):
             objects = db.text_segment.aggregate(pipeline)
             segments = list(TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values())
             return segments
+
+
+def get_entity(kind, literal):
+    return Entity.objects.get(kind=kind, key=literal)
+
