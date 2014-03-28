@@ -21,7 +21,7 @@ class LitTagger:
         names = set()
         names_map = {}
         for label, filename in zip(labels, src_filenames):
-            f = open(filename)
+            f = codecs.open(filename, encoding="utf8")
             namelist = f.read().strip().split('\n')
             names.update(namelist)
             for name in namelist:
