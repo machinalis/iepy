@@ -7,7 +7,7 @@ from iepy.ner import NERRunner
 from iepy.preprocess import BasePreProcessStepRunner
 
 
-class LitTagger:
+class LitTagger(object):
     
     def __init__(self, labels, src_filenames):
         """The i-th label is used to tag the occurrences of the terms in the
