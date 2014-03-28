@@ -38,8 +38,11 @@ def load_facts_from_csv(filepath):
 
 def get_human_answer(question):
     # FIXME: This is pseudo-code, must be done on ticket IEPY-46
-    answer = raw_input('Is this evidence: %s? (y/n)' % repr(question))
-    return answer.upper()
+    answer = raw_input('Is this evidence: %s? (y/n/learn/end): ' % repr(question)).upper()
+    valid_answers = ['Y', 'N', 'LEARN', 'END']
+    while answer not in valid_answers:
+        answer = raw_input('Invalid answer. (y/n/learn/end): ')
+    return answer
 
 
 if __name__ == '__main__':
@@ -47,10 +50,19 @@ if __name__ == '__main__':
     connection = db.connect(opts['<dbname>'])
     seed_facts = load_facts_from_csv(opts['<seeds_file>'])
     p = BoostrappedIEPipeline(connection, seed_facts)
+
     p.start()  # blocking
-    for question in p.questions_available():
-        # Ask user
-        # ...
-        answer = get_human_answer(question)
-        p.add_answer(question, answer)
+    keep_looping = True
+    while keep_looping:
+        for question in p.questions_available():
+            answer = get_human_answer(question)
+            if answer is 'LEARN':
+                break
+            elif answer is 'END':
+                keep_looping = False
+                break
+            else:
+                p.add_answer(question, answer)
+        p.force_process()
     facts = p.get_facts()  # profit
+
