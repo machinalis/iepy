@@ -6,6 +6,7 @@ from nltk.tokenize import RegexpTokenizer
 
 from iepy.models import PreProcessSteps
 from iepy.preprocess import BasePreProcessStepRunner
+from iepy.utils import DIRS
 
 
 class TokenizeSentencerRunner(BasePreProcessStepRunner):
@@ -74,6 +75,8 @@ def en_tokenize_and_segment(text):
 
 
 def _split_in_sentences(text):
+    if not nltk.data.path or nltk.data.path[-1] != DIRS.user_data_dir:
+        nltk.data.path.append(DIRS.user_data_dir)
     sentence_splitter = nltk.data.load("tokenizers/punkt/english.pickle")
     for i, j in sentence_splitter.span_tokenize(text):
         yield i, j, text[i:j]
@@ -98,7 +101,7 @@ macros = {
     "SCHEME": "mailto:|((http|https|ftp|ftps|ssh|git|news)://)",
 }
 macros = {k: "(" + v.format(**basic_macros) + ")"
-                                                for k, v in macros.items()}
+          for k, v in macros.items()}
 macros.update(basic_macros)
 
 # Smiley detection
