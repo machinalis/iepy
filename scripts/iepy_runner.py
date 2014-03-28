@@ -27,7 +27,7 @@ def load_facts_from_csv(filepath):
     Row with less column than stated, will be ignored.
     """
     with codecs.open(filepath, mode='rt', encoding='utf-8') as csvfile:
-        factsreader = reader(csvfile, delimiter=' ', quotechar='|')
+        factsreader = reader(csvfile, delimiter=',')
         for row in factsreader:
             if len(row) < 5:
                 continue
