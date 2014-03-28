@@ -102,13 +102,16 @@ class BoostrappedIEPipeline(object):
 
     def generate_evidence(self, facts):
         """
-        Pseudocode. Stage 1 of pipeline.
+        Stage 1 of pipeline.
          - facts are [(a, b, relation), ...]
         """
         self.facts.update(facts)
         for fact in self.facts:
             a, b, _ = fact
-            for segment in self.database.get_segments_with_entities(a, b):
+            # FIXME when architecture is done, decide:
+            #  - what to do with database object? Is needed? Is the connection?
+            #  - invoking segments_with_both_entities with that path is OUCH
+            for segment in self.database.TextSegmentManager().segments_with_both_entities(a, b):
                 yield segment, fact
 
     def generate_questions(self, evidence):
@@ -176,13 +179,13 @@ class BoostrappedIEPipeline(object):
     ###
     ### Aux methods
     ###
-
     def _confidence(self, segment, fact):
         """
         Returns a proability estimation of segment being an manifestation of
         fact.
         fact is (a, b, relation).
         """
+
         raise NotImplementedError
 
 
