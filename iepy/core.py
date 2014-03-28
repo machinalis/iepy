@@ -5,7 +5,7 @@ import itertools
 class BoostrappedIEPipeline(object):
     """
     From the user's point of view this class is meant to be used like this:
-        p = BoostrappedIEPipeline(database, seed_facts)
+        p = BoostrappedIEPipeline(db_connector, seed_facts)
         p.start()  # blocking
         while UserIsNotTired:
             for question in p.questions_available():
@@ -16,11 +16,11 @@ class BoostrappedIEPipeline(object):
         facts = p.get_facts()  # profit
     """
 
-    def __init__(self, database, seed_facts):
+    def __init__(self, db_connector, seed_facts):
         """
         Not blocking.
         """
-        self.database = database
+        self.db_con = db_connector
         self.seed_facts = seed_facts
         self.evidence_threshold = 0.99
         self.fact_threshold = 0.99
@@ -111,7 +111,7 @@ class BoostrappedIEPipeline(object):
             # FIXME when architecture is done, decide:
             #  - what to do with database object? Is needed? Is the connection?
             #  - invoking segments_with_both_entities with that path is OUCH
-            for segment in self.database.TextSegmentManager().segments_with_both_entities(a, b):
+            for segment in self.db_con.segments.segments_with_both_entities(a, b):
                 yield segment, fact
 
     def generate_questions(self, evidence):
@@ -161,7 +161,9 @@ class BoostrappedIEPipeline(object):
         Pseudocode. Stage 5 of pipeline.
         extractors is a dict {relation: classifier, ...}
         """
-        for segment in self.database.get_segments():
+        # FIXME: This is designed here differently than what was designed on
+        # iepy.db.TextSegmentManager, making non-usable the method segments_with_both_kinds?
+        for segment in self.database.segments.get_segments():
             for a, b in _all_entity_pairs(segment):
                 for relation, extractor in extractors.iteritems():
                     if _relation_is_compatible(a, b, relation):
@@ -185,7 +187,6 @@ class BoostrappedIEPipeline(object):
         fact.
         fact is (a, b, relation).
         """
-
         raise NotImplementedError
 
 
