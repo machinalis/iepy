@@ -19,7 +19,7 @@ from iepy import db
 
 
 def load_facts_from_csv(filepath):
-    """Returns an iterable of facts.
+    """Returns an iterable of facts from a CSV file encoded in UTF-8.
     It's assumend that first 4 columns are
         entity a kind, entity a key, entity b kind, entity b key
     and that the 5th column is the relation name.
@@ -65,4 +65,3 @@ if __name__ == '__main__':
                 p.add_answer(question, answer)
         p.force_process()
     facts = p.get_facts()  # profit
-
