@@ -161,6 +161,9 @@ class EntityInSegment(EmbeddedDocument):
     offset_end = fields.IntField(required=True)  # Offset in tokens wrt to segment
     alias = fields.StringField()  # Representation of the entity actually used in the text
 
+    def is_entity(self, e):
+        return self.key == e.key and self.kind == e.kind
+
     def __unicode__(self):
         return u'{0} ({1}) ({2}, {3})'.format(self.key, self.kind, self.offset, self.offset_end)
 
@@ -228,11 +231,15 @@ class TextSegment(DynamicDocument):
         self.sentences = [o - token_offset for o in document.sentences[l:r]]
         return self
 
-    def entity_pairs(self, lkind, rkind):
-        left = set(o.key for o in self.entities if o.kind == lkind)
-        right = set(o.key for o in self.entities if o.kind == rkind)
-        pairs = itertools.product(left, right)
-        return [(Entity.objects.get(key=l), Entity.objects.get(key=r)) for l,r in pairs if l != r]
+    def entity_occurrence_pairs(self, e1, e2):
+        left = [i for i,o in enumerate(self.entities) if o.is_entity(e1)]
+        right = [i for i,o in enumerate(self.entities) if o.is_entity(e2)]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
+
+    def kind_occurrence_pairs(self, lkind, rkind):
+        left = [i for i,o in enumerate(self.entities) if o.kind == lkind]
+        right = [i for i,o in enumerate(self.entities) if o.kind == rkind]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
 
 class IEDocument(DynamicDocument):

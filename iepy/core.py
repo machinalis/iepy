@@ -2,9 +2,19 @@
 from collections import defaultdict, namedtuple
 import itertools
 
+from iepy import db
+
+# A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")
-# An Evidence is a pair of a Fact and a TextSegment
-Evidence = namedtuple("Evidence", "fact segment")
+
+# An Evidence is a pair of a Fact and a TextSegment and occurrence indices
+# The segment+indices can be left out (as None)
+# The following invariants apply
+#   - e.segment == None iff e.o1 == None
+#   - e.segment == None iff e.o2 == None
+#   - e.o1 != None implies e.fact.e1.kind == e.segment[e.o1].kind and e.fact.e1.key == e.segment[e.o1].key
+#   - e.o2 != None implies e.fact.e2.kind == e.segment[e.o2].kind and e.fact.e2.key == e.segment[e.o2].key
+Evidence = namedtuple("Evidence", "fact segment o1 o2")
 
 
 def certainty(p):
@@ -57,7 +67,7 @@ class BoostrappedIEPipeline(object):
         Not blocking.
         """
         self.db_con = db_connector
-        self.seed_facts = Knowledge({Evidence(f, None): 1 for f in seed_facts})
+        self.seed_facts = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
         self.evidence_threshold = 0.99
         self.fact_threshold = 0.99
         self.knowledge = Knowledge()
@@ -77,12 +87,12 @@ class BoostrappedIEPipeline(object):
 
         # Build relation description: a map from relation labels to pairs of entity kinds
         self.relations = {}
-        for f, s in self.seed_facts:
-            t1 = f.e1.kind
-            t2 = f.e1.kind
-            if f.relation in self.relations and (t1, t2) != self.relations[f.relation]:
-                raise ValueError("Ambiguous kinds for relation %r" % f.relation)
-            self.relations[f.relation] = (t1, t2)
+        for e in self.seed_facts:
+            t1 = e.fact.e1.kind
+            t2 = e.fact.e1.kind
+            if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
+                raise ValueError("Ambiguous kinds for relation %r" % e.fact.relation)
+            self.relations[e.fact.relation] = (t1, t2)
 
     def do_iteration(self, data):
         for step in self.step_iterator:
@@ -147,9 +157,10 @@ class BoostrappedIEPipeline(object):
         """
         self.knowledge.update(evidence)
         return Knowledge(
-            (Evidence(fact, segment), None)
-            for fact, _ in self.knowledge
+            (Evidence(fact, segment, o1, o2), None)
+            for fact, *_ in self.knowledge
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
+            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
 
     def generate_questions(self, evidence):
@@ -174,6 +185,7 @@ class BoostrappedIEPipeline(object):
             for e, score in self.questions.items()
             if certainty(score) > self.evidence_threshold and e not in self.answers
         )
+        # Answers + questions with a strong prediction
         return evidence
 
     def learn_fact_extractors(self, evidence):
@@ -200,9 +212,11 @@ class BoostrappedIEPipeline(object):
         for r in extractors:
             lkind, rkind = self.relations[r]
             for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
-                for e1, e2 in segment.entity_pairs(lkind, rkind):
+                for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
+                    e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
+                    e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
                     f = Fact(e1, r, e2)
-                    e = Evidence(f, segment)
+                    e = Evidence(f, segment, o1, o2)
                     result[e] = extractors[r].predict(e)
         return result
 
