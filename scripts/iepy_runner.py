@@ -11,6 +11,7 @@ Options:
 """
 import codecs
 from csv import reader
+from future.builtins import input
 
 from docopt import docopt
 
@@ -26,7 +27,7 @@ def load_facts_from_csv(filepath):
     Everything else in the file will be ignored.
     Row with less column than stated, will be ignored.
     """
-    with codecs.open(filepath, mode='rt', encoding='utf-8') as csvfile:
+    with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
         factsreader = reader(csvfile, delimiter=',')
         for row in factsreader:
             if len(row) < 5:
@@ -38,7 +39,7 @@ def load_facts_from_csv(filepath):
 
 def get_human_answer(question):
     # FIXME: This is pseudo-code, must be done on ticket IEPY-46
-    answer = raw_input('Is this evidence: %s? (y/n/learn/end): ' % repr(question)).upper()
+    answer = input('Is this evidence: %s? (y/n/learn/end): ' % repr(question)).upper()
     valid_answers = ['Y', 'N', 'LEARN', 'END']
     while answer not in valid_answers:
         answer = raw_input('Invalid answer. (y/n/learn/end): ')
