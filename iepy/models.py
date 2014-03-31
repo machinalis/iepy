@@ -227,10 +227,11 @@ class TextSegment(DynamicDocument):
         self.sentences = [o - token_offset for o in document.sentences[l:r]]
         return self
 
-    def get_confidence(self, fact):
-        """Returns the known confidence about if this segment evicences the fact"""
-        # FIXME: to be implemented on ticket IEPY-47
-        return None
+    def entity_pairs(self, lkind, rkind):
+        left = set(o.key for o in self.entities if o.kind == lkind)
+        right = set(o.key for o in self.entities if o.kind == rkind)
+        pairs = itertools.product(left, right)
+        return [(Entity.objects.get(key=l), Entity.objects.get(key=r)) for l,r in pairs if l != r]
 
 
 class IEDocument(DynamicDocument):

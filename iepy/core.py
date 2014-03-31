@@ -1,5 +1,41 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict, namedtuple
 import itertools
+
+Fact = namedtuple("Fact", "e1 relation e2")
+# An Evidence is a pair of a Fact and a TextSegment
+Evidence = namedtuple("Evidence", "fact segment")
+
+
+def certainty(p):
+    return 0.5 + abs(p - 0.5)
+
+
+class Knowledge(dict):
+    """Maps evidence to a score in [0...1]
+
+    None is also a valid score for cases when no score information is available
+    """
+    __slots__ = ()
+
+    def by_certainty(self):
+        """
+        Returns an iterable over the evidence, with the most certain evidence
+        at the front and the least certain evidence at the back. "Certain"
+        means a score close to 0 or 1, and "uncertain" a score closer to 0.5.
+        Note that a score of 'None' is considered as 0.5 here
+        """
+        return sorted(self.items(), key=lambda e, s: certainty(self[e]) if self[e] is not None else 0, reverse=True)
+
+    def per_relation(self):
+        """
+        Returns a dictionary: relation -> Knowledge, where each value is only
+        the knowledge for that specific relation
+        """
+        result = defaultdict(Knowledge)
+        for e, s in self.items():
+            result[e.fact.relation][e] = s
+        return result
 
 
 class BoostrappedIEPipeline(object):
@@ -21,15 +57,15 @@ class BoostrappedIEPipeline(object):
         Not blocking.
         """
         self.db_con = db_connector
-        self.seed_facts = seed_facts
+        self.seed_facts = Knowledge({Evidence(f, None): 1 for f in seed_facts})
         self.evidence_threshold = 0.99
         self.fact_threshold = 0.99
-        self.facts = set()
-        self.questions = []
+        self.knowledge = Knowledge()
+        self.questions = Knowledge()
         self.answers = {}
 
         self.steps = [
-                self.generate_evidence,      # Step 1
+                self.generalize_evidence,    # Step 1
                 self.generate_questions,     # Step 2, first half
                 None,                        # Pause to wait question answers
                 self.filter_evidence,        # Step 2, second half
@@ -39,14 +75,20 @@ class BoostrappedIEPipeline(object):
             ]
         self.step_iterator = itertools.cycle(self.steps)
 
+        # Build relation description: a map from relation labels to pairs of entity kinds
+        self.relations = {}
+        for e1, rel, e2 in seed_facts:
+            t1 = e1.kind
+            t2 = e1.kind
+            if rel in self.relations and (t1, t2) != self.relations[rel]:
+                raise ValueError("Ambiguous kinds for relation %r" % rel)
+            self.relations[rel] = (t1, t2)
+
     def do_iteration(self, data):
         for step in self.step_iterator:
             if step is None:
                 return
-            if isinstance(data, tuple):
-                data = step(*data)
-            else:
-                data = step(data)
+            data = step(data)
 
     ###
     ### IEPY User API
@@ -65,18 +107,17 @@ class BoostrappedIEPipeline(object):
         `force_process`.
         If `id` of the returned value hasn't changed the returned value is the
         same.
-        The questions avaiable are a list of (segment, (a, b, relation)).
+        The questions avaiable are a list of evidence.
         """
-        return self.questions
+        return self.questions.by_certainty()
 
-    def add_answer(self, question, answer):
+    def add_answer(self, evidence, answer):
         """
         Blocking (potentially).
         After calling this method the values returned by `questions_available`
         and `known_facts` might change.
-        question is (segment, (a, b, relation)).
         """
-        self.answers[question] = answer
+        self.answers[evidence] = int(answer)
 
     def force_process(self):
         """
@@ -94,39 +135,32 @@ class BoostrappedIEPipeline(object):
         If `len` of the returned value hasn't changed the returned value is the
         same.
         """
-        return self.facts
+        return self.knowledge
 
     ###
     ### Pipeline steps
     ###
 
-    def generate_evidence(self, facts):
+    def generalize_evidence(self, evidence):
         """
-        Stage 1 of pipeline.
-         - facts are [(a, b, relation), ...]
+        Pseudocode. Stage 1 of pipeline.
         """
-        self.facts.update(facts)
-        for fact in self.facts:
-            a, b, _ = fact
-            # FIXME when architecture is done, decide:
-            #  - what to do with database object? Is needed? Is the connection?
-            #  - invoking segments_with_both_entities with that path is OUCH
-            for segment in self.db_con.segments.segments_with_both_entities(a, b):
-                yield segment, fact
+        self.knowledge.update(evidence)
+        return Knowledge(
+            (Evidence(fact, segment), None)
+            for fact, _ in self.knowledge
+            for segment in self.db_con.segments.get_segments_with_entities(fact.e1, fact.e2)
+        )
 
     def generate_questions(self, evidence):
         """
         Pseudocode. Stage 2.1 of pipeline.
-        evidence is [(segment, (a, b, relation)), ...]
         confidence can implemented using the output from step 5 or accessing
         the classifier in step 3.
+
+        Stores questions in self.questions and stops
         """
-        xs = []
-        for segment, fact in evidence:
-            score = self._confidence(segment, fact)
-            xs.append((score, segment, fact))
-        xs.sort(key=lambda x: abs(x[0] - 0.5), reverse=True)
-        self.questions = xs
+        self.questions = Knowledge((e, self._confidence(e)) for e in evidence if e not in self.answers)
 
     def filter_evidence(self):
         """
@@ -134,12 +168,12 @@ class BoostrappedIEPipeline(object):
         sorted_evidence is [(score, segment, (a, b, relation)), ...]
         answers is {(segment, (a, b, relation)): is_evidence, ...}
         """
-        xs = list(self.questions)
-        evidence = []
-        while xs and xs[-1][0] > self.evidence_threshold:
-            score, segment, fact = xs.pop()
-            is_evidence = self.answers.get((segment, fact), score < 0.5)
-            evidence.append((segment, fact, is_evidence))
+        evidence = Knowledge(self.answers)
+        evidence.update(
+            (e, score < 0.5)
+            for e, score in self.questions.items()
+            if certainty(score) > self.evidence_threshold and e not in self.answers
+        )
         return evidence
 
     def learn_fact_extractors(self, evidence):
@@ -148,12 +182,9 @@ class BoostrappedIEPipeline(object):
         evidence is [(segment, (a, b, relation), is_evidence), ...]
         """
         classifiers = {}
-        # TODO: Split evidence into the different relations (below)
-        evidence_per_relation = evidence
-        for relation, evidence in evidence_per_relation.iteritems():
-            classifier = object()  # TODO: instance classifier
-            classifier.fit(evidence)
-            classifiers[relation] = classifier
+        for rel, k in evidence.per_relation.iteritems():
+            classifiers[rel] = object()  # TODO: instance classifier
+            classifiers[rel].fit(k)
         return classifiers
 
     def extract_facts(self, extractors):
@@ -161,36 +192,38 @@ class BoostrappedIEPipeline(object):
         Pseudocode. Stage 5 of pipeline.
         extractors is a dict {relation: classifier, ...}
         """
-        # FIXME: This is designed here differently than what was designed on
-        # iepy.db.TextSegmentManager, making non-usable the method segments_with_both_kinds?
-        for segment in self.database.segments.get_segments():
-            for a, b in _all_entity_pairs(segment):
-                for relation, extractor in extractors.iteritems():
-                    if _relation_is_compatible(a, b, relation):
-                        yield (a, b, relation), extractor.predict(a, b)
+        # TODO: this probably is smarter as an outer iteration through segments
+        # and then an inner iteration over relations
+
+        result = Knowledge()
+
+        for r in extractors:
+            lkind, rkind = self.relations[r]
+            for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
+                for e1, e2 in segment.entity_pairs(lkind, rkind):
+                    f = Fact(e1, r, e2)
+                    e = Evidence(f, segment)
+                    result[e] = extractors[r].predict(e)
+        return result
 
     def filter_facts(self, facts):
         """
         Pseudocode. Stage 6 of pipeline.
         facts is [((a, b, relation), confidence), ...]
         """
-        for fact, confidence in facts:
-            if confidence > self.fact_threshold:
-                yield fact
+        return Knowledge((e, s) for e, s in facts.items() if s > self.fact_threshold)
 
     ###
     ### Aux methods
     ###
     def _confidence(self, segment, fact):
         """
-        Returns a proability estimation of segment being an manifestation of
+        Returns a probability estimation of segment being an manifestation of
         fact.
         fact is (a, b, relation).
         """
-        conf = segment.get_confidence(fact)
-        if conf is None:
-            return 0.5  # just put this in the middle
-        return conf
+        # FIXME: to be implemented on ticket IEPY-47
+        return 0.5
 
 
 def _all_entity_pairs(segment):
