@@ -1,5 +1,5 @@
 import codecs
-from csv import reader
+from csv import reader, writer
 from getpass import getuser
 import zipfile
 
@@ -50,3 +50,20 @@ def load_facts_from_csv(filepath):
             entity_a = db.get_entity(row[0], row[1])
             entity_b = db.get_entity(row[2], row[3])
             yield Fact(entity_a, row[4], entity_b)
+
+
+def save_facts_to_csv(facts, filepath):
+    """Writes an iterable of facts to a CSV file encoded in UTF-8.
+    Each fact in the input facts iterable is a 3-uple
+        entity a, entity b, relation name
+    The entities can be Entity or EntityInSegment instances. The relation name
+    is a string.
+    For the CSV file format refer to load_facts_from_csv().
+    """
+    with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
+        factswriter = writer(csvfile, delimiter=',')
+        for (entity_a, entity_b, relation) in facts:
+            row = [entity_a.kind, entity_a.key, entity_b.kind, entity_b.key,
+                    relation]
+            factswriter.writerow(row)
+
