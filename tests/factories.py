@@ -1,4 +1,7 @@
 import logging
+from tempfile import NamedTemporaryFile
+import sys
+
 import factory
 import nltk
 
@@ -67,3 +70,11 @@ class SentencedIEDocFactory(IEDocFactory):
 
         self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
         self.set_preprocess_result(PreProcessSteps.sentencer, sentences)
+
+
+def NamedTemporaryFile23(*args, **kwargs):
+    """Works exactly as a wrapper to tempfile.NamedTemporaryFile except that
+       in python2.x, it excludes the "encoding" parameter when provided."""
+    if sys.version_info[0] == 2:  # Python 2
+        kwargs.pop('encoding', None)
+    return NamedTemporaryFile(*args, **kwargs)

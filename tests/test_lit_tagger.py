@@ -1,9 +1,8 @@
 from unittest import TestCase
-from tempfile import NamedTemporaryFile
 
 from iepy.lit_tagger import LitTagger, LitTaggerRunner
 from iepy.models import PreProcessSteps, IEDocument
-from tests.factories import SentencedIEDocFactory
+from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
 from tests.manager_case import ManagerTestCase
 
 NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
@@ -12,11 +11,11 @@ NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
 class TestLitTagger(TestCase):
 
     def setUp(self):
-        f = NamedTemporaryFile(mode="w", encoding="utf8")
+        f = NamedTemporaryFile23(mode="w", encoding="utf8")
         f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
         f.seek(0)
         self.tmp_file1 = f
-        f = NamedTemporaryFile(mode="w", encoding="utf8")
+        f = NamedTemporaryFile23(mode="w", encoding="utf8")
         f.write('MRI\nCT scan\ndrooling\n')
         f.seek(0)
         self.tmp_file2 = f
@@ -75,11 +74,11 @@ class TestLitTaggerRunner(ManagerTestCase):
         models.set_custom_entity_kinds([])
 
     def setUp(self):
-        f = NamedTemporaryFile(mode="w", encoding="utf8")
+        f = NamedTemporaryFile23(mode="w", encoding="utf8")
         f.write('HIV\nHepatitis C\nbrain tumor\ndrooling\n')
         f.seek(0)
         self.tmp_file1 = f
-        f = NamedTemporaryFile(mode="w", encoding="utf8")
+        f = NamedTemporaryFile23(mode="w", encoding="utf8")
         f.write('MRI\nCT scan\ndrooling\n')
         f.seek(0)
         self.tmp_file2 = f
