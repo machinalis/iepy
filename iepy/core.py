@@ -25,7 +25,7 @@ class Knowledge(dict):
         means a score close to 0 or 1, and "uncertain" a score closer to 0.5.
         Note that a score of 'None' is considered as 0.5 here
         """
-        return sorted(self.items(), key=lambda e, s: certainty(self[e]) if self[e] is not None else 0, reverse=True)
+        return sorted(self.items(), key=lambda es: certainty(self[es[0]]) if self[es[0]] is not None else 0, reverse=True)
 
     def per_relation(self):
         """
@@ -77,12 +77,12 @@ class BoostrappedIEPipeline(object):
 
         # Build relation description: a map from relation labels to pairs of entity kinds
         self.relations = {}
-        for e1, rel, e2 in seed_facts:
-            t1 = e1.kind
-            t2 = e1.kind
-            if rel in self.relations and (t1, t2) != self.relations[rel]:
-                raise ValueError("Ambiguous kinds for relation %r" % rel)
-            self.relations[rel] = (t1, t2)
+        for f, s in self.seed_facts:
+            t1 = f.e1.kind
+            t2 = f.e1.kind
+            if f.relation in self.relations and (t1, t2) != self.relations[f.relation]:
+                raise ValueError("Ambiguous kinds for relation %r" % f.relation)
+            self.relations[f.relation] = (t1, t2)
 
     def do_iteration(self, data):
         for step in self.step_iterator:
@@ -125,7 +125,7 @@ class BoostrappedIEPipeline(object):
         After calling this method the values returned by `questions_available`
         and `known_facts` might change.
         """
-        self.do_iteration(tuple())
+        self.do_iteration(None)
 
     def known_facts(self):
         """
@@ -149,7 +149,7 @@ class BoostrappedIEPipeline(object):
         return Knowledge(
             (Evidence(fact, segment), None)
             for fact, _ in self.knowledge
-            for segment in self.db_con.segments.get_segments_with_entities(fact.e1, fact.e2)
+            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
         )
 
     def generate_questions(self, evidence):
@@ -162,7 +162,7 @@ class BoostrappedIEPipeline(object):
         """
         self.questions = Knowledge((e, self._confidence(e)) for e in evidence if e not in self.answers)
 
-    def filter_evidence(self):
+    def filter_evidence(self, _):
         """
         Pseudocode. Stage 2.2 of pipeline.
         sorted_evidence is [(score, segment, (a, b, relation)), ...]
@@ -182,7 +182,7 @@ class BoostrappedIEPipeline(object):
         evidence is [(segment, (a, b, relation), is_evidence), ...]
         """
         classifiers = {}
-        for rel, k in evidence.per_relation.iteritems():
+        for rel, k in evidence.per_relation().items():
             classifiers[rel] = object()  # TODO: instance classifier
             classifiers[rel].fit(k)
         return classifiers
@@ -216,7 +216,7 @@ class BoostrappedIEPipeline(object):
     ###
     ### Aux methods
     ###
-    def _confidence(self, segment, fact):
+    def _confidence(self, evidence):
         """
         Returns a probability estimation of segment being an manifestation of
         fact.

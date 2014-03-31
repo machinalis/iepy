@@ -12,10 +12,11 @@ Options:
 import codecs
 from csv import reader
 from future.builtins import input
+import pprint
 
 from docopt import docopt
 
-from iepy.core import BoostrappedIEPipeline
+from iepy.core import BoostrappedIEPipeline, Fact
 from iepy import db
 
 
@@ -34,7 +35,7 @@ def load_facts_from_csv(filepath):
                 continue
             entity_a = db.get_entity(row[0], row[1])
             entity_b = db.get_entity(row[2], row[3])
-            yield entity_a, entity_b, row[4]
+            yield Fact(entity_a, row[4], entity_b)
 
 
 def get_human_answer(question):
@@ -55,7 +56,10 @@ if __name__ == '__main__':
     p.start()  # blocking
     keep_looping = True
     while keep_looping:
-        for question in p.questions_available():
+        qs = list(p.questions_available())
+        if not qs:
+            keep_looping = False
+        for question, score in qs:
             answer = get_human_answer(question)
             if answer is 'LEARN':
                 break
@@ -63,6 +67,7 @@ if __name__ == '__main__':
                 keep_looping = False
                 break
             else:
-                p.add_answer(question, answer)
+                p.add_answer(question, answer.lower().startswith('y'))
         p.force_process()
-    facts = p.get_facts()  # profit
+    facts = p.known_facts()  # profit
+    pprint.pprint(facts)

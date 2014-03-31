@@ -1,4 +1,5 @@
 from datetime import datetime
+import itertools
 from os import environ
 
 from enum import Enum
