@@ -1,4 +1,5 @@
 from datetime import datetime
+import itertools
 from os import environ
 
 from enum import Enum
@@ -226,6 +227,12 @@ class TextSegment(DynamicDocument):
         l, r = _interval_offsets(document.sentences, token_offset, token_offset_end)
         self.sentences = [o - token_offset for o in document.sentences[l:r]]
         return self
+
+    def entity_pairs(self, lkind, rkind):
+        left = set(o.key for o in self.entities if o.kind == lkind)
+        right = set(o.key for o in self.entities if o.kind == rkind)
+        pairs = itertools.product(left, right)
+        return [(Entity.objects.get(key=l), Entity.objects.get(key=r)) for l,r in pairs if l != r]
 
 
 class IEDocument(DynamicDocument):

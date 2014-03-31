@@ -1,18 +1,26 @@
+from collections import namedtuple
+
 from mongoengine import connect as mongoconnect
 from mongoengine.connection import get_db
 
-from iepy.models import (IEDocument, PreProcessSteps, InvalidPreprocessSteps,
-    TextSegment)
+from iepy.models import (
+    IEDocument, PreProcessSteps, InvalidPreprocessSteps, TextSegment, Entity)
+
+
+IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
 
 
 def connect(db_name):
-    mongoconnect(db_name)
+    return IEPYDBConnector(
+        mongoconnect(db_name),
+        TextSegmentManager(),
+        DocumentManager(),
+    )
 
 
 class DocumentManager(object):
     """Wrapper to the db-access, so it's not that impossible to switch
-    from mongodb to something else if needed.
-    Most (if not all) the methods here could be implemented
+    from mongodb to something else if desired.
     """
 
     ### Basic administration and pre-process
@@ -80,3 +88,8 @@ class TextSegmentManager(object):
             objects = db.text_segment.aggregate(pipeline)
             segments = list(TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values())
             return segments
+
+
+def get_entity(kind, literal):
+    return Entity.objects.get(kind=kind, key=literal)
+
