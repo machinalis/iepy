@@ -66,7 +66,7 @@ class TerminalInterviewer(object):
         r += u"Possible answers are:\n"
         options = list(self.base_options.items()) + list(self.extra_options.items())
         r += u'\n'.join('   %s: %s' % (key, explanation) for key, explanation in options)
-        return r
+        print(r)
 
     def __call__(self):
         """For each available question prompts the Human if it's valid evidence or not.
@@ -78,7 +78,6 @@ class TerminalInterviewer(object):
         except the terminal is invoked again).
         """
         colorama_init()
-        print(self.explain())
         for evidence, score in self.questions[len(self.raw_answers):]:
             answer = self.get_human_answer(evidence)
             if answer in self.extra_options:
