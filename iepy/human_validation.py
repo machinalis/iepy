@@ -6,8 +6,8 @@ from termcolor import colored
 
 
 QUESTION_TEMPLATE = """
-Is the following text evidence of the Fact (%(ent_a)s, %(ent_b)s, %(relation)s)?
-    %(text)s?
+Is the following text evidence of the Fact (%(ent_a)s, %(relation)s, %(ent_b)s)?
+    %(text)s
 (%(keys)s): """
 
 
@@ -95,12 +95,32 @@ class TerminalInterviewer(object):
     def get_human_answer(self, evidence):
         keys = u'/'.join(self.keys)
         fact = evidence.fact
-        segm = evidence.segment
         answer = input(self.template % {
             'keys': keys, 'ent_a': colored(fact.e1.key, 'red'),
             'ent_b': colored(fact.e2.key, 'green'), 'relation': fact.relation,
-            'text': repr(segm)  # needs to use offsets for colorizing occurrences
+            'text': self.format_segment_text(evidence)
         })
         while answer not in self.keys:
             answer = input('Invalid answer. (%s): ' % keys)
         return answer
+
+    def format_segment_text(self, evidence):
+        """Will return a naive formated text with entities remarked.
+        Assumes that occurrences does not overlap.
+        """
+        from colorama import Fore, Style
+        sgm = evidence.segment
+        occurr1 = sgm.entities[evidence.o1]
+        occurr2 = sgm.entities[evidence.o2]
+        tkns = sgm.tokens[:]
+        if evidence.o1 < evidence.o2:
+            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr2.offset, Fore.GREEN)
+            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr1.offset, Fore.RED)
+        else:  # must be solved in the reverse order
+            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr1.offset, Fore.RED)
+            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr2.offset, Fore.GREEN)
+        return ' '.join(tkns)
