@@ -11,13 +11,13 @@ Options:
 """
 import codecs
 from csv import reader
-from future.builtins import input
 import pprint
 
 from docopt import docopt
 
 from iepy.core import BoostrappedIEPipeline, Fact
 from iepy import db
+from iepy.human_filter import TerminalInterviewer
 
 
 def load_facts_from_csv(filepath):
@@ -38,20 +38,13 @@ def load_facts_from_csv(filepath):
             yield Fact(entity_a, row[4], entity_b)
 
 
-def get_human_answer(question):
-    # FIXME: This is pseudo-code, must be done on ticket IEPY-46
-    answer = input('Is this evidence: %s? (y/n/learn/end): ' % repr(question)).upper()
-    valid_answers = ['Y', 'N', 'LEARN', 'END']
-    while answer not in valid_answers:
-        answer = raw_input('Invalid answer. (y/n/learn/end): ')
-    return answer
-
-
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connection = db.connect(opts['<dbname>'])
     seed_facts = load_facts_from_csv(opts['<seeds_file>'])
     p = BoostrappedIEPipeline(connection, seed_facts)
+
+    STOP = 'STOP'
 
     p.start()  # blocking
     keep_looping = True
@@ -59,15 +52,10 @@ if __name__ == '__main__':
         qs = list(p.questions_available())
         if not qs:
             keep_looping = False
-        for question, score in qs:
-            answer = get_human_answer(question)
-            if answer is 'LEARN':
-                break
-            elif answer is 'END':
-                keep_looping = False
-                break
-            else:
-                p.add_answer(question, answer.lower().startswith('y'))
+        term = TerminalInterviewer(qs, p.add_answer, [(STOP, 'Stop execution asap')])
+        result = term()
+        if result == STOP:
+            keep_looping = False
         p.force_process()
     facts = p.known_facts()  # profit
     pprint.pprint(facts)
