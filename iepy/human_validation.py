@@ -78,6 +78,7 @@ class TerminalInterviewer(object):
         except the terminal is invoked again).
         """
         colorama_init()
+        self.explain()
         for evidence, score in self.questions[len(self.raw_answers):]:
             answer = self.get_human_answer(evidence)
             if answer in self.extra_options:
