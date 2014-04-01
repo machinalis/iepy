@@ -5,7 +5,9 @@ import sys
 import factory
 import nltk
 
-from iepy.models import (IEDocument, Entity, PreProcessSteps, EntityInSegment,
+from iepy.core import Fact, Evidence
+from iepy.models import (
+    IEDocument, Entity, PreProcessSteps, EntityInSegment,
     TextSegment)
 
 
@@ -78,3 +80,32 @@ def NamedTemporaryFile23(*args, **kwargs):
     if sys.version_info[0] == 2:  # Python 2
         kwargs.pop('encoding', None)
     return NamedTemporaryFile(*args, **kwargs)
+
+
+class FactFactory(factory.Factory):
+    FACTORY_FOR = Fact
+    e1 = factory.SubFactory(EntityFactory)
+    e2 = factory.SubFactory(EntityFactory)
+    relation = factory.Sequence(lambda n: 'relation:%i' % n)
+
+
+class EvidenceFactory(factory.Factory):
+    FACTORY_FOR = Evidence
+    fact = factory.SubFactory(FactFactory)
+    segment = factory.SubFactory(TextSegmentFactory)
+    o1 = 0
+    o2 = 1
+
+    @factory.post_generation
+    def occurrences(self, create, extracted, **kwargs):
+        raw_ocurrences = kwargs['data']
+        for entity, offset, offset_end in raw_ocurrences:
+            self.segment.entities.append(
+                EntityInSegmentFactory(
+                    key=entity.key,
+                    canonical_form=entity.key,
+                    kind=entity.kind,
+                    offset=offset,
+                    offset_end=offset_end
+                ))
+
