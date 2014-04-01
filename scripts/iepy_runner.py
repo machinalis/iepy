@@ -17,7 +17,7 @@ from docopt import docopt
 
 from iepy.core import BoostrappedIEPipeline, Fact
 from iepy import db
-from iepy.human_filter import TerminalInterviewer
+from iepy.human_validation import TerminalInterviewer
 
 
 def load_facts_from_csv(filepath):
