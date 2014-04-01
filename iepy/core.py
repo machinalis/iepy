@@ -12,8 +12,8 @@ Fact = namedtuple("Fact", "e1 relation e2")
 # The following invariants apply
 #   - e.segment == None iff e.o1 == None
 #   - e.segment == None iff e.o2 == None
-#   - e.o1 != None implies e.fact.e1.kind == e.segment[e.o1].kind and e.fact.e1.key == e.segment[e.o1].key
-#   - e.o2 != None implies e.fact.e2.kind == e.segment[e.o2].kind and e.fact.e2.key == e.segment[e.o2].key
+#   - e.o1 != None implies e.fact.e1.kind == e.segment.entities[e.o1].kind and e.fact.e1.key == e.segment.entities[e.o1].key
+#   - e.o2 != None implies e.fact.e2.kind == e.segment.entities[e.o2].kind and e.fact.e2.key == e.segment.entities[e.o2].key
 Evidence = namedtuple("Evidence", "fact segment o1 o2")
 
 
