@@ -48,7 +48,7 @@ class Knowledge(dict):
         return result
 
 
-class BoostrappedIEPipeline(object):
+class BootstrappedIEPipeline(object):
     """
     From the user's point of view this class is meant to be used like this:
         p = BoostrappedIEPipeline(db_connector, seed_facts)
