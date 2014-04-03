@@ -3,6 +3,7 @@ from collections import defaultdict, namedtuple
 import itertools
 
 from iepy import db
+from iepy.fact_extractor import FactExtractorFactory
 
 # A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")
@@ -152,7 +153,7 @@ class BootstrappedIEPipeline(object):
 
     def generalize_knowledge(self, evidence):
         """
-        Pseudocode. Stage 1 of pipeline.
+        Stage 1 of pipeline.
         """
         return Knowledge(
             (Evidence(fact, segment, o1, o2), evidence.get(Evidence(fact, segment, o1, o2)))
@@ -193,8 +194,8 @@ class BootstrappedIEPipeline(object):
         """
         classifiers = {}
         for rel, k in evidence.per_relation().items():
-            classifiers[rel] = object()  # TODO: instance classifier
-            classifiers[rel].fit(k) 
+            classifiers[rel] = FactExtractorFactory()
+            classifiers[rel].fit(k)
         return classifiers
 
     def extract_facts(self, extractors):
