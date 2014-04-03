@@ -13,7 +13,7 @@ import pprint
 
 from docopt import docopt
 
-from iepy.core import BoostrappedIEPipeline
+from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.human_validation import TerminalInterviewer
 from iepy.utils import load_facts_from_csv

@@ -18,7 +18,7 @@ Evidence = namedtuple("Evidence", "fact segment o1 o2")
 
 
 def certainty(p):
-    return 0.5 + abs(p - 0.5)
+    return 0.5 + abs(p - 0.5) if p is not None else 0.5
 
 
 class Knowledge(dict):
@@ -67,15 +67,14 @@ class BootstrappedIEPipeline(object):
         Not blocking.
         """
         self.db_con = db_connector
-        self.seed_facts = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
+        self.knowledge = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
         self.evidence_threshold = 0.99
         self.fact_threshold = 0.99
-        self.knowledge = Knowledge()
         self.questions = Knowledge()
         self.answers = {}
 
         self.steps = [
-                self.generalize_evidence,    # Step 1
+                self.generalize_knowledge,    # Step 1
                 self.generate_questions,     # Step 2, first half
                 None,                        # Pause to wait question answers
                 self.filter_evidence,        # Step 2, second half
@@ -87,7 +86,7 @@ class BootstrappedIEPipeline(object):
 
         # Build relation description: a map from relation labels to pairs of entity kinds
         self.relations = {}
-        for e in self.seed_facts:
+        for e in self.knowledge:
             t1 = e.fact.e1.kind
             t2 = e.fact.e1.kind
             if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
@@ -108,7 +107,7 @@ class BootstrappedIEPipeline(object):
         """
         Blocking.
         """
-        self.do_iteration(self.seed_facts)
+        self.do_iteration(self.knowledge)
 
     def questions_available(self):
         """
@@ -151,14 +150,13 @@ class BootstrappedIEPipeline(object):
     ### Pipeline steps
     ###
 
-    def generalize_evidence(self, evidence):
+    def generalize_knowledge(self, evidence):
         """
         Pseudocode. Stage 1 of pipeline.
         """
-        self.knowledge.update(evidence)
         return Knowledge(
-            (Evidence(fact, segment, o1, o2), None)
-            for fact, _smg, _o1, _o2 in self.knowledge
+            (Evidence(fact, segment, o1, o2), evidence.get(Evidence(fact, segment, o1, o2)))
+            for fact, _s, _o1, _o2 in self.knowledge
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
             for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
@@ -171,7 +169,7 @@ class BootstrappedIEPipeline(object):
 
         Stores questions in self.questions and stops
         """
-        self.questions = Knowledge((e, self._confidence(e)) for e in evidence if e not in self.answers)
+        self.questions = Knowledge((e, s) for e, s in evidence.items() if e not in self.answers)
 
     def filter_evidence(self, _):
         """
@@ -196,7 +194,7 @@ class BootstrappedIEPipeline(object):
         classifiers = {}
         for rel, k in evidence.per_relation().items():
             classifiers[rel] = object()  # TODO: instance classifier
-            classifiers[rel].fit(k)
+            classifiers[rel].fit(k) 
         return classifiers
 
     def extract_facts(self, extractors):
@@ -225,7 +223,8 @@ class BootstrappedIEPipeline(object):
         Pseudocode. Stage 6 of pipeline.
         facts is [((a, b, relation), confidence), ...]
         """
-        return Knowledge((e, s) for e, s in facts.items() if s > self.fact_threshold)
+        self.knowledge.update((e, s) for e, s in facts.items() if certainty(s) > self.fact_threshold)
+        return facts
 
     ###
     ### Aux methods
@@ -236,6 +235,9 @@ class BootstrappedIEPipeline(object):
         fact.
         fact is (a, b, relation).
         """
+        if evidence in self.knowledge:
+            return self.knowledge[evidence]
+
         # FIXME: to be implemented on ticket IEPY-47
         return 0.5
 
