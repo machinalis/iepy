@@ -13,6 +13,10 @@ class TestCertainty(unittest.TestCase):
     def test_certainty_uncertain(self):
         self.assertEqual(certainty(0.5), 0.5)
 
+    def test_certainty_unknown(self):
+        self.assertEqual(certainty(None), 0.5)
+
+
 class TestKnowledge(unittest.TestCase):
 
     def test_sorting(self):
