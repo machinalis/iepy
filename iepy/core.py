@@ -158,7 +158,7 @@ class BootstrappedIEPipeline(object):
         self.knowledge.update(evidence)
         return Knowledge(
             (Evidence(fact, segment, o1, o2), None)
-            for fact, _smg, _o1, _o2 in self.knowledge
+            for fact, _s, _o1, _o2 in self.knowledge
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
             for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
