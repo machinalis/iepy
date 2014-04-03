@@ -194,8 +194,7 @@ class BootstrappedIEPipeline(object):
         """
         classifiers = {}
         for rel, k in evidence.per_relation().items():
-            classifiers[rel] = FactExtractorFactory()
-            classifiers[rel].fit(k)
+            classifiers[rel] = FactExtractorFactory(k, rel)
         return classifiers
 
     def extract_facts(self, extractors):
@@ -216,7 +215,7 @@ class BootstrappedIEPipeline(object):
                     e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
-                    result[e] = extractors[r].predict(e)
+                    result[e] = extractors[r].predict([e])
         return result
 
     def filter_facts(self, facts):
