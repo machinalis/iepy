@@ -11,7 +11,7 @@ def FactExtractorFactory(data, relation):
         ('classifier', DecisionTreeRegressor())
     ])
     X, y = zip(*data.items())
-    p.fit_transform(X, y)
+    p.fit(X, y)
     return p
 
 
