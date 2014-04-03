@@ -23,7 +23,7 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connection = db.connect(opts['<dbname>'])
     seed_facts = load_facts_from_csv(opts['<seeds_file>'])
-    p = BoostrappedIEPipeline(connection, seed_facts)
+    p = BootstrappedIEPipeline(connection, seed_facts)
 
     STOP = 'STOP'
 

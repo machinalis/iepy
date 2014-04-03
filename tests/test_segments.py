@@ -1,8 +1,8 @@
 import unittest
 
-from .factories import IEDocFactory, EntityFactory
+from .factories import IEDocFactory, EntityFactory, TextSegmentFactory
 from .manager_case import ManagerTestCase
-from iepy.models import TextSegment, EntityOccurrence
+from iepy.models import TextSegment, EntityInSegment, EntityOccurrence
 
 
 class TextSegmentTest(unittest.TestCase):
@@ -116,6 +116,42 @@ class TextSegmentTest(unittest.TestCase):
         d.sentences = [0, 5, 35, 36, 41, 90]
         c = TextSegment.build(d, 0, 60)
         self.assertEqual(c.sentences, [0, 5, 35, 36, 41])
+
+    def test_entity_occurrence_pairs(self):
+        e1 = EntityFactory()
+        e2 = EntityFactory()
+        e3 = EntityFactory()
+        s = TextSegmentFactory()
+        o11 = EntityInSegment(key=e1.key, kind=e1.kind, offset=0, offset_end=1)
+        o12 = EntityInSegment(key=e2.key, kind=e2.kind, offset=1, offset_end=2)
+        o21 = EntityInSegment(key=e1.key, kind=e1.kind, offset=2, offset_end=3)
+        o22 = EntityInSegment(key=e2.key, kind=e2.kind, offset=3, offset_end=4)
+        o31 = EntityInSegment(key=e3.key, kind=e3.kind, offset=4, offset_end=5)
+        s.entities = [o11, o12, o21, o22, o31]
+        ps = s.entity_occurrence_pairs(e1, e2)
+        self.assertEqual(ps, [(0, 1), (0,3), (2, 1), (2, 3)])
+
+    def test_entity_occurrence_pairs_does_not_repeat(self):
+        e1 = EntityFactory()
+        s = TextSegmentFactory()
+        o11 = EntityInSegment(key=e1.key, kind=e1.kind, offset=0, offset_end=1)
+        o21 = EntityInSegment(key=e1.key, kind=e1.kind, offset=1, offset_end=2)
+        s.entities = [o11, o21]
+        ps = s.entity_occurrence_pairs(e1, e1)
+        self.assertEqual(ps, [(0, 1), (1, 0)])
+
+    def test_kind_occurrence_pairs(self):
+        e1 = EntityFactory(kind='person')
+        e2 = EntityFactory(kind='location')
+        e3 = EntityFactory(kind='location')
+        s = TextSegmentFactory()
+        o11 = EntityInSegment(key=e1.key, kind=e1.kind, offset=0, offset_end=1)
+        o12 = EntityInSegment(key=e2.key, kind=e2.kind, offset=1, offset_end=2)
+        o21 = EntityInSegment(key=e1.key, kind=e1.kind, offset=2, offset_end=3)
+        o13 = EntityInSegment(key=e3.key, kind=e3.kind, offset=3, offset_end=4)
+        s.entities = [o11, o12, o21, o13]
+        ps = s.kind_occurrence_pairs('person', 'location')
+        self.assertEqual(ps, [(0, 1), (0,3), (2, 1), (2, 3)])
 
 
 class TestDocumentSegmenter(ManagerTestCase):

@@ -5,8 +5,6 @@ import zipfile
 
 from appdirs import AppDirs
 
-from iepy.core import Fact
-from iepy import db
 
 DIRS = AppDirs('iepy', getuser())
 
@@ -40,6 +38,10 @@ def load_facts_from_csv(filepath):
     Everything else in the file will be ignored.
     Row with less column than stated, will be ignored.
     """
+    from iepy.core import Fact  # Done here to avoid circular dependency
+    from iepy import db
+
+
     with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
         factsreader = reader(csvfile, delimiter=',')
         for row in factsreader:
