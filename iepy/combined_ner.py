@@ -11,6 +11,12 @@ class CombinedNERRunner(BasePreProcessStepRunner):
     step = PreProcessSteps.nerc
 
     def __init__(self, ner_runner1, ner_runner2, override=False):
+        """The NER runners should be instances of BasePreProcessStepRunner.
+        The override attributes of the NER runners are set to True, ignoring the
+        previous values.
+        The override parameter is used for both NER runners (overriding only one
+        part is not allowed).
+        """
         self.ner_runner1 = ner_runner1
         self.ner_runner2 = ner_runner2
         self.override = override
@@ -21,7 +27,7 @@ class CombinedNERRunner(BasePreProcessStepRunner):
 
     def __call__(self, doc):
         if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
-            #print 'Already done'
+            # Already done
             return
 
         self.ner_runner1(doc)
