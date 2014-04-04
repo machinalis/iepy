@@ -21,8 +21,8 @@ class NERTestMixin(object):
             return [[(t, self.entity_map.get(t, 'O')) for t in sent] for sent in sents]
         ner_runner = NERRunner(ner)
         ner_runner(doc)
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
-        entities = doc.get_preprocess_result(PreProcessSteps.nerc)
+        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.ner))
+        entities = doc.get_preprocess_result(PreProcessSteps.ner)
         self.assertEqual(len(entities), len(entities_triples))
         for e, (offset, offset_end, kind) in zip(entities, entities_triples):
             self.assertEqual(e.offset, offset)
@@ -54,8 +54,8 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
             text='Rami Eid is studying . At Stony Brook University in NY')
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
-        entities = doc.get_preprocess_result(PreProcessSteps.nerc)
+        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.ner))
+        entities = doc.get_preprocess_result(PreProcessSteps.ner)
         self.assertEqual(len(entities), 2)
         self.assertEqual(entities[0].offset, 0)
         self.assertEqual(entities[0].offset_end, 2)
@@ -72,7 +72,7 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
 
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
-        result = doc.get_preprocess_result(PreProcessSteps.nerc)
+        result = doc.get_preprocess_result(PreProcessSteps.ner)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].offset, 4)
         self.assertEqual(result[0].offset_end, 6)
@@ -86,7 +86,7 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
 
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
-        result = doc.get_preprocess_result(PreProcessSteps.nerc)
+        result = doc.get_preprocess_result(PreProcessSteps.ner)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].offset, 9)
         self.assertEqual(result[0].offset_end, 11)

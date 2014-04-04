@@ -25,8 +25,7 @@ class NonTokenizingNERTagger(NERTagger):
 class NERRunner(BasePreProcessStepRunner):
     """Wrapper to insert a generic callable sentence NER tagger into the pipeline.
     """
-    # TODO: rename to ner
-    step = PreProcessSteps.nerc
+    step = PreProcessSteps.ner
 
     def __init__(self, ner, override=False):
         self.override = override
@@ -36,13 +35,13 @@ class NERRunner(BasePreProcessStepRunner):
         # this step does not necessarily requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
+        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
             #print 'Already done'
             return
 
         entities = self.execute(doc)
 
-        doc.set_preprocess_result(PreProcessSteps.nerc, entities)
+        doc.set_preprocess_result(PreProcessSteps.ner, entities)
         doc.save()
 
     def execute(self, doc):

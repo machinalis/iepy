@@ -17,6 +17,7 @@ from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.lit_tagger import LitTaggerRunner
 from iepy.tagger import StanfordTaggerRunner
 from iepy.ner import StanfordNERRunner
+from iepy.combined_ner import CombinedNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
 
 
@@ -33,13 +34,13 @@ def media_wiki_to_txt(doc):
 MEDIC_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
 
 
-class TVSeriesNERRunner(LitTaggerRunner):
+class MedicNERRunner(LitTaggerRunner):
 
     def __init__(self):
         labels = MEDIC_ENTITIES
         filenames = ['tvseries/disease.txt', 'tvseries/symptom.txt',
                      'tvseries/diagnostic_test.txt']
-        super(TVSeriesNERRunner, self).__init__(labels, filenames, override=True)
+        super(MedicNERRunner, self).__init__(labels, filenames)
 
 
 if __name__ == '__main__':
@@ -56,8 +57,7 @@ if __name__ == '__main__':
         media_wiki_to_txt,
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
-        TVSeriesNERRunner(),
-        StanfordNERRunner(),
+        CombinedNERRunner(MedicNERRunner(), StanfordNERRunner()),
         SyntacticSegmenterRunner(),
     ], docs
     )
