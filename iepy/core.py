@@ -189,8 +189,8 @@ class BootstrappedIEPipeline(object):
 
     def learn_fact_extractors(self, evidence):
         """
-        Pseudocode. Stage 3 of pipeline.
-        evidence is [(segment, (a, b, relation), is_evidence), ...]
+        Stage 3 of pipeline.
+        evidence is a Knowledge instance of {evidence: is_good_evidence}
         """
         classifiers = {}
         for rel, k in evidence.per_relation().items():
