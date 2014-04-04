@@ -1,14 +1,16 @@
 from collections import OrderedDict
+import sys
 
 from colorama import init as colorama_init, Fore, Style
-from future.builtins import input
+from future.builtins import input, str
 from termcolor import colored
 
 
-QUESTION_TEMPLATE = """
+QUESTION_TEMPLATE = str(u"""
 Is the following text evidence of the Fact (%(ent_a)s, %(relation)s, %(ent_b)s)?
     %(text)s
-(%(keys)s): """
+(%(keys)s): """)
+PY3 = sys.version > '3'
 
 
 class TerminalInterviewer(object):
@@ -95,11 +97,14 @@ class TerminalInterviewer(object):
     def get_human_answer(self, evidence):
         keys = u'/'.join(self.keys)
         fact = evidence.fact
-        answer = input(self.template % {
-            'keys': keys, 'ent_a': colored(fact.e1.key, 'red'),
-            'ent_b': colored(fact.e2.key, 'green'), 'relation': fact.relation,
+        question = self.template % {
+            'keys': keys, 'ent_a': str(colored(fact.e1.key, 'red')),
+            'ent_b': str(colored(fact.e2.key, 'green')), 'relation': str(fact.relation),
             'text': self.format_segment_text(evidence, Fore.RED, Fore.GREEN)
-        })
+        }
+        if not PY3:
+            question = question.encode('utf-8')
+        answer = input(question)
         while answer not in self.keys:
             answer = input('Invalid answer. (%s): ' % keys)
         return answer
