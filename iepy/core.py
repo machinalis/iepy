@@ -212,13 +212,15 @@ class BootstrappedIEPipeline(object):
 
         for r in extractors:
             lkind, rkind = self.relations[r]
+            evidence = []
             for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
                 for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
                     e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
                     e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
-                    result[e] = extractors[r].predict([e])
+                    evidence.append(e)
+            result.update(zip(evidence, extractors[r].predict(evidence)))
         return result
 
     def filter_facts(self, facts):
