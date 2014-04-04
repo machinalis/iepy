@@ -81,7 +81,7 @@ class LitTagger(object):
 
 
 class LitTaggerRunner(BasePreProcessStepRunner):
-    step = PreProcessSteps.nerc
+    step = PreProcessSteps.ner
 
     def __init__(self, labels, src_filenames, override=False):
         self.lit_tagger = LitTagger(labels, src_filenames)
@@ -91,7 +91,7 @@ class LitTaggerRunner(BasePreProcessStepRunner):
         # this step does not requires PreProcessSteps.tagging:
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
+        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
             #print 'Already done'
             return
 
@@ -112,7 +112,7 @@ class LitTaggerRunner(BasePreProcessStepRunner):
 
             sent_offset += len(sent)
 
-        doc.set_preprocess_result(PreProcessSteps.nerc, entities)
+        doc.set_preprocess_result(PreProcessSteps.ner, entities)
         doc.save()
 
 

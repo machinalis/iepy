@@ -8,7 +8,7 @@ class CombinedNERRunner(BasePreProcessStepRunner):
     combined without any check, possibly leading to duplicate or overlapping 
     entities.
     """
-    step = PreProcessSteps.nerc
+    step = PreProcessSteps.ner
 
     def __init__(self, ner_runner1, ner_runner2, override=False):
         """The NER runners should be instances of BasePreProcessStepRunner.
@@ -26,18 +26,18 @@ class CombinedNERRunner(BasePreProcessStepRunner):
         self.ner_runner2.override = True
 
     def __call__(self, doc):
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.nerc):
+        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
             # Already done
             return
 
         self.ner_runner1(doc)
-        entities1 = doc.get_preprocess_result(PreProcessSteps.nerc)
+        entities1 = doc.get_preprocess_result(PreProcessSteps.ner)
 
         self.ner_runner2(doc)
-        entities2 = doc.get_preprocess_result(PreProcessSteps.nerc)
+        entities2 = doc.get_preprocess_result(PreProcessSteps.ner)
 
         entities = merge_entities(entities1, entities2)
-        doc.set_preprocess_result(PreProcessSteps.nerc, entities)
+        doc.set_preprocess_result(PreProcessSteps.ner, entities)
         doc.save()
 
 

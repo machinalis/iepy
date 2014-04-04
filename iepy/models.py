@@ -13,7 +13,7 @@ class PreProcessSteps(Enum):
     tokenization = 1
     sentencer = 2
     tagging = 3
-    nerc = 4
+    ner = 4
     segmentation = 5
 
 
@@ -284,7 +284,7 @@ class IEDocument(DynamicDocument, SortableDocumentMixin):
         PreProcessSteps.tokenization: ('offsets', 'tokens'),
         PreProcessSteps.sentencer: 'sentences',
         PreProcessSteps.tagging: 'postags',
-        PreProcessSteps.nerc: 'entities',
+        PreProcessSteps.ner: 'entities',
     }
 
     def flag_preprocess_done(self, step):

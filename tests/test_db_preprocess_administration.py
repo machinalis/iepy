@@ -18,7 +18,7 @@ class TestDocumentsPreprocessMetadata(TestCase):
     def test_preprocess_steps(self):
         self.assertEqual(
             [p.name for p in PreProcessSteps],
-            ['tokenization', 'sentencer', 'tagging', 'nerc', 'segmentation'])
+            ['tokenization', 'sentencer', 'tagging', 'ner', 'segmentation'])
 
     def test_just_created_document_has_no_preprocess_done(self):
         doc = IEDocFactory()

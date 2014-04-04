@@ -96,8 +96,8 @@ class TestLitTaggerRunner(ManagerTestCase):
         # (the tokenizer splits she's in two parts)
         entities_triples = [(6, 7, 'disease'), (8, 10, 'disease')]
 
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.nerc))
-        entities = doc.get_preprocess_result(PreProcessSteps.nerc)
+        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.ner))
+        entities = doc.get_preprocess_result(PreProcessSteps.ner)
 
         self.assertEqual(len(entities), len(entities_triples))
         for e, (offset, offset_end, kind) in zip(entities, entities_triples):

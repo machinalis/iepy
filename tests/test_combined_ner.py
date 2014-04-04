@@ -61,5 +61,5 @@ class TestCombinedNERRunner(TestCase):
         
         runner = CombinedNERRunner(runner1, runner2)
         runner(doc)
-        doc.set_preprocess_result.assert_called_once_with(PreProcessSteps.nerc, [e1, e2])
+        doc.set_preprocess_result.assert_called_once_with(PreProcessSteps.ner, [e1, e2])
 
