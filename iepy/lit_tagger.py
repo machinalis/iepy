@@ -81,6 +81,7 @@ class LitTagger(object):
 
 
 class LitTaggerRunner(BasePreProcessStepRunner):
+    step = PreProcessSteps.nerc
 
     def __init__(self, labels, src_filenames, override=False):
         self.lit_tagger = LitTagger(labels, src_filenames)
