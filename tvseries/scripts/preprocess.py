@@ -40,7 +40,7 @@ class MedicNERRunner(LitTaggerRunner):
         labels = MEDIC_ENTITIES
         filenames = ['tvseries/disease.txt', 'tvseries/symptom.txt',
                      'tvseries/diagnostic_test.txt']
-        super(TVSeriesNERRunner, self).__init__(labels, filenames)
+        super(MedicNERRunner, self).__init__(labels, filenames)
 
 
 if __name__ == '__main__':
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         media_wiki_to_txt,
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
-        CombinedNERRunner(MedicNERRunner(), StanfordNERRunner(), override=True),
+        CombinedNERRunner(MedicNERRunner(), StanfordNERRunner()),
         SyntacticSegmenterRunner(),
     ], docs
     )
