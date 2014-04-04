@@ -1,6 +1,7 @@
 from datetime import datetime
 import itertools
 from os import environ
+import sys
 
 from enum import Enum
 from mongoengine import DynamicDocument, EmbeddedDocument, fields
@@ -28,6 +29,17 @@ BASE_ENTITY_KINDS = [
 ]
 
 ENTITY_KINDS = BASE_ENTITY_KINDS[:]
+
+PY3 = sys.version > '3'
+if PY3:
+    # Mongoengine is not providing __lt__ method on their base class,
+    # needed for py3 comparisons.
+    class SortableDocumentMixin(object):
+
+        def __lt__(self, other):
+            return self.id < other.id
+else:
+    SortableDocumentMixin = object
 
 
 def _get_custom_entity_kinds():
@@ -121,7 +133,7 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     return (llo, rlo)
 
 
-class Entity(DynamicDocument):
+class Entity(DynamicDocument, SortableDocumentMixin):
     key = fields.StringField(required=True, unique_with='kind')
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS)
@@ -168,7 +180,7 @@ class EntityInSegment(EmbeddedDocument):
         return u'{0} ({1}) ({2}, {3})'.format(self.key, self.kind, self.offset, self.offset_end)
 
 
-class TextSegment(DynamicDocument):
+class TextSegment(DynamicDocument, SortableDocumentMixin):
     document = fields.ReferenceField('IEDocument', required=True)
     text = fields.StringField(required=True)
     offset = fields.IntField()  # Offset in tokens wrt document
@@ -232,17 +244,17 @@ class TextSegment(DynamicDocument):
         return self
 
     def entity_occurrence_pairs(self, e1, e2):
-        left = [i for i,o in enumerate(self.entities) if o.is_entity(e1)]
-        right = [i for i,o in enumerate(self.entities) if o.is_entity(e2)]
+        left = [i for i, o in enumerate(self.entities) if o.is_entity(e1)]
+        right = [i for i, o in enumerate(self.entities) if o.is_entity(e2)]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
     def kind_occurrence_pairs(self, lkind, rkind):
-        left = [i for i,o in enumerate(self.entities) if o.kind == lkind]
-        right = [i for i,o in enumerate(self.entities) if o.kind == rkind]
+        left = [i for i, o in enumerate(self.entities) if o.kind == lkind]
+        right = [i for i, o in enumerate(self.entities) if o.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
 
-class IEDocument(DynamicDocument):
+class IEDocument(DynamicDocument, SortableDocumentMixin):
     human_identifier = fields.StringField(required=True, unique=True)
     title = fields.StringField()
     url = fields.URLField()
