@@ -36,7 +36,10 @@ class Knowledge(dict):
         means a score close to 0 or 1, and "uncertain" a score closer to 0.5.
         Note that a score of 'None' is considered as 0.5 here
         """
-        return sorted(self.items(), key=lambda es: certainty(self[es[0]]) if self[es[0]] is not None else 0, reverse=True)
+        def key_funct(e_s):
+            e = e_s[0]
+            return (certainty(self[e]) if self[e] is not None else 0, e)
+        return sorted(self.items(), key=key_funct, reverse=True)
 
     def per_relation(self):
         """
