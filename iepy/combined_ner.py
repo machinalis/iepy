@@ -3,6 +3,11 @@ from iepy.preprocess import BasePreProcessStepRunner
 
 
 class CombinedNERRunner(BasePreProcessStepRunner):
+    """A NER runner that is the combination of two different NER runners 
+    (therefore, two different NERs). The entities returned by both NERs are 
+    combined without any check, possibly leading to duplicate or overlapping 
+    entities.
+    """
     step = PreProcessSteps.nerc
 
     def __init__(self, ner_runner1, ner_runner2, override=False):
