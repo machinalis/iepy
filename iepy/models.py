@@ -39,7 +39,10 @@ if PY3:
         def __lt__(self, other):
             return self.id < other.id
 else:
-    SortableDocumentMixin = object
+    class SortableDocumentMixin(object):
+
+        def __cmp__(self, other):
+            return cmp(self.id, other.id)
 
 
 def _get_custom_entity_kinds():
