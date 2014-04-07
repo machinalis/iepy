@@ -87,16 +87,10 @@ class TestFactExtractionInterface(unittest.TestCase):
         kn = self.build_knowledge({'likes': 3, 'hates': 2})
         with mock.patch('iepy.core.FactExtractorFactory') as m_FEF:
             b.learn_fact_extractors(kn)
-            self.assertEqual(m_FEF.call_count, 2)
-            actual_calls = m_FEF.call_args_list
-            actual_calls.sort(key=lambda x: x[0][-1])
-            for actual_call, relation in zip(actual_calls, ['hates', 'likes']):
-                r_kn = Knowledge()
-                for e, v in kn.items():
-                    if e.fact.relation == relation:
-                        r_kn[e] = v
-                expected_call = mock.call(r_kn, relation)
-            self.assertEqual(actual_call, expected_call)
+        self.assertEqual(m_FEF.call_count, 2)
+        actual_calls = m_FEF.call_args_list
+        expected_calls = [mock.call(b.extractor_config, k) for k in kn.per_relation().items()]
+        self.assertEqual(actual_calls, expected_calls)
 
     def test_returned_fact_extractor_has_method_predict(self):
         # ie, can be used for scoring an evidence
