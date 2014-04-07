@@ -90,6 +90,20 @@ class FactFactory(factory.Factory):
 
 
 class EvidenceFactory(factory.Factory):
+    """Factory for Evidence instances()
+
+    In addition to the usual Factory Boy behavior, this factory also accepts a
+    'markup' argument. The markup is a string with the tokens of the text
+    segment separated by entities. You can flag entities by entering them as
+    {token token token|kind}. You can also use kind* to flag the first
+    occurrence used for the fact, and kind** to flag the second.
+
+    For example, the followingf is valid markup:
+    
+    "The physicist {Albert Einstein|Person*} was born in {Germany|location} and
+    died in the {United States|location**} ."
+    """
+
     FACTORY_FOR = Evidence
     fact = factory.SubFactory(FactFactory)
     segment = factory.SubFactory(TextSegmentFactory)
