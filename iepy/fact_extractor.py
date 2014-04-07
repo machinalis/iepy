@@ -1,40 +1,69 @@
 # -*- coding: utf-8 -*-
 from featureforge.vectorizer import Vectorizer
+from sklearn.feature_selection import SelectKBest
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
-
+from sklearn.tree import DecisionTreeRegressor
 
 __all__ = ["FactExtractorFactory"]
 
+_selectors = {
+    "kbest": lambda n: SelectKBest(f_regression, n),
+    "dtree": lambda n: DecisionTreeRegressor(),
+}
 
-def FactExtractorFactory(data, relation):  # TODO: Remove relation
+_classifiers = {
+    "sgd": SGDClassifier,
+}
+
+
+class FactExtractor(object):
+
+    def __init__(self, config):
+        features = config.get('features', [
+            bag_of_words,
+            bag_of_pos,
+            bag_of_word_bigrams,
+            bag_of_wordpos,
+            bag_of_wordpos_bigrams,
+            bag_of_words_in_between,
+            bag_of_pos_in_between,
+            bag_of_word_bigrams_in_between,
+            bag_of_wordpos_in_between,
+            bag_of_wordpos_bigrams_in_between,
+            entity_order,
+            entity_distance,
+            other_entities_in_between,
+            in_same_sentence,
+        ])
+        classifier = _classifiers[config.get("classifier", "sgd")]
+        steps = [
+            ('vectorizer', Vectorizer(features)),
+            ('classifier', classifier(**config.get('classifier_args', {})))
+        ]
+        selector = config.get("dimensionality_reduction")
+        if selector is not None:
+            n = config['dimensionality_reduction_dimension']
+            steps[1:1] = ('dimensionality_reduction', _selectors[selector](n))
+        p = Pipeline(steps)
+        self.predictor = p
+
+    def fit(self, data):
+        X = []
+        y = []
+        for evidence, score in data.items():
+            X.append(evidence)
+            y.append(int(score))
+        self.predictor.fit(X, y)
+
+    def predict(self, evidences):
+        return self.predictor(evidences)
+
+
+def FactExtractorFactory(config, data):  # TODO: Remove relation
     """Instantiates and trains a classifier."""
-    features = [
-        bag_of_words,
-        bag_of_pos,
-        bag_of_word_bigrams,
-        bag_of_wordpos,
-        bag_of_wordpos_bigrams,
-        bag_of_words_in_between,
-        bag_of_pos_in_between,
-        bag_of_word_bigrams_in_between,
-        bag_of_wordpos_in_between,
-        bag_of_wordpos_bigrams_in_between,
-        entity_order,
-        entity_distance,
-        other_entities_in_between,
-        in_same_sentence,
-    ]
-    p = Pipeline([
-        ('vectorizer', Vectorizer(features)),
-        ('classifier', SGDClassifier(loss="log"))
-    ])
-    X = []
-    y = []
-    for evidence, score in data.items():
-        X.append(evidence)
-        y.append(int(score))
-    p.fit(X, y)
+    p = FactExtractor(config)
+    p.fit(data)
     return p
 
 
@@ -48,7 +77,7 @@ def bag_of_words(datapoint):
 
 
 def bag_of_pos(datapoint):
-    return set(datapoint.segment.pos)
+    return set(datapoint.segment.postags)
 
 
 def bag_of_word_bigrams(datapoint):
@@ -56,11 +85,11 @@ def bag_of_word_bigrams(datapoint):
 
 
 def bag_of_wordpos(datapoint):
-    return set(zip(words(datapoint), datapoint.segment.pos))
+    return set(zip(words(datapoint), datapoint.segment.postags))
 
 
 def bag_of_wordpos_bigrams(datapoint):
-    xs = list(zip(words(datapoint), datapoint.segment.pos))
+    xs = list(zip(words(datapoint), datapoint.segment.postags))
     return set(bigrams(xs))
 
 
@@ -71,7 +100,7 @@ def bag_of_words_in_between(datapoint):
 
 def bag_of_pos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(datapoint.segment.pos[i:j])
+    return set(datapoint.segment.postags[i:j])
 
 
 def bag_of_word_bigrams_in_between(datapoint):
@@ -81,12 +110,12 @@ def bag_of_word_bigrams_in_between(datapoint):
 
 def bag_of_wordpos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(zip(words(datapoint), datapoint.segment.pos)[i:j])
+    return set(zip(words(datapoint), datapoint.segment.postags)[i:j])
 
 
 def bag_of_wordpos_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    xs = list(zip(words(datapoint), datapoint.segment.pos))
+    xs = list(zip(words(datapoint), datapoint.segment.postags))
     return set(bigrams(xs)[i:j])
 
 

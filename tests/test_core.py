@@ -68,7 +68,7 @@ class TestFactExtractionInterface(unittest.TestCase):
             segment__tokens=tokens)
         return ev
 
-    def build_nowledge(self, relations_dict):
+    def build_knowledge(self, relations_dict):
         k = Knowledge()
         for relation_name, number in relations_dict.items():
             for i in range(number):
@@ -78,30 +78,27 @@ class TestFactExtractionInterface(unittest.TestCase):
 
     def test_one_fact_extractor_built_per_relation_in_available_data(self):
         b = BootstrappedIEPipeline(mock.MagicMock(), [])
-        kn = self.build_nowledge({'likes': 3, 'hates': 2})
+        kn = self.build_knowledge({'likes': 3, 'hates': 2})
         result = b.learn_fact_extractors(kn)
         self.assertEqual(len(result), 2)
 
     def test_fact_extractor_is_created_with_FactExtractorFactory(self):
         b = BootstrappedIEPipeline(mock.MagicMock(), [])
-        kn = self.build_nowledge({'likes': 3, 'hates': 2})
+        kn = self.build_knowledge({'likes': 3, 'hates': 2})
         with mock.patch('iepy.core.FactExtractorFactory') as m_FEF:
             b.learn_fact_extractors(kn)
-            self.assertEqual(m_FEF.call_count, 2)
-            actual_calls = m_FEF.call_args_list
-            actual_calls.sort(key=lambda x: x[0][-1])
-            for actual_call, relation in zip(actual_calls, ['hates', 'likes']):
-                r_kn = Knowledge()
-                for e, v in kn.items():
-                    if e.fact.relation == relation:
-                        r_kn[e] = v
-                expected_call = mock.call(r_kn, relation)
-            self.assertEqual(actual_call, expected_call)
+        self.assertEqual(m_FEF.call_count, 2)
+
+        actual_calls = [args for args, kwargs in m_FEF.call_args_list]
+        expected_calls = [(b.extractor_config, k) for k in kn.per_relation().values()]
+        self.assertEqual(len(actual_calls), len(expected_calls))
+        for c in expected_calls:
+            self.assertIn(c, actual_calls)
 
     def test_returned_fact_extractor_has_method_predict(self):
         # ie, can be used for scoring an evidence
         b = BootstrappedIEPipeline(mock.MagicMock(), [])
-        kn = self.build_nowledge({'likes': 3})
+        kn = self.build_knowledge({'likes': 3})
         result = b.learn_fact_extractors(kn)
         predictor = list(result.values())[0]
         self.assertTrue(hasattr(predictor, 'predict'))

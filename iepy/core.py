@@ -96,6 +96,13 @@ class BootstrappedIEPipeline(object):
             if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
                 raise ValueError("Ambiguous kinds for relation %r" % e.fact.relation)
             self.relations[e.fact.relation] = (t1, t2)
+        # Classifier configuration
+        self.extractor_config = {
+            "classifier": "sgd",
+            "classifier_args" : {"loss": "log"},
+            "dimensionality_reduction": None,
+        }
+
 
     def do_iteration(self, data):
         for step in self.step_iterator:
@@ -197,7 +204,7 @@ class BootstrappedIEPipeline(object):
         """
         classifiers = {}
         for rel, k in evidence.per_relation().items():
-            classifiers[rel] = FactExtractorFactory(k, rel)
+            classifiers[rel] = FactExtractorFactory(self.extractor_config, k)
         return classifiers
 
     def extract_facts(self, extractors):
