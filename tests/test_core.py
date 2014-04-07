@@ -88,9 +88,12 @@ class TestFactExtractionInterface(unittest.TestCase):
         with mock.patch('iepy.core.FactExtractorFactory') as m_FEF:
             b.learn_fact_extractors(kn)
         self.assertEqual(m_FEF.call_count, 2)
-        actual_calls = m_FEF.call_args_list
-        expected_calls = [mock.call(b.extractor_config, k) for k in kn.per_relation().items()]
-        self.assertEqual(actual_calls, expected_calls)
+
+        actual_calls = [args for args, kwargs in m_FEF.call_args_list]
+        expected_calls = [(b.extractor_config, k) for k in kn.per_relation().values()]
+        self.assertEqual(len(actual_calls), len(expected_calls))
+        for c in expected_calls:
+            self.assertIn(c, actual_calls)
 
     def test_returned_fact_extractor_has_method_predict(self):
         # ie, can be used for scoring an evidence
