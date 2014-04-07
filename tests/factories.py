@@ -90,15 +90,73 @@ class FactFactory(factory.Factory):
 
 
 class EvidenceFactory(factory.Factory):
+    """Factory for Evidence instances()
+
+    In addition to the usual Factory Boy behavior, this factory also accepts a
+    'markup' argument. The markup is a string with the tokens of the text
+    segment separated by entities. You can flag entities by entering them as
+    {token token token|kind}. You can also use kind* to flag the first
+    occurrence used for the fact, and kind** to flag the second.
+
+    For example, the followingf is valid markup:
+    
+    "The physicist {Albert Einstein|Person*} was born in {Germany|location} and
+    died in the {United States|location**} ."
+    """
+
     FACTORY_FOR = Evidence
     fact = factory.SubFactory(FactFactory)
     segment = factory.SubFactory(TextSegmentFactory)
     o1 = 0
     o2 = 1
 
+    @classmethod
+    def create(cls, **kwargs):
+        args = {}
+        markup = kwargs.pop('markup', None)
+        if markup is not None:
+            tokens = []
+            entities = []
+            while markup:
+                if markup.startswith("{"):
+                    closer = markup.index("}")
+                    entity = markup[1:closer]
+                    markup = markup[closer+1:].lstrip()
+                    etokens, ekind = entity.split('|')
+                    etokens = etokens.split()
+                    if ekind.endswith("**"):
+                        args["o2"] = len(entities)
+                        ekind = ekind[:-2]
+                        args["fact__e2__key"] = ' '.join(etokens)
+                        args["fact__e2__kind"] = ekind
+                    elif ekind.endswith("*"):
+                        args["o1"] = len(entities)
+                        ekind = ekind[:-1]
+                        args["fact__e1__key"] = ' '.join(etokens)
+                        args["fact__e1__kind"] = ekind
+                    entities.append((etokens, len(tokens), ekind))
+                    tokens += etokens
+                elif ' ' in markup:
+                    token, markup = markup.split(' ', 1)
+                    tokens.append(token)
+                else:
+                    tokens.append(markup)
+                    markup = ''
+            args["segment__text"] = " ".join(tokens)
+            args["segment__tokens"] = tokens
+            args["segment__entities"] = [
+                EntityInSegmentFactory(key=" ".join(ts), kind=k, offset=o, offset_end=o + len(ts))
+                for ts, o, k in entities
+            ]
+
+        args.update(kwargs)
+        return super(EvidenceFactory, cls).create(**args)
+
+
     @factory.post_generation
     def occurrences(self, create, extracted, **kwargs):
-        raw_ocurrences = kwargs['data']
+        raw_ocurrences = kwargs.pop('data', None)
+        if raw_ocurrences is None: return
         for entity, offset, offset_end in raw_ocurrences:
             self.segment.entities.append(
                 EntityInSegmentFactory(
