@@ -66,34 +66,6 @@ def FactExtractorFactory(config, data):  # TODO: Remove relation
     p.fit(data)
     return p
 
-    features = [
-        bag_of_words,
-        bag_of_pos,
-        bag_of_word_bigrams,
-        bag_of_wordpos,
-        bag_of_wordpos_bigrams,
-        bag_of_words_in_between,
-        bag_of_pos_in_between,
-        bag_of_word_bigrams_in_between,
-        bag_of_wordpos_in_between,
-        bag_of_wordpos_bigrams_in_between,
-        entity_order,
-        entity_distance,
-        other_entities_in_between,
-        in_same_sentence,
-    ]
-    p = Pipeline([
-        ('vectorizer', Vectorizer(features)),
-        ('classifier', SGDClassifier(loss="log"))
-    ])
-    X = []
-    y = []
-    for evidence, score in data.items():
-        X.append(evidence)
-        y.append(int(score))
-    p.fit(X, y)
-    return p
-
 
 ###
 # FEATURES
