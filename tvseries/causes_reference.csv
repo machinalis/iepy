@@ -1,79 +1,79 @@
-disease,calculus,symptom,nausea,CAUSES,533eec2a69211b468bdb6ed3,3,0,True
+disease,calculus,symptom,nausea,CAUSES,533eec2a69211b468bdb6ed3,3,0,False
 disease,calculus,symptom,abdominal pain,CAUSES,533eec2a69211b468bdb6ed3,3,1,False
 disease,calculus,symptom,dizziness,CAUSES,533eec2a69211b468bdb6ed3,3,2,False
 disease,aneurysm,symptom,stroke,CAUSES,533eec2b69211b468bdb6f84,1,2,False
 disease,schizophrenia,symptom,thrombosis,CAUSES,533eec2b69211b468bdb6fa0,0,1,False
-disease,anthrax,symptom,rash,CAUSES,533eec2c69211b468bdb6fc4,1,0,False
+disease,anthrax,symptom,rash,CAUSES,533eec2c69211b468bdb6fc4,1,0,True
 disease,ALS,symptom,paralysis,CAUSES,533eec2c69211b468bdb6fda,2,0,False
 disease,cancer,symptom,infection,CAUSES,533eec2c69211b468bdb701a,1,0,False
 disease,cardiogenic shock,symptom,heart attack,CAUSES,533eec2d69211b468bdb70a7,0,1,False
 disease,MS,symptom,infection,CAUSES,533eec2e69211b468bdb7175,0,1,False
-disease,STD,symptom,infection,CAUSES,533eec3069211b468bdb7283,1,0,False
+disease,STD,symptom,infection,CAUSES,533eec3069211b468bdb7283,1,0,True
 disease,choking,symptom,swollen tongue,CAUSES,533eec3169211b468bdb72d2,0,1,False
 disease,injury,symptom,leg pain,CAUSES,533eec3469211b468bdb7503,1,2,False
 disease,STD,symptom,rash,CAUSES,533eec3669211b468bdb75bd,1,0,False
 disease,rhabdomyolysis,symptom,pain,CAUSES,533eec3869211b468bdb76f5,1,0,False
 disease,wound,symptom,bleeding,CAUSES,533eec3a69211b468bdb7848,1,0,False
-disease,retinal vein occlusion,symptom,fatigue,CAUSES,533eec3c69211b468bdb790c,1,0,True
+disease,retinal vein occlusion,symptom,fatigue,CAUSES,533eec3c69211b468bdb790c,1,0,False
 disease,brain tumor,symptom,A stroke,CAUSES,533eec3d69211b468bdb79e5,1,0,False
-disease,concussion,symptom,stroke,CAUSES,533eec3f69211b468bdb7ace,1,0,True
-disease,sleepwalking,symptom,stroke,CAUSES,533eec3f69211b468bdb7ace,2,0,True
+disease,concussion,symptom,stroke,CAUSES,533eec3f69211b468bdb7ace,1,0,False
+disease,sleepwalking,symptom,stroke,CAUSES,533eec3f69211b468bdb7ace,2,0,False
 disease,brain tumor,symptom,cavity,CAUSES,533eec3f69211b468bdb7b16,0,1,False
-disease,trauma,symptom,brain damage,CAUSES,533eec4069211b468bdb7b98,1,0,True
+disease,trauma,symptom,brain damage,CAUSES,533eec4069211b468bdb7b98,1,0,False
 disease,alien hand syndrome,symptom,seizures,CAUSES,533eec4169211b468bdb7bc5,1,0,False
 disease,skull fracture,symptom,coma,CAUSES,533eec4269211b468bdb7cb1,0,2,False
 disease,neurological disorder,symptom,fatigue,CAUSES,533eec4269211b468bdb7cb2,2,0,False
-disease,neurological disorder,symptom,passed out,CAUSES,533eec4269211b468bdb7cb2,2,1,False
-disease,lymphoma,symptom,itching,CAUSES,533eec4469211b468bdb7dc8,1,0,True
+disease,neurological disorder,symptom,passed out,CAUSES,533eec4269211b468bdb7cb2,2,1,True
+disease,lymphoma,symptom,itching,CAUSES,533eec4469211b468bdb7dc8,1,0,False
 disease,cancer,symptom,infection,CAUSES,533eec4969211b468bdb8022,1,0,False
 disease,botulism,symptom,seizure,CAUSES,533eec2a69211b468bdb6ed7,1,2,False
 disease,toxoplasmosis,symptom,infection,CAUSES,533eec2a69211b468bdb6f44,0,1,False
-disease,AIDS,symptom,headache,CAUSES,533eec2a69211b468bdb6f47,2,0,True
+disease,AIDS,symptom,headache,CAUSES,533eec2a69211b468bdb6f47,2,0,False
 disease,common variable immunodeficiency,symptom,autoimmune disease,CAUSES,533eec2a69211b468bdb6f53,1,0,False
 disease,cancer,symptom,tumor,CAUSES,533eec2b69211b468bdb6f8a,0,1,False
 disease,chronic fatigue syndrome,symptom,fibromyalgia,CAUSES,533eec2b69211b468bdb6f9a,0,1,False
 disease,pulmonary embolism,symptom,thrombosis,CAUSES,533eec2b69211b468bdb6f9e,1,0,False
-disease,ALS,symptom,pneumonia,CAUSES,533eec2c69211b468bdb6fdb,2,1,False
-disease,ALS,symptom,paralysis,CAUSES,533eec2c69211b468bdb6fe9,1,0,False
+disease,ALS,symptom,pneumonia,CAUSES,533eec2c69211b468bdb6fdb,2,1,True
+disease,ALS,symptom,paralysis,CAUSES,533eec2c69211b468bdb6fe9,1,0,True
 disease,thrombocytopenic purpura,symptom,rash,CAUSES,533eec2c69211b468bdb7012,2,0,False
-disease,thrombocytopenic purpura,symptom,bleeding,CAUSES,533eec2c69211b468bdb7012,2,1,False
+disease,thrombocytopenic purpura,symptom,bleeding,CAUSES,533eec2c69211b468bdb7012,2,1,True
 disease,menopause,symptom,infection,CAUSES,533eec2c69211b468bdb7013,1,0,False
 disease,cancer,symptom,infection,CAUSES,533eec2c69211b468bdb7016,2,1,False
 disease,pancreatic cancer,symptom,infection,CAUSES,533eec2c69211b468bdb7016,3,1,False
-disease,trauma,symptom,leg pain,CAUSES,533eec2c69211b468bdb7038,1,0,False
+disease,trauma,symptom,leg pain,CAUSES,533eec2c69211b468bdb7038,1,0,True
 disease,trauma,symptom,varicose veins,CAUSES,533eec2c69211b468bdb7038,1,2,False
 disease,adenoma,symptom,nodule,CAUSES,533eec2c69211b468bdb7042,2,1,False
-disease,hepatitis,symptom,autoimmune diseases,CAUSES,533eec2d69211b468bdb7054,0,1,True
-disease,allergies,symptom,anaphylaxis,CAUSES,533eec2d69211b468bdb709d,0,1,False
+disease,hepatitis,symptom,autoimmune diseases,CAUSES,533eec2d69211b468bdb7054,0,1,False
+disease,allergies,symptom,anaphylaxis,CAUSES,533eec2d69211b468bdb709d,0,1,True
 disease,hemochromatosis,symptom,respiratory arrest,CAUSES,533eec2d69211b468bdb70b0,0,1,False
 disease,cardiomyopathy,symptom,pain,CAUSES,533eec2e69211b468bdb7115,1,0,False
 disease,TB,symptom,coma,CAUSES,533eec2e69211b468bdb7143,4,1,False
 disease,TB,symptom,sweating,CAUSES,533eec2e69211b468bdb7143,4,3,False
 disease,TB,symptom,sweating,CAUSES,533eec2e69211b468bdb7143,4,5,False
-disease,TB,symptom,cardiac arrest,CAUSES,533eec2e69211b468bdb7145,1,2,True
+disease,TB,symptom,cardiac arrest,CAUSES,533eec2e69211b468bdb7145,1,2,False
 disease,TB,symptom,cardiac arrest,CAUSES,533eec2e69211b468bdb7145,3,2,False
 disease,burn,symptom,tachycardia,CAUSES,533eec2e69211b468bdb7151,0,2,False
 disease,poisoning,symptom,paralysis,CAUSES,533eec2f69211b468bdb7191,0,1,False
-disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,0,1,True
-disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,0,2,True
-disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,3,1,True
-disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,3,2,False
+disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,0,1,False
+disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,0,2,False
+disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,3,1,False
+disease,botulism,symptom,paralysis,CAUSES,533eec2f69211b468bdb71d8,3,2,True
 disease,pellagra,symptom,vitamin deficiency,CAUSES,533eec2f69211b468bdb71f7,0,1,False
 disease,pellagra,symptom,vomiting,CAUSES,533eec2f69211b468bdb71f8,1,0,False
 disease,cancer,symptom,pain,CAUSES,533eec2f69211b468bdb7201,1,2,False
 disease,cancer,symptom,tumor,CAUSES,533eec2f69211b468bdb7210,0,1,False
 disease,tuberous sclerosis,symptom,fever,CAUSES,533eec2f69211b468bdb7217,1,0,False
 disease,pheochromocytoma,symptom,tumor,CAUSES,533eec2f69211b468bdb7229,1,0,False
-disease,alcohol abuse,symptom,DIC,CAUSES,533eec3069211b468bdb723d,2,1,False
+disease,alcohol abuse,symptom,DIC,CAUSES,533eec3069211b468bdb723d,2,1,True
 disease,food poisoning,symptom,infection,CAUSES,533eec3069211b468bdb725f,1,0,False
 disease,peritonitis,symptom,cavity,CAUSES,533eec3069211b468bdb726b,1,0,False
 disease,sepsis,symptom,cavity,CAUSES,533eec3069211b468bdb726b,2,0,False
-disease,sepsis,symptom,liver damage,CAUSES,533eec3069211b468bdb7271,0,1,False
-disease,sepsis,symptom,blood clots,CAUSES,533eec3069211b468bdb7271,0,2,False
+disease,sepsis,symptom,liver damage,CAUSES,533eec3069211b468bdb7271,0,1,True
+disease,sepsis,symptom,blood clots,CAUSES,533eec3069211b468bdb7271,0,2,True
 disease,brucellosis,symptom,infection,CAUSES,533eec3069211b468bdb7285,0,1,False
-disease,brucellosis,symptom,acid reflux,CAUSES,533eec3069211b468bdb7286,0,1,True
-disease,allergies,symptom,panic attack,CAUSES,533eec3169211b468bdb72d6,0,1,True
-disease,bite,symptom,fever,CAUSES,533eec3169211b468bdb7301,1,2,True
+disease,brucellosis,symptom,acid reflux,CAUSES,533eec3069211b468bdb7286,0,1,False
+disease,allergies,symptom,panic attack,CAUSES,533eec3169211b468bdb72d6,0,1,False
+disease,bite,symptom,fever,CAUSES,533eec3169211b468bdb7301,1,2,False
 disease,bite,symptom,fever,CAUSES,533eec3169211b468bdb7305,0,1,False
 disease,CIPA,symptom,pain,CAUSES,533eec3269211b468bdb7383,0,2,False
 disease,CIPA,symptom,pain,CAUSES,533eec3269211b468bdb7397,0,2,False
@@ -83,8 +83,8 @@ disease,kidney problems,symptom,stroke,CAUSES,533eec3369211b468bdb7406,1,2,False
 disease,visual aphasia,symptom,stroke,CAUSES,533eec3369211b468bdb741c,0,1,False
 disease,gallstones,symptom,pancreatitis,CAUSES,533eec3369211b468bdb7421,0,1,False
 disease,rheumatoid arthritis,symptom,stroke,CAUSES,533eec3369211b468bdb7444,0,1,False
-disease,pleural effusion,symptom,heart failure,CAUSES,533eec3369211b468bdb746c,0,1,False
-disease,pleural effusion,symptom,cirrhosis of the liver,CAUSES,533eec3369211b468bdb746c,0,2,False
+disease,pleural effusion,symptom,heart failure,CAUSES,533eec3369211b468bdb746c,0,1,True
+disease,pleural effusion,symptom,cirrhosis of the liver,CAUSES,533eec3369211b468bdb746c,0,2,True
 disease,pleural effusion,symptom,infection,CAUSES,533eec3369211b468bdb746d,1,0,True
 disease,lung cancer,symptom,vomiting,CAUSES,533eec3469211b468bdb748e,0,1,False
 disease,cancer,symptom,autoimmune disease,CAUSES,533eec3469211b468bdb7498,0,1,False
@@ -94,10 +94,10 @@ disease,liver failure,symptom,paralysis,CAUSES,533eec4b69211b468bdb811e,1,2,Fals
 disease,allergy,symptom,shock,CAUSES,533eec4b69211b468bdb814d,1,0,False
 disease,allergies,symptom,asthma,CAUSES,533eec5069211b468bdb83ff,0,1,False
 disease,sarcoidosis,symptom,enlarged spleen,CAUSES,533eec5469211b468bdb85b1,0,1,False
-disease,breast cancer,symptom,enlarged lymph nodes,CAUSES,533eec5569211b468bdb866e,1,0,True
+disease,breast cancer,symptom,enlarged lymph nodes,CAUSES,533eec5569211b468bdb866e,1,0,False
 disease,embolism,symptom,drooling,CAUSES,533eec5669211b468bdb8767,0,2,False
-disease,pure red cell aplasia,symptom,anemia,CAUSES,533eec5669211b468bdb8774,3,2,False
-disease,cancer,symptom,seizure,CAUSES,533eec5769211b468bdb87b8,0,1,True
+disease,pure red cell aplasia,symptom,anemia,CAUSES,533eec5669211b468bdb8774,3,2,True
+disease,cancer,symptom,seizure,CAUSES,533eec5769211b468bdb87b8,0,1,False
 disease,trauma,symptom,leg pain,CAUSES,533eec5769211b468bdb87f5,1,0,False
 disease,cancer,symptom,autoimmune diseases,CAUSES,533eec3469211b468bdb74a3,0,1,False
 disease,cancer,symptom,pain,CAUSES,533eec3469211b468bdb74a4,3,2,False
@@ -105,18 +105,16 @@ disease,histiocytosis,symptom,autoimmune disease,CAUSES,533eec3469211b468bdb74a6
 disease,cancer,symptom,autoimmune disease,CAUSES,533eec3469211b468bdb74a6,3,4,False
 disease,cancer,symptom,depression,CAUSES,533eec3469211b468bdb74d6,1,2,False
 disease,brain cancer,symptom,wasting,CAUSES,533eec3469211b468bdb74d7,1,3,False
-disease,cancer,symptom,pain,CAUSES,533eec3469211b468bdb7505,1,2,True
-disease,injury,symptom,pain,CAUSES,533eec3469211b468bdb750e,0,2,True
+disease,cancer,symptom,pain,CAUSES,533eec3469211b468bdb7505,1,2,False
+disease,injury,symptom,pain,CAUSES,533eec3469211b468bdb750e,0,2,False
 disease,MERRF syndrome,symptom,weakness,CAUSES,533eec3569211b468bdb7555,0,1,True
 disease,botulism,symptom,fever,CAUSES,533eec3669211b468bdb760d,1,0,False
-disease,skull fracture,symptom,coma,CAUSES,533eec3769211b468bdb763d,2,0,True
+disease,skull fracture,symptom,coma,CAUSES,533eec3769211b468bdb763d,2,0,False
 disease,skull fracture,symptom,seizure,CAUSES,533eec3769211b468bdb763d,2,1,False
 disease,tularemia,symptom,passed out,CAUSES,533eec3769211b468bdb7656,2,1,False
 disease,type A,symptom,heart attack,CAUSES,533eec3769211b468bdb7663,0,1,False
 disease,cancer,symptom,infection,CAUSES,533eec3769211b468bdb7669,1,0,False
 disease,cancer,symptom,infection,CAUSES,533eec3769211b468bdb7669,1,2,False
-disease,cancer,symptom,bleeding,CAUSES,533eec3769211b468bdb766e,1,0,False
+disease,cancer,symptom,bleeding,CAUSES,533eec3769211b468bdb766e,1,0,True
 disease,cancer,symptom,leukemia,CAUSES,533eec3769211b468bdb7697,2,0,False
 disease,cancer,symptom,leukemia,CAUSES,533eec3769211b468bdb7697,2,1,False
-disease,multiple sclerosis,symptom,brain damage,CAUSES,533eec3769211b468bdb76a6,1,0,False
-disease,patent ductus arteriosus,symptom,congenital heart defect,CAUSES,533eec3769211b468bdb76bb,0,1,False
