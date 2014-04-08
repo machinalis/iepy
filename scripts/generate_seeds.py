@@ -16,7 +16,7 @@ from iepy.db import connect
 from iepy.utils import save_facts_to_csv
 
 
-def generate_facts_from_oracle(kind_a, kind_b, oracle):
+def label_evidence_from_oracle(kind_a, kind_b, oracle):
     """The oracle is a function that takes three parameters: the text segment and
     the two entity occurrences (for an example, see human_oracle() below). It 
     must return 'y', 'n' or 'stop', meaning respectively that the relation holds,
@@ -33,8 +33,11 @@ def generate_facts_from_oracle(kind_a, kind_b, oracle):
             for e2 in kb_entities:
                 # ask the oracle: are e1 and e2 related in s?
                 answer = oracle(s, e1, e2)
+                assert answer in ['y', 'n', 'stop']
                 if answer == 'y':
-                    result += [(e1, e2, s)]
+                    result += [(s, e1, e2, True)]
+                elif answer == 'n':
+                    result += [(s, e1, e2, False)]
                 elif answer == 'stop':
                     return result
     return result
@@ -59,7 +62,7 @@ if __name__ == '__main__':
     kind_b = opts['<kind_b>']
     output_filename= opts['<output_filename>']
 
-    r = generate_facts_from_oracle(kind_a, kind_b, human_oracle)
-    facts = [(e1, e2, relation_name) for (e1, e2, _) in r]
+    r = label_evidence_from_oracle(kind_a, kind_b, human_oracle)
+    facts = [(e1, e2, relation_name) for (_, e1, e2, label) in r if label]
     save_facts_to_csv(facts, output_filename)
 
