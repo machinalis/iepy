@@ -60,7 +60,7 @@ class FactExtractor(object):
         return self.predictor(evidences)
 
 
-def FactExtractorFactory(config, data):  # TODO: Remove relation
+def FactExtractorFactory(config, data):
     """Instantiates and trains a classifier."""
     p = FactExtractor(config)
     p.fit(data)
