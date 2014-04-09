@@ -57,7 +57,7 @@ class FactExtractor(object):
         self.predictor.fit(X, y)
 
     def predict(self, evidences):
-        return self.predictor(evidences)
+        return self.predictor.predict(evidences)
 
 
 def FactExtractorFactory(config, data):
@@ -110,7 +110,7 @@ def bag_of_word_bigrams_in_between(datapoint):
 
 def bag_of_wordpos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(zip(words(datapoint), datapoint.segment.postags)[i:j])
+    return set(list(zip(words(datapoint), datapoint.segment.postags))[i:j])
 
 
 def bag_of_wordpos_bigrams_in_between(datapoint):
@@ -172,7 +172,7 @@ def words(datapoint):
 
 
 def bigrams(xs):
-    return zip(xs, xs[1:])
+    return list(zip(xs, xs[1:]))
 
 
 def in_between_offsets(datapoint):

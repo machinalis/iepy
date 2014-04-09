@@ -93,3 +93,7 @@ class TextSegmentManager(object):
 def get_entity(kind, literal):
     return Entity.objects.get(kind=kind, key=literal)
 
+def get_segment(document_identifier, offset):
+    d = IEDocument.objects.get(human_identifier=document_identifier)
+    return TextSegment.objects.get(document=d, offset=offset)
+
