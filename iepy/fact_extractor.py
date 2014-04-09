@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
-from sklearn.linear_model import SGDClassifier
 from featureforge.vectorizer import Vectorizer
-<<<<<<< Updated upstream
 from sklearn.feature_selection import SelectKBest
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.tree import DecisionTreeRegressor
-=======
 from featureforge.feature import input_schema, output_schema, ObjectSchema
 
 from sklearn.pipeline import Pipeline
 
->>>>>>> Stashed changes
 
 __all__ = ["FactExtractorFactory"]
 
@@ -80,30 +76,8 @@ def FactExtractorFactory(config, data):
 ###
 
 
-def _evidence_schema(**kwargs):
-    schema = {}
-    for k, v in kwargs.iteritems():
-        if isinstance(k, tuple):
-            assert len(k) >= 1, "schema not meant to be used this way"
-            if len(k) > 1:
-                #v = _evidence_schema(**{k[1:]=v})
-                pass
-            k = k[0]
-        assert k not in schema, "schema not meant to be used this way"
-        schema[k] = v
-    return ObjectSchema(**schema)
-
-
-def evidence_input_schema(**kwargs):
-    def decorate(f):
-        return input_schema(_evidence_schema(**kwargs))(f)
-    return decorate
-
-
-#@evidence_input_schema(("segment", "tokens")=[str])
 @output_schema({str})
-def bag_of_words(*datapoint):
-    print(repr(datapoint), repr(datapoint[0]), type(datapoint[0]))
+def bag_of_words(datapoint):
     return set(words(datapoint))
 
 
@@ -145,7 +119,7 @@ def bag_of_pos_in_between(datapoint):
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
 def bag_of_word_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(bigrams(words(datapoint))[i:j])
+    return set(bigrams(words(datapoint)[i:j]))
 
 
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
@@ -159,8 +133,8 @@ def bag_of_wordpos_in_between(datapoint):
                              all(len(y) == 2 for y in x) for x in v))
 def bag_of_wordpos_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    xs = list(zip(words(datapoint), datapoint.segment.postags))
-    return set(bigrams(xs)[i:j])
+    xs = list(zip(words(datapoint), datapoint.segment.postags))[i:j]
+    return set(bigrams(xs))
 
 
 @output_schema(int, lambda x: x in (0, 1))
@@ -198,7 +172,7 @@ def other_entities_in_between(datapoint):
 
 
 @output_schema(int, lambda x: x in (0, 1))
-def in_same_sentence(datapoint):
+def in_same_sentence(datapoint):  # TODO: Test
     """
     Returns 1 if the datapoints entities are in the same senteces.
     0 otherwise.
@@ -231,4 +205,6 @@ def in_between_offsets(datapoint):
 
 
 def get_AB(x):
+    if x.o1 >= len(x.segment.entities) or x.o2 >= len(x.segment.entities):
+        raise ValueError("Invalid entity occurrences")
     return x.segment.entities[x.o1], x.segment.entities[x.o2]
