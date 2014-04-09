@@ -34,18 +34,18 @@ def load_evidence_from_csv(filename, connection):
             entity_a = db.get_entity(row[0], row[1])
             entity_b = db.get_entity(row[2], row[3])
             f = Fact(entity_a, row[4], entity_b)
-            s = db.get_segment(row[5])
-            e = Entity(fact=f, segment=s, o1=int(row[6]), o2=int(row[7]))
-            assert s.entities[e.o1] == entity_a
-            assert s.entities[e.o2] == entity_b
-            result[e] = float(row[8])
+            s = db.get_segment(row[5], int(row[6]))
+            e = Evidence(fact=f, segment=s, o1=int(row[7]), o2=int(row[8]))
+            assert s.entities[e.o1].key == entity_a.key
+            assert s.entities[e.o2].key == entity_b.key
+            result[e] = int(row[9] == "True")
     return result
 
 
 def main(options):
     connection = db.connect(options['<dbname>'])
     standard = load_evidence_from_csv(options['<gold_standard>'], connection)
-    k = int(options['subsamples'])
+    k = int(options['--k'])
 
     success = total = 0
     for subsample in range(k):
