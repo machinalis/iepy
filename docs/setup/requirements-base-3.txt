@@ -4,4 +4,3 @@ http://www.nltk.org/nltk3-alpha/nltk-3.0a3.tar.gz
 numpy==1.8.0
 scipy==0.13.3
 scikit-learn==0.14.1
-git+ssh://git@github.com/machinalis/featureforge.git@97ca50101feb36c9b7e2f011bd07074db114efb0#egg=featureforge
