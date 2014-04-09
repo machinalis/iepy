@@ -62,8 +62,9 @@ def main(options):
         prediction = extractor.predict(test_data)
         assert len(prediction) == len(test_data)
         total += len(prediction)
-        success = sum(1 for (p, e) in zip(prediction, test_labels) if p == e)
+        success += sum(1 for (p, e) in zip(prediction, test_labels) if p == e)
     return success / total
+
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
