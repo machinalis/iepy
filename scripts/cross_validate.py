@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Cross-validate IEPY classifier
 
@@ -35,6 +36,8 @@ def load_evidence_from_csv(filename, connection):
             f = Fact(entity_a, row[4], entity_b)
             s = db.get_segment(row[5])
             e = Entity(fact=f, segment=s, o1=int(row[6]), o2=int(row[7]))
+            assert s.entities[e.o1] == entity_a
+            assert s.entities[e.o2] == entity_b
             result[e] = float(row[8])
     return result
 
