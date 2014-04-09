@@ -93,3 +93,5 @@ class TextSegmentManager(object):
 def get_entity(kind, literal):
     return Entity.objects.get(kind=kind, key=literal)
 
+def get_segment(id):
+    return TextSegment.objects.get(id=id)
