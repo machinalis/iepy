@@ -3,11 +3,13 @@ from featureforge.vectorizer import Vectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
-from sklearn.tree import DecisionTreeRegressor
-from featureforge.feature import input_schema, output_schema, ObjectSchema
-
+from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeRegressor
 
+
+from featureforge.feature import input_schema, output_schema, ObjectSchema
 
 __all__ = ["FactExtractorFactory"]
 
@@ -18,6 +20,7 @@ _selectors = {
 
 _classifiers = {
     "sgd": SGDClassifier,
+    "naivebayes": GaussianNB,
 }
 
 
@@ -43,6 +46,7 @@ class FactExtractor(object):
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
             ('vectorizer', Vectorizer(features)),
+            ('scaler', StandardScaler()),
             ('classifier', classifier(**config.get('classifier_args', {})))
         ]
         selector = config.get("dimensionality_reduction")

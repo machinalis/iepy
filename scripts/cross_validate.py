@@ -14,6 +14,9 @@ Options:
 
 import codecs
 import csv
+import logging
+import pprint
+import sys
 
 from docopt import docopt
 
@@ -22,7 +25,8 @@ from iepy.core import Knowledge, Fact, Evidence
 from iepy.fact_extractor import FactExtractorFactory
 
 config = {
-    # Add config options here
+    "classifier": "naivebayes",
+    "dimensionality_reduction": None,
 }
 
 
@@ -43,12 +47,17 @@ def load_evidence_from_csv(filename, connection):
 
 
 def main(options):
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
     connection = db.connect(options['<dbname>'])
     standard = load_evidence_from_csv(options['<gold_standard>'], connection)
+    logging.info("Loaded %d samples from gold standard", len(standard))
     k = int(options['--k'])
 
     success = total = 0
+    confusion_matrix = [[[], []], [[], []]]
+    logging.info("Splitting into %d subsamples", k)
     for subsample in range(k):
+        logging.debug("Subsample = %d", subsample)
         train_data = Knowledge()
         test_data = []
         test_labels = []
@@ -63,11 +72,22 @@ def main(options):
         assert len(prediction) == len(test_data)
         total += len(prediction)
         success += sum(1 for (p, e) in zip(prediction, test_labels) if p == e)
+        for i, (p, e) in enumerate(zip(prediction, test_labels)):
+            confusion_matrix[p][e].append(test_data[i])
+    logging.info("%d values evaluated;", total)
+    logging.info("%d accurate predictions (%d negative, %d positive)", success, len(confusion_matrix[0][0]), len(confusion_matrix[1][1]))
+    logging.info("%d inaccurate predictions (%d actual positive, %d actual negative)", total-success, len(confusion_matrix[0][1]), len(confusion_matrix[1][0]))
+    for e in confusion_matrix[0][1][:3]:
+        logging.info("Predicted negative, actually positive: %s", e)
+    for e in confusion_matrix[1][0][:3]:
+        logging.info("Predicted positive, actually negative: %s", e)
+        
     return success / total
 
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     score = main(opts)
-    print("%.3f" % score)
+    pprint.pprint(config)
+    print("%.2f" % score)
 
