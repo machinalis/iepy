@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from featureforge.vectorizer import Vectorizer
-from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 
 
-from featureforge.feature import input_schema, output_schema, ObjectSchema
+from featureforge.feature import output_schema
 
 __all__ = ["FactExtractorFactory"]
 
