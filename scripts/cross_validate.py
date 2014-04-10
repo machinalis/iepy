@@ -96,4 +96,3 @@ if __name__ == '__main__':
     print("Accuracy: %.2f" % accuracy)
     print("Precision: %.2f" % precision)
     print("Recall: %.2f" % recall)
-
