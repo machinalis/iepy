@@ -174,6 +174,32 @@ def other_entities_in_between(datapoint):
     return n
 
 
+@output_schema(int, lambda x: x>=2)
+def total_number_of_entities(datapoint):
+    """
+    Returns the number of entity in the text segment
+    """
+    return len(datapoint.segment.entities)
+
+@output_schema(int, lambda x: x>=0)
+def verb_pos_count_in_between(datapoint):
+    """
+    Returns the number of Verb POS tags in between of the 2 entities.
+    """
+    i, j = in_between_offsets(datapoint)
+    return len(filter(lambda t: t.startswith('VB'),
+                      datapoint.segment.postags[i:j]))
+
+
+@output_schema(int, lambda x: x>=0)
+def verb_pos_count(datapoint):
+    """
+    Returns the number of Verb POS tags in the datapoint.
+    """
+    return len(filter(lambda t: t.startswith('VB'),
+                      datapoint.segment.postags))
+
+
 @output_schema(int, lambda x: x in (0, 1))
 def in_same_sentence(datapoint):  # TODO: Test
     """
