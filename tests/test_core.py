@@ -4,6 +4,7 @@ except ImportError:
     import mock
 import unittest
 
+from sklearn.pipeline import Pipeline
 from future.builtins import range
 
 from iepy.core import Fact, Evidence, certainty, Knowledge, BootstrappedIEPipeline
@@ -57,6 +58,14 @@ class TestKnowledge(unittest.TestCase):
 
 
 class TestFactExtractionInterface(unittest.TestCase):
+
+    def setUp(self):
+        super(TestFactExtractionInterface, self).setUp()
+        # given that we are not going to provide actual data, fitting will
+        # fail. That's why its mocked here
+        patcher = mock.patch.object(Pipeline, 'fit')
+        self.mock_fit = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def get_evidence(self, relation):
         e1 = EntityFactory(key=u'Peter')
