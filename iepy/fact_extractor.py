@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from string import punctuation
+
 from featureforge.vectorizer import Vectorizer
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.pipeline import Pipeline
@@ -41,6 +43,11 @@ class FactExtractor(object):
             entity_distance,
             other_entities_in_between,
             in_same_sentence,
+            verb_pos_count_in_between,
+            verb_pos_count,
+            total_number_of_entities,
+            symbols_in_between,
+            number_of_tokens,
         ])
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
@@ -181,14 +188,15 @@ def total_number_of_entities(datapoint):
     """
     return len(datapoint.segment.entities)
 
+
 @output_schema(int, lambda x: x>=0)
 def verb_pos_count_in_between(datapoint):
     """
     Returns the number of Verb POS tags in between of the 2 entities.
     """
     i, j = in_between_offsets(datapoint)
-    return len(filter(lambda t: t.startswith('VB'),
-                      datapoint.segment.postags[i:j]))
+    return len(list(filter(lambda t: t.startswith('VB'),
+                      datapoint.segment.postags[i:j])))
 
 
 @output_schema(int, lambda x: x>=0)
@@ -196,8 +204,8 @@ def verb_pos_count(datapoint):
     """
     Returns the number of Verb POS tags in the datapoint.
     """
-    return len(filter(lambda t: t.startswith('VB'),
-                      datapoint.segment.postags))
+    return len(list(filter(lambda t: t.startswith('VB'),
+                      datapoint.segment.postags)))
 
 
 @output_schema(int, lambda x: x in (0, 1))
@@ -211,6 +219,26 @@ def in_same_sentence(datapoint):  # TODO: Test
         if i <= k and k < j:
             return 0
     return 1
+
+
+@output_schema(int, lambda x: x in (0, 1))
+def symbols_in_between(datapoint):
+    """
+    returns 1 if there are symbols between the entities, 0 if not.
+    """
+    i, j = in_between_offsets(datapoint)
+    tokens = datapoint.segment.tokens[i:j]
+    punct_set = set(punctuation)
+    for tkn in tokens:
+        if punct_set.intersection(tkn):
+            return 1
+    return 0
+
+
+@output_schema(int, lambda x: x >= 0)
+def number_of_tokens(datapoint):
+    return len(datapoint.segment.tokens)
+
 
 
 ###
