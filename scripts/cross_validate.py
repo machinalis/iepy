@@ -11,6 +11,7 @@ Options:
   --version             Version number
   --k=<subsamples>      Number of subsamples [default: 10]
 """
+from __future__ import division
 
 import codecs
 import csv
@@ -81,13 +82,18 @@ def main(options):
         logging.info("Predicted negative, actually positive: %s", e)
     for e in confusion_matrix[1][0][:3]:
         logging.info("Predicted positive, actually negative: %s", e)
-        
-    return success / total
+
+    precision = len(confusion_matrix[1][1]) / len(confusion_matrix[1][0]+confusion_matrix[1][1])
+    recall = len(confusion_matrix[1][1]) / len(confusion_matrix[0][1]+confusion_matrix[1][1])
+    accuracy = success / total
+    return accuracy, precision, recall
 
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
-    score = main(opts)
+    accuracy, precision, recall = main(opts)
     pprint.pprint(config)
-    print("%.2f" % score)
+    print("Accuracy: %.2f" % accuracy)
+    print("Precision: %.2f" % precision)
+    print("Recall: %.2f" % recall)
 
