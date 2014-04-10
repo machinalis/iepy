@@ -29,7 +29,14 @@ def _e(markup):
     return evidence
 
 
-class TestBagOfWords(TestCase, BaseFeatureFixture):
+class FeatureEvidenceBaseCase(BaseFeatureFixture):
+
+    @skip("skipped because there's no random generation of Evidences")
+    def test_fuzz(self):
+        pass
+
+
+class TestBagOfWords(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_words)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -40,12 +47,8 @@ class TestBagOfWords(TestCase, BaseFeatureFixture):
                   EQ, set())
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfPos(TestCase, BaseFeatureFixture):
+class TestBagOfPos(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_pos)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -56,12 +59,8 @@ class TestBagOfPos(TestCase, BaseFeatureFixture):
                   EQ, set())
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordBigrams(TestCase, BaseFeatureFixture):
+class TestBagOfWordBigrams(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_word_bigrams)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -74,12 +73,8 @@ class TestBagOfWordBigrams(TestCase, BaseFeatureFixture):
                   EQ, set())
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordPos(TestCase, BaseFeatureFixture):
+class TestBagOfWordPos(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_wordpos)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -90,12 +85,8 @@ class TestBagOfWordPos(TestCase, BaseFeatureFixture):
                   EQ, set())
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordPosBigrams(TestCase, BaseFeatureFixture):
+class TestBagOfWordPosBigrams(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_wordpos_bigrams)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -115,12 +106,8 @@ class TestBagOfWordPosBigrams(TestCase, BaseFeatureFixture):
                   EQ, set())
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordsInBetween(TestCase, BaseFeatureFixture):
+class TestBagOfWordsInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_words_in_between)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -135,12 +122,8 @@ class TestBagOfWordsInBetween(TestCase, BaseFeatureFixture):
                   EQ, set()),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfPosInBetween(TestCase, BaseFeatureFixture):
+class TestBagOfPosInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_pos_in_between)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -155,12 +138,8 @@ class TestBagOfPosInBetween(TestCase, BaseFeatureFixture):
                   EQ, set()),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordBigramsInBetween(TestCase, BaseFeatureFixture):
+class TestBagOfWordBigramsInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_word_bigrams_in_between)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -177,13 +156,8 @@ class TestBagOfWordBigramsInBetween(TestCase, BaseFeatureFixture):
                   EQ, set()),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-
-class TestBagOfWordPosInBetween(TestCase, BaseFeatureFixture):
+class TestBagOfWordPosInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_wordpos_in_between)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -198,12 +172,8 @@ class TestBagOfWordPosInBetween(TestCase, BaseFeatureFixture):
                   EQ, set()),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestBagOfWordPosBigramsInBetween(TestCase, BaseFeatureFixture):
+class TestBagOfWordPosBigramsInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(bag_of_wordpos_bigrams_in_between)
     fixtures = dict(
         test_eq1=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -226,12 +196,8 @@ class TestBagOfWordPosBigramsInBetween(TestCase, BaseFeatureFixture):
                   EQ, set()),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestEntityOrder(TestCase, BaseFeatureFixture):
+class TestEntityOrder(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(entity_order)
     fixtures = dict(
         test_lr=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -244,12 +210,8 @@ class TestEntityOrder(TestCase, BaseFeatureFixture):
                   RAISES, ValueError),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestEntityDistance(TestCase, BaseFeatureFixture):
+class TestEntityDistance(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(entity_distance)
     fixtures = dict(
         test_lr=(_e("Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
@@ -266,12 +228,8 @@ class TestEntityDistance(TestCase, BaseFeatureFixture):
                   RAISES, ValueError),
     )
 
-    @skip
-    def test_fuzz(self):
-        pass
 
-
-class TestOtherEntitiesInBetween(TestCase, BaseFeatureFixture):
+class TestOtherEntitiesInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(other_entities_in_between)
     fixtures = dict(
         test_lr=(_e("Drinking {Mate|thing*} makes {you|told} go to the {toilet|thing**}"),
@@ -291,7 +249,3 @@ class TestOtherEntitiesInBetween(TestCase, BaseFeatureFixture):
         test_no_entity=(_e("Drinking mate yeah"),
                   RAISES, ValueError),
     )
-
-    @skip
-    def test_fuzz(self):
-        pass
