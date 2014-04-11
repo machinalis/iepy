@@ -22,9 +22,11 @@ from iepy.fact_extractor import (bag_of_words,
                                  other_entities_in_between,
                                  in_same_sentence,
                                  total_number_of_entities,
-                                 verb_pos_count_in_between,
-                                 verb_pos_count,
-                                 symbols_in_between)
+                                 verbs_count_in_between,
+                                 verbs_count,
+                                 symbols_in_between,
+                                 BagOfVerbStems
+                                 )
 
 
 def _e(markup, **kwargs):
@@ -230,17 +232,17 @@ class TestEntityDistance(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(entity_distance)
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
-                  EQ, 5),
+                 EQ, 5),
         test_rl=(_e(u"Drinking {Mate|thing**} makes you go to the {toilet|thing*}"),
-                  EQ, 5),
+                 EQ, 5),
         test_multiword=(_e(u"Drinking {Argentinean Mate|thing*} the {toilet|thing**}"),
-                  EQ, 1),
+                        EQ, 1),
         test_zero=(_e(u"Drinking {Argentinean Mate|thing*} {toilet|thing**}"),
-                  EQ, 0),
+                   EQ, 0),
         test_empty=(_e(u""),
-                  RAISES, ValueError),
+                    RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  RAISES, ValueError),
+                        RAISES, ValueError),
     )
 
 
@@ -248,21 +250,21 @@ class TestOtherEntitiesInBetween(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(other_entities_in_between)
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes {you|told} go to the {toilet|thing**}"),
-                  EQ, 1),
+                 EQ, 1),
         test_rl=(_e(u"Drinking {Mate|thing**} makes {you|told} go to the {toilet|thing*}"),
-                  EQ, 1),
+                 EQ, 1),
         test_many=(_e(u"Drinking {Mate|thing**} {makes|yeah} {you|told} {go|bad} {to|music} {the|aaa} {toilet|thing*}"),
-                  EQ, 5),
+                   EQ, 5),
         test_multiword=(_e(u"Drinking {Argentinean Mate|thing*} {the|told} {toilet|thing**}"),
-                  EQ, 1),
+                        EQ, 1),
         test_zero=(_e(u"Drinking {Argentinean Mate|thing*} {toilet|thing**}"),
-                  EQ, 0),
+                   EQ, 0),
         test_zero2=(_e(u"Drinking {Argentinean Mate|thing*} the {toilet|thing**}"),
-                  EQ, 0),
+                    EQ, 0),
         test_empty=(_e(u""),
-                  RAISES, ValueError),
+                    RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  RAISES, ValueError),
+                        RAISES, ValueError),
     )
 
 
@@ -270,26 +272,26 @@ class TestTotalEntitiesNumber(TestCase, FeatureEvidenceBaseCase):
     feature = make_feature(total_number_of_entities)
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes {you|told} go to the {toilet|thing**}"),
-                  EQ, 3),
+                 EQ, 3),
         test_rl=(_e(u"Drinking {Mate|thing**} makes {you|told} go to the {toilet|thing*}"),
-                  EQ, 3),
+                 EQ, 3),
         test_many=(_e(u"Drinking {Mate|thing**} {makes|yeah} {you|told} {go|bad} {to|music} {the|aaa} {toilet|thing*}"),
-                  EQ, 7),
+                   EQ, 7),
         test_multiword=(_e(u"Drinking {Argentinean Mate|thing*} {the|told} {toilet|thing**}"),
-                  EQ, 3),
+                        EQ, 3),
         test_zero=(_e(u"Drinking {Argentinean Mate|thing*} {toilet|thing**}"),
-                  EQ, 2),
+                   EQ, 2),
         test_zero2=(_e(u"Drinking {Argentinean Mate|thing*} the {toilet|thing**}"),
-                  EQ, 2),
+                    EQ, 2),
         test_empty=(_e(u""),
-                  RAISES, ValueError),
+                    RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  RAISES, ValueError),
+                        RAISES, ValueError),
     )
 
 
 class TestVerbsInBetweenEntitiesCount(TestCase, FeatureEvidenceBaseCase):
-    feature = make_feature(verb_pos_count_in_between)
+    feature = make_feature(verbs_count_in_between)
     fixtures = dict(
         test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
                       base_pos=["JJ"]),
@@ -298,13 +300,14 @@ class TestVerbsInBetweenEntitiesCount(TestCase, FeatureEvidenceBaseCase):
                      base_pos=["VB", u"VBD"]),
                   EQ, 5),
         test_empty=(_e(u""),
-                  RAISES, ValueError),
+                    RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  RAISES, ValueError),
+                        RAISES, ValueError),
     )
 
+
 class TestVerbsTotalCount(TestCase, FeatureEvidenceBaseCase):
-    feature = make_feature(verb_pos_count)
+    feature = make_feature(verbs_count)
     fixtures = dict(
         test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
                       base_pos=["JJ"]),
@@ -313,9 +316,9 @@ class TestVerbsTotalCount(TestCase, FeatureEvidenceBaseCase):
                      base_pos=["VB", u"VBD"]),
                   EQ, 9),
         test_empty=(_e(u""),
-                  EQ, 0),
+                    EQ, 0),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  EQ, 0),
+                        EQ, 0),
     )
 
 
@@ -329,7 +332,40 @@ class TestSymbolsInBetween(TestCase, FeatureEvidenceBaseCase):
         test_two=(_e(u"Drinking {Mate|thing**}, makes you go, to the {toilet|thing*}"),
                   EQ, 1),  # its only boolean
         test_empty=(_e(u""),
-                  RAISES, ValueError),
+                    RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
-                  RAISES, ValueError),
+                        RAISES, ValueError),
+    )
+
+
+class TestBagStemVerbInBetween(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbStems(in_between=True)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'mak', u'you', u'go', u'to', u'the'}),
+        test_empty=(_e(u""),
+                    RAISES, ValueError),
+        test_no_entity=(_e(u"Drinking mate yeah"),
+                        RAISES, ValueError),
+    )
+
+
+class TestBagStemVerb(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbStems(in_between=False)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'drink', u'argentin', u'mat', u'mak', u'you',
+                       u'go', u'to', u'the', u'toilet'}),
+        test_empty=(_e(u""),
+                    EQ, set()),
+        test_no_entity=(_e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
+                        EQ, {u'drink', u'mat', u'yeah'}),
     )
