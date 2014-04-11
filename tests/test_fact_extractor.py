@@ -25,7 +25,8 @@ from iepy.fact_extractor import (bag_of_words,
                                  verbs_count_in_between,
                                  verbs_count,
                                  symbols_in_between,
-                                 BagOfVerbStems
+                                 BagOfVerbStems,
+                                 BagOfVerbLemmas
                                  )
 
 
@@ -368,4 +369,37 @@ class TestBagStemVerb(TestCase, FeatureEvidenceBaseCase):
                     EQ, set()),
         test_no_entity=(_e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
                         EQ, {u'drink', u'mat', u'yeah'}),
+    )
+
+
+class TestBagLemmaVerbInBetween(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbLemmas(in_between=True)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'make', u'you', u'go', u'to', u'the'}),
+        test_empty=(_e(u""),
+                    RAISES, ValueError),
+        test_no_entity=(_e(u"Drinking mate yeah"),
+                        RAISES, ValueError),
+    )
+
+
+class TestBagLemmaVerb(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbLemmas(in_between=False)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'drink', u'argentinean', u'mate', u'make', u'you',
+                       u'go', u'to', u'the', u'toilet'}),
+        test_empty=(_e(u""),
+                    EQ, set()),
+        test_no_entity=(_e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
+                        EQ, {u'drink', u'mate', u'yeah'}),
     )
