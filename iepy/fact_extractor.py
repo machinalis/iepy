@@ -9,6 +9,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 
+from future.builtins import str
 
 from featureforge.feature import output_schema
 
