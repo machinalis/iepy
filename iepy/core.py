@@ -7,6 +7,25 @@ from colorama import Fore, Style
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
 
+from iepy.fact_extractor import (
+    bag_of_words,
+    bag_of_pos,
+    bag_of_word_bigrams,
+    bag_of_words_in_between,
+    bag_of_pos_in_between,
+    entity_order,
+    entity_distance,
+    other_entities_in_between,
+    in_same_sentence,
+    verbs_count_in_between,
+    verbs_count,
+    total_number_of_entities,
+    symbols_in_between,
+    number_of_tokens,
+    BagOfVerbStems,
+    BagOfVerbLemmas,
+)
+
 # A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")
 
@@ -138,9 +157,29 @@ class BootstrappedIEPipeline(object):
             self.relations[e.fact.relation] = (t1, t2)
         # Classifier configuration
         self.extractor_config = {
-            "classifier": "sgd",
-            "classifier_args" : {"loss": "log"},
+            "classifier": "dtree",
+            "classifier_args": dict(),
             "dimensionality_reduction": None,
+            "features": [
+                bag_of_words,
+                bag_of_pos,
+                bag_of_word_bigrams,
+                bag_of_words_in_between,
+                bag_of_pos_in_between,
+                entity_order,
+                entity_distance,
+                other_entities_in_between,
+                in_same_sentence,
+                verbs_count_in_between,
+                verbs_count,
+                total_number_of_entities,
+                symbols_in_between,
+                number_of_tokens,
+                BagOfVerbStems(in_between=True),
+                BagOfVerbStems(in_between=False),
+                BagOfVerbLemmas(in_between=True),
+                BagOfVerbLemmas(in_between=False)
+            ]
         }
 
 
