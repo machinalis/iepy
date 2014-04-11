@@ -26,7 +26,8 @@ from iepy.core import Knowledge, Fact, Evidence
 from iepy.fact_extractor import FactExtractorFactory
 
 config = {
-    "classifier": "naivebayes",
+    "classifier": "dtree",
+    "classifier_args": dict(),
     "dimensionality_reduction": None,
 }
 
@@ -83,8 +84,14 @@ def main(options):
     for e in confusion_matrix[1][0][:3]:
         logging.info("Predicted positive, actually negative: %s", e)
 
-    precision = len(confusion_matrix[1][1]) / len(confusion_matrix[1][0]+confusion_matrix[1][1])
-    recall = len(confusion_matrix[1][1]) / len(confusion_matrix[0][1]+confusion_matrix[1][1])
+    try:
+        precision = len(confusion_matrix[1][1]) / len(confusion_matrix[1][0]+confusion_matrix[1][1])
+    except ZeroDivisionError:
+        precision = None
+    try:
+        recall = len(confusion_matrix[1][1]) / len(confusion_matrix[0][1]+confusion_matrix[1][1])
+    except ZeroDivisionError:
+        recall = None
     accuracy = success / total
     return accuracy, precision, recall
 
