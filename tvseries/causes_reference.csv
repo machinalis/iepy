@@ -73,8 +73,8 @@ disease,sepsis,symptom,blood clots,CAUSES,The Mistake,636,0,2,True
 disease,brucellosis,symptom,infection,CAUSES,Sex Kills,369,0,1,False
 disease,brucellosis,symptom,acid reflux,CAUSES,Sex Kills,384,0,1,False
 disease,allergies,symptom,panic attack,CAUSES,Clueless,130,0,1,False
-disease,bite,symptom,fever,CAUSES,Humpty Dumpty,713,1,2,False
-disease,bite,symptom,fever,CAUSES,Humpty Dumpty,889,0,1,False
+disease,bite,symptom,fever,CAUSES,Humpty Dumpty,713,1,2,True
+disease,bite,symptom,fever,CAUSES,Humpty Dumpty,889,0,1,True
 disease,CIPA,symptom,pain,CAUSES,Insensitive,150,0,2,False
 disease,CIPA,symptom,pain,CAUSES,Insensitive,1261,0,2,False
 disease,cancer,symptom,autoimmune disease,CAUSES,House Training,990,2,1,False
@@ -118,3 +118,164 @@ disease,cancer,symptom,infection,CAUSES,97 Seconds,937,1,2,False
 disease,cancer,symptom,bleeding,CAUSES,97 Seconds,1203,1,0,True
 disease,cancer,symptom,leukemia,CAUSES,Emancipation,1834,2,0,False
 disease,cancer,symptom,leukemia,CAUSES,Emancipation,1834,2,1,False
+disease,multiple sclerosis,symptom,brain damage,CAUSES,Big Baby,753,1,0,True
+disease,patent ductus arteriosus,symptom,congenital heart defect,CAUSES,Big Baby,1453,0,1,False
+disease,multiple sclerosis,symptom,mental illness,CAUSES,Under My Skin,961,1,2,False
+disease,food poisoning,symptom,pain,CAUSES,Painless,433,0,2,False
+disease,amyloidosis,symptom,high fever,CAUSES,Epic Fail,1552,2,1,False
+disease,mumps,symptom,swollen lymph nodes,CAUSES,Epic Fail,1726,1,0,False
+disease,liver failure,symptom,bleeding,CAUSES,The Confession,1316,3,0,False
+disease,liver failure,symptom,jaundice,CAUSES,The Confession,1316,3,2,True
+disease,wound,symptom,bleeding,CAUSES,Frozen,171,2,1,True
+disease,lymphoma,symptom,tumor,CAUSES,Frozen,697,1,0,True
+disease,embolism,symptom,broken bone,CAUSES,Frozen,1915,0,1,False
+disease,injuries,symptom,bleeding,CAUSES,Alone,1269,1,0,True
+disease,injury,symptom,bleeding,CAUSES,Alone,1269,3,0,False
+disease,crush syndrome,symptom,ARDS,CAUSES,Alone,1580,2,1,False
+disease,conversion disorder,symptom,paralysis,CAUSES,It's a Wonderful Lie,696,3,1,False
+disease,conversion disorder,symptom,blindness,CAUSES,It's a Wonderful Lie,696,3,2,False
+disease,conversion disorder,symptom,swollen lymph nodes,CAUSES,It's a Wonderful Lie,876,1,0,False
+disease,sarcoidosis,symptom,fear,CAUSES,It's a Wonderful Lie,990,0,1,False
+disease,wound,symptom,retrograde amnesia,CAUSES,House's Head,159,0,3,False
+disease,concussion,symptom,retrograde amnesia,CAUSES,House's Head,159,2,3,False
+disease,concussion,symptom,fracture,CAUSES,House's Head,738,2,1,False
+disease,injury,symptom,numbness,CAUSES,Living The Dream,766,2,1,False
+disease,phobia,symptom,seizures,CAUSES,The Itch,553,1,0,True
+disease,phobia,symptom,seizure,CAUSES,The Itch,553,1,2,False
+disease,cancer,symptom,deafness,CAUSES,House Divided,768,0,2,True
+disease,cancer,symptom,tumor,CAUSES,House Divided,847,1,2,False
+disease,cancer,symptom,arthritis,CAUSES,Not Cancer,1086,1,0,False
+disease,lung cancer,symptom,sweating,CAUSES,Last Resort,1473,1,0,True
+disease,poisoning,symptom,seizure,CAUSES,Here Kitty,357,2,1,False
+disease,melanoma,symptom,spider veins,CAUSES,Here Kitty,1443,1,0,False
+disease,tuberculosis,symptom,seizure,CAUSES,Joy to the World,922,3,2,False
+disease,alcohol abuse,symptom,seizures,CAUSES,Joy to the World,1413,0,1,False
+disease,eclampsia,symptom,preeclampsia,CAUSES,Joy to the World,2247,2,0,False
+disease,eclampsia,symptom,high blood pressure,CAUSES,Joy to the World,2247,2,1,False
+disease,eclampsia,symptom,preeclampsia,CAUSES,Joy to the World,2247,2,3,False
+disease,eclampsia,symptom,preeclampsia,CAUSES,Joy to the World,2247,4,0,False
+disease,eclampsia,symptom,high blood pressure,CAUSES,Joy to the World,2247,4,1,False
+disease,eclampsia,symptom,preeclampsia,CAUSES,Joy to the World,2247,4,3,False
+disease,myasthenia gravis,symptom,weakness,CAUSES,Let Them Eat Cake,983,0,1,False
+disease,paraneoplastic syndrome,symptom,tumor,CAUSES,Let Them Eat Cake,1307,2,1,True
+disease,strain,symptom,dehydration,CAUSES,The Softer Side,1775,1,0,False
+disease,sleepwalking,symptom,memory loss,CAUSES,Joy,780,0,1,False
+disease,allergy,symptom,lactose intolerance,CAUSES,Joy,951,1,0,False
+disease,blastomycosis,symptom,granuloma,CAUSES,The Greater Good,682,2,1,True
+disease,wound,symptom,itching,CAUSES,The Greater Good,990,1,2,False
+disease,neurological disorder,symptom,pain,CAUSES,Unfaithful,1487,1,0,False
+disease,cancer,symptom,infection,CAUSES,Unfaithful,1677,0,1,False
+disease,pneumocystis,symptom,infection,CAUSES,Unfaithful,1855,1,2,False
+disease,paraneoplastic syndrome,symptom,tumor,CAUSES,Locked In,1187,3,2,True
+disease,cadmium poisoning,symptom,keratitis,CAUSES,Locked In,2159,2,0,False
+disease,leptospirosis,symptom,infection,CAUSES,Locked In,2493,2,1,False
+disease,liver failure,symptom,locked-in syndrome,CAUSES,Locked In,2524,0,1,False
+disease,paper cut,symptom,infection,CAUSES,Locked In,2544,0,1,False
+disease,pancreatic cancer,symptom,excessive sweating,CAUSES,Both Sides Now,1689,4,2,False
+disease,pancreatic cancer,symptom,tumor,CAUSES,Both Sides Now,2660,2,0,False
+disease,choking,symptom,respiratory failure,CAUSES,Simple Explanation,561,1,2,True
+disease,fungal infection,symptom,heart failure,CAUSES,Simple Explanation,3284,3,2,True
+disease,blastomycosis,symptom,heart failure,CAUSES,Simple Explanation,3284,4,2,True
+disease,atherosclerosis,symptom,loss of balance,CAUSES,Saviors,912,1,2,True
+disease,MS,symptom,hiccups,CAUSES,Saviors,1378,3,4,False
+disease,trauma,symptom,broken bone,CAUSES,Saviors,2050,1,0,False
+disease,cancer,symptom,broken bone,CAUSES,Saviors,2050,2,0,False
+disease,trauma,symptom,brain damage,CAUSES,Help Me,745,2,1,False
+disease,injuries,symptom,bleeding,CAUSES,Help Me,1461,2,1,False
+disease,arachnoid cyst,symptom,asymptomatic,CAUSES,Help Me,2876,0,1,False
+disease,cancer,symptom,stroke,CAUSES,Wilson (episode),404,2,1,False
+disease,pneumocystis pneumonia,symptom,lung damage,CAUSES,Wilson (episode),1170,3,2,True
+disease,fungal infection,symptom,lung damage,CAUSES,Wilson (episode),1170,4,2,False
+disease,cancer,symptom,leukemia,CAUSES,Wilson (episode),2424,0,2,False
+disease,cancer,symptom,leukemia,CAUSES,Wilson (episode),2424,3,2,False
+disease,infarction,symptom,stroke,CAUSES,Broken,3801,0,1,False
+disease,food poisoning,symptom,vomiting,CAUSES,Knight Fall,746,3,0,True
+disease,poison ivy,symptom,rash,CAUSES,Knight Fall,1246,0,2,False
+disease,poison ivy,symptom,rash,CAUSES,Knight Fall,1246,1,2,True
+disease,MRSA,symptom,bradycardia,CAUSES,Knight Fall,1309,0,2,False
+disease,poison ivy,symptom,bradycardia,CAUSES,Knight Fall,1309,1,2,False
+disease,rhabdomyolysis,symptom,swelling,CAUSES,Knight Fall,1646,1,0,True
+disease,rhabdomyolysis,symptom,kidney failure,CAUSES,Knight Fall,1646,1,2,False
+disease,peliosis hepatis,symptom,infection,CAUSES,Knight Fall,2668,1,2,False
+disease,rheumatoid arthritis,symptom,pallor,CAUSES,Moving the Chains,995,2,1,True
+disease,lymphoma,symptom,itching,CAUSES,Moving the Chains,1261,2,0,False
+disease,viral hepatitis,symptom,inflammation,CAUSES,Moving the Chains,1527,3,1,False
+disease,cryoglobulinemia,symptom,cold,CAUSES,Moving the Chains,1660,0,1,False
+disease,addiction,symptom,cough,CAUSES,Ignorance is Bliss,1377,1,0,False
+disease,ischemic cardiomyopathy,symptom,pain,CAUSES,Lockdown,721,0,1,False
+disease,malaria,symptom,congestive heart failure,CAUSES,5 to 9,736,3,1,False
+disease,injury,symptom,pain,CAUSES,The Tyrant,1251,1,0,True
+disease,mononucleosis,symptom,infection,CAUSES,The Choice,641,2,1,False
+disease,POTS,symptom,headache,CAUSES,The Choice,1486,0,1,False
+disease,being drunk,symptom,blackouts,CAUSES,The Choice,1665,3,0,False
+disease,smallpox,symptom,rash,CAUSES,A Pox on Our House,919,2,1,False
+disease,smallpox,symptom,kidney failure,CAUSES,A Pox on Our House,1934,2,1,True
+disease,smallpox,symptom,eschar,CAUSES,A Pox on Our House,2785,0,3,False
+disease,cancer,symptom,eschar,CAUSES,A Pox on Our House,2785,1,3,False
+disease,smallpox,symptom,eschar,CAUSES,A Pox on Our House,2785,2,3,False
+disease,bite,symptom,eschar,CAUSES,A Pox on Our House,2785,4,3,True
+disease,rickettsialpox,symptom,eschar,CAUSES,A Pox on Our House,2831,0,2,False
+disease,smallpox,symptom,eschar,CAUSES,A Pox on Our House,2831,3,2,False
+disease,cancer,symptom,tumor,CAUSES,Bombshells,2592,0,1,False
+disease,fungal infection,symptom,pain,CAUSES,Out of the Chute,1193,0,2,False
+disease,salmonella,symptom,tenderness,CAUSES,Last Temptation,1974,0,1,False
+disease,cancer,symptom,infection,CAUSES,Last Temptation,2169,1,0,False
+disease,thiamine deficiency,symptom,alcoholism,CAUSES,Family Practice,1141,1,0,False
+disease,cancer,symptom,fever,CAUSES,Family Practice,1465,4,1,False
+disease,cancer,symptom,alcoholism,CAUSES,Family Practice,1465,4,2,False
+disease,hepatitis,symptom,peptic ulcer disease,CAUSES,Now What?,1906,0,1,False
+disease,brain tumor,symptom,coma,CAUSES,Recession Proof,2112,1,0,False
+disease,LAM,symptom,cold,CAUSES,Selfish,1654,0,1,False
+disease,stab wound,symptom,bleeding,CAUSES,After Hours,1576,0,1,False
+disease,stab wound,symptom,infection,CAUSES,After Hours,2611,1,0,True
+disease,hepatitis C,symptom,infection,CAUSES,After Hours,2977,0,1,False
+disease,amyloidosis,symptom,cardiac arrest,CAUSES,Changes,2345,1,0,False
+disease,hand injury,symptom,falling,CAUSES,Moving On,2943,1,2,False
+disease,poisoning,symptom,fever,CAUSES,Massage Therapy,1221,2,1,False
+disease,allergy,symptom,hives,CAUSES,You Must Remember This,1472,2,1,True
+disease,schizophrenia,symptom,delusions,CAUSES,Fall From Grace,1356,0,1,True
+disease,schizophrenia,symptom,arm pain,CAUSES,Fall From Grace,1487,0,1,False
+disease,MS,symptom,paralysis,CAUSES,Small Sacrifices,1428,1,0,True
+disease,trauma,symptom,asymptomatic,CAUSES,Runaways,2714,1,0,False
+disease,mucormycosis,symptom,infection,CAUSES,Love is Blind,3014,1,0,False
+disease,mucormycosis,symptom,infection,CAUSES,Love is Blind,3545,0,1,False
+disease,burns,symptom,falling,CAUSES,Everybody Dies,901,0,1,False
+disease,cancer,symptom,boredom,CAUSES,Everybody Dies,4428,2,5,False
+disease,cancer,symptom,boredom,CAUSES,Everybody Dies,4428,4,5,False
+disease,GAD,symptom,infection,CAUSES,Perils of Paranoia,2014,2,0,False
+disease,GAD,symptom,infection,CAUSES,Perils of Paranoia,2056,1,0,False
+disease,GAD,symptom,anaphylaxis,CAUSES,Perils of Paranoia,2368,3,0,False
+disease,GAD,symptom,edema,CAUSES,Perils of Paranoia,2368,3,1,False
+disease,GAD,symptom,infection,CAUSES,Perils of Paranoia,2368,3,2,False
+disease,cancer,symptom,telangiectasia,CAUSES,The C Word,2734,0,1,False
+disease,gallstones,symptom,pancreatitis,CAUSES,Blowing the Whistle,499,2,1,True
+disease,miscarriage,symptom,bleeding,CAUSES,Dead & Buried,2199,1,0,False
+disease,ectopic pregnancy,symptom,preeclampsia,CAUSES,Dead & Buried,2214,1,0,False
+disease,cavernous sinus thrombosis,symptom,lymphocytosis,CAUSES,We Need the Eggs,311,1,0,False
+disease,silent thyroiditis,symptom,hoarseness,CAUSES,Man of the House,2379,1,0,True
+disease,trauma,symptom,enlarged spleen,CAUSES,Gut Check,506,2,1,True
+disease,microscopic polyangiitis,symptom,paralysis,CAUSES,Gut Check,1921,1,0,False
+disease,botulism,symptom,muscle spasm,CAUSES,Gut Check,1978,1,2,False
+disease,injury,symptom,guilt,CAUSES,Chase (episode),53,1,3,False
+disease,injury,symptom,unconsciousness,CAUSES,Nobody's Fault,1122,1,0,True
+disease,injury,symptom,swelling,CAUSES,Nobody's Fault,1122,1,2,False
+disease,flu,symptom,sore throat,CAUSES,Better Half,2608,0,1,False
+disease,lupus,symptom,rash,CAUSES,Twenty Vicodin,999,2,1,True
+disease,lipoma,symptom,tumor,CAUSES,Twenty Vicodin,1859,2,1,False
+disease,mastocytosis,symptom,anaphylaxis,CAUSES,Twenty Vicodin,2416,3,2,False
+disease,rabies,symptom,numbness,CAUSES,Histories,1328,3,0,True
+disease,rabies,symptom,paranoia,CAUSES,Histories,1328,3,1,True
+disease,rabies,symptom,disorientation,CAUSES,Histories,1328,3,2,True
+disease,tularemia,symptom,coma,CAUSES,Fidelity,618,1,0,False
+disease,heart disease,symptom,shortness of breath,CAUSES,Fidelity,1032,1,0,False
+disease,heart tumor,symptom,bleeding,CAUSES,Autopsy,554,0,1,False
+disease,heart tumor,symptom,blood clot,CAUSES,Autopsy,578,1,0,True
+disease,cancer,symptom,twitching,CAUSES,Skin Deep,751,1,0,False
+disease,testicular cancer,symptom,swollen tongue,CAUSES,No Reason,1163,1,0,False
+disease,lymphoma,symptom,tumor,CAUSES,Hunting,1349,1,3,False
+disease,hepatitis A,symptom,DIC,CAUSES,Whac-A-Mole,487,0,1,False
+disease,syphilis,symptom,infection,CAUSES,Whac-A-Mole,746,0,1,False
+disease,pulmonary embolism,symptom,respiratory distress,CAUSES,Babies & Bathwater,1230,2,1,True
+disease,embolism,symptom,brain damage,CAUSES,Babies & Bathwater,1261,0,1,False
+disease,embolism,symptom,anxiety,CAUSES,Babies & Bathwater,1299,1,0,False
+disease,embolism,symptom,bleeding,CAUSES,Babies & Bathwater,1322,0,3,False
