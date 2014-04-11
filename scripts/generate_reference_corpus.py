@@ -12,12 +12,10 @@ Options:
 """
 from docopt import docopt
 
-from iepy.db import connect, get_entity
+from iepy.db import connect
 from scripts.generate_seeds import label_evidence_from_oracle, human_oracle
 from scripts.cross_validate import load_evidence_from_csv
 from iepy.utils import save_labeled_evidence_to_csv
-from iepy.models import Entity
-from iepy.core import Evidence, Fact
 
 
 class CombinedOracle(object):
@@ -26,14 +24,7 @@ class CombinedOracle(object):
         self.knowledge = knowledge
         self.relation = relation
 
-    def __call__(self, s, e1, e2):
-        # bulid evidence:
-        entity1 = get_entity(e1.kind, e1.key)
-        entity2 = get_entity(e2.kind, e2.key)
-        fact = Fact(e1=entity1, relation=self.relation, e2=entity2)
-        o1 = s.entities.index(e1)
-        o2 = s.entities.index(e2)
-        evidence = Evidence(fact, s, o1, o2)
+    def __call__(self, evidence):
         if evidence in self.knowledge:
             answer = self.knowledge[evidence]
             assert answer in [0, 1]
@@ -42,7 +33,7 @@ class CombinedOracle(object):
             else:
                 return 'y'
         else:
-            return human_oracle(s, e1, e2)
+            return human_oracle(evidence)
 
 
 if __name__ == '__main__':
@@ -61,7 +52,7 @@ if __name__ == '__main__':
     else:
         oracle = human_oracle
 
-    r = label_evidence_from_oracle(kind_a, kind_b, oracle)
+    r = label_evidence_from_oracle(kind_a, kind_b, relation_name, oracle)
     # insert relation name:
     r2 = [(s, e1, e2, relation_name, label) for (s, e1, e2, label) in r]
     save_labeled_evidence_to_csv(r2, output_filename)
