@@ -197,7 +197,7 @@ def verb_pos_count_in_between(datapoint):
     """
     i, j = in_between_offsets(datapoint)
     return len(list(filter(lambda t: t.startswith('VB'),
-                      datapoint.segment.postags[i:j])))
+                           datapoint.segment.postags[i:j])))
 
 
 @output_schema(int, lambda x: x >= 0)
@@ -206,7 +206,7 @@ def verb_pos_count(datapoint):
     Returns the number of Verb POS tags in the datapoint.
     """
     return len(list(filter(lambda t: t.startswith('VB'),
-                      datapoint.segment.postags)))
+                           datapoint.segment.postags)))
 
 
 @output_schema(int, lambda x: x in (0, 1))
@@ -241,11 +241,9 @@ def number_of_tokens(datapoint):
     return len(datapoint.segment.tokens)
 
 
-
 ###
 # Aux functions
 ###
-
 
 def words(datapoint):
     return [word.lower() for word in datapoint.segment.tokens]
