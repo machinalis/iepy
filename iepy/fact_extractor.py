@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from string import punctuation
 
+from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
+from nltk.stem.lancaster import LancasterStemmer
+from schema import Schema
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
@@ -11,7 +14,6 @@ from sklearn.tree import DecisionTreeRegressor
 
 from future.builtins import map, str
 
-from featureforge.feature import output_schema
 
 __all__ = ["FactExtractorFactory"]
 
@@ -44,11 +46,13 @@ class FactExtractor(object):
             entity_distance,
             other_entities_in_between,
             in_same_sentence,
-            verb_pos_count_in_between,
-            verb_pos_count,
+            verbs_count_in_between,
+            verbs_count,
             total_number_of_entities,
             symbols_in_between,
             number_of_tokens,
+            BagOfVerbStems(in_between=True),
+            BagOfVerbStems(in_between=False)
         ])
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
@@ -191,22 +195,49 @@ def total_number_of_entities(datapoint):
 
 
 @output_schema(int, lambda x: x >= 0)
-def verb_pos_count_in_between(datapoint):
+def verbs_count_in_between(datapoint):
     """
     Returns the number of Verb POS tags in between of the 2 entities.
     """
     i, j = in_between_offsets(datapoint)
-    return len(list(filter(lambda t: t.startswith('VB'),
-                           datapoint.segment.postags[i:j])))
+    return len(verbs(datapoint, i, j))
 
 
 @output_schema(int, lambda x: x >= 0)
-def verb_pos_count(datapoint):
+def verbs_count(datapoint):
     """
     Returns the number of Verb POS tags in the datapoint.
     """
-    return len(list(filter(lambda t: t.startswith('VB'),
-                           datapoint.segment.postags)))
+    return len(verbs(datapoint))
+
+
+class BagOfVerbStems(Feature):
+    output_schema = Schema({str})
+
+    def name(self):
+        return u'<BagOfVerbStems, in-between=%s>' % self.in_between
+
+    def __init__(self, in_between=False):
+        self.in_between = in_between
+        self.st = LancasterStemmer()
+
+    def _evaluate(self, datapoint):
+        i, j = None, None
+        if self.in_between:
+            i, j = in_between_offsets(datapoint)
+        verb_tokens = verbs(datapoint, i, j)
+        return set([self.st.stem(tk) for tk in verb_tokens])
+
+
+#@output_schema({str})
+#def bag_of_verb_lemmas(datapoint):
+#    pass
+#
+#
+#@output_schema({str})
+#def bag_of_verb_lemmas_in_between(datapoint):
+#    i, j = in_between_offsets(datapoint)
+#    pass
 
 
 @output_schema(int, lambda x: x in (0, 1))
@@ -251,6 +282,13 @@ def words(datapoint):
 
 def pos(datapoint):
     return list(map(str, datapoint.segment.postags))
+
+
+def verbs(datapoint, slice_i=0, slice_j=None):
+    pairs = zip(datapoint.segment.tokens, datapoint.segment.postags)
+    if slice_j is not None:
+        pairs = list(pairs)[slice_i:slice_j]
+    return [tkn for tkn, tag in pairs if tag.startswith(u'VB')]
 
 
 def bigrams(xs):

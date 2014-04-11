@@ -22,9 +22,11 @@ from iepy.fact_extractor import (bag_of_words,
                                  other_entities_in_between,
                                  in_same_sentence,
                                  total_number_of_entities,
-                                 verb_pos_count_in_between,
-                                 verb_pos_count,
-                                 symbols_in_between)
+                                 verbs_count_in_between,
+                                 verbs_count,
+                                 symbols_in_between,
+                                 BagOfVerbStems
+                                 )
 
 
 def _e(markup, **kwargs):
@@ -289,7 +291,7 @@ class TestTotalEntitiesNumber(TestCase, FeatureEvidenceBaseCase):
 
 
 class TestVerbsInBetweenEntitiesCount(TestCase, FeatureEvidenceBaseCase):
-    feature = make_feature(verb_pos_count_in_between)
+    feature = make_feature(verbs_count_in_between)
     fixtures = dict(
         test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
                       base_pos=["JJ"]),
@@ -305,7 +307,7 @@ class TestVerbsInBetweenEntitiesCount(TestCase, FeatureEvidenceBaseCase):
 
 
 class TestVerbsTotalCount(TestCase, FeatureEvidenceBaseCase):
-    feature = make_feature(verb_pos_count)
+    feature = make_feature(verbs_count)
     fixtures = dict(
         test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
                       base_pos=["JJ"]),
@@ -333,4 +335,37 @@ class TestSymbolsInBetween(TestCase, FeatureEvidenceBaseCase):
                     RAISES, ValueError),
         test_no_entity=(_e(u"Drinking mate yeah"),
                         RAISES, ValueError),
+    )
+
+
+class TestBagStemVerbInBetween(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbStems(in_between=True)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'mak', u'you', u'go', u'to', u'the'}),
+        test_empty=(_e(u""),
+                    RAISES, ValueError),
+        test_no_entity=(_e(u"Drinking mate yeah"),
+                        RAISES, ValueError),
+    )
+
+
+class TestBagStemVerb(TestCase, FeatureEvidenceBaseCase):
+    feature = BagOfVerbStems(in_between=False)
+    fixtures = dict(
+        test_none=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                      base_pos=["JJ"]),
+                   EQ, set()),
+        test_all=(_e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
+                     base_pos=["VB", u"VBD"]),
+                  EQ, {u'drink', u'argentin', u'mat', u'mak', u'you',
+                       u'go', u'to', u'the', u'toilet'}),
+        test_empty=(_e(u""),
+                    EQ, set()),
+        test_no_entity=(_e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
+                        EQ, {u'drink', u'mat', u'yeah'}),
     )
