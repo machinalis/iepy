@@ -327,6 +327,7 @@ class ColumnFilter(object):
         self.mask = freq >= self.m
         if not any(self.mask):
             raise ValueError("ColumnFilter eliminates all columns!")
+        return self
 
     def transform(self, X):
         return X[:, self.mask]
