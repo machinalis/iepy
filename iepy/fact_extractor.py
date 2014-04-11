@@ -9,7 +9,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 
-from future.builtins import str
+from future.builtins import map, str
 
 from featureforge.feature import output_schema
 
@@ -94,7 +94,7 @@ def bag_of_words(datapoint):
 
 @output_schema({str})
 def bag_of_pos(datapoint):
-    return set(datapoint.segment.postags)
+    return set(pos(datapoint))
 
 
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
@@ -104,14 +104,14 @@ def bag_of_word_bigrams(datapoint):
 
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
 def bag_of_wordpos(datapoint):
-    return set(zip(words(datapoint), datapoint.segment.postags))
+    return set(zip(words(datapoint), pos(datapoint)))
 
 
 @output_schema({((str,),)},
                lambda v: all(len(x) == 2 and
                              all(len(y) == 2 for y in x) for x in v))
 def bag_of_wordpos_bigrams(datapoint):
-    xs = list(zip(words(datapoint), datapoint.segment.postags))
+    xs = list(zip(words(datapoint), pos(datapoint)))
     return set(bigrams(xs))
 
 
@@ -124,7 +124,7 @@ def bag_of_words_in_between(datapoint):
 @output_schema({str})
 def bag_of_pos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(datapoint.segment.postags[i:j])
+    return set(pos(datapoint)[i:j])
 
 
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
@@ -136,7 +136,7 @@ def bag_of_word_bigrams_in_between(datapoint):
 @output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
 def bag_of_wordpos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    return set(list(zip(words(datapoint), datapoint.segment.postags))[i:j])
+    return set(list(zip(words(datapoint), pos(datapoint)))[i:j])
 
 
 @output_schema({((str,),)},
@@ -144,7 +144,7 @@ def bag_of_wordpos_in_between(datapoint):
                              all(len(y) == 2 for y in x) for x in v))
 def bag_of_wordpos_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
-    xs = list(zip(words(datapoint), datapoint.segment.postags))[i:j]
+    xs = list(zip(words(datapoint), pos(datapoint)))[i:j]
     return set(bigrams(xs))
 
 
@@ -182,7 +182,7 @@ def other_entities_in_between(datapoint):
     return n
 
 
-@output_schema(int, lambda x: x>=2)
+@output_schema(int, lambda x: x >= 2)
 def total_number_of_entities(datapoint):
     """
     Returns the number of entity in the text segment
@@ -190,7 +190,7 @@ def total_number_of_entities(datapoint):
     return len(datapoint.segment.entities)
 
 
-@output_schema(int, lambda x: x>=0)
+@output_schema(int, lambda x: x >= 0)
 def verb_pos_count_in_between(datapoint):
     """
     Returns the number of Verb POS tags in between of the 2 entities.
@@ -200,7 +200,7 @@ def verb_pos_count_in_between(datapoint):
                       datapoint.segment.postags[i:j])))
 
 
-@output_schema(int, lambda x: x>=0)
+@output_schema(int, lambda x: x >= 0)
 def verb_pos_count(datapoint):
     """
     Returns the number of Verb POS tags in the datapoint.
@@ -249,6 +249,10 @@ def number_of_tokens(datapoint):
 
 def words(datapoint):
     return [word.lower() for word in datapoint.segment.tokens]
+
+
+def pos(datapoint):
+    return list(map(str, datapoint.segment.postags))
 
 
 def bigrams(xs):

@@ -1,13 +1,12 @@
 from collections import OrderedDict
 import sys
 
-from colorama import init as colorama_init, Fore, Style
+from colorama import init as colorama_init
 from future.builtins import input, str
-from termcolor import colored
 
 
 QUESTION_TEMPLATE = str(u"""
-Is the following text evidence of the Fact (%(ent_a)s, %(relation)s, %(ent_b)s)?
+Is the following text evidence of the Fact %(fact)s?
     %(text)s
 (%(keys)s): """)
 PY3 = sys.version > '3'
@@ -96,11 +95,10 @@ class TerminalInterviewer(object):
 
     def get_human_answer(self, evidence):
         keys = u'/'.join(self.keys)
-        fact = evidence.fact
+        c_fact, c_text = evidence.colored_fact_and_text()
         question = self.template % {
-            'keys': keys, 'ent_a': str(colored(fact.e1.key, 'red')),
-            'ent_b': str(colored(fact.e2.key, 'green')), 'relation': str(fact.relation),
-            'text': self.format_segment_text(evidence, Fore.RED, Fore.GREEN)
+            'keys': keys, 'fact': c_fact,
+            'text': c_text
         }
         if not PY3:
             question = question.encode('utf-8')
@@ -108,23 +106,3 @@ class TerminalInterviewer(object):
         while answer not in self.keys:
             answer = input('Invalid answer. (%s): ' % keys)
         return answer
-
-    def format_segment_text(self, evidence, color_1, color_2):
-        """Will return a naive formated text with entities remarked.
-        Assumes that occurrences does not overlap.
-        """
-        sgm = evidence.segment
-        occurr1 = sgm.entities[evidence.o1]
-        occurr2 = sgm.entities[evidence.o2]
-        tkns = sgm.tokens[:]
-        if evidence.o1 < evidence.o2:
-            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr2.offset, color_2)
-            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr1.offset, color_1)
-        else:  # must be solved in the reverse order
-            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr1.offset, color_1)
-            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr2.offset, color_2)
-        return u' '.join(tkns)

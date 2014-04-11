@@ -2,6 +2,8 @@
 from collections import defaultdict, namedtuple
 import itertools
 
+from colorama import Fore, Style
+
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
 
@@ -15,7 +17,45 @@ Fact = namedtuple("Fact", "e1 relation e2")
 #   - e.segment == None iff e.o2 == None
 #   - e.o1 != None implies e.fact.e1.kind == e.segment.entities[e.o1].kind and e.fact.e1.key == e.segment.entities[e.o1].key
 #   - e.o2 != None implies e.fact.e2.kind == e.segment.entities[e.o2].kind and e.fact.e2.key == e.segment.entities[e.o2].key
-Evidence = namedtuple("Evidence", "fact segment o1 o2")
+BaseEvidence = namedtuple("Evidence", "fact segment o1 o2")
+
+
+class Evidence(BaseEvidence):
+    __slots__ = []
+
+    def colored_text(self, color_1, color_2):
+        """Will return a naive formated text with entities remarked.
+        Assumes that occurrences does not overlap.
+        """
+        occurr1 = self.segment.entities[self.o1]
+        occurr2 = self.segment.entities[self.o2]
+        tkns = self.segment.tokens[:]
+        if self.o1 < self.o2:
+            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr2.offset, color_2)
+            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr1.offset, color_1)
+        else:  # must be solved in the reverse order
+            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr1.offset, color_1)
+            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
+            tkns.insert(occurr2.offset, color_2)
+        return u' '.join(tkns)
+
+    def colored_fact(self, color_1, color_2):
+        return u'(%s, %s, %s)' % (
+            color_1 + self.fact.e1.key + Style.RESET_ALL,
+            self.fact.relation,
+            color_2 + self.fact.e2.key + Style.RESET_ALL,
+        )
+
+    def colored_fact_and_text(self):
+        color_1 = Fore.RED
+        color_2 = Fore.GREEN
+        return (
+            self.colored_fact(color_1, color_2),
+            self.colored_text(color_1, color_2)
+        )
 
 
 def certainty(p):
