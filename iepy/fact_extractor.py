@@ -9,9 +9,9 @@ from schema import Schema
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 
 from future.builtins import map, str
 
@@ -26,6 +26,8 @@ _selectors = {
 _classifiers = {
     "sgd": SGDClassifier,
     "naivebayes": GaussianNB,
+    "naivebayes_m": MultinomialNB,
+    "dtree": DecisionTreeClassifier,
 }
 
 
