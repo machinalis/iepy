@@ -74,6 +74,10 @@ def save_labeled_evidence_to_csv(labeled_evidence, filepath):
         text_segment, entity a, entity b, relation name, label
     The entities are EntityInSegment instances in text_segment.entities.
     The relation name is a string. The label is a boolean.
+    The output CSV format is
+        entity a kind, entity a key, entity b kind, entity b key,
+        relation name, document name, segment offset, 
+        entity a index, entity b index, label
     """
     with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
         evidence_writer = writer(csvfile, delimiter=',')
@@ -81,6 +85,7 @@ def save_labeled_evidence_to_csv(labeled_evidence, filepath):
             entity_a_index = segment.entities.index(entity_a)
             entity_b_index = segment.entities.index(entity_b)
             row = [entity_a.kind, entity_a.key, entity_b.kind, entity_b.key,
-                    relation, segment.id, entity_a_index, entity_b_index, label]
+                    relation, segment.document.human_identifier, segment.offset,
+                    entity_a_index, entity_b_index, label]
             evidence_writer.writerow(row)
 
