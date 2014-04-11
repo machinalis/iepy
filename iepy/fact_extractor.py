@@ -4,6 +4,7 @@ from string import punctuation
 from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
 from nltk.stem.lancaster import LancasterStemmer
+from nltk.stem import WordNetLemmatizer
 from schema import Schema
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.pipeline import Pipeline
@@ -52,7 +53,9 @@ class FactExtractor(object):
             symbols_in_between,
             number_of_tokens,
             BagOfVerbStems(in_between=True),
-            BagOfVerbStems(in_between=False)
+            BagOfVerbStems(in_between=False),
+            BagOfVerbLemmas(in_between=True),
+            BagOfVerbLemmas(in_between=False)
         ])
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
@@ -211,33 +214,37 @@ def verbs_count(datapoint):
     return len(verbs(datapoint))
 
 
-class BagOfVerbStems(Feature):
+class BaseBagOfVerbs(Feature):
     output_schema = Schema({str})
-
-    def name(self):
-        return u'<BagOfVerbStems, in-between=%s>' % self.in_between
-
-    def __init__(self, in_between=False):
-        self.in_between = in_between
-        self.st = LancasterStemmer()
 
     def _evaluate(self, datapoint):
         i, j = None, None
         if self.in_between:
             i, j = in_between_offsets(datapoint)
         verb_tokens = verbs(datapoint, i, j)
-        return set([self.st.stem(tk) for tk in verb_tokens])
+        return set([self.do(tk) for tk in verb_tokens])
 
 
-#@output_schema({str})
-#def bag_of_verb_lemmas(datapoint):
-#    pass
-#
-#
-#@output_schema({str})
-#def bag_of_verb_lemmas_in_between(datapoint):
-#    i, j = in_between_offsets(datapoint)
-#    pass
+class BagOfVerbStems(BaseBagOfVerbs):
+
+    def name(self):
+        return u'<BagOfVerbStems, in-between=%s>' % self.in_between
+
+    def __init__(self, in_between=False):
+        self.in_between = in_between
+        self.do = LancasterStemmer().stem
+
+
+class BagOfVerbLemmas(BaseBagOfVerbs):
+    def name(self):
+        return u'<BagOfVerbLemmas, in-between=%s>' % self.in_between
+
+    def __init__(self, in_between=False):
+        self.in_between = in_between
+        self.wn = WordNetLemmatizer()
+
+    def do(self, token):
+        return str(self.wn.lemmatize(token.lower(), 'v'))
 
 
 @output_schema(int, lambda x: x in (0, 1))
