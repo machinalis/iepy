@@ -60,13 +60,14 @@ class FactExtractor(object):
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
             ('vectorizer', Vectorizer(features)),
+            ('filter', ColumnFilter(2)),
             ('scaler', StandardScaler()),
             ('classifier', classifier(**config.get('classifier_args', {})))
         ]
         selector = config.get("dimensionality_reduction")
         if selector is not None:
             n = config['dimensionality_reduction_dimension']
-            steps[1:1] = ('dimensionality_reduction', _selectors[selector](n))
+            steps[2:2] = ('dimensionality_reduction', _selectors[selector](n))
         p = Pipeline(steps)
         self.predictor = p
 
@@ -313,3 +314,17 @@ def get_AB(x):
     if x.o1 >= len(x.segment.entities) or x.o2 >= len(x.segment.entities):
         raise ValueError("Invalid entity occurrences")
     return x.segment.entities[x.o1], x.segment.entities[x.o2]
+
+
+class ColumnFilter(object):
+    def __init__(self, min_freq=0):
+        self.m = min_freq
+
+    def fit(self, X, y=None):
+        freq = X.sum(axis=0)
+        self.mask = freq >= self.m
+        if not any(self.mask):
+            raise ValueError("ColumnFilter eliminates all columns!")
+
+    def transform(self, X):
+        return X[:, self.mask]
