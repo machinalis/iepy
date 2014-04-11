@@ -3,6 +3,7 @@ from unittest import TestCase, skip
 
 from featureforge.validate import BaseFeatureFixture, EQ, RAISES
 from featureforge.feature import make_feature
+import numpy
 
 from future.builtins import str
 
@@ -28,6 +29,7 @@ from iepy.fact_extractor import (bag_of_words,
                                  BagOfVerbStems,
                                  BagOfVerbLemmas
                                  )
+from iepy.fact_extractor import ColumnFilter
 
 
 def _e(markup, **kwargs):
@@ -403,3 +405,38 @@ class TestBagLemmaVerb(TestCase, FeatureEvidenceBaseCase):
         test_no_entity=(_e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
                         EQ, {u'drink', u'mate', u'yeah'}),
     )
+
+
+class TestColumnFilter(TestCase):
+    #ColumnFilter
+    def setUp(self):
+        self.X = numpy.array([
+                [0, 1, 0, 0, 5],
+                [0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0],
+        ])
+        self.N, self.M = self.X.shape
+
+    def test_zero(self):
+        cf = ColumnFilter(0)
+        cf.fit(self.X)
+        Y = cf.transform(self.X)
+        self.assertTrue((self.X == Y).all())
+
+    def test_one(self):
+        cf = ColumnFilter(1)
+        cf.fit(self.X)
+        Y = cf.transform(self.X)
+        self.assertEqual(Y.shape, (self.N, self.M - 1))
+        mask = numpy.array([True, True, True, False, True])
+        self.assertTrue((Y == self.X[:, mask]).all())
+
+    def test_all(self):
+        cf = ColumnFilter(6)
+        with self.assertRaises(ValueError):
+            cf.fit(self.X)
