@@ -62,14 +62,15 @@ class FactExtractor(object):
         classifier = _classifiers[config.get("classifier", "sgd")]
         steps = [
             ('vectorizer', Vectorizer(features)),
-            ('filter', ColumnFilter(2)),
-            ('scaler', StandardScaler()),
+            ('filter', ColumnFilter(2)) if config.get("column_filter") else None,
+            ('scaler', StandardScaler()) if config.get("scaler") else None,
             ('classifier', classifier(**config.get('classifier_args', {})))
         ]
+        steps = [s for s in steps if s is not None]
         selector = config.get("dimensionality_reduction")
         if selector is not None:
             n = config['dimensionality_reduction_dimension']
-            steps[2:2] = ('dimensionality_reduction', _selectors[selector](n))
+            steps[-1:-1] = ('dimensionality_reduction', _selectors[selector](n))
         p = Pipeline(steps)
         self.predictor = p
 

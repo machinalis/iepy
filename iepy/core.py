@@ -160,6 +160,8 @@ class BootstrappedIEPipeline(object):
             "classifier": "dtree",
             "classifier_args": dict(),
             "dimensionality_reduction": None,
+            "scaler": False,
+            "column_filter": False,
             "features": [
                 bag_of_words,
                 bag_of_pos,
