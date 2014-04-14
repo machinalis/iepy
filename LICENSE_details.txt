@@ -1,0 +1,34 @@
+The python libraries (and their license) that we are explicitely depending on,
+are the following ones,
+
+    - nltk (Apache License)
+    - numpy (BSD)
+    - scipy (BSD)
+    - scikit-learn (BSD)
+    - mock (BSD)
+    - docopt (MIT)
+    - future (MIT)
+    - mongoengine (MIT)
+    - pymongo (Apache License)
+    - enum34 (BSD)
+    - appdirs (MIT)
+    - wget (Public Domain)
+    - colorama (BSD)
+    - featureforge (BSD)
+
+The development tools we are using:
+
+    - nose (LGPL)
+    - factory-boy (MIT)
+
+
+Additionally, in order to be able to create your own iepy-ready corpus wiht our
+preprocessing tools, you'll need to download the following things that are not
+provided by this software
+
+	- punkt tokenizer (acquirable with the NLTK downloader or the
+                     download_third_party_data script)
+	- GPL Stanford POS Tagger (acquirable with download_third_party_data script)
+	- GPL Stanford NER Tagger (acquirable with download_third_party_data script)
+
+    The wrappers for this 3 third party tools are provided by NLTK.
