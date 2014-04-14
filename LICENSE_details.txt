@@ -1,4 +1,4 @@
-The python libraries (and their license) that we are explicitely depending on,
+The python libraries (and their licenses) that we are explicitly depending on,
 are the following ones,
 
     - nltk (Apache License)
@@ -22,13 +22,13 @@ The development tools we are using:
     - factory-boy (MIT)
 
 
-Additionally, in order to be able to create your own iepy-ready corpus wiht our
+Additionally, in order to be able to create your own iepy-ready corpus with our
 preprocessing tools, you'll need to download the following things that are not
 provided by this software
 
-	- punkt tokenizer (acquirable with the NLTK downloader or the
+    - punkt tokenizer (acquirable with the NLTK downloader or the
                      download_third_party_data script)
-	- GPL Stanford POS Tagger (acquirable with download_third_party_data script)
-	- GPL Stanford NER Tagger (acquirable with download_third_party_data script)
+    - GPL Stanford POS Tagger (acquirable with download_third_party_data script)
+    - GPL Stanford NER Tagger (acquirable with download_third_party_data script)
 
     The wrappers for this 3 third party tools are provided by NLTK.
