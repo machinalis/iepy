@@ -308,7 +308,11 @@ class BootstrappedIEPipeline(object):
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
-            result.update(zip(evidence, extractors[r].predict(evidence)))
+            classifier = extractors[r].predictor.named_steps["classifier"]
+            true_index = list(classifier.classes_).index(True)
+            ps = extractors[r].predictor.predict_proba(evidence)
+            ps = ps[:, true_index]
+            result.update(zip(evidence, ps))
         return result
 
     def filter_facts(self, facts):
