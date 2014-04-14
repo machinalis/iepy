@@ -12,6 +12,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
 from future.builtins import map, str
 
@@ -28,6 +29,7 @@ _classifiers = {
     "naivebayes": GaussianNB,
     "naivebayes_m": MultinomialNB,
     "dtree": DecisionTreeClassifier,
+    "logit": LogisticRegression,
 }
 
 
