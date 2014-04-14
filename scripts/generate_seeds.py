@@ -11,6 +11,8 @@ Options:
 """
 from docopt import docopt
 
+from future.builtins import input
+
 from iepy.db import connect, TextSegmentManager, get_entity
 from iepy.utils import save_facts_to_csv
 from iepy.core import Evidence, Fact
@@ -43,9 +45,9 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
                 answer = oracle(evidence)
                 assert answer in ['y', 'n', 'stop']
                 if answer == 'y':
-                    result += [(s, e1, e2, True)]
+                    result += [(evidence, True)]
                 elif answer == 'n':
-                    result += [(s, e1, e2, False)]
+                    result += [(evidence, False)]
                 elif answer == 'stop':
                     return result
     return result
@@ -54,11 +56,11 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
 def human_oracle(evidence):
     """Simple text interface to query a human for fact generation."""
     colored_fact, colored_segment = evidence.colored_fact_and_text()
-    print 'SEGMENT:', colored_segment
+    print('SEGMENT:', colored_segment)
     question = ' FACT: {0}? (y/n/stop) '.format(colored_fact)
-    answer = raw_input(question)
+    answer = input(question)
     while answer not in ['y','n', 'stop']:
-        answer = raw_input(question)
+        answer = input(question)
     return answer
 
 
@@ -72,6 +74,6 @@ if __name__ == '__main__':
     output_filename= opts['<output_filename>']
 
     r = label_evidence_from_oracle(kind_a, kind_b, relation_name, human_oracle)
-    facts = [(e1, e2, relation_name) for (_, e1, e2, label) in r if label]
+    facts = [ev.fact for (ev, label) in r if label]
     save_facts_to_csv(facts, output_filename)
 

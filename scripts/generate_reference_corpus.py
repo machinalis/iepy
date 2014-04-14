@@ -53,7 +53,5 @@ if __name__ == '__main__':
         oracle = human_oracle
 
     r = label_evidence_from_oracle(kind_a, kind_b, relation_name, oracle)
-    # insert relation name:
-    r2 = [(s, e1, e2, relation_name, label) for (s, e1, e2, label) in r]
-    save_labeled_evidence_to_csv(r2, output_filename)
+    save_labeled_evidence_to_csv(r, output_filename)
 
