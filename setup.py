@@ -1,7 +1,9 @@
 # coding: utf-8
-
 import os
 import sys
+
+from pip.req import parse_requirements
+
 try:
     from setuptools import setup
 except ImportError:
@@ -17,7 +19,10 @@ else:
 base_path = os.path.dirname(os.path.abspath(__file__))
 long_description = open(os.path.join(base_path, 'README.rst')).read()
 requirements_path = os.path.join(base_path, "docs", "setup", reqs_filename)
-requirements = open(requirements_path).read().splitlines()
+
+# parse_requirements() returns generator of pip.req.InstallRequirement objects
+install_reqs = parse_requirements(requirements_path)
+reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
     name="iepy",
@@ -28,5 +33,5 @@ setup(
             "Javier Mansilla, Daniel Moisset"),
     packages=[
         "iepy"],
-    install_requires=requirements,
+    install_requires=reqs,
 )
