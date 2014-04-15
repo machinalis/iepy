@@ -1,21 +1,20 @@
 TVSeries Installation
 =====================
 
-After installing iepy, you will have to:
+After installing IEPY, you will have to:
 
- - install MongoDB
  - install tvseries dependencies:
     pip install -r tvseries/doc/setup/requirements-base.txt
- - Download Wikia dumps for the desired series. We provide as examples the dumps
-   for House and Greys Anatomy, on the tvseries/wikia_dumps folder
+ - Download Wikia dumps for the desired series.
  - Create your corpus:
-    a) For each serie you want to incorporate, you will have to run a dump-to-iepy
-    like this:
-        python tvseries/scripts/wikia_to_iepy.py tvseries/wikia_dumps/house_pages_current.xml.gz db_series 8
+    a) For each serie you want to incorporate, you will have to run wikia_to_iepy.py script like this:
+        python tvseries/scripts/wikia_to_iepy.py <path_to_dump_pages_current>.xml.gz <DB_NAME> <NUMBER_OF_SEASSONS>
 
-    Please notice that for some other series you will have to specify how is the format of some wikia Category Tags in order proceed, or the number of seasons.
+    Please notice that for some series you will have to specify how is the format of some wikia Category Tags in order proceed, or the number of seasons.
+    If in doubt, for seeing the help msg run:
+        python tvseries/scripts/wikia_to_iepy.py -h
 
     You should dump all series to the same database.
 
     b) Run the preprocess pipeline
-        python tvseries/scripts/preprocess.py db_series
+        python tvseries/scripts/preprocess.py <DB_NAME>
