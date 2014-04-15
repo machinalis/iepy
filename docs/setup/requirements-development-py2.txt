@@ -1,4 +1,4 @@
--r requirements-base-2.txt
+-r requirements-base-py2.txt
 mock==1.0.1
 nose==1.3.0
 factory-boy==2.3.1
