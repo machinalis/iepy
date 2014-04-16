@@ -1,0 +1,45 @@
+"""
+IEPY application preprocessing script template.
+
+Usage:
+    preprocess.py <dbname>
+
+"""
+from docopt import docopt
+
+from iepy.db import connect, DocumentManager
+from iepy.models import set_custom_entity_kinds
+from iepy.preprocess import PreProcessPipeline
+from iepy.tokenizer import TokenizeSentencerRunner
+from iepy.tagger import StanfordTaggerRunner
+from iepy.combined_ner import CombinedNERRunner
+from iepy.literal_ner import LiteralNERRunner
+from iepy.ner import StanfordNERRunner
+from iepy.segmenter import SyntacticSegmenterRunner
+
+
+# Insert here your custom entities:
+FREEBASE_ENTITIES = []
+FREEBASE_FILES = []
+
+
+if __name__ == '__main__':
+    import logging
+    logger = logging.getLogger('iepy')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler())
+    opts = docopt(__doc__, version=0.1)
+    connect(opts['<dbname>'])
+    docs = DocumentManager()
+    set_custom_entity_kinds(zip(map(lambda x: x.lower(), FREEBASE_ENTITIES),
+                                FREEBASE_ENTITIES))
+    pipeline = PreProcessPipeline([
+        TokenizeSentencerRunner(),
+        StanfordTaggerRunner(),
+        CombinedNERRunner(
+            LiteralNERRunner(FREEBASE_ENTITIES, FREEBASE_FILES), 
+            StanfordNERRunner()),
+        SyntacticSegmenterRunner(),
+    ], docs
+    )
+    pipeline.process_everything()
