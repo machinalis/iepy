@@ -13,8 +13,6 @@ Options:
 """
 from __future__ import division
 
-import codecs
-import csv
 import logging
 import pprint
 import sys
@@ -22,30 +20,15 @@ import sys
 from docopt import docopt
 
 from iepy import db
-from iepy.core import Knowledge, Fact, Evidence
+from iepy.core import Knowledge
 from iepy.fact_extractor import FactExtractorFactory
+from iepy.utils import load_evidence_from_csv
 
 config = {
     "classifier": "dtree",
     "classifier_args": dict(),
     "dimensionality_reduction": None,
 }
-
-
-def load_evidence_from_csv(filename, connection):
-    result = Knowledge()
-    with codecs.open(filename, encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            entity_a = db.get_entity(row[0], row[1])
-            entity_b = db.get_entity(row[2], row[3])
-            f = Fact(entity_a, row[4], entity_b)
-            s = db.get_segment(row[5], int(row[6]))
-            e = Evidence(fact=f, segment=s, o1=int(row[7]), o2=int(row[8]))
-            assert s.entities[e.o1].key == entity_a.key
-            assert s.entities[e.o2].key == entity_b.key
-            result[e] = int(row[9] == "True")
-    return result
 
 
 def main(options):
