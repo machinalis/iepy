@@ -25,7 +25,7 @@ reqs = []
 deps = []
 for ir in install_reqs:
     if ir.name.startswith(u'nltk-'):
-		# For nltk on py3 we are declaring nltk just as an URL
+        # For nltk on py3 we are declaring nltk just as an URL
         reqs.insert(0, ir.name.replace(u'-', u'==', 1))
         # install it first, so if nltk tarball is not working you not waste time
     else:

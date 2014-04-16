@@ -3,8 +3,12 @@ TVSeries Installation
 
 After installing IEPY, you will have to:
 
+ - install system packages
+    sudo apt-get install libxml2-dev libxslt-dev
+ - go to the examples folder
+    cd examples
  - install tvseries dependencies:
-    pip install -r tvseries/doc/setup/requirements-base.txt
+    pip install -r tvseries/docs/setup/requirements-base.txt
  - Download Wikia dumps for the desired series.
  - Create your corpus:
     a) For each serie you want to incorporate, you will have to run wikia_to_iepy.py script like this:
