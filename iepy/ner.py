@@ -1,6 +1,7 @@
 import itertools
 import os
 import os.path
+import logging
 
 from nltk.tag.stanford import NERTagger
 import wget
@@ -9,6 +10,7 @@ from iepy.models import PreProcessSteps, Entity, EntityOccurrence
 from iepy.preprocess import BasePreProcessStepRunner
 from iepy.utils import DIRS, unzip_file
 
+logger = logging.getLogger(__name__)
 stanford_ner_name = 'stanford-ner-2014-01-04'
 download_url_base = 'http://nlp.stanford.edu/software/'
 
@@ -36,13 +38,13 @@ class NERRunner(BasePreProcessStepRunner):
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
         if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
-            #print 'Already done'
             return
 
         entities = self.execute(doc)
 
         doc.set_preprocess_result(PreProcessSteps.ner, entities)
         doc.save()
+        logger.debug("NER tagged a document")
 
     def execute(self, doc):
         entities = []
@@ -108,7 +110,7 @@ class StanfordNERRunner(NERRunner):
 
 
 def download():
-    print(u'Downloading Stanford NER...')
+    logger.info("Downloading Stanford NER...")
     try:
         StanfordNERRunner()
     except LookupError:
@@ -121,4 +123,4 @@ def download():
         wget.download(download_url_base + package_filename)
         unzip_file(zip_path, DIRS.user_data_dir)
     else:
-        print(u'Stanford NER is already downloaded and functional.')
+        logger.info("Stanford NER is already downloaded and functional.")
