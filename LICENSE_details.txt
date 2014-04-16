@@ -27,7 +27,9 @@ preprocessing tools, you'll need to download the following things that are not
 provided by this software
 
     - punkt tokenizer (acquirable with the NLTK downloader or the
-                     download_third_party_data script)
+                       download_third_party_data script)
+    - wordnet (acquirable with the NLTK downloader or the
+               download_third_party_data script)
     - GPL Stanford POS Tagger (acquirable with download_third_party_data script)
     - GPL Stanford NER Tagger (acquirable with download_third_party_data script)
 
