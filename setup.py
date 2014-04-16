@@ -20,9 +20,17 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 long_description = open(os.path.join(base_path, 'README.rst')).read()
 requirements_path = os.path.join(base_path, "docs", "setup", reqs_filename)
 
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements(requirements_path)
-reqs = [str(ir.req) for ir in install_reqs]
+install_reqs = list(parse_requirements(requirements_path))
+reqs = []
+deps = []
+for ir in install_reqs:
+    if ir.name.startswith(u'nltk-'):
+		# For nltk on py3 we are declaring nltk just as an URL
+        reqs.insert(0, ir.name.replace(u'-', u'==', 1))
+        # install it first, so if nltk tarball is not working you not waste time
+    else:
+        reqs.append(str(ir.req))
+deps = [u'%s#egg=%s' % (ir.url, ir.url_name) for ir in install_reqs if ir.url]
 
 setup(
     name="iepy",
@@ -34,4 +42,5 @@ setup(
     packages=[
         "iepy"],
     install_requires=reqs,
+    dependency_links=deps,
 )
