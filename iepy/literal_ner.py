@@ -47,7 +47,6 @@ class LiteralNER(object):
         next_entity = entities.pop(0)
         result = []
         for i, t in enumerate(sent):
-            #print i, next_entity
             if i >= next_entity[0][1]:
                 # assert entities
                 next_entity = entities.pop(0)
@@ -67,7 +66,6 @@ class LiteralNER(object):
         while i < len(sent):
             j = i + 1
             prev_segment = segment = ' '.join(sent[i:j])
-            #print 'check: ', segment
             while segment in self.prefixes and j <= len(sent):
                 j += 1
                 prev_segment = segment
@@ -94,7 +92,6 @@ class LiteralNERRunner(BasePreProcessStepRunner):
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
         if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
-            #print 'Already done'
             return
 
         entities = []

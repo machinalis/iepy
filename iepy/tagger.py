@@ -1,5 +1,6 @@
 import os
 import os.path
+import logging
 
 from nltk.tag.stanford import POSTagger
 import wget
@@ -9,6 +10,7 @@ from iepy.preprocess import BasePreProcessStepRunner
 from iepy.utils import DIRS, unzip_file
 
 
+logger = logging.getLogger(__name__)
 stanford_postagger_name = 'stanford-postagger-2014-01-04'
 download_url_base = 'http://nlp.stanford.edu/software/'
 
@@ -28,7 +30,6 @@ class TaggerRunner(BasePreProcessStepRunner):
         if not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
         if not self.override and doc.was_preprocess_done(PreProcessSteps.tagging):
-            #print 'Already done'
             return
 
         tagged_doc = []
@@ -39,6 +40,7 @@ class TaggerRunner(BasePreProcessStepRunner):
 
         doc.set_preprocess_result(PreProcessSteps.tagging, tagged_doc)
         doc.save()
+        logger.debug("POS tagged a document")
 
 
 class StanfordTaggerRunner(TaggerRunner):
@@ -57,7 +59,7 @@ class StanfordTaggerRunner(TaggerRunner):
 
 
 def download():
-    print('Downloading Stanford POS tagger...')
+    logger.info("Downloading Stanford POS tagger...")
     try:
         StanfordTaggerRunner()
     except LookupError:
@@ -69,4 +71,4 @@ def download():
         wget.download(download_url_base + package_filename)
         unzip_file(zip_path, DIRS.user_data_dir)
     else:
-        print(u'Stanford POS tagger is already downloaded and functional.')
+        logger.info("Stanford POS tagger is already downloaded and functional.")
