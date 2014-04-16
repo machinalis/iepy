@@ -16,7 +16,7 @@ from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.tagger import StanfordTaggerRunner
 from iepy.combined_ner import CombinedNERRunner
-from iepy.lit_tagger import LiteralNERRunner
+from iepy.literal_ner import LiteralNERRunner
 from iepy.ner import StanfordNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
 
