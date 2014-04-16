@@ -52,11 +52,11 @@ class NERRunner(BasePreProcessStepRunner):
         ner_sentences = self.ner(doc.get_sentences())
         # Flatten the nested list above into just a list of kinds
         ner_kinds = (k for s in ner_sentences for (_, k) in s)
-        
+
         # We build a large iterator z that goes over tuples like the following:
         #  (offset, (token, kind))
         # offset just goes incrementally from 0
-        
+
         z = itertools.chain(
             enumerate(zip(doc.tokens, ner_kinds)),
             # Add a sentinel last token to simplify last iteration of loop below
@@ -108,11 +108,17 @@ class StanfordNERRunner(NERRunner):
 
 
 def download():
-    print('Downloading Stanford NER...')
-    if not os.path.exists(DIRS.user_data_dir):
-        os.mkdir(DIRS.user_data_dir)
-    os.chdir(DIRS.user_data_dir)
-    package_filename = '{0}.zip'.format(stanford_ner_name)
-    zip_path = os.path.join(DIRS.user_data_dir, package_filename)
-    wget.download(download_url_base + package_filename)
-    unzip_file(zip_path, DIRS.user_data_dir)
+    print(u'Downloading Stanford NER...')
+    try:
+        StanfordNERRunner()
+    except LookupError:
+        # Package not found, lets download and install it
+        if not os.path.exists(DIRS.user_data_dir):
+            os.mkdir(DIRS.user_data_dir)
+        os.chdir(DIRS.user_data_dir)
+        package_filename = '{0}.zip'.format(stanford_ner_name)
+        zip_path = os.path.join(DIRS.user_data_dir, package_filename)
+        wget.download(download_url_base + package_filename)
+        unzip_file(zip_path, DIRS.user_data_dir)
+    else:
+        print(u'Stanford NER is already downloaded and functional.')
