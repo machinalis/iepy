@@ -74,18 +74,59 @@ from iepy.fact_extractor import (
 
 # A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")
-
-# An Evidence is a pair of a Fact and a TextSegment and occurrence indices
-# The segment+indices can be left out (as None)
-# The following invariants apply
-#   - e.segment == None iff e.o1 == None
-#   - e.segment == None iff e.o2 == None
-#   - e.o1 != None implies e.fact.e1.kind == e.segment.entities[e.o1].kind and e.fact.e1.key == e.segment.entities[e.o1].key
-#   - e.o2 != None implies e.fact.e2.kind == e.segment.entities[e.o2].kind and e.fact.e2.key == e.segment.entities[e.o2].key
 BaseEvidence = namedtuple("Evidence", "fact segment o1 o2")
 
 
 class Evidence(BaseEvidence):
+    """
+    An Evidence is a pair of a Fact and a TextSegment and occurrence indices.
+    Evicence instances are tipically constructed whitin a
+    BootstrappedIEPipeline and it attributes are meant to be used directly (no
+    getters or setters) in a read-only fashion (it's an inmutable after all).
+
+    Evidence instances are dense information and follow strict invariants so
+    here is a small cheatsheet of its contents:
+    
+    -e                           # Evidence instance
+        -fact                    # Fact instance
+            -relation            # A `str` naming the relation of the fact
+            -e1                  # Entity instance (an abstract entity, not an entity occurrence)
+                -kind            # A `str` naming the kind/type of entity
+                -key             # A `str` that uniquely identifies this entity
+                -canonical_form  # A `str` that's the human-friendly way to represent this entity
+            -e2                  # Entity instance (an abstract entity, not an entity occurrence)
+                -kind            # A `str` naming the kind/type of entity
+                -key             # A `str` that uniquely identifies this entity
+                -canonical_form  # A `str` that's the human-friendly way to represent this entity
+        -segment                 # A Segment instance
+            -tokens              # A list of `str` representing the tokens in the segment
+            -text                # The original text `str` of this document
+            -sentences           # A list of token indexes denoting the start of the syntactic sentences on the segment
+            -postags             # A list of `str` POS tags, in 1-on-1 relation with tokens
+            -offset              # An `int`, the offset of the segment, in tokens, from the document start
+            -entities            # A list of entity occurrences
+                -kind            # A `str` naming the kind/type of entity
+                -key             # A `str` that uniquely identifies this entity
+                -canonical_form  # A `str` that's the human-friendly way to represent this entity
+                -offset          # An `int`, the offset to the entity occurrence start, in tokens, from the segment start
+                -offset_end      # An `int`, the offset to the entity occurrence end, in tokens, from the segment start
+                -alias           # A `str`, the literal text manifestation of the entity occurrence
+        -o1                      # The index in segment.entities occurrence of the first entity
+        -o2                      # The index in segment.entities occurrence of the second entity
+
+
+    And a commonly needed recipe:
+        e.segment.entities[e.o1]  # The occurrence of the first entity
+        e.segment.entities[e.o2]  # The occurrence of the second entity
+
+
+    The segment+indices can be left out (as None)
+    The following invariants apply
+     - e.segment == None iff e.o1 == None
+     - e.segment == None iff e.o2 == None
+     - e.o1 != None implies e.fact.e1.kind == e.segment.entities[e.o1].kind and e.fact.e1.key == e.segment.entities[e.o1].key
+     - e.o2 != None implies e.fact.e2.kind == e.segment.entities[e.o2].kind and e.fact.e2.key == e.segment.entities[e.o2].key
+    """
     __slots__ = []
 
     def colored_text(self, color_1, color_2):
