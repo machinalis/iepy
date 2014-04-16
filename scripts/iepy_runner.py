@@ -16,7 +16,7 @@ from docopt import docopt
 from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.human_validation import TerminalInterviewer
-from iepy.utils import load_facts_from_csv, save_facts_to_csv
+from iepy.utils import load_facts_from_csv, save_labeled_evidence_to_csv
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
@@ -38,4 +38,4 @@ if __name__ == '__main__':
             keep_looping = False
         p.force_process()
     facts = p.known_facts()  # profit
-    save_facts_to_csv(facts, "facts.csv")
+    save_labeled_evidence_to_csv(facts.items(), "facts.csv")
