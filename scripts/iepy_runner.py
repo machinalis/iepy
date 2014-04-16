@@ -9,9 +9,8 @@ Options:
   -h --help             Show this screen
   --version             Version number
 """
-import pprint
-
 from docopt import docopt
+import logging
 
 from iepy.core import BootstrappedIEPipeline
 from iepy import db
@@ -24,6 +23,9 @@ if __name__ == '__main__':
     seed_facts = load_facts_from_csv(opts['<seeds_file>'])
     output_file = opts['<output_file>']
     p = BootstrappedIEPipeline(connection, seed_facts)
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     STOP = 'STOP'
 
