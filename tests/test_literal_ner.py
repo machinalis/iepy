@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from iepy.lit_tagger import LitTagger, LitTaggerRunner
+from iepy.literal_ner import LiteralNER, LiteralNERRunner
 from iepy.models import PreProcessSteps, IEDocument
 from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
 from tests.manager_case import ManagerTestCase
@@ -8,7 +8,7 @@ from tests.manager_case import ManagerTestCase
 NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
 
 
-class TestLitTagger(TestCase):
+class TestLiteralNER(TestCase):
 
     def setUp(self):
         f = NamedTemporaryFile23(mode="w", encoding="utf8")
@@ -22,7 +22,7 @@ class TestLitTagger(TestCase):
 
     def test_tagging(self):
 
-        tagger = LitTagger(NEW_ENTITIES,
+        tagger = LiteralNER(NEW_ENTITIES,
                            [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
@@ -45,7 +45,7 @@ class TestLitTagger(TestCase):
         self.assertEqual(tags, expected_tags)
 
     def test_entities(self):
-        tagger = LitTagger(NEW_ENTITIES,
+        tagger = LiteralNER(NEW_ENTITIES,
                            [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
@@ -65,11 +65,11 @@ class TestLitTagger(TestCase):
         self.assertEqual(result, expected_entities)
 
 
-class TestLitTaggerRunner(ManagerTestCase):
+class TestLiteralNERRunner(ManagerTestCase):
     ManagerClass = IEDocument
 
     def tearDown(self):
-        super(TestLitTaggerRunner, self).tearDown()
+        super(TestLiteralNERRunner, self).tearDown()
         from iepy import models
         models.set_custom_entity_kinds([])
 
@@ -90,7 +90,7 @@ class TestLitTaggerRunner(ManagerTestCase):
         doc = SentencedIEDocFactory(
             text="Chase notes she's negative for HIV and Hepatitis C")
 
-        lit_tagger_runner = LitTaggerRunner(['disease'], [self.tmp_file1.name])
+        lit_tagger_runner = LiteralNERRunner(['disease'], [self.tmp_file1.name])
         lit_tagger_runner(doc)
 
         # (the tokenizer splits she's in two parts)

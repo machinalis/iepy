@@ -6,7 +6,9 @@ from iepy.models import PreProcessSteps, Entity, EntityOccurrence
 from iepy.preprocess import BasePreProcessStepRunner
 
 
-class LitTagger(object):
+class LiteralNER(object):
+    """Trivial Named Entity Recognizer that tags exact matches.
+    """
 
     def __init__(self, labels, src_filenames):
         """The i-th label is used to tag the occurrences of the terms in the
@@ -80,11 +82,11 @@ class LitTagger(object):
         return result
 
 
-class LitTaggerRunner(BasePreProcessStepRunner):
+class LiteralNERRunner(BasePreProcessStepRunner):
     step = PreProcessSteps.ner
 
     def __init__(self, labels, src_filenames, override=False):
-        self.lit_tagger = LitTagger(labels, src_filenames)
+        self.lit_tagger = LiteralNER(labels, src_filenames)
         self.override = override
 
     def __call__(self, doc):
