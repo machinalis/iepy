@@ -44,13 +44,13 @@ class DocumentManager(object):
         return doc
 
     def __iter__(self):
-        return IEDocument.objects
+        return IEDocument.objects.timeout(False).all()
 
     def get_raw_documents(self):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        return IEDocument.objects(text='')
+        return IEDocument.objects(text='').timeout(False)
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given
@@ -58,7 +58,7 @@ class DocumentManager(object):
         if not isinstance(step, PreProcessSteps):
             raise InvalidPreprocessSteps
         query = {'preprocess_metadata__%s__exists' % step.name: False}
-        return IEDocument.objects(**query)
+        return IEDocument.objects(**query).timeout(False)
 
 
 class TextSegmentManager(object):
@@ -93,7 +93,7 @@ class TextSegmentManager(object):
 def get_entity(kind, literal):
     return Entity.objects.get(kind=kind, key=literal)
 
+
 def get_segment(document_identifier, offset):
     d = IEDocument.objects.get(human_identifier=document_identifier)
     return TextSegment.objects.get(document=d, offset=offset)
-
