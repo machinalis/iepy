@@ -14,17 +14,17 @@ from iepy.db import connect, DocumentManager
 from iepy.models import set_custom_entity_kinds
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
-from iepy.lit_tagger import LiteralNERRunner
 from iepy.tagger import StanfordTaggerRunner
-from iepy.ner import StanfordNERRunner
 from iepy.combined_ner import CombinedNERRunner
+from iepy.lit_tagger import LiteralNERRunner
+from iepy.ner import StanfordNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
 
 
 def media_wiki_to_txt(doc):
     if not doc.text and doc.metadata.get('raw_text', ''):
-        # After MW strip, titles will not be recognizable. If they dont
-        # with a dot, will be very hard to split in sentences correctly.
+        # After MW strip, titles will not be recognizable. If they don't end
+        # with a dot, it will be very hard to split into sentences correctly.
         raw = doc.metadata['raw_text']
         raw = re.subn(r'(=+)(.*)\1', r'\1\2.\1', raw)[0]
         doc.text = get_body_text(raw)
