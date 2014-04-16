@@ -40,10 +40,11 @@ Contact Information
 -------------------
 
 IEPY is © 2014 `Machinalis <http://www.machinalis.com/>`_ in collaboration
-with `UNC-FaMAF <http://pln.famaf.unc.edu.ar/>`_. Its primary authors are:
+with the `NLP Group at UNC-FaMAF <http://pln.famaf.unc.edu.ar/>`_. Its primary
+authors are:
 
  * Rafael Carrascosa <rcarrascosa@machinalis.com> (rafacarrascosa at github)
- * Franco Luque <fluque@machinalis.com> (francolq at github)
+ * Franco M. Luque <francolq@famaf.unc.edu.ar> (francolq at github)
  * Javier Mansilla <jmansilla@machinalis.com> (jmansilla at github)
  * Daniel Moisset <dmoisset@machinalis.com> (dmoisset at github)
 

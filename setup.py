@@ -37,7 +37,7 @@ setup(
     version="0.1",
     description="",
     long_description=long_description,
-    author=("Rafael Carrascosa, Franco Luque, Laura Alonso, "
+    author=("Rafael Carrascosa, Franco M. Luque, Laura Alonso, "
             "Javier Mansilla, Daniel Moisset"),
     packages=[
         "iepy"],
