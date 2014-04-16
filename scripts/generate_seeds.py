@@ -20,7 +20,7 @@ from iepy.core import Evidence, Fact
 
 def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
     """The oracle is a function that takes three parameters: the text segment and
-    the two entity occurrences (for an example, see human_oracle() below). It 
+    the two entity occurrences (for an example, see human_oracle() below). It
     must return 'y', 'n' or 'stop', meaning respectively that the relation holds,
     that it doesn't, and that the oracle wants to stop answering.
     """
@@ -59,7 +59,7 @@ def human_oracle(evidence):
     print('SEGMENT:', colored_segment)
     question = ' FACT: {0}? (y/n/stop) '.format(colored_fact)
     answer = input(question)
-    while answer not in ['y','n', 'stop']:
+    while answer not in ['y', 'n', 'stop']:
         answer = input(question)
     return answer
 
@@ -71,9 +71,8 @@ if __name__ == '__main__':
     relation_name = opts['<relation_name>']
     kind_a = opts['<kind_a>']
     kind_b = opts['<kind_b>']
-    output_filename= opts['<output_filename>']
+    output_filename = opts['<output_filename>']
 
     r = label_evidence_from_oracle(kind_a, kind_b, relation_name, human_oracle)
     facts = [ev.fact for (ev, label) in r if label]
     save_facts_to_csv(facts, output_filename)
-
