@@ -340,12 +340,22 @@ class BootstrappedIEPipeline(object):
         Stage 1 of pipeline.
         """
         logger.debug(u'running generalize_knowledge')
-        return Knowledge(
-            (Evidence(fact, segment, o1, o2), evidence.get(Evidence(fact, segment, o1, o2)))
-            for fact, _s, _o1, _o2 in self.knowledge
-            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
-            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
-        )
+        knowledge = []
+        i = 0
+        for fact, _s, _o1, _o2 in self.knowledge:
+            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2):
+                for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2):
+                    e = Evidence(fact, segment, o1, o2)
+                    knowledge.append((e, evidence.get(e)))
+            i += 1
+            logger.debug(u'finished generalization of %i of %i' % (i, len(self.knowledge)))
+        return Knowledge(knowledge)
+        #return Knowledge(
+        #    (Evidence(fact, segment, o1, o2), evidence.get(Evidence(fact, segment, o1, o2)))
+        #    for fact, _s, _o1, _o2 in self.knowledge
+        #    for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
+        #    for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
+        #)
 
     def generate_questions(self, evidence):
         """
