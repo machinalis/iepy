@@ -53,16 +53,20 @@ class StanfordTaggerRunner(TaggerRunner):
             os.path.join(tagger_path, 'models', 'english-bidirectional-distsim.tagger'),
             os.path.join(tagger_path, 'stanford-postagger.jar'),
             encoding='utf8')
-            
         super(StanfordTaggerRunner, self).__init__(postagger.batch_tag, override)
 
 
 def download():
     print('Downloading Stanford POS tagger...')
-    if not os.path.exists(DIRS.user_data_dir):
-        os.mkdir(DIRS.user_data_dir)
-    os.chdir(DIRS.user_data_dir)
-    package_filename = '{0}.zip'.format(stanford_postagger_name)
-    zip_path = os.path.join(DIRS.user_data_dir, package_filename)
-    wget.download(download_url_base + package_filename)
-    unzip_file(zip_path, DIRS.user_data_dir)
+    try:
+        StanfordTaggerRunner()
+    except LookupError:
+        if not os.path.exists(DIRS.user_data_dir):
+            os.mkdir(DIRS.user_data_dir)
+        os.chdir(DIRS.user_data_dir)
+        package_filename = '{0}.zip'.format(stanford_postagger_name)
+        zip_path = os.path.join(DIRS.user_data_dir, package_filename)
+        wget.download(download_url_base + package_filename)
+        unzip_file(zip_path, DIRS.user_data_dir)
+    else:
+        print(u'Stanford POS tagger is already downloaded and functional.')
