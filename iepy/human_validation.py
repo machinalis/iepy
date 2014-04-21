@@ -61,8 +61,8 @@ class TerminalInterviewer(object):
         """Returns string that explains how to use the tool for the person
         answering questions.
         """
-        r = u"You'll be presented with pieces of text that have a good chance of be "
-        r += u"an evidence of the Fact expressed next. Please confirm or reject each.\n"
+        r = u"You'll be presented with pieces of text that have a good chance to be "
+        r += u"evidences of the seed facts. Please confirm or reject each.\n"
         r += u"Pay attention to the colors.\n"
         r += u"Possible answers are:\n"
         options = list(self.base_options.items()) + list(self.extra_options.items())

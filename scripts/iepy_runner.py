@@ -2,7 +2,7 @@
 Run IEPY core loop
 
 Usage:
-    iepy_runner.py <dbname> <seeds_file>
+    iepy_runner.py <dbname> <seeds_file> <output_file>
     iepy_runner.py -h | --help | --version
 
 Options:
@@ -22,6 +22,7 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connection = db.connect(opts['<dbname>'])
     seed_facts = load_facts_from_csv(opts['<seeds_file>'])
+    output_file = load_facts_from_csv(opts['<output_file>'])
     p = BootstrappedIEPipeline(connection, seed_facts)
 
     STOP = 'STOP'
@@ -38,4 +39,4 @@ if __name__ == '__main__':
             keep_looping = False
         p.force_process()
     facts = p.known_facts()  # profit
-    save_labeled_evidence_to_csv(facts.items(), "facts.csv")
+    save_labeled_evidence_to_csv(facts.items(), output_file)
