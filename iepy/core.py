@@ -292,12 +292,15 @@ class BootstrappedIEPipeline(object):
         """
         Blocking.
         """
+        logger.info(u'Starting pipeline with {} seed '
+                    u'facts'.format(len(self.knowledge)))
         evidences = Knowledge(
             (Evidence(fact, segment, o1, o2), 0.5)
             for fact, _s, _o1, _o2 in self.knowledge
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
             for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
+        
         self.do_iteration(evidences)
 
     def questions_available(self):
@@ -349,7 +352,10 @@ class BootstrappedIEPipeline(object):
         """
         logger.debug(u'running generalize_knowledge')
         facts = set(ent.fact for ent in self.knowledge)
-        return Knowledge(x for x in evidence.items() if x[0].fact in facts)
+        k = Knowledge(x for x in evidence.items() if x[0].fact in facts)
+        logger.info(u'Found {} potential evidences where the known facts could'
+                    u' be manifest'.format(len(k)))
+        return k
 
     def generate_questions(self, evidence):
         """
@@ -370,11 +376,14 @@ class BootstrappedIEPipeline(object):
         """
         logger.debug(u'running filter_evidence')
         evidence = Knowledge(self.answers)
+        n = len(evidence)
         evidence.update(
             (e, score > 0.5)
             for e, score in self.questions.items()
             if certainty(score) > self.evidence_threshold and e not in self.answers
         )
+        logger.info(u'Filtering returns {} human-built evidences and {} '
+                    u'over-threshold evidences'.format(n, n - len(evidence)))
         # Answers + questions with a strong prediction
         return evidence
 
@@ -388,8 +397,12 @@ class BootstrappedIEPipeline(object):
         for rel, k in evidence.per_relation().items():
             yesno = set(k.values())
             if True not in yesno or False not in yesno:
+                logger.warning(u'Not enough evidence to train a fact extractor'
+                               u' for the "{}" relation'.format(rel))
                 continue  # Not enough data to train a classifier
-            assert len(yesno) == 2, "Classification is not binary!"
+            assert len(yesno) == 2, "Evidence is not binary!"
+            logger.info(u'Training "{}" relation with {} '
+                        u'evidences'.format(rel, len(k)))
             classifiers[rel] = FactExtractorFactory(self.extractor_config, k)
         return classifiers
 
@@ -420,6 +433,9 @@ class BootstrappedIEPipeline(object):
             else:
                 # There was no evidence to train this classifier
                 ps = [0.5 for _ in evidence]  # Maximum uncertainty
+            logger.info(u'Estimated fact manifestation probabilities for {}'
+                        u'potential evidences for "{}" '
+                        u'relation'.format(len(ps), r))
             result.update(zip(evidence, ps))
         return result
 
@@ -429,7 +445,12 @@ class BootstrappedIEPipeline(object):
         facts is [((a, b, relation), confidence), ...]
         """
         logger.debug(u'running filter_facts')
-        self.knowledge.update((e, s) for e, s in facts.items() if s > self.fact_threshold)
+        n = len(self.knowledge)
+        self.knowledge.update((e, s) for e, s in facts.items()
+                              if s > self.fact_threshold)
+        logger.info(u'Learnt {} new facts this iteration (adding to a total '
+                    u'of {} facts)'.format(len(self.knowledge) - n,
+                                           len(self.knowledge)))
         return facts
 
     ###
