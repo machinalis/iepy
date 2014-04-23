@@ -39,6 +39,7 @@ if __name__ == '__main__':
         result = term()
         if result == STOP:
             keep_looping = False
-        p.force_process()
+        else:
+            p.force_process()
     facts = p.known_facts()  # profit
     save_labeled_evidence_to_csv(facts.items(), output_file)
