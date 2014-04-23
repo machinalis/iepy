@@ -26,7 +26,7 @@ Preprocess the Documents
 ========================
 
 Once you have your database with the documents you want to analyze, you have to
-run the preprocessing pipeline to generate all the information needed by IEPY's 
+run the preprocessing pipeline to generate all the information needed by IEPY's
 core.
 
 The preprocessing pipeline runs the following steps:
@@ -53,12 +53,12 @@ and organizations).
 Use the Literal Named Entity Recognizer
 ---------------------------------------
 
-A quick option to have a very simple baseline NER for any entity kind you want 
+A quick option to have a very simple baseline NER for any entity kind you want
 is to use IEPY's Literal Named Entity Recognizer.
 IPEY's Literal NER reads from a text file all the possible entity instances, and
 tags all the exact matches of these instances in the documents.
 
-For instance, to add NER for diseases and symptoms for your IEPY application, 
+For instance, to add NER for diseases and symptoms for your IEPY application,
 edit ``myapp/scripts/preprocess.py`` as follows:
 
 ::
@@ -90,22 +90,22 @@ In any case, the seeds facts are written in a CSV file with the following format
 
   entity A kind, entity A name, entity B kind, entity B name, relation name
 
-For instance, if you have diseases and symptoms and you want to find which 
-disease causes which symptom, you can provide a seed fact such as 
+For instance, if you have diseases and symptoms and you want to find which
+disease causes which symptom, you can provide a seed fact such as
 
 ::
 
   disease,botulism,symptom,paralysis,CAUSES
 
 
-IEPY can help you generating the seed facts by looking in the document and 
+IEPY can help you generating the seed facts by looking in the document and
 asking you questions.
 
 ::
 
   $ python scripts/generate_seeds.py <dbname> <relation_name> <kind_a> <kind_b> <output_filename>
 
-For instance, to generate seeds for the CAUSES relation between diseases and 
+For instance, to generate seeds for the CAUSES relation between diseases and
 symptoms, run
 
 ::
@@ -122,11 +122,11 @@ Execute the IEPY bootstrap pipeline runner with
 
   $ python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
 
-where ``<dbname>`` is the name of the database generated in section X, 
-``<seeds_file>`` is the seed facts file generated in section Y and 
+where ``<dbname>`` is the name of the database generated in section X,
+``<seeds_file>`` is the seed facts file generated in section Y and
 ``<output_file>`` is the file where IEPY will save the found facts.
 
-On each iteration of the bootstrapping process, IEPY will look in the database 
+On each iteration of the bootstrapping process, IEPY will look in the database
 for pieces of text that have a good chance to be evidences of facts. You will be
 asked to confirm or reject each evidence.
 
@@ -139,11 +139,11 @@ asked to confirm or reject each evidence.
      run: Tired of answering for now. Run with what I gave you.
      STOP: Stop execution ASAP
 
-When you are tired of a round of answering, type ``run`` and IEPY will complete 
-one loop of bootstrapping, by learning a classifier and reclassifying the text 
+When you are tired of a round of answering, type ``run`` and IEPY will complete
+one loop of bootstrapping, by learning a classifier and reclassifying the text
 fragments.
 
-When you want to stop the entire process, type ``STOP`` and IEPY will output a 
+When you want to stop the entire process, type ``STOP`` and IEPY will output a
 CSV file with the found facts with references to the document parts that support
 the fact.
 
@@ -161,7 +161,7 @@ can be found:
 
   document name, segment offset, entity A index, entity B index
 
-where ``segment offset`` is the text segment offset into the document and the 
+where ``segment offset`` is the text segment offset into the document and the
 entity indexes indicate the entity positions into the segment.
 
 
