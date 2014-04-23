@@ -55,8 +55,8 @@ Use the Literal Named Entity Recognizer
 
 A quick option to have a very simple baseline NER for any entity kind you want
 is to use IEPY's Literal Named Entity Recognizer.
-IPEY's Literal NER reads from a text file all the possible entity instances, and
-tags all the exact matches of these instances in the documents.
+IPEY's Literal NER reads from a text file all the possible entity instance names,
+and tags all the exact matches of these names in the documents.
 
 For instance, to add NER for diseases and symptoms for your IEPY application,
 edit ``myapp/scripts/preprocess.py`` as follows:
@@ -74,7 +74,18 @@ from Freebase as shown in next section.
 Download Entity Instances from Freebase
 ---------------------------------------
 
+You will probably be able to identify the entity kinds you are interested in
+with types in the `Freebase <http://www.freebase.com/>`_ ontology.
+If this is the case, you can order IEPY to download from Freebase the names and
+aliases of all the instances of a given type, and save them into a text file
+that can be used by the Literal NER.
 
+For instance, to download all the diseases and symptoms known by Freebase, run
+
+::
+
+  $ python scripts/download_freebase_type.py /medicine/disease myapp/disease.txt --aliases --to-lower
+  $ python scripts/download_freebase_type.py /medicine/symptom myapp/symptom.txt --aliases --to-lower
 
 
 Generate the Seed Facts

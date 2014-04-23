@@ -8,7 +8,7 @@ Usage:
 Options:
   -h --help             Show this screen
   --version             Version number
-  --no-aliases          Exclude instance aliases (included by default)
+  --aliases             Include instance aliases
   --to-lower            Convert non acronyms to lowercase
 """
 from docopt import docopt
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     freebase_type_name = opts['<freebase_type_name>']
     output_file = opts['<output_file>']
-    aliases = not opts['--no-aliases']
+    aliases = opts['--aliases']
     to_lower = opts['--to-lower']
 
     if to_lower:
