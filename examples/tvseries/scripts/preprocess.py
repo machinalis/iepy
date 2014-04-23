@@ -31,10 +31,10 @@ def media_wiki_to_txt(doc):
         doc.save()
 
 
-FREEBASE_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
-FREEBASE_FILES = ['examples/tvseries/disease.txt', 
-                  'examples/tvseries/symptom.txt',
-                  'examples/tvseries/diagnostic_test.txt']
+CUSTOM_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
+CUSTOM_ENTITIES_FILES = ['examples/tvseries/disease.txt',
+                            'examples/tvseries/symptom.txt',
+                            'examples/tvseries/diagnostic_test.txt']
 
 
 if __name__ == '__main__':
@@ -45,14 +45,14 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
-    set_custom_entity_kinds(zip(map(lambda x: x.lower(), FREEBASE_ENTITIES),
-                                FREEBASE_ENTITIES))
+    set_custom_entity_kinds(zip(map(lambda x: x.lower(), CUSTOM_ENTITIES),
+                                CUSTOM_ENTITIES))
     pipeline = PreProcessPipeline([
         media_wiki_to_txt,
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
         CombinedNERRunner(
-            LiteralNERRunner(FREEBASE_ENTITIES, FREEBASE_FILES), 
+            LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
             StanfordNERRunner()),
         SyntacticSegmenterRunner(),
     ], docs

@@ -121,7 +121,6 @@ def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=Fa
 
     # https://developers.google.com/freebase/v1/mql-overview
     service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
-    #query = [{'type': '/medicine/disease', 'name': None}]
     query = [{'type': type_name, 'name': None}]
     if aliases:
         query[0]['/common/topic/alias'] = []
@@ -159,3 +158,16 @@ def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=Fa
                     f.write(name + '\n')
 
     f.close()
+
+
+def to_lower_normalizer(name):
+    """Utility normalizer that converts a name to lowercase unless it is an 
+    acronym. To be used as parameter of download_freebase_type().
+    """
+    words = name.split()
+    result = []
+    for w in words:
+        if not w.isupper():
+            w = w.lower()
+        result.append(w)
+    return ' '.join(result)
