@@ -228,14 +228,14 @@ class BootstrappedIEPipeline(object):
         self.answers = {}
 
         self.steps = [
-                self.generalize_knowledge,    # Step 1
+                self.generalize_knowledge,   # Step 1
                 self.generate_questions,     # Step 2, first half
                 None,                        # Pause to wait question answers
                 self.filter_evidence,        # Step 2, second half
                 self.learn_fact_extractors,  # Step 3
                 self.extract_facts,          # Step 5
                 self.filter_facts            # Step 6
-            ]
+        ]
         self.step_iterator = itertools.cycle(self.steps)
 
         # Build relation description: a map from relation labels to pairs of entity kinds
@@ -274,7 +274,6 @@ class BootstrappedIEPipeline(object):
                 BagOfVerbLemmas(in_between=False)
             ]
         }
-
 
     def do_iteration(self, data):
         for step in self.step_iterator:
