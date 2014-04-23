@@ -34,17 +34,46 @@ The preprocessing pipeline runs the following steps:
 1) Text tokenization and segmentation into sentences.
 2) Part-Of-Speech (POS) tagging.
 3) Named Entity Recogntion (NER).
-4) Text segmentation into relevant parts.
+4) Text segmentation into fact-finding relevant parts.
 
-Your IEPY application comes with code to run all the steps, sometimes using
-third party software and data, such as the `punkt tokenizer
-<http://www.nltk.org/api/nltk.tokenize.html>`_, the `Stanford POS tagger 
+Your IEPY application comes with code to run all the preprocessing steps with
+the script ``myapp/scripts/preprocess.py``.
+It uses third party software and data, such as the `punkt tokenizer
+<http://www.nltk.org/api/nltk.tokenize.html>`_, the `Stanford POS tagger
 <http://nlp.stanford.edu/software/tagger.shtml>`_ and the `Stanford Named Entity
 Recognizer <http://nlp.stanford.edu/software/CRF-NER.shtml>`_.
 
-However, you may want to add some custom code, specially if you want to work 
-with entities other than the ones found by the Stanford NER (locations, persons 
+However, you may need to add some custom code, specially if you want to work
+with entities other than the ones found by the Stanford NER (locations, persons
 and organizations).
+
+...
+
+
+Use the Literal Named Entity Recognizer
+---------------------------------------
+
+A quick option to have a very simple baseline NER for any entity kind you want 
+is to use IEPY's Literal Named Entity Recognizer.
+IPEY's Literal NER reads from a text file all the possible entity instances, and
+tags all the exact matches of these instances in the documents.
+
+For instance, to add NER for diseases and symptoms for your IEPY application, 
+edit ``myapp/scripts/preprocess.py`` as follows:
+
+::
+
+  CUSTOM_ENTITIES = ['DISEASE', 'SYMPTOM']
+  CUSTOM_ENTITIES_FILES = ['myapp/disease.txt', 'myapp/symptom.txt']
+
+Then, write all the diseases and symptoms you know in the files
+``myapp/disease.txt`` and ``myapp/symptom.txt``, or, much better, download them
+from Freebase as shown in next section.
+
+
+Download Entity Instances from Freebase
+---------------------------------------
+
 
 
 
@@ -92,7 +121,6 @@ Execute the IEPY bootstrap pipeline runner with
 ::
 
   $ python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
-
 
 where ``<dbname>`` is the name of the database generated in section X, 
 ``<seeds_file>`` is the seed facts file generated in section Y and 
