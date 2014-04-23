@@ -36,14 +36,44 @@ If the data is not raw text, a first step in the pipeline is required to convert
 the data to raw text (like media_wiki_to_txt in tvseries/scripts/preprocess.py).
 
 
-Generate the seed facts (semi-supervised)
------------------------------------------
+Generate the Seed Facts
+-----------------------
 
-Label some data using iepy/generate_seeds.py.
+IEPY takes as input a small set of seed facts that you have to provide to it.
+The seed facts are positive examples of the relations you want IEPY to look for.
+
+You can either write the seed facts manually, or use IEPY's seed generation tool.
+In any case, the seeds facts are written in a CSV file with the following format:
+
+::
+
+  entity A kind, entity A name, entity B kind, entity B name, relation name
+
+For instance, if you have diseases and symptoms and you want to find which 
+disease causes which symptom, you can provide a seed fact such as 
+
+::
+
+  disease,botulism,symptom,paralysis,CAUSES
 
 
-Run the bootstrapping pipeline, and be the Human in the Loop (semi-supervised)
-------------------------------------------------------------------------------
+IEPY can help you generating the seed facts by looking in the document and 
+asking you questions.
+
+::
+
+  $ python scripts/generate_seeds.py <dbname> <relation_name> <kind_a> <kind_b> <output_filename>
+
+For instance, to generate seeds for the CAUSES relation between diseases and 
+symptoms, run
+
+::
+
+  $ python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
+
+
+Run IEPY, and be the Human in the Loop
+--------------------------------------
 
 Execute the IEPY bootstrap pipeline runner with
 
@@ -93,18 +123,6 @@ can be found:
 
 where ``segment offset`` is the text segment offset into the document and the 
 entity indexes indicate the entity positions into the segment.
-
-
-Generate knowledge/reference corpus/gold standard (fully supervised)
---------------------------------------------------------------------
-
-Label data using iepy/generate_reference_corpus.py.
-
-
-Train and test the classfiers (fully supervised)
-------------------------------------------------
-
-Use scripts/cross_validate.py.
 
 
 Profit! Or not
