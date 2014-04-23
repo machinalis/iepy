@@ -19,8 +19,8 @@ from iepy.segmenter import SyntacticSegmenterRunner
 
 
 # Insert here your custom entities:
-FREEBASE_ENTITIES = []
-FREEBASE_FILES = []
+CUSTOM_ENTITIES = []
+CUSTOM_ENTITIES_FILES = []
 
 
 if __name__ == '__main__':
@@ -31,13 +31,13 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
-    set_custom_entity_kinds(zip(map(lambda x: x.lower(), FREEBASE_ENTITIES),
-                                FREEBASE_ENTITIES))
+    set_custom_entity_kinds(zip(map(lambda x: x.lower(), CUSTOM_ENTITIES),
+                                CUSTOM_ENTITIES))
     pipeline = PreProcessPipeline([
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
         CombinedNERRunner(
-            LiteralNERRunner(FREEBASE_ENTITIES, FREEBASE_FILES), 
+            LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
             StanfordNERRunner()),
         SyntacticSegmenterRunner(),
     ], docs
