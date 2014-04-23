@@ -3,9 +3,9 @@ from iepy.preprocess import BasePreProcessStepRunner
 
 
 class CombinedNERRunner(BasePreProcessStepRunner):
-    """A NER runner that is the combination of two different NER runners 
-    (therefore, two different NERs). The entities returned by both NERs are 
-    combined without any check, possibly leading to duplicate or overlapping 
+    """A NER runner that is the combination of two different NER runners
+    (therefore, two different NERs). The entities returned by both NERs are
+    combined without any check, possibly leading to duplicate or overlapping
     entities.
     """
     step = PreProcessSteps.ner
@@ -43,4 +43,3 @@ class CombinedNERRunner(BasePreProcessStepRunner):
 
 def merge_entities(entities1, entities2):
     return sorted(entities1 + entities2, key=lambda x: x.offset)
-

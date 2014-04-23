@@ -31,7 +31,7 @@ class PreProcessPipeline(object):
             docs = self.documents  # everything
         for i, doc in enumerate(docs):
             runner(doc)
-            logger.info('\tDone for %i documents', i+1)
+            logger.info('\tDone for %i documents', i + 1)
 
     def process_everything(self):
         """Tries to apply all the steps to all documents"""

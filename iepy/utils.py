@@ -18,7 +18,7 @@ def unzip(zipped_list, n):
         ValueError if not.
     """
     if not zipped_list:
-        return tuple([[]]*n)
+        return tuple([[]] * n)
     else:
         if not all(isinstance(x, tuple) and len(x) == n for x in zipped_list):
             raise ValueError
