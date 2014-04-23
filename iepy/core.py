@@ -47,6 +47,7 @@
 
 from collections import defaultdict, namedtuple
 import itertools
+import logging
 
 from colorama import Fore, Style
 
@@ -71,6 +72,8 @@ from iepy.fact_extractor import (
     BagOfVerbStems,
     BagOfVerbLemmas,
 )
+
+logger = logging.getLogger(__name__)
 
 # A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")
@@ -289,7 +292,13 @@ class BootstrappedIEPipeline(object):
         """
         Blocking.
         """
-        self.do_iteration(self.knowledge)
+        evidences = Knowledge(
+            (Evidence(fact, segment, o1, o2), 0.5)
+            for fact, _s, _o1, _o2 in self.knowledge
+            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
+            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
+        )
+        self.do_iteration(evidences)
 
     def questions_available(self):
         """
@@ -335,13 +344,12 @@ class BootstrappedIEPipeline(object):
     def generalize_knowledge(self, evidence):
         """
         Stage 1 of pipeline.
+
+        Based on the known facts, generates all possible evidences of them.
         """
-        return Knowledge(
-            (Evidence(fact, segment, o1, o2), evidence.get(Evidence(fact, segment, o1, o2)))
-            for fact, _s, _o1, _o2 in self.knowledge
-            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
-            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
-        )
+        logger.debug(u'running generalize_knowledge')
+        facts = set(ent.fact for ent in self.knowledge)
+        return Knowledge(x for x in evidence.items() if x[0].fact in facts)
 
     def generate_questions(self, evidence):
         """
@@ -351,6 +359,7 @@ class BootstrappedIEPipeline(object):
 
         Stores questions in self.questions and stops
         """
+        logger.debug(u'running generate_questions')
         self.questions = Knowledge((e, s) for e, s in evidence.items() if e not in self.answers)
 
     def filter_evidence(self, _):
@@ -359,6 +368,7 @@ class BootstrappedIEPipeline(object):
         sorted_evidence is [(score, segment, (a, b, relation)), ...]
         answers is {(segment, (a, b, relation)): is_evidence, ...}
         """
+        logger.debug(u'running filter_evidence')
         evidence = Knowledge(self.answers)
         evidence.update(
             (e, score > 0.5)
@@ -373,6 +383,7 @@ class BootstrappedIEPipeline(object):
         Stage 3 of pipeline.
         evidence is a Knowledge instance of {evidence: is_good_evidence}
         """
+        logger.debug(u'running learn_fact_extractors')
         classifiers = {}
         for rel, k in evidence.per_relation().items():
             yesno = set(k.values())
@@ -384,12 +395,12 @@ class BootstrappedIEPipeline(object):
 
     def extract_facts(self, extractors):
         """
-        Pseudocode. Stage 5 of pipeline.
+        Stage 5 of pipeline.
         extractors is a dict {relation: classifier, ...}
         """
         # TODO: this probably is smarter as an outer iteration through segments
         # and then an inner iteration over relations
-
+        logger.debug(u'running extract_facts')
         result = Knowledge()
 
         for r, (lkind, rkind) in self.relations.items():
@@ -417,6 +428,7 @@ class BootstrappedIEPipeline(object):
         Pseudocode. Stage 6 of pipeline.
         facts is [((a, b, relation), confidence), ...]
         """
+        logger.debug(u'running filter_facts')
         self.knowledge.update((e, s) for e, s in facts.items() if s > self.fact_threshold)
         return facts
 
