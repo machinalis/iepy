@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from future.builtins import range
 
 from iepy.core import Fact, Evidence, certainty, Knowledge, BootstrappedIEPipeline
-from .factories import EntityFactory, EvidenceFactory
+from .factories import EntityFactory, EvidenceFactory, FactFactory
 
 
 class TestCertainty(unittest.TestCase):
@@ -112,3 +112,31 @@ class TestFactExtractionInterface(unittest.TestCase):
         predictor = list(result.values())[0]
         self.assertTrue(hasattr(predictor, 'predict'))
         self.assertTrue(callable(predictor.predict))
+
+
+class TestBootstrappedIEPipelineRelations(unittest.TestCase):
+
+    def test_relations_are_infered_from_seeds(self):
+        f1 = FactFactory(e1__kind=u'person', e2__kind=u'location',
+                         relation=u'x')
+        f2 = FactFactory(e1__kind=u'person', e2__kind=u'location',
+                         relation=u'y')
+        f3 = FactFactory(e1__kind=u'person', e2__kind=u'person',
+                         relation=u'z')
+        f4 = FactFactory(e1__kind=u'location', e2__kind=u'person',
+                         relation=u'w')
+        b = BootstrappedIEPipeline(mock.MagicMock(), [f1, f2, f3, f4])
+        self.assertEqual(b.relations,
+                         {u'x': (u'person', u'location'),
+                          u'y': (u'person', u'location'),
+                          u'z': (u'person', u'person'),
+                          u'w': (u'location', u'person')}
+                         )
+
+    def test_conflictive_seeds_provoque_error(self):
+        f1 = FactFactory(e1__kind=u'person', e2__kind=u'location',
+                         relation=u'x')
+        f2 = FactFactory(e1__kind=u'location', e2__kind=u'location',
+                         relation=u'x')
+        self.assertRaises(ValueError, BootstrappedIEPipeline,
+                          mock.MagicMock(), [f1, f2])
