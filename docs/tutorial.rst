@@ -1,3 +1,4 @@
+====================
 Application Tutorial
 ====================
 
@@ -8,7 +9,7 @@ To be written:
 
 
 Start a IEPY project
---------------------
+====================
 
 ::
 
@@ -16,13 +17,13 @@ Start a IEPY project
 
 
 Create the database with your data
-----------------------------------
+==================================
 
 Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
 
 
 Preprocess the Documents
-------------------------
+========================
 
 Once you have your database with the documents you want to analyze, you have to
 run the preprocessing pipeline to generate all the information needed by IEPY's 
@@ -45,10 +46,10 @@ However, you may want to add some custom code, specially if you want to work
 with entities other than the ones found by the Stanford NER (locations, persons 
 and organizations).
 
-...
+
 
 Generate the Seed Facts
------------------------
+=======================
 
 IEPY takes as input a small set of seed facts that you have to provide to it.
 The seed facts are positive examples of the relations you want IEPY to look for.
@@ -83,8 +84,8 @@ symptoms, run
   $ python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
 
 
-Run IEPY, and be the Human in the Loop
---------------------------------------
+Run IEPY and be the Human in the Loop
+=====================================
 
 Execute the IEPY bootstrap pipeline runner with
 
@@ -137,7 +138,7 @@ entity indexes indicate the entity positions into the segment.
 
 
 Profit! Or not
---------------
+==============
 
 How?
 
