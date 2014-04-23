@@ -99,7 +99,7 @@ class EvidenceFactory(factory.Factory):
     occurrence used for the fact, and kind** to flag the second.
 
     For example, the followingf is valid markup:
-    
+
     "The physicist {Albert Einstein|Person*} was born in {Germany|location} and
     died in the {United States|location**} ."
     """
@@ -152,11 +152,11 @@ class EvidenceFactory(factory.Factory):
         args.update(kwargs)
         return super(EvidenceFactory, cls).create(**args)
 
-
     @factory.post_generation
     def occurrences(self, create, extracted, **kwargs):
         raw_ocurrences = kwargs.pop('data', None)
-        if raw_ocurrences is None: return
+        if raw_ocurrences is None:
+            return
         for entity, offset, offset_end in raw_ocurrences:
             self.segment.entities.append(
                 EntityInSegmentFactory(
@@ -166,4 +166,3 @@ class EvidenceFactory(factory.Factory):
                     offset=offset,
                     offset_end=offset_end
                 ))
-
