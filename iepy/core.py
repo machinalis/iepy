@@ -417,7 +417,7 @@ class BootstrappedIEPipeline(object):
         Pseudocode. Stage 6 of pipeline.
         facts is [((a, b, relation), confidence), ...]
         """
-        self.knowledge.update((e, s) for e, s in facts.items() if certainty(s) > self.fact_threshold)
+        self.knowledge.update((e, s) for e, s in facts.items() if s > self.fact_threshold)
         return facts
 
     ###
