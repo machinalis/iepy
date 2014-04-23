@@ -395,9 +395,7 @@ class BootstrappedIEPipeline(object):
             for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
                 for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
                     e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
-                    assert e1.kind == lkind
                     e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
-                    assert e2.kind == rkind
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
