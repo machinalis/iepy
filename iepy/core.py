@@ -228,14 +228,14 @@ class BootstrappedIEPipeline(object):
         self.answers = {}
 
         self.steps = [
-                self.generalize_knowledge,    # Step 1
+                self.generalize_knowledge,   # Step 1
                 self.generate_questions,     # Step 2, first half
                 None,                        # Pause to wait question answers
                 self.filter_evidence,        # Step 2, second half
                 self.learn_fact_extractors,  # Step 3
                 self.extract_facts,          # Step 5
                 self.filter_facts            # Step 6
-            ]
+        ]
         self.step_iterator = itertools.cycle(self.steps)
 
         # Build relation description: a map from relation labels to pairs of entity kinds
@@ -274,7 +274,6 @@ class BootstrappedIEPipeline(object):
                 BagOfVerbLemmas(in_between=False)
             ]
         }
-
 
     def do_iteration(self, data):
         for step in self.step_iterator:
@@ -376,6 +375,10 @@ class BootstrappedIEPipeline(object):
         """
         classifiers = {}
         for rel, k in evidence.per_relation().items():
+            yesno = set(k.values())
+            if True not in yesno or False not in yesno:
+                continue  # Not enough data to train a classifier
+            assert len(yesno) == 2, "Classification is not binary!"
             classifiers[rel] = FactExtractorFactory(self.extractor_config, k)
         return classifiers
 
@@ -389,8 +392,7 @@ class BootstrappedIEPipeline(object):
 
         result = Knowledge()
 
-        for r in extractors:
-            lkind, rkind = self.relations[r]
+        for r, (lkind, rkind) in self.relations.items():
             evidence = []
             for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
                 for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
@@ -399,10 +401,14 @@ class BootstrappedIEPipeline(object):
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
-            classifier = extractors[r].predictor.named_steps["classifier"]
-            true_index = list(classifier.classes_).index(True)
-            ps = extractors[r].predictor.predict_proba(evidence)
-            ps = ps[:, true_index]
+            if r in extractors:
+                classifier = extractors[r].predictor.named_steps["classifier"]
+                true_index = list(classifier.classes_).index(True)
+                ps = extractors[r].predictor.predict_proba(evidence)
+                ps = ps[:, true_index]
+            else:
+                # There was no evidence to train this classifier
+                ps = [0.5 for _ in evidence]  # Maximum uncertainty
             result.update(zip(evidence, ps))
         return result
 
