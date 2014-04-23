@@ -467,19 +467,3 @@ class BootstrappedIEPipeline(object):
 
         # FIXME: to be implemented on ticket IEPY-47
         return 0.5
-
-
-def _all_entity_pairs(segment):
-    """
-    Aux method, returns all entity pairs in a segment.
-    Order is important, so expect (a, b) and (b, a) in the answer.
-    """
-    raise NotImplementedError
-
-
-def _relation_is_compatible(a, b, relation):
-    """
-    Aux method, returns True if a and b have types compatible with
-    relation.
-    """
-    raise NotImplementedError
