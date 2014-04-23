@@ -1,3 +1,4 @@
+====================
 Application Tutorial
 ====================
 
@@ -7,37 +8,48 @@ To be written:
 * Feature engineering
 
 
-Install
--------
+Start a IEPY project
+====================
 
-Follow the installation instructions.
+::
+
+  $ python scripts/startapp.py myapp
 
 
 Create the database with your data
-----------------------------------
+==================================
 
 Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
 
 
-Preprocess the database
------------------------
+Preprocess the Documents
+========================
 
-Build and run the preprocessing pipeline (something like 
-tvseries/scripts/preprocess.py).
+Once you have your database with the documents you want to analyze, you have to
+run the preprocessing pipeline to generate all the information needed by IEPY's 
+core.
 
-Download required third party data and code for the pipeline:
+The preprocessing pipeline runs the following steps:
 
-* Punkt tokenizer
-* Stanford POS tagger
-* Stanford Named Entity Recognizer (NER)
-* Freebase data for the desired entities
+1) Text tokenization and segmentation into sentences.
+2) Part-Of-Speech (POS) tagging.
+3) Named Entity Recogntion (NER).
+4) Text segmentation into relevant parts.
 
-If the data is not raw text, a first step in the pipeline is required to convert
-the data to raw text (like media_wiki_to_txt in tvseries/scripts/preprocess.py).
+Your IEPY application comes with code to run all the steps, sometimes using
+third party software and data, such as the `punkt tokenizer
+<http://www.nltk.org/api/nltk.tokenize.html>`_, the `Stanford POS tagger 
+<http://nlp.stanford.edu/software/tagger.shtml>`_ and the `Stanford Named Entity
+Recognizer <http://nlp.stanford.edu/software/CRF-NER.shtml>`_.
+
+However, you may want to add some custom code, specially if you want to work 
+with entities other than the ones found by the Stanford NER (locations, persons 
+and organizations).
+
 
 
 Generate the Seed Facts
------------------------
+=======================
 
 IEPY takes as input a small set of seed facts that you have to provide to it.
 The seed facts are positive examples of the relations you want IEPY to look for.
@@ -72,8 +84,8 @@ symptoms, run
   $ python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
 
 
-Run IEPY, and be the Human in the Loop
---------------------------------------
+Run IEPY and be the Human in the Loop
+=====================================
 
 Execute the IEPY bootstrap pipeline runner with
 
@@ -126,7 +138,7 @@ entity indexes indicate the entity positions into the segment.
 
 
 Profit! Or not
---------------
+==============
 
 How?
 
