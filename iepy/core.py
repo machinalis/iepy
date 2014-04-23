@@ -433,7 +433,7 @@ class BootstrappedIEPipeline(object):
             else:
                 # There was no evidence to train this classifier
                 ps = [0.5 for _ in evidence]  # Maximum uncertainty
-            logger.info(u'Estimated fact manifestation probabilities for {}'
+            logger.info(u'Estimated fact manifestation probabilities for {} '
                         u'potential evidences for "{}" '
                         u'relation'.format(len(ps), r))
             result.update(zip(evidence, ps))
