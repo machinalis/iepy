@@ -1,4 +1,8 @@
 from collections import namedtuple
+try:
+    from functools import lru_cache
+except:
+    from functools32 import lru_cache
 
 from mongoengine import connect as mongoconnect
 from mongoengine.connection import get_db
@@ -8,6 +12,9 @@ from iepy.models import (
 
 
 IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
+
+# Number of entities that will be cached on get_entity function.
+ENTITY_CACHE_SIZE = 20  # reasonable compromise
 
 
 def connect(db_name):
@@ -90,6 +97,7 @@ class TextSegmentManager(object):
             return segments
 
 
+@lru_cache(maxsize=ENTITY_CACHE_SIZE)
 def get_entity(kind, literal):
     return Entity.objects.get(kind=kind, key=literal)
 
