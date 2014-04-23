@@ -125,18 +125,6 @@ where ``segment offset`` is the text segment offset into the document and the
 entity indexes indicate the entity positions into the segment.
 
 
-Generate knowledge/reference corpus/gold standard (fully supervised)
---------------------------------------------------------------------
-
-Label data using iepy/generate_reference_corpus.py.
-
-
-Train and test the classfiers (fully supervised)
-------------------------------------------------
-
-Use scripts/cross_validate.py.
-
-
 Profit! Or not
 --------------
 
