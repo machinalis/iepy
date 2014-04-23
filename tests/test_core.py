@@ -82,7 +82,7 @@ class TestFactExtractionInterface(unittest.TestCase):
         for relation_name, number in relations_dict.items():
             for i in range(number):
                 ev = self.get_evidence(relation_name)
-                k[ev] = (i % 2 == 0)
+                k[ev] = (len(k) % 2 == 0)
         return k
 
     def test_one_fact_extractor_built_per_relation_in_available_data(self):
@@ -93,9 +93,10 @@ class TestFactExtractionInterface(unittest.TestCase):
 
     def test_no_fact_extractor_is_built_when_not_enough_data(self):
         b = BootstrappedIEPipeline(mock.MagicMock(), [])
-        kn = self.build_training_knowledge({'likes': 1, 'hates': 1})
+        kn = self.build_training_knowledge({'likes': 1, 'hates': 1, 'looks': 2})
         result = b.learn_fact_extractors(kn)
-        self.assertEqual(len(result), 0)
+        self.assertEqual(len(result), 1)
+        self.assertIn('looks', result)
 
     def test_fact_extractor_is_created_with_FactExtractorFactory(self):
         b = BootstrappedIEPipeline(mock.MagicMock(), [])
