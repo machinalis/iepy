@@ -242,7 +242,7 @@ class BootstrappedIEPipeline(object):
         self.relations = {}
         for e in self.knowledge:
             t1 = e.fact.e1.kind
-            t2 = e.fact.e1.kind
+            t2 = e.fact.e2.kind
             if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
                 raise ValueError("Ambiguous kinds for relation %r" % e.fact.relation)
             self.relations[e.fact.relation] = (t1, t2)
