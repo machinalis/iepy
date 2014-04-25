@@ -275,11 +275,15 @@ colorama
 functools32
 mongoengine
 mongoengine.connection
+featureforge
 featureforge.feature
 featureforge.vectorizer
+nltk
+nltk.stem
 nltk.stem.lancaster
 nltk.stem import
 schema
+sklearn
 sklearn.feature_selection
 sklearn.pipeline
 sklearn.linear_model
@@ -287,12 +291,10 @@ sklearn.naive_bayes
 sklearn.preprocessing
 sklearn.tree
 sklearn.linear_model
+future
 future.builtins
 enum
 appdirs
 """.split()
-"""
-
-"""
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
