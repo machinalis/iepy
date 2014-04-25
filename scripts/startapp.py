@@ -26,11 +26,15 @@ def startapp(name):
     os.mknod(os.path.join(folder, 'scripts', '__init__.py'))
     os.mknod(os.path.join(folder, 'tests', '__init__.py'))
 
-    # Create preprocess script
     iepy_basedir = os.path.dirname(os.path.abspath(iepy.__file__))
-    template_filename = os.path.join(iepy_basedir, 'app_preprocess.py.template')
-    preprocess_filename = os.path.join(folder, 'scripts', 'preprocess.py') 
-    shutil.copyfile(template_filename, preprocess_filename)
+
+    # Create scripts from templates
+    scripts = ['createdb.py', 'preprocess.py']
+    for s in scripts:
+        template_filename = 'app_{0}.template'.format(s)
+        template_file = os.path.join(iepy_basedir, template_filename)
+        preprocess_file = os.path.join(folder, 'scripts', s) 
+        shutil.copyfile(template_file, preprocess_file)
 
 
 if __name__ == '__main__':
