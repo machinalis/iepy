@@ -4,7 +4,7 @@ Application Tutorial
 
 In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
-Be sure you have a working :doc:`installation <installation>` of IEPY.
+Be sure you have a working `installation <installation>`_ of IEPY.
 
 
 Define your Problem
@@ -107,9 +107,14 @@ For instance, to download all the diseases and symptoms known by Freebase, run
 Run the Pipeline
 ----------------
 
+Once you are done preparing the preprocessing pipeline, you can run it:
+
 .. code-block:: bash
 
     python myapp/scripts/preprocess.py <dbname>
+
+The preprocessing pipeline runner will run all the steps in the pipeline and
+your documents database will be ready for IEPY's core.
 
 
 Generate the Seed Facts
@@ -148,8 +153,8 @@ symptoms, run
     python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
 
 
-Run IEPY and be the Human in the Loop
-=====================================
+Run IEPY
+========
 
 Execute the IEPY bootstrap pipeline runner with
 
@@ -160,6 +165,10 @@ Execute the IEPY bootstrap pipeline runner with
 where ``<dbname>`` is the name of the database generated in section X,
 ``<seeds_file>`` is the seed facts file generated in section Y and
 ``<output_file>`` is the file where IEPY will save the found facts.
+
+
+Help IEPY a Bit
+---------------
 
 On each iteration of the bootstrapping process, IEPY will look in the database
 for pieces of text that have a good chance to be evidences of facts. You will be
@@ -178,12 +187,16 @@ When you are tired of a round of answering, type ``run`` and IEPY will complete
 one loop of bootstrapping, by learning a classifier and reclassifying the text
 fragments.
 
-When you want to stop the entire process, type ``STOP`` and IEPY will output a
-CSV file with the found facts with references to the document parts that support
-the fact.
+When you want to stop the entire process, type ``STOP`` and IEPY will finish
+working and output the results.
 
-The first five columns of the output CSV format specify the fact (as in the seed
-facts input file):
+
+Profit! Or not :)
+=================
+
+When finished, IEPY outputs a CSV file with the found facts along with
+references to the document parts that support them. The first five columns of
+the output CSV format specify the fact (as in the seed facts input file):
 
 ::
 
@@ -198,10 +211,4 @@ can be found:
 
 where ``segment offset`` is the text segment offset into the document and the
 entity indexes indicate the entity positions into the segment.
-
-
-Profit! Or not
-==============
-
-How?
 
