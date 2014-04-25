@@ -11,9 +11,9 @@ To be written:
 Start a IEPY project
 ====================
 
-::
+.. code-block:: bash
 
-  $ python scripts/startapp.py myapp
+    python scripts/startapp.py myapp
 
 
 Create the database with your data
@@ -61,10 +61,11 @@ and tags all the exact matches of these names in the documents.
 For instance, to add NER for diseases and symptoms for your IEPY application,
 edit ``myapp/scripts/preprocess.py`` as follows:
 
-::
+.. code-block:: python
 
   CUSTOM_ENTITIES = ['DISEASE', 'SYMPTOM']
   CUSTOM_ENTITIES_FILES = ['myapp/disease.txt', 'myapp/symptom.txt']
+
 
 Then, write all the diseases and symptoms you know in the files
 ``myapp/disease.txt`` and ``myapp/symptom.txt``, or, much better, download them
@@ -82,10 +83,14 @@ that can be used by the Literal NER.
 
 For instance, to download all the diseases and symptoms known by Freebase, run
 
-::
+.. code-block:: bash
 
-  $ python scripts/download_freebase_type.py /medicine/disease myapp/disease.txt --aliases --to-lower
-  $ python scripts/download_freebase_type.py /medicine/symptom myapp/symptom.txt --aliases --to-lower
+    python scripts/download_freebase_type.py /medicine/disease myapp/disease.txt --aliases --to-lower
+    python scripts/download_freebase_type.py /medicine/symptom myapp/symptom.txt --aliases --to-lower
+
+
+Run the Pipeline
+----------------
 
 
 Generate the Seed Facts
@@ -112,16 +117,16 @@ disease causes which symptom, you can provide a seed fact such as
 IEPY can help you generating the seed facts by looking in the document and
 asking you questions.
 
-::
+.. code-block:: bash
 
-  $ python scripts/generate_seeds.py <dbname> <relation_name> <kind_a> <kind_b> <output_filename>
+    python scripts/generate_seeds.py <dbname> <relation_name> <kind_a> <kind_b> <output_filename>
 
 For instance, to generate seeds for the CAUSES relation between diseases and
 symptoms, run
 
-::
+.. code-block:: bash
 
-  $ python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
+    python scripts/generate_seeds.py <dbname> CAUSES disease symptom causes_seeds.csv
 
 
 Run IEPY and be the Human in the Loop
@@ -129,9 +134,9 @@ Run IEPY and be the Human in the Loop
 
 Execute the IEPY bootstrap pipeline runner with
 
-::
+.. code-block:: bash
 
-  $ python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
+    python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
 
 where ``<dbname>`` is the name of the database generated in section X,
 ``<seeds_file>`` is the seed facts file generated in section Y and
