@@ -2,14 +2,20 @@
 Application Tutorial
 ====================
 
-To be written:
+In this tutorial we will guide you through the steps to create your first
+Information Extraction application with IEPY.
+Be sure you have a working :doc:`installation <installation>` of IEPY.
 
-* Talk about the problem definition: Pick the data, the entities and the relations.
-* Feature engineering
+
+Define your Problem
+===================
+
+Information Extraction is about finding structured information in unstructured
+documents. IEPY structures the information into entities and relationships.
 
 
-Start a IEPY project
-====================
+Start a IEPY Application
+========================
 
 Pick a name you like for your IEPY application and run the IEPY application
 creation script. For instance, to create an application with name ``myapp``, run:
@@ -46,11 +52,17 @@ It uses third party software and data, such as the `punkt tokenizer
 <http://nlp.stanford.edu/software/tagger.shtml>`_ and the `Stanford Named Entity
 Recognizer <http://nlp.stanford.edu/software/CRF-NER.shtml>`_.
 
-However, you may need to add some custom code, specially if you want to work
-with entities other than the ones found by the Stanford NER (locations, persons
-and organizations).
+However, you may need to add some custom code, specially in two particular cases:
 
-...
+- The documents are not in plain text: If your documents are not in plain text
+  format and you didn't convert them to plain text when you created the database,
+  you will have to add an additional processing step at the beggining.
+  IEPY provides you with a stub (``extract_plain_text``) so you can insert your
+  code to convert the documents to plain text.
+- You want to work with custom entity kinds: The provided NER only recognizes
+  locations, persons and organizations. You can either program your own NER (or a
+  wrapper for an existing NER) and use it in the pipeline, or you can use the
+  Literal NER described in the following subsection.
 
 
 Use the Literal Named Entity Recognizer
