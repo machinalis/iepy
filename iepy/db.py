@@ -40,8 +40,8 @@ class DocumentManager(object):
         Identifier must be a unique value that will be used for distinguishing
         one document from another. If no title is given, will be inferred from
         the identifier.
-        Metadata is a dictionary where you can put whaever you want to persist
-        with your document. IEPy will do nothing with it except ensuring that
+        Metadata is a dictionary where you can put whatever you want to persist
+        with your document. IEPY will do nothing with it except ensuring that
         such information will be preserved.
         """
         if metadata is None:
