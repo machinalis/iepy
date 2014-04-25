@@ -289,6 +289,7 @@ sklearn.tree
 sklearn.linear_model
 future.builtins
 enum
+appdir
 """.split()
 """
 
