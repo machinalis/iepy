@@ -4,5 +4,15 @@ Core
 ====
 
 .. automodule:: iepy.core
-    :members:
-    :undoc-members:
+
+Main class
+----------
+
+.. autoclass:: BootstrappedIEPipeline
+    :members: __init__, start, questions_available, add_answer, force_process, known_facts
+
+
+Evidence
+--------
+
+.. autoclass:: Evidence
