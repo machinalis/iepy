@@ -263,13 +263,35 @@ class Mock(object):
         if name in ('__file__', '__path__'):
             return '/dev/null'
         elif name[0] == name[0].upper():
-            mockType = type(name, (), {})
+            mockType = type(name, (Mock,), {})
             mockType.__module__ = __name__
             return mockType
         else:
             return Mock()
 
 
-MOCK_MODULES = ['colorama']
+MOCK_MODULES = """
+colorama
+functools32
+mongoengine
+mongoengine.connection
+featureforge.feature
+featureforge.vectorizer
+nltk.stem.lancaster
+nltk.stem import
+schema
+sklearn.feature_selection
+sklearn.pipeline
+sklearn.linear_model
+sklearn.naive_bayes
+sklearn.preprocessing
+sklearn.tree
+sklearn.linear_model
+future.builtins
+enum
+""".split()
+"""
+
+"""
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
