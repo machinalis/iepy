@@ -11,6 +11,9 @@ To be written:
 Start a IEPY project
 ====================
 
+Pick a name you like for your IEPY application and run the IEPY application
+creation script. For instance, to create an application with name ``myapp``, run:
+
 .. code-block:: bash
 
     python scripts/startapp.py myapp
@@ -91,6 +94,10 @@ For instance, to download all the diseases and symptoms known by Freebase, run
 
 Run the Pipeline
 ----------------
+
+.. code-block:: bash
+
+    python myapp/scripts/preprocess.py <dbname>
 
 
 Generate the Seed Facts
