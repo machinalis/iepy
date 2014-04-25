@@ -3,7 +3,11 @@ IEPY application preprocessing script template.
 
 Usage:
     preprocess.py <dbname>
+    preprocess.py -h | --help | --version
 
+Options:
+  -h --help             Show this screen
+  --version             Version number
 """
 from docopt import docopt
 
@@ -16,6 +20,12 @@ from iepy.combined_ner import CombinedNERRunner
 from iepy.literal_ner import LiteralNERRunner
 from iepy.ner import StanfordNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
+
+
+# Optional custom step:
+def extract_plain_text(doc):
+    doc.text = doc.metadata['raw_data']
+    doc.save()
 
 
 # Insert here your custom entities:
@@ -34,6 +44,7 @@ if __name__ == '__main__':
     set_custom_entity_kinds(zip(map(lambda x: x.lower(), CUSTOM_ENTITIES),
                                 CUSTOM_ENTITIES))
     pipeline = PreProcessPipeline([
+        extract_plain_text, # optional custom step
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
         CombinedNERRunner(

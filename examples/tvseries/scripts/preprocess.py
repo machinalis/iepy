@@ -1,9 +1,13 @@
 """
-Wikia Series Pre Processing
+Wikia TV series preprocessing script
 
 Usage:
     preprocess.py <dbname>
+    preprocess.py -h | --help | --version
 
+Options:
+  -h --help             Show this screen
+  --version             Version number
 """
 import re
 
