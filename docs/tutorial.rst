@@ -7,15 +7,18 @@ Information Extraction application with IEPY.
 Be sure you have a working `installation <installation>`_ of IEPY.
 
 
+Get Started
+===========
+
+
 Define your Problem
-===================
+-------------------
 
 Information Extraction is about finding structured information in unstructured
 documents. IEPY structures the information into entities and relationships.
 
-
 Start a IEPY Application
-========================
+------------------------
 
 Pick a name you like for your IEPY application and run the IEPY application
 creation script. For instance, to create an application with name ``myapp``, run:
@@ -26,7 +29,7 @@ creation script. For instance, to create an application with name ``myapp``, run
 
 
 Create the database with your data
-==================================
+----------------------------------
 
 IEPY needs to have your input documents in a MongoDB database. All that you
 need to provide is an identifier for each document (which must be a unique
