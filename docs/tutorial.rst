@@ -133,15 +133,15 @@ add the original text as metadata, and leave the text empty, like this::
         metadata={'raw_document': non_text_data}
     )
 
-In that case, the first step in your preprocessing pipeline should be a
-conversion function that gets the data from `document.metadata['raw_document']`
-and sets `document.text`.
+In this case, the first step in your preprocessing pipeline should be a
+conversion function that gets the data from ``document.metadata['raw_document']``
+and sets ``document.text``.
 
 You can see an example of this in our demo application. The script
-`examples/tvseries/scripts/wikia_to_iepy` stores the wiki markup document in
-`metadata[raw_text]`. Then, the preprocessing function `media_wiki_to_txt()`
-defined at `examples/tvseries/scripts/preprocess.py` takes care of parsing this,
-converting to text, and storing the data into the `text` field, which is what
+``examples/tvseries/scripts/wikia_to_iepy`` stores the wiki markup document in
+``metadata[raw_text]``. Then, the preprocessing function ``media_wiki_to_txt()``
+defined at ``examples/tvseries/scripts/preprocess.py`` takes care of parsing this,
+converting to text, and storing the data into the ``text`` field, which is what
 will be used by subsequent steps.
 
 For more details about preprocessing, proceed to the next section.
