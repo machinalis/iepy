@@ -54,24 +54,6 @@ from colorama import Fore, Style
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
 
-from iepy.fact_extractor import (
-    bag_of_words,
-    bag_of_pos,
-    bag_of_word_bigrams,
-    bag_of_words_in_between,
-    bag_of_pos_in_between,
-    entity_order,
-    entity_distance,
-    other_entities_in_between,
-    in_same_sentence,
-    verbs_count_in_between,
-    verbs_count,
-    total_number_of_entities,
-    symbols_in_between,
-    number_of_tokens,
-    BagOfVerbStems,
-    BagOfVerbLemmas,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -256,28 +238,31 @@ class BootstrappedIEPipeline(object):
             "classifier": "dtree",
             "classifier_args": dict(),
             "dimensionality_reduction": None,
+            "dimensionality_reduction_dimension": None,
+            "feature_selection": None,
+            "feature_selection_dimension": None,
             "scaler": False,
-            "column_filter": False,
-            "features": [
-                bag_of_words,
-                bag_of_pos,
-                bag_of_word_bigrams,
-                bag_of_words_in_between,
-                bag_of_pos_in_between,
-                entity_order,
-                entity_distance,
-                other_entities_in_between,
-                in_same_sentence,
-                verbs_count_in_between,
-                verbs_count,
-                total_number_of_entities,
-                symbols_in_between,
-                number_of_tokens,
-                BagOfVerbStems(in_between=True),
-                BagOfVerbStems(in_between=False),
-                BagOfVerbLemmas(in_between=True),
-                BagOfVerbLemmas(in_between=False)
-            ]
+            "features": """
+                    bag_of_words
+                    bag_of_pos
+                    bag_of_word_bigrams
+                    bag_of_wordpos
+                    bag_of_wordpos_bigrams
+                    bag_of_words_in_between
+                    bag_of_pos_in_between
+                    bag_of_word_bigrams_in_between
+                    bag_of_wordpos_in_between
+                    bag_of_wordpos_bigrams_in_between
+                    entity_order
+                    entity_distance
+                    other_entities_in_between
+                    in_same_sentence
+                    verbs_count_in_between
+                    verbs_count
+                    total_number_of_entities
+                    symbols_in_between
+                    number_of_tokens
+            """.split(),
         }
 
     def do_iteration(self, data):
@@ -302,7 +287,7 @@ class BootstrappedIEPipeline(object):
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
             for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
-        
+
         self.do_iteration(evidences)
 
     def questions_available(self):
