@@ -6,22 +6,34 @@ from featureforge.vectorizer import Vectorizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem import WordNetLemmatizer
 from schema import Schema
-from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.manifold import SpectralEmbedding
+from sklearn.decomposition import TruncatedSVD, NMF, PCA
+
 
 from future.builtins import map, str
 
 
 __all__ = ["FactExtractorFactory"]
 
+
 _selectors = {
-    "kbest": lambda n: SelectKBest(f_regression, n),
+    "kbest": lambda n: SelectKBest(chi2, n),
     "dtree": lambda n: DecisionTreeRegressor(),
+    "frequency_filter": lambda n: ColumnFilter(2),
+}
+
+_dimensionality_reduction = {
+    "svd": lambda n: TruncatedSVD(n),
+    "spectralembbeding": lambda n: SpectralEmbedding(n),
+    "nmf": lambda n: NMF(n),
+    "pca": lambda n: PCA(n),
 }
 
 _classifiers = {
@@ -36,43 +48,36 @@ _classifiers = {
 class FactExtractor(object):
 
     def __init__(self, config):
-        features = config.get('features', [
-            bag_of_words,
-            bag_of_pos,
-            bag_of_word_bigrams,
-            bag_of_wordpos,
-            bag_of_wordpos_bigrams,
-            bag_of_words_in_between,
-            bag_of_pos_in_between,
-            bag_of_word_bigrams_in_between,
-            bag_of_wordpos_in_between,
-            bag_of_wordpos_bigrams_in_between,
-            entity_order,
-            entity_distance,
-            other_entities_in_between,
-            in_same_sentence,
-            verbs_count_in_between,
-            verbs_count,
-            total_number_of_entities,
-            symbols_in_between,
-            number_of_tokens,
-            BagOfVerbStems(in_between=True),
-            BagOfVerbStems(in_between=False),
-            BagOfVerbLemmas(in_between=True),
-            BagOfVerbLemmas(in_between=False)
-        ])
-        classifier = _classifiers[config.get("classifier", "sgd")]
+        # TODO: Add easy access to the classifier (for getting the True index)
+        # TODO: Add features parsing
+        # TODO: Add config validation
+
+        features = []
+        for fname in config["features"]:
+            feature = globals()[fname]
+            features.append(feature)
+
+        classifier = _classifiers[config["classifier"]]
+
+        # Feature selection
+        selector = config["feature_selection"]
+        seln = config["feature_selection_dimension"]
+        if selector is not None:
+            selector = _selectors[selector](seln)
+
+        # Dimensionality reduction
+        dimred = config["dimensionality_reduction"]
+        dimredn = config["feature_selection_dimension"]
+        if dimred is not None:
+            dimred = _dimensionality_reduction[dimred](dimredn)
         steps = [
             ('vectorizer', Vectorizer(features)),
-            ('filter', ColumnFilter(2)) if config.get("column_filter") else None,
-            ('scaler', StandardScaler()) if config.get("scaler") else None,
-            ('classifier', classifier(**config.get('classifier_args', {})))
+            ('feature_selection', selector),
+            ('scaler', StandardScaler() if config["scaler"] else None),
+            ('dimensionality_reduction', dimred),
+            ('classifier', classifier(**config['classifier_args']))
         ]
-        steps = [s for s in steps if s is not None]
-        selector = config.get("dimensionality_reduction")
-        if selector is not None:
-            n = config['dimensionality_reduction_dimension']
-            steps[-1:-1] = ('dimensionality_reduction', _selectors[selector](n))
+        steps = [(name, step) for name, step in steps if step is not None]
         p = Pipeline(steps)
         self.predictor = p
 
