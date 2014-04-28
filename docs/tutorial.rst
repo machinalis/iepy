@@ -7,15 +7,30 @@ Information Extraction application with IEPY.
 Be sure you have a working `installation <installation>`_ of IEPY.
 
 
+
+Get Started
+===========
+
+
 Define your Problem
-===================
+-------------------
 
 Information Extraction is about finding structured information in unstructured
-documents. IEPY structures the information into entities and relationships.
+documents. IEPY structures the information into predefined kinds of entities
+and relations.
+
+So, the first thing you have to do is to define which kinds of entities and
+relations your application is going to find.
+For instance, you may want to identify the entities of kind *person* and
+*location* with the relation *was born in* or, like in our example, the entities
+*disease* and *symptom* with the relation *causes*.
+
+IEPY comes with built-in support for entity recognition of kinds *location*,
+*person* and  *organization*, but it can be customized for other entity kinds.
 
 
 Start a IEPY Application
-========================
+------------------------
 
 Pick a name you like for your IEPY application and run the IEPY application
 creation script. For instance, to create an application with name ``myapp``, run:
@@ -24,40 +39,45 @@ creation script. For instance, to create an application with name ``myapp``, run
 
     python scripts/startapp.py myapp
 
+This script will create a directory named ``myapp`` ready to accommodate your
+application. It will also create a couple of helper scripts that will be
+described in the following sections:
 
-Create the database with your data
-==================================
+::
 
-IEPY needs to have your input documents in a MongoDB database. All that you
-need to provide is an identifier for each document (which must be a unique
-string), and the document text.
+    myapp/scripts/createdb.py
+    myapp/scripts/preprocess.py
 
-Your documents are probably stored somewhere outside a IEPY database, so every
-application needs some code to convert and import the documents.
 
-Most of the import code depends heavily on the format and storage of your input
-data, but all of them need to write into the IEPY database.
+Create the IEPY Documents Database
+----------------------------------
 
-Any script that eneds to create documents in the IEPY database should do the
+IEPY needs to have your input documents in a `MongoDB <https://www.mongodb.org/>`_ 
+database. To help you do this, your IEPY application comes with the script
+``createdb.py``. This script loads your database with "toy" documents, so you
+have to edit it in order to make it load your actual documents.
+
+For each document, all you have to provide is an identifier  (which must be a
+unique string) and the document text.
+Your documents are probably stored somewhere outside a IEPY database, so you
+will need code to convert and import them.
+This code will depend heavily on the format and storage of your input data,
+but it will always have to write into the IEPY database.
+
+Any script that needs to create documents in the IEPY database should do the
 following::
-
 
     from iepy.db import connect, DocumentManager
 
     connect('database_name')
     docs = DocumentManager()
 
-Where `'database_name'` is any valid mongoDB database name. You can make up
-a new name and start using that, you don't need to have an existing database
-with that name.
-
+where ``'database_name'`` is any valid MongoDB database name.
 The code above connects (and creates if needed) the specified database, and
 creates a “Document Manager”, which is a utility object for operation on
 IEPY documents stored in the database. The database operations you need to
-do will be methods of `docs`.
-
-Once you have done the above, creating a document consists in making
-a function call like this::
+do will be methods of ``docs``.
+Creating a document consists in making a function call like this::
 
     docs.create_document(
         identifier="Moby Dick - Chapter I"
@@ -67,9 +87,9 @@ a function call like this::
         on shore, I thought I would sail about a little and see the watery part
         of the world. It is a way I have of driving off the spleen and
         regulating the circulation. ...
-        """
+        """)
 
-In a more typical case, if you have a directory called `Documents` full of text
+In a more typical case, if you have a directory called ``Documents`` full of text
 files, your import script might look like this::
 
     documents = os.listdir("Documents")
@@ -78,12 +98,12 @@ files, your import script might look like this::
         with open(filename) as f:
             docs.create_document(identifier=d, text=f.read())
 
-The `create_document` method allows you to add any additional metadata you
-want by passing a dictionary as a `metadata` argument. This metadata can be
+The ``create_document`` method allows you to add any additional metadata you
+want by passing a dictionary as a ``metadata`` argument. This metadata can be
 used in later preprocessing steps, or just stored in the database as reference
 information on the document. Extending the example above, if you want to 
 save the original filename and the import time, you could change the call
-to `create_document` as follows::
+to ``create_document`` as follows::
 
     docs.create_document(
         identifier=d,
@@ -93,7 +113,7 @@ to `create_document` as follows::
             'import_time': str(datetime.datetime.now())
         })
 
-The keys for the dictionary are essentially free-form, At this moments there
+The keys for the dictionary are essentially free-form. At this moment, there
 are no values with a predefined semantic, so you may choose whatever you
 want for your application.
 
@@ -112,21 +132,17 @@ add the original text as metadata, and leave the text empty, like this::
 
     docs.create_document(
         identifier=d, text='',
-        metadata={'raw_document': non_text_data}
+        metadata={'raw_data': non_text_data}
     )
 
-In that case, the first step in your preprocessing pipeline should be a
-conversion function that gets the data from `document.metadata['raw_document']`
-and sets `document.text`.
+In this case, the first step in your preprocessing pipeline should be a
+conversion function that gets the data from ``document.metadata['raw_data']``
+and sets ``document.text``.
 
-You can see an example of this in our demo application. The script
-`examples/tvseries/scripts/wikia_to_iepy` stores the wiki markup document in
-`metadata[raw_text]`. Then, the preprocessing function `media_wiki_to_txt()`
-defined at `examples/tvseries/scripts/preprocess.py` takes care of parsing this,
-converting to text, and storing the data into the `text` field, which is what
-will be used by subsequent steps.
+The IEPY application you created comes with code prepared to do this.
+Also, to see a working example you can refer to our demo application.
+For more details proceed to the next section.
 
-For more details about preprocessing, proceed to the next section
 
 Preprocess the Documents
 ========================
@@ -156,6 +172,8 @@ However, you may need to add some custom code, specially in two particular cases
   you will have to add an additional processing step at the beggining.
   IEPY provides you with a stub (``extract_plain_text``) so you can insert your
   code to convert the documents to plain text.
+  You can find a working example of this in the preprocessing script for our
+  demo application (``examples/tvseries/scripts/preprocess.py``).
 - You want to work with custom entity kinds: The provided NER only recognizes
   locations, persons and organizations. You can either program your own NER (or a
   wrapper for an existing NER) and use it in the pipeline, or you can use the
@@ -221,9 +239,7 @@ IEPY takes as input a small set of seed facts that you have to provide to it.
 The seed facts are positive examples of the relations you want IEPY to look for.
 
 You can either write the seed facts manually, or use IEPY's seed generation tool.
-In any case, the seeds facts are written in a CSV file with the following format:
-
-::
+In any case, the seeds facts are written in a CSV file with the following format::
 
   entity A kind, entity A name, entity B kind, entity B name, relation name
 
@@ -236,7 +252,7 @@ disease causes which symptom, you can provide a seed fact such as
 
 
 IEPY can help you generating the seed facts by looking in the document and
-asking you questions.
+asking you questions::
 
 .. code-block:: bash
 
@@ -259,9 +275,8 @@ Execute the IEPY bootstrap pipeline runner with
 
     python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
 
-where ``<dbname>`` is the name of the database generated in section X,
-``<seeds_file>`` is the seed facts file generated in section Y and
-``<output_file>`` is the file where IEPY will save the found facts.
+where ``<seeds_file>`` is the seed facts file generated in the previous section,
+and ``<output_file>`` is the file where IEPY will save the found facts.
 
 
 Help IEPY a Bit
@@ -269,16 +284,13 @@ Help IEPY a Bit
 
 On each iteration of the bootstrapping process, IEPY will look in the database
 for pieces of text that have a good chance to be evidences of facts. You will be
-asked to confirm or reject each evidence.
+asked to confirm or reject each evidence. The possible answers are:
 
-::
-
-  Possible answers are:
-     y: Valid Evidence
-     n: Not valid Evidence
-     d: Discard, not sure
-     run: Tired of answering for now. Run with what I gave you.
-     STOP: Stop execution ASAP
+- y: Valid Evidence.
+- n: Not valid Evidence.
+- d: Discard, not sure.
+- run: Tired of answering for now. Run with what I gave you.
+- STOP: Stop execution ASAP
 
 When you are tired of a round of answering, type ``run`` and IEPY will complete
 one loop of bootstrapping, by learning a classifier and reclassifying the text
@@ -293,16 +305,12 @@ Profit! Or not :)
 
 When finished, IEPY outputs a CSV file with the found facts along with
 references to the document parts that support them. The first five columns of
-the output CSV format specify the fact (as in the seed facts input file):
-
-::
+the output CSV format specify the fact (as in the seed facts input file)::
 
   entity A kind, entity A name, entity B kind, entity B name, relation name
 
 The remaining columns specify the document part in the database where the fact
-can be found:
-
-::
+can be found::
 
   document name, segment offset, entity A index, entity B index
 
