@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 from unittest import TestCase, skip
 
 from featureforge.validate import BaseFeatureFixture, EQ, RAISES
@@ -72,11 +76,23 @@ class TestFactExtractor(TestCase):
                     total_number_of_entities
                     symbols_in_between
                     number_of_tokens
-            """.split(),
+            """.split("\n"),
         }
 
     def test_simple_ok_configuration(self):
         FactExtractor(self.config)
+
+    @mock.patch("iepy.fact_extractor.BagOfVerbStems", spec=True)
+    def test_configuration_with_arguments(self, mocked_feature):
+        patch = """
+            BagOfVerbStems True
+            BagOfVerbLemmas True
+            BagOfVerbLemmas False
+        """.split("\n")
+        self.config["features"] = self.config["features"] + patch
+        FactExtractor(self.config)
+        self.assertEqual(mocked_feature.call_count, 1)
+        self.assertEqual(mocked_feature.call_args, ((True, ), ))
 
     def test_error_missing_configuration(self):
         del self.config["dimensionality_reduction_dimension"]

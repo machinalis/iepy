@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from string import punctuation
+import ast
 
 from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
@@ -49,7 +50,6 @@ class FactExtractor(object):
 
     def __init__(self, config):
         # TODO: Add easy access to the classifier (for getting the True index)
-        # TODO: Add features parsing
 
         try:
             # Feature selection
@@ -69,20 +69,13 @@ class FactExtractor(object):
 
             # Classifier
             classifier = _classifiers[config["classifier"]]
-            classifier = classifier(**config['classifier_args'])
+            classifier = classifier(**config["classifier_args"])
 
             config["features"]
         except KeyError as e:
             raise KeyError("Missing configuration option:", e)
 
-        try:
-            # Features
-            features = []
-            for fname in config["features"]:
-                feature = globals()[fname]
-                features.append(feature)
-        except KeyError as e:
-            raise KeyError("There is not such feature:", e)
+        features = self.parse_features(config["features"])
 
         steps = [
             ('vectorizer', Vectorizer(features)),
@@ -94,6 +87,25 @@ class FactExtractor(object):
         steps = [(name, step) for name, step in steps if step is not None]
         p = Pipeline(steps)
         self.predictor = p
+
+    def parse_features(self, feature_names):
+        features = []
+        for line in feature_names:
+            line = line.strip()
+            if not line:
+                continue
+            fname, _, args = line.partition(" ")
+            try:
+                feature = globals()[fname]
+            except KeyError:
+                raise KeyError("There is not such feature: "
+                               "{!r}".format(fname))
+            args = args.strip()
+            if args:
+                args = ast.literal_eval(args + ",")
+                feature = feature(*args)
+            features.append(feature)
+        return features
 
     def fit(self, data):
         X = []
