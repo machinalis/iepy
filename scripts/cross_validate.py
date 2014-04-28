@@ -28,6 +28,31 @@ config = {
     "classifier": "dtree",
     "classifier_args": dict(),
     "dimensionality_reduction": None,
+    "dimensionality_reduction_dimension": None,
+    "feature_selection": None,
+    "feature_selection_dimension": None,
+    "scaler": False,
+    "features": """
+            bag_of_words
+            bag_of_pos
+            bag_of_word_bigrams
+            bag_of_wordpos
+            bag_of_wordpos_bigrams
+            bag_of_words_in_between
+            bag_of_pos_in_between
+            bag_of_word_bigrams_in_between
+            bag_of_wordpos_in_between
+            bag_of_wordpos_bigrams_in_between
+            entity_order
+            entity_distance
+            other_entities_in_between
+            in_same_sentence
+            verbs_count_in_between
+            verbs_count
+            total_number_of_entities
+            symbols_in_between
+            number_of_tokens
+    """.split(),
 }
 
 
