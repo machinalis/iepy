@@ -252,7 +252,7 @@ disease causes which symptom, you can provide a seed fact such as
 
 
 IEPY can help you generating the seed facts by looking in the document and
-asking you questions::
+asking you questions:
 
 .. code-block:: bash
 
