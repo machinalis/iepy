@@ -78,10 +78,55 @@ files, your import script might look like this::
         with open(filename) as f:
             docs.create_document(identifier=d, text=f.read())
 
+The `create_document` method allows you to add any additional metadata you
+want by passing a dictionary as a `metadata` argument. This metadata can be
+used in later preprocessing steps, or just stored in the database as reference
+information on the document. Extending the example above, if you want to 
+save the original filename and the import time, you could change the call
+to `create_document` as follows::
 
-alternate case: text is in some other format, set metadata
+    docs.create_document(
+        identifier=d,
+        text=f.read(),
+        metadata={
+            'source_filename': filename,
+            'import_time': str(datetime.datetime.now())
+        })
 
-Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
+The keys for the dictionary are essentially free-form, At this moments there
+are no values with a predefined semantic, so you may choose whatever you
+want for your application.
+
+
+Handling different input formats
+--------------------------------
+
+Sometimes, your input documents are in some non-text format that you want to
+preserve (for example HTML, wiki markup, etc.), instead of converting on the
+fly while importing the data. This may be useful to link back results you get
+later to the original document.
+
+The best way to do this is to import the raw data and defer data conversion
+to a later step (see preprocessing below). If you want to do this you can
+add the original text as metadata, and leave the text empty, like this::
+
+    docs.create_document(
+        identifier=d, text='',
+        metadata={'raw_document': non_text_data}
+    )
+
+In that case, the first step in your preprocessing pipeline should be a
+conversion function that gets the data from `document.metadata['raw_document']`
+and sets `document.text`.
+
+You can see an example of this in our demo application. The script
+`examples/tvseries/scripts/wikia_to_iepy` stores the wiki markup document in
+`metadata[raw_text]`. Then, the preprocessing function `media_wiki_to_txt()`
+defined at `examples/tvseries/scripts/preprocess.py` takes care of parsing this,
+converting to text, and storing the data into the `text` field, which is what
+will be used by subsequent steps.
+
+For more details about preprocessing, proceed to the next section
 
 Preprocess the Documents
 ========================
