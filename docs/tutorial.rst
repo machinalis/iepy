@@ -7,6 +7,7 @@ Information Extraction application with IEPY.
 Be sure you have a working `installation <installation>`_ of IEPY.
 
 
+
 Get Started
 ===========
 
@@ -39,7 +40,7 @@ creation script. For instance, to create an application with name ``myapp``, run
     python scripts/startapp.py myapp
 
 This script will create a directory named ``myapp`` ready to accommodate your
-application. It will also create a couple of template scripts that will be
+application. It will also create a couple of helper scripts that will be
 described in the following sections:
 
 ::
@@ -52,12 +53,17 @@ Create the IEPY Documents Database
 ----------------------------------
 
 IEPY needs to have your input documents in a `MongoDB <https://www.mongodb.org/>`_ 
-database. All that you need to provide is an identifier for each document (which
-must be a unique string), and the document text.
-Your documents are probably stored somewhere outside a IEPY database, so every
-application needs some code to convert and import the documents.
-Most of the import code depends heavily on the format and storage of your input
-data, but all of them need to write into the IEPY database.
+database. To help you do this, your IEPY application comes with the script
+``createdb.py``. This script loads your database with "toy" documents, so you
+have to edit it in order to make it load your actual documents.
+
+For each document, all you have to provide is an identifier  (which must be a
+unique string) and the document text.
+Your documents are probably stored somewhere outside a IEPY database, so you
+will need code to convert and import them.
+This code will depend heavily on the format and storage of your input data,
+but it will always have to write into the IEPY database.
+
 Any script that needs to create documents in the IEPY database should do the
 following::
 
@@ -66,16 +72,12 @@ following::
     connect('database_name')
     docs = DocumentManager()
 
-where ``'database_name'`` is any valid MongoDB database name. You can make up
-a new name and start using that, you don't need to have an existing database
-with that name.
-
+where ``'database_name'`` is any valid MongoDB database name.
 The code above connects (and creates if needed) the specified database, and
 creates a “Document Manager”, which is a utility object for operation on
 IEPY documents stored in the database. The database operations you need to
 do will be methods of ``docs``.
-Once you have done the above, creating a document consists in making
-a function call like this::
+Creating a document consists in making a function call like this::
 
     docs.create_document(
         identifier="Moby Dick - Chapter I"
@@ -87,7 +89,7 @@ a function call like this::
         regulating the circulation. ...
         """)
 
-In a more typical case, if you have a directory called `Documents` full of text
+In a more typical case, if you have a directory called ``Documents`` full of text
 files, your import script might look like this::
 
     documents = os.listdir("Documents")
@@ -130,21 +132,17 @@ add the original text as metadata, and leave the text empty, like this::
 
     docs.create_document(
         identifier=d, text='',
-        metadata={'raw_document': non_text_data}
+        metadata={'raw_data': non_text_data}
     )
 
 In this case, the first step in your preprocessing pipeline should be a
-conversion function that gets the data from ``document.metadata['raw_document']``
+conversion function that gets the data from ``document.metadata['raw_data']``
 and sets ``document.text``.
 
-You can see an example of this in our demo application. The script
-``examples/tvseries/scripts/wikia_to_iepy`` stores the wiki markup document in
-``metadata[raw_text]``. Then, the preprocessing function ``media_wiki_to_txt()``
-defined at ``examples/tvseries/scripts/preprocess.py`` takes care of parsing this,
-converting to text, and storing the data into the ``text`` field, which is what
-will be used by subsequent steps.
+The IEPY application you created comes with code prepared to do this.
+Also, to see a working example you can refer to our demo application.
+For more details proceed to the next section.
 
-For more details about preprocessing, proceed to the next section.
 
 Preprocess the Documents
 ========================
@@ -174,6 +172,8 @@ However, you may need to add some custom code, specially in two particular cases
   you will have to add an additional processing step at the beggining.
   IEPY provides you with a stub (``extract_plain_text``) so you can insert your
   code to convert the documents to plain text.
+  You can find a working example of this in the preprocessing script for our
+  demo application (``examples/tvseries/scripts/preprocess.py``).
 - You want to work with custom entity kinds: The provided NER only recognizes
   locations, persons and organizations. You can either program your own NER (or a
   wrapper for an existing NER) and use it in the pipeline, or you can use the
