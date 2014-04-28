@@ -28,8 +28,105 @@ creation script. For instance, to create an application with name ``myapp``, run
 Create the database with your data
 ==================================
 
-Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
+IEPY needs to have your input documents in a MongoDB database. All that you
+need to provide is an identifier for each document (which must be a unique
+string), and the document text.
 
+Your documents are probably stored somewhere outside a IEPY database, so every
+application needs some code to convert and import the documents.
+
+Most of the import code depends heavily on the format and storage of your input
+data, but all of them need to write into the IEPY database.
+
+Any script that eneds to create documents in the IEPY database should do the
+following::
+
+
+    from iepy.db import connect, DocumentManager
+
+    connect('database_name')
+    docs = DocumentManager()
+
+Where `'database_name'` is any valid mongoDB database name. You can make up
+a new name and start using that, you don't need to have an existing database
+with that name.
+
+The code above connects (and creates if needed) the specified database, and
+creates a “Document Manager”, which is a utility object for operation on
+IEPY documents stored in the database. The database operations you need to
+do will be methods of `docs`.
+
+Once you have done the above, creating a document consists in making
+a function call like this::
+
+    docs.create_document(
+        identifier="Moby Dick - Chapter I"
+        text="""
+        Call me Ishmael. Some years ago—never mind how long precisely—having
+        little or no money in my purse, and nothing particular to interest me
+        on shore, I thought I would sail about a little and see the watery part
+        of the world. It is a way I have of driving off the spleen and
+        regulating the circulation. ...
+        """
+
+In a more typical case, if you have a directory called `Documents` full of text
+files, your import script might look like this::
+
+    documents = os.listdir("Documents")
+    for d in documents:
+        filename = os.path.join("Documents", d)
+        with open(filename) as f:
+            docs.create_document(identifier=d, text=f.read())
+
+The `create_document` method allows you to add any additional metadata you
+want by passing a dictionary as a `metadata` argument. This metadata can be
+used in later preprocessing steps, or just stored in the database as reference
+information on the document. Extending the example above, if you want to 
+save the original filename and the import time, you could change the call
+to `create_document` as follows::
+
+    docs.create_document(
+        identifier=d,
+        text=f.read(),
+        metadata={
+            'source_filename': filename,
+            'import_time': str(datetime.datetime.now())
+        })
+
+The keys for the dictionary are essentially free-form, At this moments there
+are no values with a predefined semantic, so you may choose whatever you
+want for your application.
+
+
+Handling different input formats
+--------------------------------
+
+Sometimes, your input documents are in some non-text format that you want to
+preserve (for example HTML, wiki markup, etc.), instead of converting on the
+fly while importing the data. This may be useful to link back results you get
+later to the original document.
+
+The best way to do this is to import the raw data and defer data conversion
+to a later step (see preprocessing below). If you want to do this you can
+add the original text as metadata, and leave the text empty, like this::
+
+    docs.create_document(
+        identifier=d, text='',
+        metadata={'raw_document': non_text_data}
+    )
+
+In that case, the first step in your preprocessing pipeline should be a
+conversion function that gets the data from `document.metadata['raw_document']`
+and sets `document.text`.
+
+You can see an example of this in our demo application. The script
+`examples/tvseries/scripts/wikia_to_iepy` stores the wiki markup document in
+`metadata[raw_text]`. Then, the preprocessing function `media_wiki_to_txt()`
+defined at `examples/tvseries/scripts/preprocess.py` takes care of parsing this,
+converting to text, and storing the data into the `text` field, which is what
+will be used by subsequent steps.
+
+For more details about preprocessing, proceed to the next section
 
 Preprocess the Documents
 ========================
