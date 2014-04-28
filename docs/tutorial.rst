@@ -31,34 +31,29 @@ creation script. For instance, to create an application with name ``myapp``, run
 Create the database with your data
 ----------------------------------
 
-IEPY needs to have your input documents in a MongoDB database. All that you
-need to provide is an identifier for each document (which must be a unique
-string), and the document text.
-
+IEPY needs to have your input documents in a `MongoDB <https://www.mongodb.org/>`_ 
+database. All that you need to provide is an identifier for each document (which
+must be a unique string), and the document text.
 Your documents are probably stored somewhere outside a IEPY database, so every
 application needs some code to convert and import the documents.
-
 Most of the import code depends heavily on the format and storage of your input
 data, but all of them need to write into the IEPY database.
-
-Any script that eneds to create documents in the IEPY database should do the
+Any script that needs to create documents in the IEPY database should do the
 following::
-
 
     from iepy.db import connect, DocumentManager
 
     connect('database_name')
     docs = DocumentManager()
 
-Where `'database_name'` is any valid mongoDB database name. You can make up
+where ``'database_name'`` is any valid MongoDB database name. You can make up
 a new name and start using that, you don't need to have an existing database
 with that name.
 
 The code above connects (and creates if needed) the specified database, and
 creates a “Document Manager”, which is a utility object for operation on
 IEPY documents stored in the database. The database operations you need to
-do will be methods of `docs`.
-
+do will be methods of ``docs``.
 Once you have done the above, creating a document consists in making
 a function call like this::
 
@@ -70,7 +65,7 @@ a function call like this::
         on shore, I thought I would sail about a little and see the watery part
         of the world. It is a way I have of driving off the spleen and
         regulating the circulation. ...
-        """
+        """)
 
 In a more typical case, if you have a directory called `Documents` full of text
 files, your import script might look like this::
@@ -81,12 +76,12 @@ files, your import script might look like this::
         with open(filename) as f:
             docs.create_document(identifier=d, text=f.read())
 
-The `create_document` method allows you to add any additional metadata you
-want by passing a dictionary as a `metadata` argument. This metadata can be
+The ``create_document`` method allows you to add any additional metadata you
+want by passing a dictionary as a ``metadata`` argument. This metadata can be
 used in later preprocessing steps, or just stored in the database as reference
 information on the document. Extending the example above, if you want to 
 save the original filename and the import time, you could change the call
-to `create_document` as follows::
+to ``create_document`` as follows::
 
     docs.create_document(
         identifier=d,
@@ -96,7 +91,7 @@ to `create_document` as follows::
             'import_time': str(datetime.datetime.now())
         })
 
-The keys for the dictionary are essentially free-form, At this moments there
+The keys for the dictionary are essentially free-form. At this moment, there
 are no values with a predefined semantic, so you may choose whatever you
 want for your application.
 
@@ -129,7 +124,7 @@ defined at `examples/tvseries/scripts/preprocess.py` takes care of parsing this,
 converting to text, and storing the data into the `text` field, which is what
 will be used by subsequent steps.
 
-For more details about preprocessing, proceed to the next section
+For more details about preprocessing, proceed to the next section.
 
 Preprocess the Documents
 ========================
@@ -224,9 +219,7 @@ IEPY takes as input a small set of seed facts that you have to provide to it.
 The seed facts are positive examples of the relations you want IEPY to look for.
 
 You can either write the seed facts manually, or use IEPY's seed generation tool.
-In any case, the seeds facts are written in a CSV file with the following format:
-
-::
+In any case, the seeds facts are written in a CSV file with the following format::
 
   entity A kind, entity A name, entity B kind, entity B name, relation name
 
@@ -239,7 +232,7 @@ disease causes which symptom, you can provide a seed fact such as
 
 
 IEPY can help you generating the seed facts by looking in the document and
-asking you questions.
+asking you questions::
 
 .. code-block:: bash
 
@@ -292,16 +285,12 @@ Profit! Or not :)
 
 When finished, IEPY outputs a CSV file with the found facts along with
 references to the document parts that support them. The first five columns of
-the output CSV format specify the fact (as in the seed facts input file):
-
-::
+the output CSV format specify the fact (as in the seed facts input file)::
 
   entity A kind, entity A name, entity B kind, entity B name, relation name
 
 The remaining columns specify the document part in the database where the fact
-can be found:
-
-::
+can be found::
 
   document name, segment offset, entity A index, entity B index
 
