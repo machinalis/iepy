@@ -86,6 +86,7 @@ class FactExtractor(object):
         ]
         steps = [(name, step) for name, step in steps if step is not None]
         p = Pipeline(steps)
+        self._classifier = classifier
         self.predictor = p
 
     def parse_features(self, feature_names):
@@ -112,11 +113,22 @@ class FactExtractor(object):
         for evidence, score in data.items():
             X.append(evidence)
             y.append(int(score))
+            assert y[-1] in (0, 1)
         self.predictor.fit(X, y)
+
+    def predict_proba(self, evidences):
+        """
+        Returns a list with the probabilities of the evidences being classified
+        as ``True``.
+        """
+        assert sorted(self._classifier.classes_) == [0, 1]
+        true_index = list(self._classifier.classes_).index(True)
+        ps = self.predictor.predict_proba(evidences)
+        return ps[:, true_index]
 
     def predict(self, evidences):
         return self.predictor.predict(evidences)
-
+        
 
 def FactExtractorFactory(config, data):
     """Instantiates and trains a classifier."""

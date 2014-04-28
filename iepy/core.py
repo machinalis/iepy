@@ -418,10 +418,7 @@ class BootstrappedIEPipeline(object):
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
             if r in extractors:
-                classifier = extractors[r].predictor.named_steps["classifier"]
-                true_index = list(classifier.classes_).index(True)
-                ps = extractors[r].predictor.predict_proba(evidence)
-                ps = ps[:, true_index]
+                ps = extractors[r].predict_proba(evidence)
             else:
                 # There was no evidence to train this classifier
                 ps = [0.5 for _ in evidence]  # Maximum uncertainty
