@@ -119,6 +119,8 @@ class TestFactExtractionInterface(unittest.TestCase):
         predictor = list(result.values())[0]
         self.assertTrue(hasattr(predictor, 'predict'))
         self.assertTrue(callable(predictor.predict))
+        self.assertTrue(hasattr(predictor, 'predict_proba'))
+        self.assertTrue(callable(predictor.predict_proba))
 
 
 class TestBootstrappedIEPipelineRelations(unittest.TestCase):

@@ -22,7 +22,7 @@ from docopt import docopt
 from iepy import db
 from iepy.core import Knowledge
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.utils import load_evidence_from_csv
+from iepy.utils import load_evidence_from_csv, make_feature_list
 
 config = {
     "classifier": "dtree",
@@ -32,7 +32,7 @@ config = {
     "feature_selection": None,
     "feature_selection_dimension": None,
     "scaler": False,
-    "features": """
+    "features": make_feature_list("""
             bag_of_words
             bag_of_pos
             bag_of_word_bigrams
@@ -52,7 +52,11 @@ config = {
             total_number_of_entities
             symbols_in_between
             number_of_tokens
-    """.split(),
+            BagOfVerbStems True
+            BagOfVerbStems False
+            BagOfVerbLemmas True
+            BagOfVerbLemmas False
+    """),
 }
 
 

@@ -53,6 +53,7 @@ from colorama import Fore, Style
 
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
+from iepy.utils import make_feature_list
 
 
 logger = logging.getLogger(__name__)
@@ -242,7 +243,7 @@ class BootstrappedIEPipeline(object):
             "feature_selection": None,
             "feature_selection_dimension": None,
             "scaler": False,
-            "features": """
+            "features": make_feature_list("""
                     bag_of_words
                     bag_of_pos
                     bag_of_word_bigrams
@@ -262,7 +263,11 @@ class BootstrappedIEPipeline(object):
                     total_number_of_entities
                     symbols_in_between
                     number_of_tokens
-            """.split(),
+                    BagOfVerbStems True
+                    BagOfVerbStems False
+                    BagOfVerbLemmas True
+                    BagOfVerbLemmas False
+            """),
         }
 
     def do_iteration(self, data):
@@ -413,10 +418,7 @@ class BootstrappedIEPipeline(object):
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
             if r in extractors:
-                classifier = extractors[r].predictor.named_steps["classifier"]
-                true_index = list(classifier.classes_).index(True)
-                ps = extractors[r].predictor.predict_proba(evidence)
-                ps = ps[:, true_index]
+                ps = extractors[r].predict_proba(evidence)
             else:
                 # There was no evidence to train this classifier
                 ps = [0.5 for _ in evidence]  # Maximum uncertainty

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from string import punctuation
+import ast
 
 from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
@@ -49,37 +50,62 @@ class FactExtractor(object):
 
     def __init__(self, config):
         # TODO: Add easy access to the classifier (for getting the True index)
-        # TODO: Add features parsing
-        # TODO: Add config validation
 
-        features = []
-        for fname in config["features"]:
-            feature = globals()[fname]
-            features.append(feature)
+        try:
+            # Feature selection
+            selector = config["feature_selection"]
+            seln = config["feature_selection_dimension"]
+            if selector is not None:
+                selector = _selectors[selector](seln)
 
-        classifier = _classifiers[config["classifier"]]
+            # Dimensionality reduction
+            dimred = config["dimensionality_reduction"]
+            dimredn = config["dimensionality_reduction_dimension"]
+            if dimred is not None:
+                dimred = _dimensionality_reduction[dimred](dimredn)
 
-        # Feature selection
-        selector = config["feature_selection"]
-        seln = config["feature_selection_dimension"]
-        if selector is not None:
-            selector = _selectors[selector](seln)
+            # Scaling
+            scaler = StandardScaler() if config["scaler"] else None
 
-        # Dimensionality reduction
-        dimred = config["dimensionality_reduction"]
-        dimredn = config["feature_selection_dimension"]
-        if dimred is not None:
-            dimred = _dimensionality_reduction[dimred](dimredn)
+            # Classifier
+            classifier = _classifiers[config["classifier"]]
+            classifier = classifier(**config["classifier_args"])
+
+            config["features"]
+        except KeyError as e:
+            raise KeyError("Missing configuration option:", e)
+
+        features = self.parse_features(config["features"])
+
         steps = [
             ('vectorizer', Vectorizer(features)),
             ('feature_selection', selector),
-            ('scaler', StandardScaler() if config["scaler"] else None),
+            ('scaler', scaler),
             ('dimensionality_reduction', dimred),
-            ('classifier', classifier(**config['classifier_args']))
+            ('classifier', classifier)
         ]
         steps = [(name, step) for name, step in steps if step is not None]
         p = Pipeline(steps)
+        self._classifier = classifier
         self.predictor = p
+
+    def parse_features(self, feature_names):
+        features = []
+        for line in feature_names:
+            if not line or line != line.strip():
+                raise ValueError("Garbage in feature set: {!r}".format(line))
+            fname, _, args = line.partition(" ")
+            try:
+                feature = globals()[fname]
+            except KeyError:
+                raise KeyError("There is not such feature: "
+                               "{!r}".format(fname))
+            args = args.strip()
+            if args:
+                args = ast.literal_eval(args + ",")
+                feature = feature(*args)
+            features.append(feature)
+        return features
 
     def fit(self, data):
         X = []
@@ -87,11 +113,22 @@ class FactExtractor(object):
         for evidence, score in data.items():
             X.append(evidence)
             y.append(int(score))
+            assert y[-1] in (0, 1)
         self.predictor.fit(X, y)
+
+    def predict_proba(self, evidences):
+        """
+        Returns a list with the probabilities of the evidences being classified
+        as ``True``.
+        """
+        assert sorted(self._classifier.classes_) == [0, 1]
+        true_index = list(self._classifier.classes_).index(True)
+        ps = self.predictor.predict_proba(evidences)
+        return ps[:, true_index]
 
     def predict(self, evidences):
         return self.predictor.predict(evidences)
-
+        
 
 def FactExtractorFactory(config, data):
     """Instantiates and trains a classifier."""
