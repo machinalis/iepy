@@ -15,7 +15,18 @@ Define your Problem
 -------------------
 
 Information Extraction is about finding structured information in unstructured
-documents. IEPY structures the information into entities and relationships.
+documents. IEPY structures the information into predefined kinds of entities
+and relations.
+
+So, the first thing you have to do is to define which kinds of entities and
+relations your application is going to find.
+For instance, you may want to identify the entities of kind *person* and
+*location* with the relation *was born in* or, like in our example, the entities
+*disease* and *symptom* with the relation *causes*.
+
+IEPY comes with built-in support for entity recognition of kinds *location*,
+*person* and  *organization*, but it can be customized for other entity kinds.
+
 
 Start a IEPY Application
 ------------------------
@@ -27,8 +38,17 @@ creation script. For instance, to create an application with name ``myapp``, run
 
     python scripts/startapp.py myapp
 
+This script will create a directory named ``myapp`` ready to accommodate your
+application. It will also create a couple of template scripts that will be
+described in the following sections:
 
-Create the database with your data
+::
+
+    myapp/scripts/createdb.py
+    myapp/scripts/preprocess.py
+
+
+Create the IEPY Documents Database
 ----------------------------------
 
 IEPY needs to have your input documents in a `MongoDB <https://www.mongodb.org/>`_ 
