@@ -50,32 +50,46 @@ class FactExtractor(object):
     def __init__(self, config):
         # TODO: Add easy access to the classifier (for getting the True index)
         # TODO: Add features parsing
-        # TODO: Add config validation
 
-        features = []
-        for fname in config["features"]:
-            feature = globals()[fname]
-            features.append(feature)
+        try:
+            # Feature selection
+            selector = config["feature_selection"]
+            seln = config["feature_selection_dimension"]
+            if selector is not None:
+                selector = _selectors[selector](seln)
 
-        classifier = _classifiers[config["classifier"]]
+            # Dimensionality reduction
+            dimred = config["dimensionality_reduction"]
+            dimredn = config["dimensionality_reduction_dimension"]
+            if dimred is not None:
+                dimred = _dimensionality_reduction[dimred](dimredn)
 
-        # Feature selection
-        selector = config["feature_selection"]
-        seln = config["feature_selection_dimension"]
-        if selector is not None:
-            selector = _selectors[selector](seln)
+            # Scaling
+            scaler = StandardScaler() if config["scaler"] else None
 
-        # Dimensionality reduction
-        dimred = config["dimensionality_reduction"]
-        dimredn = config["feature_selection_dimension"]
-        if dimred is not None:
-            dimred = _dimensionality_reduction[dimred](dimredn)
+            # Classifier
+            classifier = _classifiers[config["classifier"]]
+            classifier = classifier(**config['classifier_args'])
+
+            config["features"]
+        except KeyError as e:
+            raise KeyError("Missing configuration option:", e)
+
+        try:
+            # Features
+            features = []
+            for fname in config["features"]:
+                feature = globals()[fname]
+                features.append(feature)
+        except KeyError as e:
+            raise KeyError("There is not such feature:", e)
+
         steps = [
             ('vectorizer', Vectorizer(features)),
             ('feature_selection', selector),
-            ('scaler', StandardScaler() if config["scaler"] else None),
+            ('scaler', scaler),
             ('dimensionality_reduction', dimred),
-            ('classifier', classifier(**config['classifier_args']))
+            ('classifier', classifier)
         ]
         steps = [(name, step) for name, step in steps if step is not None]
         p = Pipeline(steps)
