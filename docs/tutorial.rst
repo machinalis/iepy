@@ -28,8 +28,60 @@ creation script. For instance, to create an application with name ``myapp``, run
 Create the database with your data
 ==================================
 
-Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
+IEPY needs to have your input documents in a MongoDB database. All that you
+need to provide is an identifier for each document (which must be a unique
+string), and the document text.
 
+Your documents are probably stored somewhere outside a IEPY database, so every
+application needs some code to convert and import the documents.
+
+Most of the import code depends heavily on the format and storage of your input
+data, but all of them need to write into the IEPY database.
+
+Any script that eneds to create documents in the IEPY database should do the
+following::
+
+
+    from iepy.db import connect, DocumentManager
+
+    connect('database_name')
+    docs = DocumentManager()
+
+Where `'database_name'` is any valid mongoDB database name. You can make up
+a new name and start using that, you don't need to have an existing database
+with that name.
+
+The code above connects (and creates if needed) the specified database, and
+creates a “Document Manager”, which is a utility object for operation on
+IEPY documents stored in the database. The database operations you need to
+do will be methods of `docs`.
+
+Once you have done the above, creating a document consists in making
+a function call like this::
+
+    docs.create_document(
+        identifier="Moby Dick - Chapter I"
+        text="""
+        Call me Ishmael. Some years ago—never mind how long precisely—having
+        little or no money in my purse, and nothing particular to interest me
+        on shore, I thought I would sail about a little and see the watery part
+        of the world. It is a way I have of driving off the spleen and
+        regulating the circulation. ...
+        """
+
+In a more typical case, if you have a directory called `Documents` full of text
+files, your import script might look like this::
+
+    documents = os.listdir("Documents")
+    for d in documents:
+        filename = os.path.join("Documents", d)
+        with open(filename) as f:
+            docs.create_document(identifier=d, text=f.read())
+
+
+alternate case: text is in some other format, set metadata
+
+Do something like what is done with the script tvseries/scripts/wikia_to_iepy.
 
 Preprocess the Documents
 ========================
