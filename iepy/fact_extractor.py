@@ -91,9 +91,8 @@ class FactExtractor(object):
     def parse_features(self, feature_names):
         features = []
         for line in feature_names:
-            line = line.strip()
-            if not line:
-                continue
+            if not line or line != line.strip():
+                raise ValueError("Garbage in feature set: {!r}".format(line))
             fname, _, args = line.partition(" ")
             try:
                 feature = globals()[fname]

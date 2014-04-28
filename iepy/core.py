@@ -53,6 +53,7 @@ from colorama import Fore, Style
 
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
+from iepy.utils import make_feature_list
 
 
 logger = logging.getLogger(__name__)
@@ -242,7 +243,7 @@ class BootstrappedIEPipeline(object):
             "feature_selection": None,
             "feature_selection_dimension": None,
             "scaler": False,
-            "features": """
+            "features": make_feature_list("""
                     bag_of_words
                     bag_of_pos
                     bag_of_word_bigrams
@@ -262,7 +263,11 @@ class BootstrappedIEPipeline(object):
                     total_number_of_entities
                     symbols_in_between
                     number_of_tokens
-            """.split(),
+                    BagOfVerbStems True
+                    BagOfVerbStems False
+                    BagOfVerbLemmas True
+                    BagOfVerbLemmas False
+            """),
         }
 
     def do_iteration(self, data):

@@ -110,3 +110,7 @@ def save_labeled_evidence_to_csv(labeled_evidence, filepath):
                 label
             ]
             evidence_writer.writerow(row)
+
+
+def make_feature_list(text):
+    return [x.strip() for x in text.split("\n") if x.strip()]

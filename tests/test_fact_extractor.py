@@ -35,6 +35,7 @@ from iepy.fact_extractor import (FactExtractor,
                                  BagOfVerbLemmas
                                  )
 from iepy.fact_extractor import ColumnFilter
+from iepy.utils import make_feature_list
 
 
 def _e(markup, **kwargs):
@@ -56,7 +57,7 @@ class TestFactExtractor(TestCase):
             "feature_selection": None,
             "feature_selection_dimension": None,
             "scaler": False,
-            "features": """
+            "features": make_feature_list("""
                     bag_of_words
                     bag_of_pos
                     bag_of_word_bigrams
@@ -76,7 +77,7 @@ class TestFactExtractor(TestCase):
                     total_number_of_entities
                     symbols_in_between
                     number_of_tokens
-            """.split("\n"),
+            """),
         }
 
     def test_simple_ok_configuration(self):
@@ -84,11 +85,11 @@ class TestFactExtractor(TestCase):
 
     @mock.patch("iepy.fact_extractor.BagOfVerbStems", spec=True)
     def test_configuration_with_arguments(self, mocked_feature):
-        patch = """
+        patch = make_feature_list("""
             BagOfVerbStems True
             BagOfVerbLemmas True
             BagOfVerbLemmas False
-        """.split("\n")
+        """)
         self.config["features"] = self.config["features"] + patch
         FactExtractor(self.config)
         self.assertEqual(mocked_feature.call_count, 1)
