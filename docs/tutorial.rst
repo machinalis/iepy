@@ -262,9 +262,8 @@ Execute the IEPY bootstrap pipeline runner with
 
     python scripts/iepy_runner.py <dbname> <seeds_file> <output_file>
 
-where ``<dbname>`` is the name of the database generated in section X,
-``<seeds_file>`` is the seed facts file generated in section Y and
-``<output_file>`` is the file where IEPY will save the found facts.
+where ``<seeds_file>`` is the seed facts file generated in the previous section,
+and ``<output_file>`` is the file where IEPY will save the found facts.
 
 
 Help IEPY a Bit
@@ -272,16 +271,13 @@ Help IEPY a Bit
 
 On each iteration of the bootstrapping process, IEPY will look in the database
 for pieces of text that have a good chance to be evidences of facts. You will be
-asked to confirm or reject each evidence.
+asked to confirm or reject each evidence. The possible answers are:
 
-::
-
-  Possible answers are:
-     y: Valid Evidence
-     n: Not valid Evidence
-     d: Discard, not sure
-     run: Tired of answering for now. Run with what I gave you.
-     STOP: Stop execution ASAP
+- y: Valid Evidence.
+- n: Not valid Evidence.
+- d: Discard, not sure.
+- run: Tired of answering for now. Run with what I gave you.
+- STOP: Stop execution ASAP
 
 When you are tired of a round of answering, type ``run`` and IEPY will complete
 one loop of bootstrapping, by learning a classifier and reclassifying the text
