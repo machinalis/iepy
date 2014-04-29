@@ -16,6 +16,7 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
         ka_entities = [e for e in s.entities if e.kind == kind_a]
         kb_entities = [e for e in s.entities if e.kind == kind_b]
         print(u'Considering segment %i of %i' % (i, len(ss)))
+        should_ask = True
         for e1 in ka_entities:
             for e2 in kb_entities:
                 # build evidence:
@@ -31,12 +32,16 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
                 evidence = Evidence(fact, s, o1, o2)
 
                 # ask the oracle: are e1 and e2 related in s?
-                answer = oracle(evidence)
-                assert answer in ['y', 'n', 'stop']
-                if answer == 'y':
+                if should_ask:
+                    answer = oracle(evidence)
+                else:
+                    answer = u'n'
+                assert answer in [u'y', u'n', u'stop', u'skip']
+                if answer == u'y':
                     result += [(evidence, True)]
-                elif answer == 'n':
+                elif answer == u'skip':
                     result += [(evidence, False)]
-                elif answer == 'stop':
+                    should_ask = False
+                elif answer == u'stop':
                     return result
     return result

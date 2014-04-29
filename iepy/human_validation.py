@@ -112,8 +112,8 @@ def human_oracle(evidence):
     """Simple text interface to query a human for fact generation."""
     colored_fact, colored_segment = evidence.colored_fact_and_text()
     print(u'SEGMENT: %s' % colored_segment)
-    question = ' FACT: {0}? (y/n/stop) '.format(colored_fact)
+    question = ' FACT: {0}? (y/n/stop/skip) '.format(colored_fact)
     answer = input(question)
-    while answer not in ['y', 'n', 'stop']:
+    while answer not in [u'y', u'n', u'stop', u'skip']:
         answer = input(question)
     return answer
