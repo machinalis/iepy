@@ -315,5 +315,16 @@ can be found::
   document name, segment offset, entity A index, entity B index
 
 where ``segment offset`` is the text segment offset into the document and the
-entity indexes indicate the entity positions into the segment.
+entity indexes indicate the entity positions into the segment. These indexes are
+all internal to the database and depends on how the documents are preprocessed.
+
+For a human-readable version of the CSV output, you can use IEPY's results
+pretty printer:
+
+.. code-block:: bash
+
+    python scripts/print_results.py <dbname> <csv_file>
+
+This script will output all the facts in the CSV file with their respective 
+evidences.
 
