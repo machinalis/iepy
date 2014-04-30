@@ -37,8 +37,8 @@ def media_wiki_to_txt(doc):
 
 CUSTOM_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
 CUSTOM_ENTITIES_FILES = ['examples/tvseries/disease.txt',
-                            'examples/tvseries/symptom.txt',
-                            'examples/tvseries/diagnostic_test.txt']
+                         'examples/tvseries/symptom.txt',
+                         'examples/tvseries/diagnostic_test.txt']
 
 
 if __name__ == '__main__':
