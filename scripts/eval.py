@@ -12,7 +12,7 @@ Options:
 from docopt import docopt
 
 from iepy.db import connect
-from iepy.utils import load_evidence_from_csv
+from iepy.utils import load_evidence_from_csv, evaluate
 
 
 if __name__ == '__main__':
@@ -23,15 +23,7 @@ if __name__ == '__main__':
 
     proposed = load_evidence_from_csv(proposed_csv, connector)
     reference = load_evidence_from_csv(reference_csv, connector)
+    result = evaluate(proposed, reference)
 
-    # ignore proposed facts with no evidence:
-    proposed_positives = set([p for p in proposed.keys() if p.segment])
-    reference_positives = set([p for p, b in reference.items() if b])
-    coincident_positives = proposed_positives & reference_positives
-
-    precision = float(len(coincident_positives)) / len(proposed_positives)
-    recall = float(len(coincident_positives)) / len(reference_positives)
-
-    print("Precision: %.2f" % precision)
-    print("Recall: %.2f" % recall)
-
+    print("Precision: %.2f" % result['precision'])
+    print("Recall: %.2f" % result['recall'])
