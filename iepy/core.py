@@ -243,6 +243,7 @@ class BootstrappedIEPipeline(object):
             "feature_selection": None,
             "feature_selection_dimension": None,
             "scaler": False,
+            "sparse": False,
             "features": make_feature_list("""
                     bag_of_words
                     bag_of_pos

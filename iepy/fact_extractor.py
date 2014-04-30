@@ -49,8 +49,6 @@ _classifiers = {
 class FactExtractor(object):
 
     def __init__(self, config):
-        # TODO: Add easy access to the classifier (for getting the True index)
-
         try:
             # Feature selection
             selector = config["feature_selection"]
@@ -72,13 +70,14 @@ class FactExtractor(object):
             classifier = classifier(**config["classifier_args"])
 
             config["features"]
+            sparse = config["sparse"]
         except KeyError as e:
             raise KeyError("Missing configuration option:", e)
 
         features = self.parse_features(config["features"])
 
         steps = [
-            ('vectorizer', Vectorizer(features)),
+            ('vectorizer', Vectorizer(features, sparse=sparse)),
             ('feature_selection', selector),
             ('scaler', scaler),
             ('dimensionality_reduction', dimred),
