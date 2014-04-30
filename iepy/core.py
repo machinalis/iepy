@@ -53,7 +53,7 @@ from colorama import Fore, Style
 
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.utils import make_feature_list
+from iepy.utils import make_feature_list, evaluate
 
 
 logger = logging.getLogger(__name__)
@@ -214,7 +214,7 @@ class BootstrappedIEPipeline(object):
         facts = p.get_facts()  # profit
     """
 
-    def __init__(self, db_connector, seed_facts):
+    def __init__(self, db_connector, seed_facts, gold_standard=None):
         """
         Not blocking.
         """
@@ -224,6 +224,7 @@ class BootstrappedIEPipeline(object):
         self.fact_threshold = 0.99
         self.questions = Knowledge()
         self.answers = {}
+        self.gold_standard = gold_standard
 
         self.steps = [
                 self.generalize_knowledge,   # Step 1
@@ -232,7 +233,8 @@ class BootstrappedIEPipeline(object):
                 self.filter_evidence,        # Step 2, second half
                 self.learn_fact_extractors,  # Step 3
                 self.extract_facts,          # Step 5
-                self.filter_facts            # Step 6
+                self.filter_facts,           # Step 6
+                self.evaluate                # Optional evaluation step
         ]
         self.step_iterator = itertools.cycle(self.steps)
 
@@ -451,6 +453,19 @@ class BootstrappedIEPipeline(object):
         logger.info(u'Learnt {} new facts this iteration (adding to a total '
                     u'of {} facts)'.format(len(self.knowledge) - n,
                                            len(self.knowledge)))
+        return facts
+
+    def evaluate(self, facts):
+        """
+        If a gold standard was given, compute precision and recall for current
+        knowledge.
+        """
+        if self.gold_standard:
+            logger.debug(u'running evaluate')
+            result = evaluate(self.knowledge, self.gold_standard)
+            logger.info(u'Precision: {}'.format(result['precision']))
+            logger.info(u'Recall: {}'.format(result['recall']))
+
         return facts
 
     ###
