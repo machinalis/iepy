@@ -16,6 +16,7 @@ from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.manifold import SpectralEmbedding
 from sklearn.decomposition import TruncatedSVD, NMF, PCA
+from sklearn.svm import SVC
 
 
 from future.builtins import map, str
@@ -43,41 +44,67 @@ _classifiers = {
     "naivebayes_m": MultinomialNB,
     "dtree": DecisionTreeClassifier,
     "logit": LogisticRegression,
+    "svm": SVC,
 }
+
+_configuration_options = """
+    feature_selection
+    feature_selection_dimension
+    dimensionality_reduction
+    dimensionality_reduction_dimension
+    scaler
+    classifier
+    classifier_args
+    features
+    sparse
+""".split()
 
 
 class FactExtractor(object):
 
     def __init__(self, config):
-        try:
-            # Feature selection
-            selector = config["feature_selection"]
-            seln = config["feature_selection_dimension"]
-            if selector is not None:
+        # Validate options are present
+        for option in _configuration_options:
+            if option not in config:
+                raise ValueError("Missing configuration "
+                                 "option {!r}".format(option))
+
+        # Feature selection
+        selector = config["feature_selection"]
+        seln = config["feature_selection_dimension"]
+        if selector is not None:
+            try:
                 selector = _selectors[selector](seln)
+            except KeyError:
+                raise ValueError("Unknown feature selection method "
+                                 "{!r}".format(selector))
 
-            # Dimensionality reduction
-            dimred = config["dimensionality_reduction"]
-            dimredn = config["dimensionality_reduction_dimension"]
-            if dimred is not None:
+        # Dimensionality reduction
+        dimred = config["dimensionality_reduction"]
+        dimredn = config["dimensionality_reduction_dimension"]
+        if dimred is not None:
+            try:
                 dimred = _dimensionality_reduction[dimred](dimredn)
+            except KeyError:
+                raise ValueError("Unknown dimensionality reduction method"
+                                 "{!r}".format(dimred))
 
-            # Scaling
-            scaler = StandardScaler() if config["scaler"] else None
+        # Scaling
+        scaler = StandardScaler() if config["scaler"] else None
 
-            # Classifier
+        # Classifier
+        try:
             classifier = _classifiers[config["classifier"]]
-            classifier = classifier(**config["classifier_args"])
+        except KeyError:
+            raise ValueError("Unknown classification algorithm "
+                             "{!r}".format(config["classifier"]))
+        classifier = classifier(**config["classifier_args"])
 
-            config["features"]
-            sparse = config["sparse"]
-        except KeyError as e:
-            raise KeyError("Missing configuration option:", e)
 
         features = self.parse_features(config["features"])
 
         steps = [
-            ('vectorizer', Vectorizer(features, sparse=sparse)),
+            ('vectorizer', Vectorizer(features, sparse=config["sparse"])),
             ('feature_selection', selector),
             ('scaler', scaler),
             ('dimensionality_reduction', dimred),

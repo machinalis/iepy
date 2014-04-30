@@ -98,7 +98,7 @@ class TestFactExtractor(TestCase):
 
     def test_error_missing_configuration(self):
         del self.config["dimensionality_reduction_dimension"]
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ValueError):
             FactExtractor(self.config)
 
     def test_error_nonexistent_feature(self):
