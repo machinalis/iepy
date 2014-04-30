@@ -1,5 +1,5 @@
 """
-Print IEPY's results
+IEPY's result pretty printer.
 
 Usage:
     print_results.py <dbname> <csv_file>
@@ -12,7 +12,6 @@ Options:
 from docopt import docopt
 import logging
 
-from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.utils import load_evidence_from_csv
 
