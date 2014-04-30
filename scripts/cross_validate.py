@@ -25,13 +25,14 @@ from iepy.fact_extractor import FactExtractorFactory
 from iepy.utils import load_evidence_from_csv, make_feature_list
 
 config = {
-    "classifier": "dtree",
+    "classifier": "svm",
     "classifier_args": dict(),
     "dimensionality_reduction": None,
     "dimensionality_reduction_dimension": None,
     "feature_selection": None,
     "feature_selection_dimension": None,
     "scaler": False,
+    "sparse": True,
     "features": make_feature_list("""
             bag_of_words
             bag_of_pos
