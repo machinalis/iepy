@@ -118,3 +118,30 @@ def save_labeled_evidence_to_csv(labeled_evidence, filepath):
 
 def make_feature_list(text):
     return [x.strip() for x in text.split("\n") if x.strip()]
+
+
+def evaluate(predicted_knowledge, gold_knowledge):
+    """Computes evaluation metrics for a predicted knowledge with respect to a 
+    gold (or reference) knowledge. Returns a dictionary with the results.
+    """
+    # ignore predicted facts with no evidence:
+    predicted_positives = set([p for p in predicted_knowledge.keys() if p.segment])
+    gold_positives = set([p for p, b in gold_knowledge.items() if b])
+    correct_positives = predicted_positives & gold_positives
+
+    result = {}
+    result['correct'] = correct = len(correct_positives)
+    result['predicted'] = predicted = len(predicted_positives)
+    result['gold'] = gold = len(gold_positives)
+
+    if predicted > 0:
+        result['precision'] = precision = float(correct) / predicted
+    else:
+        result['precision'] = precision = 1.0
+    if gold > 0:
+        result['recall'] = recall = float(correct) / gold
+    else:
+        result['recall'] = recall = 1.0
+    result['f1'] = 2 * precision * recall / (precision + recall)
+
+    return result
