@@ -116,10 +116,16 @@ class Evidence(BaseEvidence):
     """
     __slots__ = []
 
-    def colored_text(self, color_1=Fore.RED, color_2=Fore.GREEN):
+    default_color_1 = Fore.RED
+    default_color_2 = Fore.GREEN
+
+    def colored_text(self, color_1=None, color_2=None):
         """Will return a naive formated text with entities remarked.
         Assumes that occurrences does not overlap.
         """
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+
         occurr1 = self.segment.entities[self.o1]
         occurr2 = self.segment.entities[self.o2]
         tkns = self.segment.tokens[:]
@@ -135,7 +141,10 @@ class Evidence(BaseEvidence):
             tkns.insert(occurr2.offset, color_2)
         return u' '.join(tkns)
 
-    def colored_fact(self, color_1=Fore.RED, color_2=Fore.GREEN):
+    def colored_fact(self, color_1=None, color_2=None):
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+
         return u'(%s <%s>, %s, %s <%s>)' % (
             color_1 + self.fact.e1.key + Style.RESET_ALL,
             self.fact.e1.kind,
@@ -144,7 +153,10 @@ class Evidence(BaseEvidence):
             self.fact.e2.kind,
         )
 
-    def colored_fact_and_text(self, color_1=Fore.RED, color_2=Fore.GREEN):
+    def colored_fact_and_text(self, color_1=None, color_2=None):
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+
         return (
             self.colored_fact(color_1, color_2),
             self.colored_text(color_1, color_2)
