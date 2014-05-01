@@ -4,7 +4,7 @@ Application Tutorial
 
 In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
-Be sure you have a working `installation <installation>`_ of IEPY.
+Be sure you have a working `installation <https://github.com/machinalis/iepy/blob/develop/docs/installation.rst>`_ of IEPY.
 
 
 
