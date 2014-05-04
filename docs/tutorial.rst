@@ -185,7 +185,7 @@ Use the Literal Named Entity Recognizer
 
 A quick option to have a very simple baseline NER for any entity kind you want
 is to use IEPY's Literal Named Entity Recognizer.
-IPEY's Literal NER reads from a text file all the possible entity instance names,
+IEPY's Literal NER reads from a text file all the possible entity instance names,
 and tags all the exact matches of these names in the documents.
 
 For instance, to add NER for diseases and symptoms for your IEPY application,
