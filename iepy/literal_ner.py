@@ -102,11 +102,10 @@ class LiteralNERRunner(BasePreProcessStepRunner):
             for ((i, j), label) in sent_entities:
                 name = ' '.join(sent[i:j])
                 kind = label.lower()  # XXX: should be in models.ENTITY_KINDS
-                entity, created = Entity.objects.get_or_create(key=name, kind=kind,
-                            defaults={'canonical_form': name})
-                entity_oc = EntityOccurrence(entity=entity,
-                                        offset=sent_offset + i,
-                                        offset_end=sent_offset + j)
+                entity, created = Entity.objects.get_or_create(
+                    key=name, kind=kind, defaults={'canonical_form': name})
+                entity_oc = EntityOccurrence(
+                    entity=entity, offset=sent_offset + i, offset_end=sent_offset + j)
                 entities.append(entity_oc)
 
             sent_offset += len(sent)
@@ -161,7 +160,7 @@ def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=Fa
 
 
 def to_lower_normalizer(name):
-    """Utility normalizer that converts a name to lowercase unless it is an 
+    """Utility normalizer that converts a name to lowercase unless it is an
     acronym. To be used as parameter of download_freebase_type().
     """
     words = name.split()
