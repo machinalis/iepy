@@ -12,14 +12,25 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.manifold import SpectralEmbedding
 from sklearn.decomposition import TruncatedSVD, NMF, PCA
 from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
 
 
 from future.builtins import map, str
+
+
+def adawrapper(**kwargs):
+    k = "n_estimators"
+    base = {}
+    estimator = dict(kwargs)
+    if k in estimator:
+        base[k] = estimator[k]
+        del estimator[k]
+    return AdaBoostClassifier(DecisionTreeClassifier(**estimator), **base)
 
 
 __all__ = ["FactExtractorFactory"]
@@ -27,8 +38,8 @@ __all__ = ["FactExtractorFactory"]
 
 _selectors = {
     "kbest": lambda n: SelectKBest(chi2, n),
-    "dtree": lambda n: DecisionTreeRegressor(),
-    "frequency_filter": lambda n: ColumnFilter(2),
+    "dtree": lambda n: DecisionTreeClassifier(),
+    "frequency_filter": lambda n: ColumnFilter(3),
 }
 
 _dimensionality_reduction = {
@@ -45,6 +56,7 @@ _classifiers = {
     "dtree": DecisionTreeClassifier,
     "logit": LogisticRegression,
     "svm": SVC,
+    "adaboost": adawrapper,
 }
 
 _configuration_options = """
@@ -99,7 +111,6 @@ class FactExtractor(object):
             raise ValueError("Unknown classification algorithm "
                              "{!r}".format(config["classifier"]))
         classifier = classifier(**config["classifier_args"])
-
 
         features = self.parse_features(config["features"])
 
