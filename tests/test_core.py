@@ -7,7 +7,8 @@ import unittest
 from sklearn.pipeline import Pipeline
 from future.builtins import range
 
-from iepy.core import Fact, Evidence, certainty, Knowledge, BootstrappedIEPipeline
+from iepy.core import BootstrappedIEPipeline
+from iepy.knowledge import certainty, Evidence, Fact, Knowledge
 from .factories import EntityFactory, EvidenceFactory, FactFactory
 
 

@@ -38,7 +38,7 @@ def load_facts_from_csv(filepath):
     Everything else in the file will be ignored.
     Row with less column than stated, will be ignored.
     """
-    from iepy.core import Fact  # Done here to avoid circular dependency
+    from iepy.knowledge import Fact  # Done here to avoid circular dependency
     from iepy import db
 
     with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
@@ -68,7 +68,7 @@ def save_facts_to_csv(facts, filepath):
 
 def load_evidence_from_csv(filename, connection):
     # Importing here to avoid circular dependency
-    from iepy.core import Evidence, Fact, Knowledge
+    from iepy.knowledge import Evidence, Fact, Knowledge
     from iepy import db
     result = Knowledge()
     with codecs.open(filename, encoding='utf-8') as csvfile:
