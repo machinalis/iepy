@@ -24,7 +24,7 @@ class CombinedOracle(object):
         self.knowledge = knowledge
         self.relation = relation
 
-    def __call__(self, evidence):
+    def __call__(self, evidence, possible_answers):
         if evidence in self.knowledge:
             answer = self.knowledge[evidence]
             assert answer in [0, 1]
@@ -33,7 +33,7 @@ class CombinedOracle(object):
             else:
                 return 'y'
         else:
-            return human_oracle(evidence)
+            return human_oracle(evidence, possible_answers)
 
 
 if __name__ == '__main__':

@@ -108,12 +108,13 @@ class TerminalInterviewer(object):
         return answer
 
 
-def human_oracle(evidence):
+def human_oracle(evidence, possible_answers):
     """Simple text interface to query a human for fact generation."""
     colored_fact, colored_segment = evidence.colored_fact_and_text()
     print(u'SEGMENT: %s' % colored_segment)
-    question = ' FACT: {0}? (y/n/stop/skip) '.format(colored_fact)
+    question = ' FACT: {0}? ({1}) '.format(colored_fact,
+                                           u'/'.join(possible_answers))
     answer = input(question)
-    while answer not in [u'y', u'n', u'stop', u'skip']:
+    while answer not in possible_answers:
         answer = input(question)
     return answer

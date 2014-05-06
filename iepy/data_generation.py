@@ -1,6 +1,8 @@
 from iepy.db import TextSegmentManager, get_entity
 from iepy.core import Evidence, Fact
 
+ANSWERS = [u'y', u'n', u'stop']
+
 
 def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
     """The oracle is a function that takes three parameters: the text segment and
@@ -16,7 +18,6 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
         ka_entities = [e for e in s.entities if e.kind == kind_a]
         kb_entities = [e for e in s.entities if e.kind == kind_b]
         print(u'Considering segment %i of %i' % (i, len(ss)))
-        should_ask = True
         for e1 in ka_entities:
             for e2 in kb_entities:
                 # build evidence:
@@ -31,16 +32,12 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
                 evidence = Evidence(fact, s, o1, o2)
 
                 # ask the oracle: are e1 and e2 related in s?
-                if should_ask:
-                    answer = oracle(evidence)
-                else:
-                    answer = u'n'
-                assert answer in [u'y', u'n', u'stop', u'skip']
+                answer = oracle(evidence, ANSWERS)
+                assert answer in ANSWERS
                 if answer == u'y':
                     result += [(evidence, True)]
                 elif answer == u'skip':
                     result += [(evidence, False)]
-                    should_ask = False
                 elif answer == u'stop':
                     return result
     return result
