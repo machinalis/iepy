@@ -19,7 +19,7 @@ from iepy.models import set_custom_entity_kinds
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.tagger import StanfordTaggerRunner
-from iepy.combined_ner import CombinedNERRunner
+from iepy.combined_ner import NoOverlapCombinedNERRunner
 from iepy.literal_ner import LiteralNERRunner
 from iepy.ner import StanfordNERRunner
 from iepy.segmenter import SyntacticSegmenterRunner
@@ -35,19 +35,20 @@ def media_wiki_to_txt(doc):
         doc.save()
 
 
-CUSTOM_ENTITIES = ['DISEASE', 'SYMPTOM', 'MEDICAL_TEST']
-CUSTOM_ENTITIES_FILES = ['examples/tvseries/disease.txt',
-                            'examples/tvseries/symptom.txt',
-                            'examples/tvseries/diagnostic_test.txt']
+CUSTOM_ENTITIES = [u'PERSON', u'DISEASE', u'SYMPTOM', u'MEDICAL_TEST']
+CUSTOM_ENTITIES_FILES = [u'examples/tvseries/notable_people.txt',
+                         u'examples/tvseries/disease.txt',
+                         u'examples/tvseries/symptom.txt',
+                         u'examples/tvseries/diagnostic_test.txt']
 
 
 if __name__ == '__main__':
     import logging
-    logger = logging.getLogger('iepy')
+    logger = logging.getLogger(u'iepy')
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
     opts = docopt(__doc__, version=0.1)
-    connect(opts['<dbname>'])
+    connect(opts[u'<dbname>'])
     docs = DocumentManager()
     set_custom_entity_kinds(zip(map(lambda x: x.lower(), CUSTOM_ENTITIES),
                                 CUSTOM_ENTITIES))
@@ -55,9 +56,10 @@ if __name__ == '__main__':
         media_wiki_to_txt,
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
-        CombinedNERRunner(
-            LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
-            StanfordNERRunner()),
+        NoOverlapCombinedNERRunner(
+            ners=[LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
+                  StanfordNERRunner()]
+        ),
         SyntacticSegmenterRunner(),
     ], docs
     )

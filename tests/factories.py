@@ -39,6 +39,31 @@ class EntityInSegmentFactory(factory.Factory):
     offset_end = 1
 
 
+class EntityOccurrenceFake(object):
+    # Since EntityOccurrence is an EmbeddedDocument it cant be saved, and
+    # because of that, fails when attempting comparisons
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def __str__(self):
+        return u'<EntityOccurrence %s (%s, %s)>' % (
+            self.entity.kind, self.offset, self.offset_end)
+
+    def __repr__(self):
+        return str(self)
+
+    def __lt__(self, other):  # python2 & python3 way of defining sorting
+        return self.offset < other.offset
+
+
+class EntityOccurrenceFactory(factory.Factory):
+    FACTORY_FOR = EntityOccurrenceFake
+    entity = factory.SubFactory(EntityFactory)
+    offset = 0
+    offset_end = 1
+
+
 class IEDocFactory(factory.Factory):
     FACTORY_FOR = IEDocument
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
