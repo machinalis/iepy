@@ -61,7 +61,7 @@ class NoOverlapCombinedNERRunner(CombinedNERRunner):
     """
     def overlapped_entities(self, e1, e2):
         min1, max1 = e1.offset, e1.offset_end
-        min2, max2 = e2.offset, e1.offset_end
+        min2, max2 = e2.offset, e2.offset_end
         return bool(max(0, min(max1, max2) - max(min1, min2)))
 
     def merge_entities(self, sub_results):
@@ -130,5 +130,3 @@ class KindPreferenceCombinedNERRunner(CombinedNERRunner):
             else:
                 prev = eo
         return [eo_i for eo_i in sorted_occurrences if eo_i not in to_remove]
-
-
