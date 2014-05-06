@@ -51,6 +51,21 @@ def load_facts_from_csv(filepath):
             yield Fact(entity_a, row[4], entity_b)
 
 
+def save_facts_to_csv(facts, filepath):
+    """Writes an iterable of facts to a CSV file encoded in UTF-8.
+    Each fact in the input facts iterable is a Fact instance
+    The entities can be Entity or EntityInSegment instances. The relation name
+    is a string.
+    For the CSV file format refer to load_facts_from_csv().
+    """
+    with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
+        facts_writer = writer(csvfile, delimiter=',')
+        for (entity_a, relation, entity_b) in facts:
+            row = [entity_a.kind, entity_a.key, entity_b.kind, entity_b.key,
+                   relation]
+            facts_writer.writerow(row)
+
+
 def load_evidence_from_csv(filename, connection):
     # Importing here to avoid circular dependency
     from iepy.core import Evidence, Fact, Knowledge
@@ -72,21 +87,6 @@ def load_evidence_from_csv(filename, connection):
                 e = Evidence(fact=f, segment=None, o1=None, o2=None)
             result[e] = int(row[9] == "True")
     return result
-
-
-def save_facts_to_csv(facts, filepath):
-    """Writes an iterable of facts to a CSV file encoded in UTF-8.
-    Each fact in the input facts iterable is a Fact instance
-    The entities can be Entity or EntityInSegment instances. The relation name
-    is a string.
-    For the CSV file format refer to load_facts_from_csv().
-    """
-    with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
-        facts_writer = writer(csvfile, delimiter=',')
-        for (entity_a, relation, entity_b) in facts:
-            row = [entity_a.kind, entity_a.key, entity_b.kind, entity_b.key,
-                   relation]
-            facts_writer.writerow(row)
 
 
 def save_labeled_evidence_to_csv(labeled_evidence, filepath):
@@ -121,7 +121,7 @@ def make_feature_list(text):
 
 
 def evaluate(predicted_knowledge, gold_knowledge):
-    """Computes evaluation metrics for a predicted knowledge with respect to a 
+    """Computes evaluation metrics for a predicted knowledge with respect to a
     gold (or reference) knowledge. Returns a dictionary with the results.
     """
     # ignore predicted facts with no evidence:
