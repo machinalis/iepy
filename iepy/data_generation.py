@@ -22,7 +22,6 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
                 # build evidence:
                 if e1 == e2:
                     # not tolerating entittyoccurrence reflectiveness for now
-                    print (u'skipping, is the same', e1, e2)
                     continue
                 entity1 = get_entity(e1.kind, e1.key)
                 entity2 = get_entity(e2.kind, e2.key)
