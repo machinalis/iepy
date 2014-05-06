@@ -51,6 +51,33 @@ class CombinedNERRunner(BasePreProcessStepRunner):
         doc.save()
 
 
+class NoOverlapCombinedNERRunner(CombinedNERRunner):
+    """
+    Similar to the CombinedNERRunner, but when merging results from different
+    taggers avoids overlapping by discarding those entities that were provided
+    by later subners.
+
+    It's assumed that each sub NER provides non overlapped entities.
+    """
+    def overlapped_entities(self, e1, e2):
+        min1, max1 = e1.offset, e1.offset_end
+        min2, max2 = e2.offset, e1.offset_end
+        return bool(max(0, min(max1, max2) - max(min1, min2)))
+
+    def merge_entities(self, sub_results):
+        result = []
+        for ner, sub_res in sub_results:
+            if not result:
+                # first ner returning something. all in.
+                result.extend(sub_res)
+            else:
+                for ent in sub_res:
+                    if any(self.overlapped_entities(ent, e_i) for e_i in result):
+                        continue
+                    result.append(ent)
+        return sorted(result, key=lambda x: x.offset)
+
+
 class KindPreferenceCombinedNERRunner(CombinedNERRunner):
     """
     Similar to the CombinedNERRunner, but when merging results from different
@@ -66,6 +93,8 @@ class KindPreferenceCombinedNERRunner(CombinedNERRunner):
         """
         """
         # the lower the rank, the more important
+        if not isinstance(rank, (tuple, list)):
+            raise ValueError(u'rank can only be a list or tuple')
         self.kinds_rank = dict((k, i) for i, k in enumerate(rank))
         self.worst_rank = len(self.kinds_rank)
         super(KindPreferenceCombinedNERRunner, self).__init__(ners, override)
@@ -76,6 +105,8 @@ class KindPreferenceCombinedNERRunner(CombinedNERRunner):
     def merge_entities(self, sub_results):
         sorted_occurrences = super(KindPreferenceCombinedNERRunner,
                                    self).merge_entities(sub_results)
+        if not sorted_occurrences:
+            return sorted_occurrences
         prev = sorted_occurrences[0]
         to_remove = set()
         # given that entities are sorted, cannot be the case that one entity

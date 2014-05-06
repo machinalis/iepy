@@ -5,7 +5,9 @@ except ImportError:
 
 from unittest import TestCase
 
-from iepy.combined_ner import CombinedNERRunner, KindPreferenceCombinedNERRunner
+from iepy.combined_ner import (CombinedNERRunner, NoOverlapCombinedNERRunner,
+                               KindPreferenceCombinedNERRunner)
+
 from iepy.models import PreProcessSteps
 from .factories import EntityOccurrenceFactory
 
@@ -97,8 +99,10 @@ class TestNEROverlappingHandling(TestCase):
         self.runner2 = mock.MagicMock()
         self.doc = mock.MagicMock()
         self.doc.was_preprocess_done.side_effect = lambda x: False
-        self.result1 = self.construct_occurrences([(1, 3, u'X'), (6, 8, u'W')])
-        self.result2 = self.construct_occurrences([(2, 4, u'Y'), (5, 7, u'Z')])
+        self.result1 = self.construct_occurrences(
+            [(1, 3, u'X'), (6, 8, u'W'), (8, 9, u'X'), (11, 12, u'W')])
+        self.result2 = self.construct_occurrences(
+            [(2, 4, u'Y'), (5, 7, u'Z'), (8, 9, u'Y'), (9, 13, u'Z')])
         self.runner1.side_effect = lambda doc: set_result(doc, self.result1)
         self.runner2.side_effect = lambda doc: set_result(doc, self.result2)
 
@@ -114,6 +118,18 @@ class TestNEROverlappingHandling(TestCase):
         runner(self.doc)
         self.doc.set_preprocess_result.assert_called_once_with(
             PreProcessSteps.ner, sorted(self.result1 + self.result2))
+
+    def test_simple_overlap_solver_prefers_from_former_subners(self):
+        NER = NoOverlapCombinedNERRunner([self.runner1, self.runner2])
+        NER(self.doc)
+        self.doc.set_preprocess_result.assert_called_once_with(
+            PreProcessSteps.ner, self.result1)
+        # again, the other way around
+        NER = NoOverlapCombinedNERRunner([self.runner2, self.runner1])
+        self.doc.reset_mock()
+        NER(self.doc)
+        self.doc.set_preprocess_result.assert_called_once_with(
+            PreProcessSteps.ner, self.result2)
 
     def test_overlaps_is_solved_prefering_some_kind_over_other(self):
         combiner = lambda rank: KindPreferenceCombinedNERRunner(
@@ -135,3 +151,15 @@ class TestNEROverlappingHandling(TestCase):
         self.assertEqual(
             self.doc.set_preprocess_result.call_args_list[-1],
             mock.call(PreProcessSteps.ner, self.result2))
+
+    def test_kindpreference_must_be_instantiated_with_tuple_or_list(self):
+        combiner = lambda rank: KindPreferenceCombinedNERRunner(
+            [self.runner1, self.runner2],
+            rank=rank
+        )
+        self.assertRaises(ValueError, combiner, 'something')
+        self.assertRaises(ValueError, combiner, None)
+        self.assertRaises(ValueError, combiner, 1)
+        # Not raises
+        combiner(('some', 'thing'))
+        combiner(['some', 'thing'])
