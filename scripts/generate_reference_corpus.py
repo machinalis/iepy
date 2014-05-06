@@ -15,7 +15,6 @@ from docopt import docopt
 from iepy.db import connect
 from iepy.data_generation import label_evidence_from_oracle
 from iepy.human_validation import human_oracle
-from scripts.cross_validate import load_evidence_from_csv
 from iepy.utils import save_labeled_evidence_to_csv, load_evidence_from_csv
 
 
