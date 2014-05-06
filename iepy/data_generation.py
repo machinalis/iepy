@@ -11,18 +11,20 @@ def label_evidence_from_oracle(kind_a, kind_b, relation, oracle):
     manager = TextSegmentManager()
     ss = manager.segments_with_both_kinds(kind_a, kind_b)
     result = []
-    for s in ss:
+    for i, s in enumerate(ss):
         # cartesian product of all k1 and k2 combinations in the sentence:
         ka_entities = [e for e in s.entities if e.kind == kind_a]
         kb_entities = [e for e in s.entities if e.kind == kind_b]
+        print(u'Considering segment %i of %i' % (i, len(ss)))
         for e1 in ka_entities:
             for e2 in kb_entities:
                 # build evidence:
+                if e1 == e2:
+                    # not tolerating entittyoccurrence reflectiveness for now
+                    print (u'skipping, is the same', e1, e2)
+                    continue
                 entity1 = get_entity(e1.kind, e1.key)
                 entity2 = get_entity(e2.kind, e2.key)
-                if entity1 == entity2:
-                    # not tolerating reflectiveness for now
-                    continue
                 fact = Fact(e1=entity1, relation=relation, e2=entity2)
                 o1 = s.entities.index(e1)
                 o2 = s.entities.index(e2)
