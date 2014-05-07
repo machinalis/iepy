@@ -16,7 +16,6 @@ from iepy.db import connect
 from iepy.data_generation import label_evidence_from_oracle
 from iepy.human_validation import human_oracle
 from iepy.knowledge import Knowledge
-from iepy.utils import load_evidence_from_csv
 
 
 class CombinedOracle(object):
@@ -48,7 +47,7 @@ if __name__ == '__main__':
     cont = opts['--continue']
 
     if cont:
-        knowledge = load_evidence_from_csv(output_filename, connector)
+        knowledge = Knowledge.load_from_csv(output_filename)
         oracle = CombinedOracle(knowledge, relation_name)
     else:
         oracle = human_oracle

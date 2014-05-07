@@ -15,7 +15,8 @@ import logging
 from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.human_validation import TerminalInterviewer
-from iepy.utils import load_facts_from_csv, load_evidence_from_csv
+from iepy.knowledge import Knowledge
+from iepy.utils import load_facts_from_csv
 
 
 if __name__ == '__main__':
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     output_file = opts['<output_file>']
     gold_standard_file = opts['--gold']
     if gold_standard_file:
-        gold_standard = load_evidence_from_csv(gold_standard_file, connection)
+        gold_standard = Knowledge.load_from_csv(gold_standard_file)
     else:
         gold_standard = None
 

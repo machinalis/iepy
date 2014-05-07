@@ -66,29 +66,6 @@ def save_facts_to_csv(facts, filepath):
             facts_writer.writerow(row)
 
 
-def load_evidence_from_csv(filename, connection):
-    # Importing here to avoid circular dependency
-    from iepy.knowledge import Evidence, Fact, Knowledge
-    from iepy import db
-    result = Knowledge()
-    with codecs.open(filename, encoding='utf-8') as csvfile:
-        csv_reader = reader(csvfile)
-        for row in csv_reader:
-            entity_a = db.get_entity(row[0], row[1])
-            entity_b = db.get_entity(row[2], row[3])
-            f = Fact(entity_a, row[4], entity_b)
-            if row[5]:
-                s = db.get_segment(row[5], int(row[6]))
-                e = Evidence(fact=f, segment=s, o1=int(row[7]), o2=int(row[8]))
-                assert s.entities[e.o1].key == entity_a.key
-                assert s.entities[e.o2].key == entity_b.key
-            else:
-                # fact with no evidence
-                e = Evidence(fact=f, segment=None, o1=None, o2=None)
-            result[e] = int(row[9] == "True")
-    return result
-
-
 def make_feature_list(text):
     return [x.strip() for x in text.split("\n") if x.strip()]
 

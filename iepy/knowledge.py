@@ -4,6 +4,8 @@ from csv import DictReader, writer
 
 from colorama import Fore, Style
 
+from iepy import db
+
 
 def certainty(p):
     return 0.5 + abs(p - 0.5) if p is not None else 0.5
@@ -45,7 +47,7 @@ class Knowledge(dict):
     def save_to_csv(self, filepath):
         """Writes labeled evidence to a CSV file encoded in UTF-8.
 
-        The output CSV format can be see on CSV_COLUMNS.
+        The output CSV format can be seen on CSV_COLUMNS.
         """
         with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
             evidence_writer = writer(csvfile, delimiter=',')
@@ -61,6 +63,42 @@ class Knowledge(dict):
                     evidence.o1, evidence.o2,
                     label
                 ])
+
+    @classmethod
+    def load_from_csv(cls, filename):
+        """The CSV format can be seen on CSV_COLUMNS."""
+        result = cls()
+        with codecs.open(filename, encoding='utf-8') as csvfile:
+            csv_reader = DictReader(csvfile, filenames=cls.CSV_COLUMNS)
+            for row in csv_reader:
+                entity_a = db.get_entity(row[u'entity a kind'],
+                                         row[u'entity a key'])
+                entity_b = db.get_entity(row[u'entity b kind'],
+                                         row[u'entity b key'])
+                f = Fact(entity_a, row[u'relation name'], entity_b)
+                if row[u'document name']:
+                    s = db.get_segment(row[u'document name'],
+                                       int(row[u'segment offset']))
+                    e = Evidence(fact=f, segment=s,
+                                 o1=int(row[u'entity a index']),
+                                 o2=int(row[u'entity b index']))
+                    assert s.entities[e.o1].key == entity_a.key
+                    assert s.entities[e.o2].key == entity_b.key
+                else:
+                    # fact with no evidence
+                    e = Evidence(fact=f, segment=None, o1=None, o2=None)
+                raw_label = row[u'label']
+                try:
+                    label = int(raw_label)
+                except (TypeError, ValueError):
+                    if raw_label == "True":
+                        label = 1
+                    elif raw_label == "False":
+                        label = 0
+                    else:
+                        label = None
+                result[e] = label
+        return result
 
 
 # A fact is a triple with two Entity() instances and a relation label
