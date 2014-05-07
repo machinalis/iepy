@@ -165,7 +165,6 @@ class BootstrappedIEPipeline(object):
             for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
             for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
         )
-
         self.do_iteration(evidences)
 
     def questions_available(self):
@@ -219,23 +218,23 @@ class BootstrappedIEPipeline(object):
         facts = set(ent.fact for ent in self.knowledge)
         k = Knowledge(x for x in evidence.items() if x[0].fact in facts)
         logger.info(u'Found {} potential evidences where the known facts could'
-                    u' be manifest'.format(len(k)))
+                    u' manifest'.format(len(k)))
         return k
 
     def generate_questions(self, evidence):
         """
-        Pseudocode. Stage 2.1 of pipeline.
-        confidence can implemented using the output from step 5 or accessing
+        Stage 2.1 of pipeline.
+        confidence can be implemented using the output from step 5 or accessing
         the classifier in step 3.
 
-        Stores questions in self.questions and stops
+        Stores questions in self.questions and stops.
         """
         logger.debug(u'running generate_questions')
         self.questions = Knowledge((e, s) for e, s in evidence.items() if e not in self.answers)
 
     def filter_evidence(self, _):
         """
-        Pseudocode. Stage 2.2 of pipeline.
+        Stage 2.2 of pipeline.
         sorted_evidence is [(score, segment, (a, b, relation)), ...]
         answers is {(segment, (a, b, relation)): is_evidence, ...}
         """
@@ -248,7 +247,7 @@ class BootstrappedIEPipeline(object):
             if certainty(score) > self.evidence_threshold and e not in self.answers
         )
         logger.info(u'Filtering returns {} human-built evidences and {} '
-                    u'over-threshold evidences'.format(n, n - len(evidence)))
+                    u'over-threshold evidences'.format(n, len(evidence) - n))
         # Answers + questions with a strong prediction
         return evidence
 
@@ -303,7 +302,7 @@ class BootstrappedIEPipeline(object):
 
     def filter_facts(self, facts):
         """
-        Pseudocode. Stage 6 of pipeline.
+        Stage 6 of pipeline.
         facts is [((a, b, relation), confidence), ...]
         """
         logger.debug(u'running filter_facts')
