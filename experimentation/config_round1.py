@@ -3,7 +3,7 @@ u"""
 Experimental evaluation round 1.
 
 Usage:
-    config_round1.py <testdata.csv>
+    config_round1.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
@@ -31,27 +31,28 @@ from utils import apply_dict_combinations, check_configs
 from iepy.utils import make_feature_list
 
 
-def iter_configs(input_file_path):
+def iter_configs(input_file_path, dbname):
     input_file_path = os.path.abspath(input_file_path)
     hasher = hashlib.md5(open(input_file_path, "rb").read())
     base = {
         # Experiment configuration
-        "config_version": "1",
-        "data_shuffle_seed": None,
-        "train_percentage": None,
-        "input_file_path": input_file_path,
-        "input_file_md5": hasher.hexdigest(),
+        u"config_version": u"1",
+        u"data_shuffle_seed": None,
+        u"train_percentage": None,
+        u"input_file_path": input_file_path,
+        u"input_file_md5": hasher.hexdigest(),
+        u"database_name": dbname,
 
         # Classifier configuration
-        "classifier": "svm",
-        "classifier_args": dict(),
-        "dimensionality_reduction": None,
-        "dimensionality_reduction_dimension": None,
-        "feature_selection": None,
-        "feature_selection_dimension": None,
-        "scaler": True,
-        "sparse": False,
-        "features": make_feature_list("""
+        u"classifier": u"svm",
+        u"classifier_args": dict(),
+        u"dimensionality_reduction": None,
+        u"dimensionality_reduction_dimension": None,
+        u"feature_selection": None,
+        u"feature_selection_dimension": None,
+        u"scaler": True,
+        u"sparse": False,
+        u"features": make_feature_list(u"""
                 bag_of_words
                 bag_of_pos
                 bag_of_word_bigrams
@@ -77,19 +78,19 @@ def iter_configs(input_file_path):
                 BagOfVerbLemmas False
         """)
     }
-    patch = {"train_percentage": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-             "data_shuffle_seed": ["domino" + str(i) for i in range(10)]}
+    patch = {u"train_percentage": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+             u"data_shuffle_seed": [u"domino" + str(i) for i in range(10)]}
 
-    xs = [("sgd", {}),
-          ("naivebayes", {}),
-          ("naivebayes_m", {}),
-          ("dtree", {"max_depth":4, "min_samples_leaf":5}),
-          ("logit", {}),
-          ("svm", {}),
-          ("adaboost", {})]
+    xs = [(u"sgd", {}),
+          (u"naivebayes", {}),
+          (u"naivebayes_m", {}),
+          (u"dtree", {u"max_depth": 4, u"min_samples_leaf": 5}),
+          (u"logit", {}),
+          (u"svm", {}),
+          (u"adaboost", {})]
     for classifier, args in xs:
-        base["classifier"] = classifier
-        base["classifier_args"] = args
+        base[u"classifier"] = classifier
+        base[u"classifier_args"] = args
         for config in apply_dict_combinations(base, patch):
             yield config
 
@@ -107,19 +108,16 @@ if __name__ == '__main__':
 
     # First check that configurations look ok.
     # Requiered to be included in some config
-    requiered = [{"classifier": "logit",
-                  "feature_selection": None,
-                  "scaler": True}]
+    requiered = [{u"classifier": u"logit",
+                  u"feature_selection": None,
+                  u"scaler": True}]
     # Requiered to be excluded from all configs
-    excluded = [{"feature_selection": "dtree",
-                 "classifier": "dtree"
-                },
-                {"feature_selection": "kbest",
-                 "classifier": "dtree"
-                },
-               ]
-    configs = list(iter_configs(opts["<testdata.csv>"]))
+    excluded = [{u"feature_selection": u"dtree",
+                 u"classifier": u"dtree"},
+                {u"feature_selection": u"kbest",
+                 u"classifier": u"dtree"}]
+    configs = list(iter_configs(opts[u"<testdata.csv>"], opts[u"<dbname>"]))
     check_configs(configs, requiered, excluded)
 
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
-              separators=(',', ': '))
+              separators=(u',', u': '))
