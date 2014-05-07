@@ -15,7 +15,8 @@ from docopt import docopt
 from iepy.db import connect
 from iepy.data_generation import label_evidence_from_oracle
 from iepy.human_validation import human_oracle
-from iepy.utils import save_labeled_evidence_to_csv, load_evidence_from_csv
+from iepy.knowledge import Knowledge
+from iepy.utils import load_evidence_from_csv
 
 
 class CombinedOracle(object):
@@ -53,4 +54,4 @@ if __name__ == '__main__':
         oracle = human_oracle
 
     r = label_evidence_from_oracle(kind_a, kind_b, relation_name, oracle)
-    save_labeled_evidence_to_csv(r, output_filename)
+    Knowledge(r).save_to_csv(output_filename)

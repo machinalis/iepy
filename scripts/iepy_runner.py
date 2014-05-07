@@ -15,7 +15,7 @@ import logging
 from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.human_validation import TerminalInterviewer
-from iepy.utils import load_facts_from_csv, save_labeled_evidence_to_csv, load_evidence_from_csv
+from iepy.utils import load_facts_from_csv, load_evidence_from_csv
 
 
 if __name__ == '__main__':
@@ -49,4 +49,4 @@ if __name__ == '__main__':
         else:
             p.force_process()
     facts = p.known_facts()  # profit
-    save_labeled_evidence_to_csv(facts.items(), output_file)
+    facts.save_to_csv(output_file)

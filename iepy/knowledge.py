@@ -1,4 +1,6 @@
+import codecs
 from collections import defaultdict, namedtuple
+from csv import DictReader, writer
 
 from colorama import Fore, Style
 
@@ -12,6 +14,10 @@ class Knowledge(dict):
 
     None is also a valid score for cases when no score information is available
     """
+    CSV_COLUMNS = [
+        u'entity a kind', u'entity a key', u'entity b kind', u'entity b key',
+        u'relation name', u'document name', u'segment offset',
+        u'entity a index', u'entity b index', u'label']
     __slots__ = ()
 
     def by_certainty(self):
@@ -35,6 +41,27 @@ class Knowledge(dict):
         for e, s in self.items():
             result[e.fact.relation][e] = s
         return result
+
+    def save_to_csv(self, filepath):
+        """Writes labeled evidence to a CSV file encoded in UTF-8.
+
+        The output CSV format can be see on CSV_COLUMNS.
+        """
+        with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
+            evidence_writer = writer(csvfile, delimiter=',')
+            for (evidence, label) in self.items():
+                entity_a = evidence.fact.e1
+                entity_b = evidence.fact.e2
+                evidence_writer.writerow([
+                    entity_a.kind, entity_a.key,
+                    entity_b.kind, entity_b.key,
+                    evidence.fact.relation,
+                    evidence.segment.document.human_identifier if evidence.segment else "",
+                    evidence.segment.offset if evidence.segment else "",
+                    evidence.o1, evidence.o2,
+                    label
+                ])
+
 
 # A fact is a triple with two Entity() instances and a relation label
 Fact = namedtuple("Fact", "e1 relation e2")

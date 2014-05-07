@@ -89,33 +89,6 @@ def load_evidence_from_csv(filename, connection):
     return result
 
 
-def save_labeled_evidence_to_csv(labeled_evidence, filepath):
-    """Writes an iterable of labeled evidence to a CSV file encoded in UTF-8.
-    Each labeled evidence is a 2-uple (evidence, label)
-    The entities are EntityInSegment instances in text_segment.entities.
-    The relation name is a string. The label is a boolean.
-    The output CSV format is
-        entity a kind, entity a key, entity b kind, entity b key,
-        relation name, document name, segment offset,
-        entity a index, entity b index, label
-    """
-    with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
-        evidence_writer = writer(csvfile, delimiter=',')
-        for (evidence, label) in labeled_evidence:
-            entity_a = evidence.fact.e1
-            entity_b = evidence.fact.e2
-            row = [
-                entity_a.kind, entity_a.key,
-                entity_b.kind, entity_b.key,
-                evidence.fact.relation,
-                evidence.segment.document.human_identifier if evidence.segment else "",
-                evidence.segment.offset if evidence.segment else "",
-                evidence.o1, evidence.o2,
-                label
-            ]
-            evidence_writer.writerow(row)
-
-
 def make_feature_list(text):
     return [x.strip() for x in text.split("\n") if x.strip()]
 
