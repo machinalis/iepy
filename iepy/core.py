@@ -108,13 +108,13 @@ class BootstrappedIEPipeline(object):
             self.relations[e.fact.relation] = (t1, t2)
         # Classifier configuration
         self.extractor_config = {
-            "classifier": "dtree",
-            "classifier_args": dict(),
+            "classifier": "svm",
+            "classifier_args": {"probability": True},
             "dimensionality_reduction": None,
             "dimensionality_reduction_dimension": None,
             "feature_selection": None,
             "feature_selection_dimension": None,
-            "scaler": False,
+            "scaler": True,
             "sparse": False,
             "features": make_feature_list("""
                     bag_of_words
