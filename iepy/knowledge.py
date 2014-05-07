@@ -5,6 +5,7 @@ from csv import DictReader, writer
 from colorama import Fore, Style
 
 from iepy import db
+from iepy.human_validation import Answers
 
 
 def certainty(p):
@@ -51,7 +52,7 @@ class Knowledge(dict):
         """
         with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
             evidence_writer = writer(csvfile, delimiter=',')
-            for (evidence, label) in self.items():
+            for (evidence, label) in sorted(self.items()):
                 entity_a = evidence.fact.e1
                 entity_b = evidence.fact.e2
                 evidence_writer.writerow([
@@ -69,7 +70,7 @@ class Knowledge(dict):
         """The CSV format can be seen on CSV_COLUMNS."""
         result = cls()
         with codecs.open(filename, encoding='utf-8') as csvfile:
-            csv_reader = DictReader(csvfile, filenames=cls.CSV_COLUMNS)
+            csv_reader = DictReader(csvfile, fieldnames=cls.CSV_COLUMNS)
             for row in csv_reader:
                 entity_a = db.get_entity(row[u'entity a kind'],
                                          row[u'entity a key'])
@@ -89,16 +90,77 @@ class Knowledge(dict):
                     e = Evidence(fact=f, segment=None, o1=None, o2=None)
                 raw_label = row[u'label']
                 try:
-                    label = int(raw_label)
+                    label = float(raw_label)
                 except (TypeError, ValueError):
                     if raw_label == "True":
-                        label = 1
+                        label = Answers.values[Answers.YES]
                     elif raw_label == "False":
-                        label = 0
+                        label = Answers.values[Answers.NO]
                     else:
                         label = None
                 result[e] = label
         return result
+
+    def extend_from_oracle(self, kind_a, kind_b, relation, oracle):
+        """Uses an oracle for extending the knownledge.
+
+        The oracle is a function that takes three parameters: the text segment and
+        the two entity occurrences (for an example, see human_oracle() below). It
+        must return 'y', 'n', 'd' or 'stop', meaning respectively that the relation holds,
+        that it doesn't, that you don't know, and that the oracle wants to stop answering.
+
+        Will first check with the oracle all the unknown evidences already stored on the
+        knowledge. After that, will explore the database for new evidences of the
+        correspondent kinds and ask the oracle to label it.
+        """
+        # First, checking all the unknown existent ones
+        dunno_value = Answers.values[Answers.DONT_KNOW]
+        unknowns = [
+            ev for ev, label in self.items()
+            if label == dunno_value and ev.fact.relation == relation]
+        if unknowns:
+            print(u'Checking unknowns first (there are %s)' % len(unknowns))
+            for evidence in unknowns:
+                # ask again the oracle: are e1 and e2 related in s?
+                answer = oracle(evidence, Answers.options)
+                assert answer in Answers.options
+                if answer == Answers.STOP:
+                    return
+                else:
+                    self[evidence] = Answers.values[answer]
+
+        # And now, explore other possibilities
+        manager = db.TextSegmentManager()
+        ss = manager.segments_with_both_kinds(kind_a, kind_b)
+        for i, s in enumerate(ss):
+            # cartesian product of all k1 and k2 combinations in the sentence:
+            ka_entities = [e for e in s.entities if e.kind == kind_a]
+            kb_entities = [e for e in s.entities if e.kind == kind_b]
+            print(u'Considering segment %i of %i' % (i, len(ss)))
+            for e1 in ka_entities:
+                for e2 in kb_entities:
+                    # build evidence:
+                    if e1 == e2:
+                        # not tolerating entittyoccurrence reflectiveness for now
+                        continue
+                    entity1 = db.get_entity(e1.kind, e1.key)
+                    entity2 = db.get_entity(e2.kind, e2.key)
+                    fact = Fact(e1=entity1, relation=relation, e2=entity2)
+                    o1 = s.entities.index(e1)
+                    o2 = s.entities.index(e2)
+                    evidence = Evidence(fact, s, o1, o2)
+                    if evidence in self:
+                        # we already have this answered
+                        continue
+
+                    # ask the oracle: are e1 and e2 related in s?
+                    answer = oracle(evidence, Answers.options)
+                    assert answer in Answers.options
+                    if answer == Answers.STOP:
+                        return
+                    else:
+                        self[evidence] = Answers.values[answer]
+        return
 
 
 # A fact is a triple with two Entity() instances and a relation label

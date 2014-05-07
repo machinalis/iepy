@@ -127,7 +127,7 @@ class HumanValidationTests(TestCase):
         q3 = self.create_question(u'Tom', u'Cheese', 'Tom eats Cheese happily .')
         callback = mock.MagicMock()
         self.term = TerminalInterviewer([q1, q2, q3], callback)
-        self.mock_get_answer.side_effect = [self.term.DISCARD, self.term.YES,
+        self.mock_get_answer.side_effect = [self.term.DONT_KNOW, self.term.YES,
                                             self.term.YES]
         result = self.term()
         self.assertEqual(callback.call_count, 2)
