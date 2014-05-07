@@ -20,9 +20,9 @@ import sys
 from docopt import docopt
 
 from iepy import db
-from iepy.core import Knowledge
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.utils import load_evidence_from_csv, make_feature_list
+from iepy.knowledge import Knowledge
+from iepy.utils import make_feature_list
 
 config = {
     "classifier": "svm",
@@ -64,7 +64,7 @@ config = {
 def main(options):
     logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
     connection = db.connect(options['<dbname>'])
-    standard = load_evidence_from_csv(options['<gold_standard>'], connection)
+    standard = Knowledge.load_from_csv(options['<gold_standard>'], connection)
     logging.info("Loaded %d samples from gold standard", len(standard))
     k = int(options['--k'])
 

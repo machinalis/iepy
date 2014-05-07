@@ -5,6 +5,15 @@ from colorama import init as colorama_init
 from future.builtins import input, str
 
 
+class Answers(object):
+    YES = u'y'
+    NO = u'n'
+    DONT_KNOW = u'd'
+    STOP = u'stop'
+    options = [YES, NO, DONT_KNOW, STOP]
+    values = {YES: 1.0, NO: 0.0, DONT_KNOW: 0.5}
+
+
 QUESTION_TEMPLATE = str(u"""
 Is the following text evidence of the Fact %(fact)s?
     %(text)s
@@ -24,14 +33,15 @@ class TerminalInterviewer(object):
     when user picks such answers, the control is returned to the caller,
     leaving the internal state untouched, so it's possible to resume execution.
     """
+    # FIXME: this "options" shall be merged with the Answers class defined above.
     YES = u'y'
     NO = u'n'
-    DISCARD = u'd'
+    DONT_KNOW = u'd'
     RUN = u'run'
     base_options = OrderedDict(
         [(YES, u'Valid Evidence'),
          (NO, u'Not valid Evidence'),
-         (DISCARD, u'Discard, not sure'),
+         (DONT_KNOW, u'Discard, not sure'),
          (RUN, u'Tired of answering for now. Run with what I gave you.')
          ])
     template = QUESTION_TEMPLATE
@@ -108,12 +118,13 @@ class TerminalInterviewer(object):
         return answer
 
 
-def human_oracle(evidence):
+def human_oracle(evidence, possible_answers):
     """Simple text interface to query a human for fact generation."""
     colored_fact, colored_segment = evidence.colored_fact_and_text()
     print(u'SEGMENT: %s' % colored_segment)
-    question = ' FACT: {0}? (y/n/stop) '.format(colored_fact)
+    question = ' FACT: {0}? ({1}) '.format(colored_fact,
+                                           u'/'.join(possible_answers))
     answer = input(question)
-    while answer not in ['y', 'n', 'stop']:
+    while answer not in possible_answers:
         answer = input(question)
     return answer

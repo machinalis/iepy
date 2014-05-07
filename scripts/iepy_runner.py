@@ -15,26 +15,27 @@ import logging
 from iepy.core import BootstrappedIEPipeline
 from iepy import db
 from iepy.human_validation import TerminalInterviewer
-from iepy.utils import load_facts_from_csv, save_labeled_evidence_to_csv, load_evidence_from_csv
+from iepy.knowledge import Knowledge
+from iepy.utils import load_facts_from_csv
 
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
     opts = docopt(__doc__, version=0.1)
-    connection = db.connect(opts['<dbname>'])
-    seed_facts = load_facts_from_csv(opts['<seeds_file>'])
-    output_file = opts['<output_file>']
-    gold_standard_file = opts['--gold']
+    connection = db.connect(opts[u'<dbname>'])
+    seed_facts = load_facts_from_csv(opts[u'<seeds_file>'])
+    output_file = opts[u'<output_file>']
+    gold_standard_file = opts[u'--gold']
     if gold_standard_file:
-        gold_standard = load_evidence_from_csv(gold_standard_file, connection)
+        gold_standard = Knowledge.load_from_csv(gold_standard_file)
     else:
         gold_standard = None
 
     p = BootstrappedIEPipeline(connection, seed_facts, gold_standard)
 
     logging.basicConfig(level=logging.DEBUG,
-                        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+                        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    STOP = 'STOP'
+    STOP = u'STOP'
 
     p.start()  # blocking
     keep_looping = True
@@ -42,11 +43,11 @@ if __name__ == '__main__':
         qs = list(p.questions_available())
         if not qs:
             keep_looping = False
-        term = TerminalInterviewer(qs, p.add_answer, [(STOP, 'Stop execution ASAP')])
+        term = TerminalInterviewer(qs, p.add_answer, [(STOP, u'Stop execution ASAP')])
         result = term()
         if result == STOP:
             keep_looping = False
         else:
             p.force_process()
     facts = p.known_facts()  # profit
-    save_labeled_evidence_to_csv(facts.items(), output_file)
+    facts.save_to_csv(output_file)

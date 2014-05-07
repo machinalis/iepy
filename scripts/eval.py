@@ -12,7 +12,8 @@ Options:
 from docopt import docopt
 
 from iepy.db import connect
-from iepy.utils import load_evidence_from_csv, evaluate
+from iepy.knowledge import Knowledge
+from iepy.utils import evaluate
 
 
 if __name__ == '__main__':
@@ -21,8 +22,8 @@ if __name__ == '__main__':
     proposed_csv = opts['<proposed_csv>']
     reference_csv = opts['<reference_csv>']
 
-    proposed = load_evidence_from_csv(proposed_csv, connector)
-    reference = load_evidence_from_csv(reference_csv, connector)
+    proposed = Knowledge.load_from_csv(proposed_csv)
+    reference = Knowledge.load_from_csv(reference_csv)
     result = evaluate(proposed, reference)
 
     print("Precision: %.2f" % result['precision'])
