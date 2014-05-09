@@ -58,7 +58,7 @@ class Runner(object):
                     tn += 1
             else:
                 incorrect.append(i)
-                if real_label:
+                if predicted_label:
                     fp += 1
                 else:
                     fn += 1
