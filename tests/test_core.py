@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from future.builtins import range
 
 from iepy.core import BootstrappedIEPipeline
-from iepy.knowledge import certainty, Evidence, Fact, Knowledge
+from iepy.knowledge import certainty, Knowledge
 from .factories import EntityFactory, EvidenceFactory, FactFactory
 
 
@@ -25,37 +25,6 @@ class TestCertainty(unittest.TestCase):
 
     def test_certainty_unknown(self):
         self.assertEqual(certainty(None), 0.5)
-
-
-class TestKnowledge(unittest.TestCase):
-
-    def test_sorting(self):
-        f = Fact(None, 'rel', None)
-        e1 = Evidence(f, None, 0, 1)
-        e2 = Evidence(f, None, 0, 2)
-        e3 = Evidence(f, None, 0, 3)
-        k = Knowledge()
-        k[e1] = 1.0
-        k[e2] = 0.5
-        k[e3] = 0.1
-
-        items = list(k.by_certainty())
-        self.assertEqual(items, [(e1, 1.0), (e3, 0.1), (e2, 0.5)])
-
-    def test_filtering(self):
-        e1 = Evidence(Fact(None, 'rel', None), None, 0, 1)
-        e2 = Evidence(Fact(None, 'other', None), None, 0, 1)
-        e3 = Evidence(Fact(None, 'rel', None), None, 0, 2)
-        k = Knowledge()
-        k[e1] = 1.0
-        k[e2] = 0.5
-        k[e3] = 0.1
-
-        items = k.per_relation()
-        self.assertEqual(items, {
-            'rel': Knowledge({e1: 1.0, e3: 0.1}),
-            'other': Knowledge({e2: 0.5}),
-        })
 
 
 class TestFactExtractionInterface(unittest.TestCase):

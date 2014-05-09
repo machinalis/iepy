@@ -20,7 +20,7 @@ class Knowledge(dict):
     CSV_COLUMNS = [
         u'entity a kind', u'entity a key', u'entity b kind', u'entity b key',
         u'relation name', u'document name', u'segment offset',
-        u'entity a index', u'entity b index', u'label']
+        u'entity a tokens offset', u'entity b tokens offset', u'label']
     __slots__ = ()
 
     def by_certainty(self):
@@ -53,17 +53,33 @@ class Knowledge(dict):
         with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
             evidence_writer = writer(csvfile, delimiter=',')
             for (evidence, label) in sorted(self.items()):
-                entity_a = evidence.fact.e1
-                entity_b = evidence.fact.e2
-                evidence_writer.writerow([
-                    entity_a.kind, entity_a.key,
-                    entity_b.kind, entity_b.key,
-                    evidence.fact.relation,
-                    evidence.segment.document.human_identifier if evidence.segment else "",
-                    evidence.segment.offset if evidence.segment else "",
-                    evidence.o1, evidence.o2,
-                    label
-                ])
+                fact = evidence.fact
+                segm = evidence.segment
+                entity_a = fact.e1
+                entity_b = fact.e2
+                row = [entity_a.kind, entity_a.key,
+                       entity_b.kind, entity_b.key,
+                       fact.relation]
+                if segm:
+
+                    row.extend(
+                        [segm.document.human_identifier,
+                         segm.offset,
+                         segm.entities[evidence.o1].offset,
+                         segm.entities[evidence.o2].offset,
+                         label
+                         ]
+                    )
+                else:
+                    row.extend(
+                        ["",
+                         "",
+                         None,
+                         None,
+                         label
+                         ]
+                    )
+                evidence_writer.writerow(row)
 
     @classmethod
     def load_from_csv(cls, filename):
@@ -71,7 +87,7 @@ class Knowledge(dict):
         result = cls()
         with codecs.open(filename, encoding='utf-8') as csvfile:
             csv_reader = DictReader(csvfile, fieldnames=cls.CSV_COLUMNS)
-            for row in csv_reader:
+            for row_idx, row in enumerate(csv_reader):
                 entity_a = db.get_entity(row[u'entity a kind'],
                                          row[u'entity a key'])
                 entity_b = db.get_entity(row[u'entity b kind'],
@@ -80,14 +96,24 @@ class Knowledge(dict):
                 if row[u'document name']:
                     s = db.get_segment(row[u'document name'],
                                        int(row[u'segment offset']))
-                    e = Evidence(fact=f, segment=s,
-                                 o1=int(row[u'entity a index']),
-                                 o2=int(row[u'entity b index']))
-                    assert s.entities[e.o1].key == entity_a.key
-                    assert s.entities[e.o2].key == entity_b.key
+
+                    occurrences_dict = dict(
+                        ((e_o.offset, e_o.kind), idx)
+                        for idx, e_o in enumerate(s.entities)
+                    )
+                    start_occur_a = int(row[u'entity a tokens offset'])
+                    start_occur_b = int(row[u'entity b tokens offset'])
+                    idx_a = occurrences_dict.get((start_occur_a, entity_a.kind), -1)
+                    idx_b = occurrences_dict.get((start_occur_b, entity_b.kind), -1)
+                    if -1 in [idx_a, idx_b]:
+                        print(u"Row %i skipped because it's entity occurrences are wrong"
+                              % row_idx)
+                        continue
+
+                    ev = Evidence(fact=f, segment=s, o1=idx_a, o2=idx_b)
                 else:
-                    # fact with no evidence
-                    e = Evidence(fact=f, segment=None, o1=None, o2=None)
+                    # fact with no evidence.
+                    ev = Evidence(fact=f, segment=None, o1=None, o2=None)
                 raw_label = row[u'label']
                 try:
                     label = float(raw_label)
@@ -98,7 +124,7 @@ class Knowledge(dict):
                         label = Answers.values[Answers.NO]
                     else:
                         label = None
-                result[e] = label
+                result[ev] = label
         return result
 
     def extend_from_oracle(self, kind_a, kind_b, relation, oracle):
