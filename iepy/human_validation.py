@@ -1,8 +1,9 @@
 from collections import OrderedDict
-import sys
 
 from colorama import init as colorama_init
 from future.builtins import input, str
+
+from iepy.utils import PY2
 
 
 class Answers(object):
@@ -18,7 +19,6 @@ QUESTION_TEMPLATE = str(u"""
 Is the following text evidence of the Fact %(fact)s?
     %(text)s
 (%(keys)s): """)
-PY3 = sys.version > '3'
 
 
 class TerminalInterviewer(object):
@@ -110,7 +110,7 @@ class TerminalInterviewer(object):
             'keys': keys, 'fact': c_fact,
             'text': c_text
         }
-        if not PY3:
+        if PY2:
             question = question.encode('utf-8')
         answer = input(question)
         while answer not in self.keys:
