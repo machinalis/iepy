@@ -1,12 +1,11 @@
 from datetime import datetime
 import itertools
 from os import environ
-import sys
 
 from enum import Enum
 from mongoengine import DynamicDocument, EmbeddedDocument, fields
 
-from iepy.utils import unzip
+from iepy.utils import unzip, PY2
 
 
 class PreProcessSteps(Enum):
@@ -30,19 +29,18 @@ BASE_ENTITY_KINDS = [
 
 ENTITY_KINDS = BASE_ENTITY_KINDS[:]
 
-PY3 = sys.version > '3'
-if PY3:
+if PY2:
+    class SortableDocumentMixin(object):
+
+        def __cmp__(self, other):
+            return cmp(self.id, other.id)
+else:  # Python 3
     # Mongoengine is not providing __lt__ method on their base class,
     # needed for py3 comparisons.
     class SortableDocumentMixin(object):
 
         def __lt__(self, other):
             return self.id < other.id
-else:
-    class SortableDocumentMixin(object):
-
-        def __cmp__(self, other):
-            return cmp(self.id, other.id)
 
 
 def _get_custom_entity_kinds():
