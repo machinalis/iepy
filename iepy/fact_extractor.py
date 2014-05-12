@@ -24,12 +24,12 @@ from future.builtins import map, str
 
 
 def adawrapper(**kwargs):
-    k = "n_estimators"
     base = {}
     estimator = dict(kwargs)
-    if k in estimator:
-        base[k] = estimator[k]
-        del estimator[k]
+    for k in ["n_estimators", "learning_rate"]:
+        if k in estimator:
+            base[k] = estimator[k]
+            del estimator[k]
     return AdaBoostClassifier(DecisionTreeClassifier(**estimator), **base)
 
 

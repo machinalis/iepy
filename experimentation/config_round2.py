@@ -48,7 +48,7 @@ def iter_configs(input_file_path, dbname):
         u"dimensionality_reduction": None,
         u"dimensionality_reduction_dimension": None,
         u"feature_selection": None,
-        u"feature_selection_dimension": None,
+        u"feature_selection_dimension": 1000,
         u"scaler": True,
         u"sparse": False,
         u"features": make_feature_list(u"""
@@ -77,13 +77,16 @@ def iter_configs(input_file_path, dbname):
                 BagOfVerbLemmas False
         """)
     }
+
+    # SVM
+    ######
     patch = {u"train_percentage": [0.05 * x for x in range(1, 11)],
-             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(10)]}
+             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(10)],
+             u"feature_selection": [None, "kbest"]}
     svm_args_patches = [
         {u"kernel": u"rbf", u"C": [1, 10, 100],
          u"gamma": [None, 0.001, 0.0001]},
-        {u"kernel": u"poly", u"C": [1, 10, 100],
-         u"gamma": [None, 0.001, 0.0001], u"degree": [2, 3]},
+        {u"kernel": u"poly", u"C": [1, 10, 100], u"degree": [2, 3]},
         {u"kernel": u"linear", u"C": [1, 10, 100]},
     ]
 
@@ -93,6 +96,24 @@ def iter_configs(input_file_path, dbname):
             for config in apply_dict_combinations(base, patch):
                 yield config
 
+    # Adaboost
+    ###########
+
+    base.update({
+        u"classifier": u"adaboost",
+        u"feature_selection_dimension": None,
+        u"scaler": False,
+    })
+
+    patch = {u"train_percentage": [0.05 * x for x in range(1, 11)],
+             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(10)]}
+    argpatch = {u"n_estimators": [5, 10, 20, 50],
+                u"learning_rate": [0.9, 1.0, 1.1],
+                u"max_depth": [1, 2, 3]}
+    for argconfig in apply_dict_combinations({}, argpatch):
+        base[u"classifier_args"] = argconfig
+        for config in apply_dict_combinations(base, patch):
+            yield config
 
 
 if __name__ == '__main__':
