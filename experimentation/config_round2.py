@@ -81,13 +81,14 @@ def iter_configs(input_file_path, dbname):
     # SVM
     ######
     patch = {u"train_percentage": [0.05 * x for x in range(1, 11)],
-             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(10)],
+             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(20)],
              u"feature_selection": [None, "kbest"]}
     svm_args_patches = [
-        {u"kernel": u"rbf", u"C": [1, 10, 100],
-         u"gamma": [None, 0.001, 0.0001]},
-        {u"kernel": u"poly", u"C": [1, 10, 100], u"degree": [2, 3]},
-        {u"kernel": u"linear", u"C": [1, 10, 100]},
+        {u"kernel": [u"rbf"], u"C": [1, 10, 100],
+         u"gamma": [0.0, 0.001, 0.0001]},
+        {u"kernel": [u"poly"], u"C": [1, 10, 100], u"degree": [2, 3, 4],
+         u"gamma": [0.0, 0.001, 0.0001]},
+        {u"kernel": [u"linear"], u"C": [1, 10, 100]},
     ]
 
     for argpatch in svm_args_patches:
