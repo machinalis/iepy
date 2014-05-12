@@ -135,7 +135,9 @@ if __name__ == '__main__':
     import os.path
     import logging
 
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     path = os.path.abspath(os.path.dirname(__file__))
 
