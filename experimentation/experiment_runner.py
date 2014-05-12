@@ -7,6 +7,7 @@ from featureforge.experimentation import runner
 from iepy.fact_extractor import FactExtractorFactory
 from iepy.knowledge import Knowledge
 import iepy.db
+from iepy.utils import PY2
 
 
 #
@@ -26,6 +27,8 @@ class Runner(object):
         assert self.config == config
         assert "input_file_path" not in config
         assert "database_name" not in config
+
+        config = _fix_config(config)
 
         # Prepare data
         data = self.get_data(config)
@@ -129,6 +132,22 @@ class Runner(object):
                   iepy.db.Entity.objects.count())
         config["database_hash"] = dbhash
         return config
+
+
+def _fix_config(config):
+    """
+    In python 2 is necesary to change config keys and values to be str and not
+    unicode because some parts of scikit-learn will complain.
+    """
+    if PY2:
+        for d in [config, config[u"classifier_args"]]:
+            for key, value in list(d.items()):
+                del d[key]
+                key = str(key)
+                if isinstance(value, unicode):
+                    value = str(value)
+                d[key] = value
+    return config
 
 
 if __name__ == '__main__':
