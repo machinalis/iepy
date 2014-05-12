@@ -68,12 +68,12 @@ Python libraries installation
     cd <path-to-gitrepo>
     pip install .
 
-**Warning**, if you are using pip 1.5 (will probably be the case on python3) you will have to use the extra argument *--process-dependecy-links* as shown below, otherwise some packages (like nltk for python3) wont be available
+**Warning**, if you are using pip 1.5 (will probably be the case on python3) you will have to use the extra argument *--process-dependency-links* as shown below, otherwise some packages (like nltk for python3) wont be available
 
 .. code-block:: bash
 
     cd <path-to-gitrepo>
-    pip install . --process-dependecy-links
+    pip install . --process-dependency-links
 
 
 4. Configure Java home

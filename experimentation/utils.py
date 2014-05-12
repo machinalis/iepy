@@ -49,6 +49,6 @@ def check_configs(configs, includes=None, excludes=None):
         raise ValueError("No configuration included {}".format(list(includes)))
     logger.info("All ok (ie, not plain wrong).")
     logger.info("Explored {} configs.".format(N))
-    t = datetime.timedelta(seconds=N * 1 * 60)
+    t = datetime.timedelta(seconds=N * 1 * 10)
     logger.info("At 1 minutes per config this would take "
                 "aproximately {} (h:mm:ss)".format(t))

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 u"""
-Experimental evaluation round 1.
+Experimental evaluation round 2.
 
 Usage:
-    config_round1.py <testdata.csv> <dbname>
+    config_round2.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
@@ -16,14 +16,13 @@ file will be added to the configurations.
 Description:
 Regarding the statistical classification stage of IEPY, the goal of this
 round of experiments is:
-    - Have a ball park estimate of how good we can classify evidences without
-      much effort.
-    - Have an idea of which classifiers are worth exploring more than others.
-    - Have an idea of how performance changes
+    - Obtain configurations for SVM and Adaboost that yield higher
+      performance than out-of-the-box.
 
 To do that, configurations will:
-    - Explore a variety of configurations close to the out-of-the-box defaults.
+    - Explore a variety of configurations for SVM and Adaboost.
 """
+
 import os
 import hashlib
 
@@ -49,7 +48,7 @@ def iter_configs(input_file_path, dbname):
         u"dimensionality_reduction": None,
         u"dimensionality_reduction_dimension": None,
         u"feature_selection": None,
-        u"feature_selection_dimension": None,
+        u"feature_selection_dimension": 1000,
         u"scaler": True,
         u"sparse": False,
         u"features": make_feature_list(u"""
@@ -78,22 +77,42 @@ def iter_configs(input_file_path, dbname):
                 BagOfVerbLemmas False
         """)
     }
-    patch = {u"train_percentage": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-             u"data_shuffle_seed": [u"domino" + str(i) for i in range(10)]}
 
-    xs = [(u"sgd", {}),
-          (u"naivebayes", {}),
-          (u"naivebayes_m", {}),
-          (u"dtree", {u"max_depth": 4, u"min_samples_leaf": 5}),
-          (u"logit", {}),
-          (u"svm", {}),
-          (u"adaboost", {})]
-    for classifier, args in xs:
-        base[u"classifier"] = classifier
-        base[u"classifier_args"] = args
-        base[u"scaler"] = True
-        if classifier == "naivebayes_m":
-            base[u"scaler"] = False
+    # SVM
+    ######
+    patch = {u"train_percentage": [0.05 * x for x in range(1, 11)],
+             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(20)],
+             u"feature_selection": [None, "kbest"]}
+    svm_args_patches = [
+        {u"kernel": [u"rbf"], u"C": [1, 10, 100],
+         u"gamma": [0.0, 0.001, 0.0001]},
+        {u"kernel": [u"poly"], u"C": [1, 10, 100], u"degree": [2, 3, 4],
+         u"gamma": [0.0, 0.001, 0.0001]},
+        {u"kernel": [u"linear"], u"C": [1, 10, 100]},
+    ]
+
+    for argpatch in svm_args_patches:
+        for argconfig in apply_dict_combinations({}, argpatch):
+            base[u"classifier_args"] = argconfig
+            for config in apply_dict_combinations(base, patch):
+                yield config
+
+    # Adaboost
+    ###########
+
+    base.update({
+        u"classifier": u"adaboost",
+        u"feature_selection_dimension": None,
+        u"scaler": False,
+    })
+
+    patch = {u"train_percentage": [0.05 * x for x in range(1, 11)],
+             u"data_shuffle_seed": [u"daddycool" + str(i) for i in range(10)]}
+    argpatch = {u"n_estimators": [5, 10, 20, 50],
+                u"learning_rate": [0.9, 1.0, 1.1],
+                u"max_depth": [1, 2, 3]}
+    for argconfig in apply_dict_combinations({}, argpatch):
+        base[u"classifier_args"] = argconfig
         for config in apply_dict_combinations(base, patch):
             yield config
 
@@ -111,14 +130,16 @@ if __name__ == '__main__':
 
     # First check that configurations look ok.
     # Requiered to be included in some config
-    requiered = [{u"classifier": u"logit",
-                  u"feature_selection": None,
-                  u"scaler": True}]
+    requiered = [{u"classifier": u"svm",
+                  u"scaler": True},
+                 #{u"classifier": u"adaboost",
+                 # u"scaler": False}
+                 ]
     # Requiered to be excluded from all configs
     excluded = [{u"feature_selection": u"dtree",
-                 u"classifier": u"dtree"},
+                 u"classifier": u"adaboost"},
                 {u"feature_selection": u"kbest",
-                 u"classifier": u"dtree"}]
+                 u"classifier": u"adaboost"}]
     configs = list(iter_configs(opts[u"<testdata.csv>"], opts[u"<dbname>"]))
     check_configs(configs, requiered, excluded)
 
