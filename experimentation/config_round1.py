@@ -91,6 +91,9 @@ def iter_configs(input_file_path, dbname):
     for classifier, args in xs:
         base[u"classifier"] = classifier
         base[u"classifier_args"] = args
+        base[u"scaler"] = True
+        if classifier == "naivebayes_m":
+            base[u"scaler"] = False
         for config in apply_dict_combinations(base, patch):
             yield config
 
