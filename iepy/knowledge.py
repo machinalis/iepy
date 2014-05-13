@@ -125,7 +125,7 @@ class Knowledge(dict):
         return result
 
     def extend_from_oracle(self, kind_a, kind_b, relation, oracle):
-        """Uses an oracle for extending the knownledge.
+        """Uses an oracle for extending the knowledge.
 
         The oracle is a function that takes three parameters: the text segment and
         the two entity occurrences (for an example, see human_oracle() below). It
@@ -164,7 +164,7 @@ class Knowledge(dict):
                 for e2 in kb_entities:
                     # build evidence:
                     if e1 == e2:
-                        # not tolerating entittyoccurrence reflectiveness for now
+                        # not tolerating entityoccurrence reflectiveness for now
                         continue
                     entity1 = db.get_entity(e1.kind, e1.key)
                     entity2 = db.get_entity(e2.kind, e2.key)
