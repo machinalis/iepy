@@ -76,7 +76,7 @@ class TextSegmentManager(object):
 
     def segments_with_both_kinds(self, kind_a, kind_b):
         if kind_a != kind_b:
-            return TextSegment.objects(entities__kind=kind_a)(entities__kind=kind_b)
+            return list(TextSegment.objects(entities__kind=kind_a)(entities__kind=kind_b))
         else:
             # Need a different query here, we need to check that the type
             # appears twice
