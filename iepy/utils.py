@@ -1,15 +1,12 @@
 import codecs
 from csv import reader, writer
 from getpass import getuser
-import sys
 import zipfile
 
 from appdirs import AppDirs
 
 
 DIRS = AppDirs('iepy', getuser())
-
-PY2 = sys.version < '3'
 
 
 def unzip(zipped_list, n):

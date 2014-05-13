@@ -3,7 +3,7 @@ from collections import OrderedDict
 from colorama import init as colorama_init
 from future.builtins import input, str
 
-from iepy.utils import PY2
+from iepy.pycompatibility import PY2
 
 
 class Answers(object):

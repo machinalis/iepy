@@ -1,3 +1,4 @@
+# coding=utf-8
 import codecs
 import csv
 import tempfile
@@ -71,6 +72,7 @@ class TestKnowledgeCSV(ManagerTestCase):
         self.assertEqual(row[9], str(score))
 
     def test_load_saved(self):
+        self.ev.segment.document.human_identifier = u'Weird Characters € àèióú'
         self.ev.segment.document.save()
         self.ev.fact.e1.save()
         self.ev.fact.e2.save()
