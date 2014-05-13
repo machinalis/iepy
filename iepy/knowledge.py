@@ -1,11 +1,11 @@
 import codecs
 from collections import defaultdict, namedtuple
-from csv import DictReader, writer
 
 from colorama import Fore, Style
 
 from iepy import db
 from iepy.human_validation import Answers
+from iepy.pycompatibility import py_compatible_csv
 
 
 def certainty(p):
@@ -50,8 +50,7 @@ class Knowledge(dict):
 
         The output CSV format can be seen on CSV_COLUMNS.
         """
-        with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
-            evidence_writer = writer(csvfile, delimiter=',')
+        with py_compatible_csv.writer(filepath) as evidence_writer:
             for (evidence, label) in sorted(self.items()):
                 fact = evidence.fact
                 segm = evidence.segment
@@ -61,7 +60,6 @@ class Knowledge(dict):
                        entity_b.kind, entity_b.key,
                        fact.relation]
                 if segm:
-
                     row.extend(
                         [segm.document.human_identifier,
                          segm.offset,
@@ -72,8 +70,8 @@ class Knowledge(dict):
                     )
                 else:
                     row.extend(
-                        ["",
-                         "",
+                        [u"",
+                         u"",
                          None,
                          None,
                          label
@@ -85,8 +83,7 @@ class Knowledge(dict):
     def load_from_csv(cls, filename):
         """The CSV format can be seen on CSV_COLUMNS."""
         result = cls()
-        with codecs.open(filename, encoding='utf-8') as csvfile:
-            csv_reader = DictReader(csvfile, fieldnames=cls.CSV_COLUMNS)
+        with py_compatible_csv.DictReader(filename, fieldnames=cls.CSV_COLUMNS) as csv_reader:
             for row_idx, row in enumerate(csv_reader):
                 entity_a = db.get_entity(row[u'entity a kind'],
                                          row[u'entity a key'])
@@ -128,7 +125,7 @@ class Knowledge(dict):
         return result
 
     def extend_from_oracle(self, kind_a, kind_b, relation, oracle):
-        """Uses an oracle for extending the knownledge.
+        """Uses an oracle for extending the knowledge.
 
         The oracle is a function that takes three parameters: the text segment and
         the two entity occurrences (for an example, see human_oracle() below). It
@@ -167,7 +164,7 @@ class Knowledge(dict):
                 for e2 in kb_entities:
                     # build evidence:
                     if e1 == e2:
-                        # not tolerating entittyoccurrence reflectiveness for now
+                        # not tolerating entityoccurrence reflectiveness for now
                         continue
                     entity1 = db.get_entity(e1.kind, e1.key)
                     entity2 = db.get_entity(e2.kind, e2.key)

@@ -5,7 +5,8 @@ from os import environ
 from enum import Enum
 from mongoengine import DynamicDocument, EmbeddedDocument, fields
 
-from iepy.utils import unzip, PY2
+from iepy.pycompatibility import PY2
+from iepy.utils import unzip
 
 
 class PreProcessSteps(Enum):
