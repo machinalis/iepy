@@ -92,6 +92,9 @@ def evaluate(predicted_knowledge, gold_knowledge):
         result['recall'] = recall = float(correct) / gold
     else:
         result['recall'] = recall = 1.0
-    result['f1'] = 2 * precision * recall / (precision + recall)
+    if precision + recall > 0.0:
+        result['f1'] = 2 * precision * recall / (precision + recall)
+    else:
+        result['f1'] = 0.0
 
     return result
