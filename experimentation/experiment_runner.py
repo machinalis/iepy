@@ -28,6 +28,11 @@ class Runner(object):
         assert "input_file_path" not in config
         assert "database_name" not in config
 
+        if u"class_weight" in config[u"classifier_args"]:
+            d = config[u"classifier_args"][u"class_weight"]
+            assert "true" in d and "false" in d and len(d) == 2
+            config[u"classifier_args"][u"class_weight"] = {True: d["true"],
+                                                           False: d["false"]}
         config = _fix_config(config)
 
         # Prepare data
