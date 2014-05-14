@@ -7,7 +7,7 @@ from featureforge.experimentation import runner
 from iepy.fact_extractor import FactExtractorFactory
 from iepy.knowledge import Knowledge
 import iepy.db
-from iepy.utils import PY2
+from iepy.pycompatibility import PY2
 
 
 #
