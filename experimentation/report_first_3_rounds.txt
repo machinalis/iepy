@@ -1,0 +1,182 @@
+Round 3
+=======
+
+
+Description
+-----------
+
+Regarding the statistical classification stage of IEPY, the goal of this
+round of experiments is:
+    - Obtain configurations for SVM that yield high precision across many train
+      sizes.
+
+To do that, configurations will:
+    - Explore a variety of configurations for SVM.
+
+Results
+-------
+
+See `experimentation/Analisis round3.ipynb`.
+
+There where 100 different "strategies" evaluated, each with 10 training sizes
+and for each training size there where 20 different training sets (a-la
+cross-validation).
+
+From these 100 only 11 fulfill the acceptability criteria: To have more than
+80% precision at every training size and to have recall greater than zero at
+some training size.
+
+Performance was measured over the 11 strategies using 3 graphics:
+
+ 1. *Train size vs average precision*: Many strategies have precision 100% at
+    the smallest training sizes, this is because they classify everything as
+    `False`.
+ 2. *Precision variance vs average precision*
+ 3. *Train size vs average recall*:
+    Most strategies are flat on recall at lower training sizes. This is, they
+    conservatively say `False` while there's little evidence. Some strategies
+    start earlier than others to risk predictions (and therefore scale up in
+    earlier recall).
+
+
+The champion strategy was chosen as better than the others because:
+ - It never has precision lower than 90%
+ - It has the lowest precision variance than any other strategy, this means
+   it's predictions are consistent.
+ - It starts not so late (at ~50 samples) to risk predictions as `True`.
+
+
+Best:
+{'classifier': 'svm',
+ 'classifier_args': {'gamma': 0.0001},
+ 'dimensionality_reduction': None,
+ 'dimensionality_reduction_dimension': None,
+ 'feature_selection': None,
+ 'feature_selection_dimension': None,
+      'features': ['BagOfVerbLemmas False',
+                  'BagOfVerbLemmas True',
+                  'BagOfVerbStems False',
+                  'BagOfVerbStems True',
+                  'bag_of_pos',
+                  'bag_of_pos_in_between',
+                  'bag_of_word_bigrams',
+                  'bag_of_word_bigrams_in_between',
+                  'bag_of_wordpos',
+                  'bag_of_wordpos_bigrams',
+                  'bag_of_wordpos_bigrams_in_between',
+                  'bag_of_wordpos_in_between',
+                  'bag_of_words',
+                  'bag_of_words_in_between',
+                  'entity_distance',
+                  'entity_order',
+                  'in_same_sentence',
+                  'number_of_tokens',
+                  'other_entities_in_between',
+                  'symbols_in_between',
+                  'total_number_of_entities',
+                  'verbs_count',
+                  'verbs_count_in_between'],
+ 'scaler': True,
+ 'sparse': False}
+
+
+Round 2
+=======
+
+Description
+-----------
+
+Regarding the statistical classification stage of IEPY, the goal of this
+round of experiments is:
+    - Obtain configurations for SVM and Adaboost that yield higher
+      performance than out-of-the-box.
+
+To do that, configurations will:
+    - Explore a variety of configurations for SVM and Adaboost.
+
+
+Results
+-------
+
+"Performance" was measured in terms of:
+
+ - Average precision (higer is better)
+ - Precision variance (lower is better)
+ - Average recall (*MUST* be above 0, besides that any value will do)
+ - train_size (precision & recall must be more or less constant with train size)
+
+It was observed that:
+
+ - Precision didn't increase with different Adaboost configurations, so analysis
+   was focused on SVMs performance.
+ - Polynomial kernels with degree 4 can yield perform equal or better than rbf
+   kernels.
+ - Polymonial kernels seem to work better when used with feature selection.
+ - There seems to be no significant change in performance for the different
+   values of C and gamma. The one exception is gamma=0.001 and C=100 that seem
+   to give a little less performance.
+ - The "best" candidate is a little conservative (recall is 0 sometimes) but
+   precision is highest. Best configuration:
+ 
+    {'classifier': 'svm',
+     'classifier_args': {'gamma': 0.0001},
+     'dimensionality_reduction': None,
+     'dimensionality_reduction_dimension': None,
+     'feature_selection': None,
+     'feature_selection_dimension': None,
+     'features': ['BagOfVerbLemmas False',
+                  'BagOfVerbLemmas True',
+                  'BagOfVerbStems False',
+                  'BagOfVerbStems True',
+                  'bag_of_pos',
+                  'bag_of_pos_in_between',
+                  'bag_of_word_bigrams',
+                  'bag_of_word_bigrams_in_between',
+                  'bag_of_wordpos',
+                  'bag_of_wordpos_bigrams',
+                  'bag_of_wordpos_bigrams_in_between',
+                  'bag_of_wordpos_in_between',
+                  'bag_of_words',
+                  'bag_of_words_in_between',
+                  'entity_distance',
+                  'entity_order',
+                  'in_same_sentence',
+                  'number_of_tokens',
+                  'other_entities_in_between',
+                  'symbols_in_between',
+                  'total_number_of_entities',
+                  'verbs_count',
+                  'verbs_count_in_between'],
+     'scaler': True,
+     'sparse': False}
+
+
+Round 1
+=======
+
+Description
+-----------
+
+Regarding the statistical classification stage of IEPY, the goal of this
+round of experiments is:
+    - Have a ball park estimate of how good we can classify evidences without
+      much effort.
+    - Have an idea of which classifiers are worth exploring more than others.
+    - Have an idea of how performance changes
+
+To do that, configurations will:
+    - Explore a variety of configurations close to the out-of-the-box defaults.
+
+Results
+-------
+
+Please note that most classifiers were used with vanilla (out-of-the-box)
+configurations, so this helps to choose which classifiers look more promising
+but not to discard classifiers.
+
+Notable behaviours:
+
+ - **SVM** can yield extremely high precision with little training samples
+ - **Adaboost** yields consistently higher F1 scores than any other classifier
+   for any sample size. If recall can be traded for precision this method is
+   very promising.
