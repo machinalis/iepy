@@ -81,7 +81,7 @@ class BootstrappedIEPipeline(object):
         self.db_con = db_connector
         self.knowledge = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
         self.evidence_threshold = 0.99
-        self.fact_threshold = 0.99
+        self.fact_threshold = 0.89
         self.questions = Knowledge()
         self.answers = {}
         self.gold_standard = gold_standard
