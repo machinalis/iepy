@@ -1,5 +1,4 @@
-import codecs
-from collections import defaultdict, namedtuple
+from collections import defaultdict, namedtuple, OrderedDict
 
 from colorama import Fore, Style
 
@@ -12,7 +11,7 @@ def certainty(p):
     return 0.5 + abs(p - 0.5) if p is not None else 0.5
 
 
-class Knowledge(dict):
+class Knowledge(OrderedDict):
     """Maps evidence to a score in [0...1]
 
     None is also a valid score for cases when no score information is available
@@ -22,6 +21,12 @@ class Knowledge(dict):
         u'relation name', u'document name', u'segment offset',
         u'entity a tokens offset', u'entity b tokens offset', u'label']
     __slots__ = ()
+
+    def __eq__(self, other):
+        """Only comparing the mapping evidence -> score
+        and just that, not the ordering, so...
+        """
+        return dict(self) == dict(other)
 
     def by_certainty(self):
         """
@@ -51,7 +56,10 @@ class Knowledge(dict):
         The output CSV format can be seen on CSV_COLUMNS.
         """
         with py_compatible_csv.writer(filepath) as evidence_writer:
-            for (evidence, label) in sorted(self.items()):
+            for (evidence, label) in sorted(self.items(),
+                                            key=lambda x: (x[0].segment.document,
+                                                           x[0].segment,
+                                                           x[0].fact)):
                 fact = evidence.fact
                 segm = evidence.segment
                 entity_a = fact.e1
@@ -159,7 +167,7 @@ class Knowledge(dict):
             # cartesian product of all k1 and k2 combinations in the sentence:
             ka_entities = [e for e in s.entities if e.kind == kind_a]
             kb_entities = [e for e in s.entities if e.kind == kind_b]
-            print(u'Considering segment %i of %i' % (i, len(ss)))
+            print(u'Considering segment %i of %i' % (i+1, len(ss)))
             for e1 in ka_entities:
                 for e2 in kb_entities:
                     # build evidence:
