@@ -22,6 +22,12 @@ class Knowledge(OrderedDict):
         u'entity a tokens offset', u'entity b tokens offset', u'label']
     __slots__ = ()
 
+    def __eq__(self, other):
+        """Only comparing the mapping evidence -> score
+        and just that, not the ordering, so...
+        """
+        return dict(self) == dict(other)
+
     def by_certainty(self):
         """
         Returns an iterable over the evidence, with the most certain evidence
