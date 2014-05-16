@@ -291,8 +291,11 @@ class BootstrappedIEPipeline(object):
                     evidence.append(e)
             if r in extractors:
                 ps = extractors[r].predict_proba(evidence)
-                # scale down probabilities to range [0.1, 0.9]:
-                scale = lambda x: x*0.8+0.1
+                # scale probabilities to range [0.1, 0.9]:
+                max_score = max(ps)
+                min_score = min(ps)
+                score_range = max_score - min_score
+                scale = lambda x: (x - min_score) * 0.8 / score_range + 0.1
                 ps = map(scale, ps)
             else:
                 # There was no evidence to train this classifier
