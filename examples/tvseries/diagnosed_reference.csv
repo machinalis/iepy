@@ -1,0 +1,1335 @@
+person,House,disease,botulism,diagnosed,Poison,296,4,12,0.0
+person,House,disease,organophosphate poisoning,diagnosed,Poison,314,0,4,1.0
+person,Cameron,disease,cancer,diagnosed,Detox,438,0,10,1.0
+person,Cameron,disease,pancreatic cancer,diagnosed,Detox,438,0,18,0.0
+person,House,disease,hepatitis E,diagnosed,Detox,792,0,2,1.0
+person,House,disease,infarction,diagnosed,Detox,1658,4,7,0.0
+person,Mark,disease,neurological disorder,diagnosed,Honeymoon,442,2,9,0.0
+person,Mark,disease,porphyria,diagnosed,Honeymoon,1163,12,10,0.0
+person,House,disease,strains,diagnosed,Honeymoon,1489,0,15,0.0
+person,House,disease,immune disorder,diagnosed,Damned If You Do,432,16,7,0.0
+person,House,disease,mixed connective tissue disease,diagnosed,Damned If You Do,432,16,10,0.0
+person,Foreman,disease,immune disorder,diagnosed,Damned If You Do,464,0,17,0.0
+person,Foreman,disease,oxygen toxicity,diagnosed,Damned If You Do,464,0,7,1.0
+person,House,disease,allergy,diagnosed,Damned If You Do,796,9,28,0.0
+person,Cuddy,disease,allergy,diagnosed,Damned If You Do,796,0,28,0.0
+person,House,disease,allergy,diagnosed,Damned If You Do,980,0,7,0.0
+person,House,disease,schizophrenia,diagnosed,The Socratic Method,20,19,8,0.0
+person,Wilson,disease,schizophrenia,diagnosed,The Socratic Method,390,0,10,0.5
+person,House,disease,schizophrenia,diagnosed,The Socratic Method,1390,0,10,0.0
+person,House,disease,schizophrenia,diagnosed,The Socratic Method,1479,0,14,0.0
+person,House,disease,strep,diagnosed,The Socratic Method,1671,0,13,0.0
+person,House,disease,food poisoning,diagnosed,Role Model,150,2,12,0.0
+person,House,disease,food poisoning,diagnosed,Role Model,150,8,12,1.0
+person,Vogler,disease,food poisoning,diagnosed,Role Model,150,0,12,0.0
+person,Foreman,disease,AIDS,diagnosed,Role Model,451,0,25,0.0
+person,House,disease,AIDS,diagnosed,Role Model,478,11,8,0.0
+person,Foreman,disease,AIDS,diagnosed,Role Model,587,11,18,0.0
+person,House,disease,AIDS,diagnosed,Role Model,833,0,13,0.0
+person,House,disease,food poisoning,diagnosed,Role Model,950,7,12,0.0
+person,Vogler,disease,food poisoning,diagnosed,Role Model,950,0,12,0.0
+person,House,disease,common variable immunodeficiency,diagnosed,Role Model,1304,0,22,0.0
+person,House,disease,miscarriage,diagnosed,Role Model,1659,0,7,1.0
+person,House,disease,burn,diagnosed,Role Model,1753,10,16,1.0
+person,Foreman,disease,bone cancer,diagnosed,Kids,645,2,12,0.0
+person,Foreman,disease,cancer,diagnosed,Kids,797,0,10,0.0
+person,House,disease,hepatitis,diagnosed,Mob Rules,423,0,4,0.0
+person,House,disease,bulimia,diagnosed,Mob Rules,621,0,23,0.0
+person,House,disease,bulimia,diagnosed,Mob Rules,621,25,23,0.0
+person,Foreman,disease,bulimia,diagnosed,Mob Rules,621,3,23,0.0
+person,Foreman,disease,bulimia,diagnosed,Mob Rules,621,35,23,0.0
+person,Vogler,disease,bulimia,diagnosed,Mob Rules,621,17,23,0.0
+person,House,disease,poisoning,diagnosed,Mob Rules,991,0,18,1.0
+person,House,disease,hepatitis,diagnosed,Mob Rules,1071,2,36,0.0
+person,Cuddy,disease,hepatitis,diagnosed,Mob Rules,1071,0,36,0.0
+person,House,disease,food sensitivity,diagnosed,Mob Rules,1259,0,6,1.0
+person,Chase,disease,food sensitivity,diagnosed,Mob Rules,1259,10,6,0.0
+person,House,disease,aneurysm,diagnosed,Three Stories,893,7,45,0.0
+person,House,disease,infarction,diagnosed,Three Stories,1011,9,18,0.0
+person,House,disease,trauma,diagnosed,Three Stories,1344,0,16,0.0
+person,House,disease,bite,diagnosed,Three Stories,1808,0,14,0.5
+person,House,disease,injury,diagnosed,Three Stories,1808,0,10,0.0
+person,Cameron,disease,adenoma,diagnosed,Three Stories,2132,10,24,0.0
+person,Rowan,disease,allergy,diagnosed,Cursed,553,0,7,0.0
+person,House,disease,anthrax,diagnosed,Cursed,562,0,5,0.0
+person,Rowan,disease,sarcoidosis,diagnosed,Cursed,569,0,5,1.0
+person,Rowan,disease,sarcoidosis,diagnosed,Cursed,600,0,7,0.0
+person,Rowan,disease,anthrax,diagnosed,Cursed,600,0,5,0.0
+person,House,disease,sarcoidosis,diagnosed,Cursed,609,0,7,0.0
+person,House,disease,anthrax,diagnosed,Cursed,609,0,3,0.0
+person,Wilson,disease,cancer,diagnosed,Cursed,871,18,4,0.0
+person,Rowan,disease,cancer,diagnosed,Cursed,871,2,4,0.0
+person,Rowan,disease,cancer,diagnosed,Cursed,891,0,4,0.0
+person,Chase,disease,neurofibromatosis,diagnosed,Cursed,966,3,9,0.0
+person,Rowan,disease,neurofibromatosis,diagnosed,Cursed,966,0,9,0.0
+person,House,disease,anthrax,diagnosed,Cursed,1081,0,10,0.0
+person,House,disease,leprosy,diagnosed,Cursed,1254,0,8,0.0
+person,Wilson,disease,brain cancer,diagnosed,Pilot,22,16,13,1.0
+person,House,disease,brain tumor,diagnosed,Pilot,318,0,7,1.0
+person,Wilson,disease,brain tumor,diagnosed,Pilot,318,11,7,0.0
+person,Wilson,disease,cancer,diagnosed,Pilot,341,0,4,0.0
+person,Robert Chase,disease,aneurysm,diagnosed,Pilot,426,0,6,1.0
+person,Cameron,disease,mad cow disease,diagnosed,Pilot,436,0,5,1.0
+person,Wilson,disease,breast cancer,diagnosed,Fidelity,254,0,8,0.0
+person,Wilson,disease,paraneoplastic syndrome,diagnosed,Fidelity,254,0,5,1.0
+person,House,disease,trypanosomiasis,diagnosed,Fidelity,404,0,5,1.0
+person,Foreman,disease,tularemia,diagnosed,Fidelity,433,0,13,1.0
+person,House,disease,tularemia,diagnosed,Fidelity,562,4,23,0.0
+person,House,disease,thyroid cancer,diagnosed,Fidelity,854,2,18,0.0
+person,House,disease,trauma,diagnosed,Paternity,380,0,8,0.0
+person,Cameron,disease,trauma,diagnosed,Paternity,380,2,8,0.0
+person,House,disease,viral meningitis,diagnosed,Paternity,598,8,4,0.0
+person,House,disease,multiple sclerosis,diagnosed,Paternity,963,2,10,0.0
+person,Cameron,disease,syphilis,diagnosed,Paternity,988,0,5,1.0
+person,House,disease,measles,diagnosed,Paternity,1358,0,10,0.0
+person,House,disease,measles,diagnosed,Paternity,1358,0,20,0.0
+person,House,disease,subacute sclerosing panencephalitis,diagnosed,Paternity,1358,0,26,0.0
+person,House,disease,gonorrhea,diagnosed,Paternity,1807,0,5,0.0
+person,House,disease,infectious disease,diagnosed,Paternity,1924,6,2,0.0
+person,House,disease,cancer,diagnosed,Sports Medicine,120,0,34,0.0
+person,Wilson,disease,cancer,diagnosed,Sports Medicine,120,3,34,0.0
+person,Wilson,disease,cancer,diagnosed,Sports Medicine,120,37,34,0.0
+person,House,disease,respiratory problems,diagnosed,Sports Medicine,553,0,20,0.0
+person,Chase,disease,kidney problems,diagnosed,Sports Medicine,610,5,2,0.0
+person,Addison,disease,kidney problems,diagnosed,Sports Medicine,610,8,2,0.0
+person,House,disease,ALS,diagnosed,DNR,36,2,5,0.0
+person,Foreman,disease,ALS,diagnosed,DNR,36,11,5,0.0
+person,Lou Gehrig,disease,amyotrophic lateral sclerosis,diagnosed,DNR,86,15,11,0.0
+person,House,disease,ALS,diagnosed,DNR,184,0,11,0.0
+person,Foreman,disease,ALS,diagnosed,DNR,184,7,11,1.0
+person,Foreman,disease,ALS,diagnosed,DNR,253,0,17,0.0
+person,House,disease,ALS,diagnosed,DNR,436,0,16,0.0
+person,House,disease,heart disease,diagnosed,DNR,691,2,12,0.0
+person,Wilson,disease,heart disease,diagnosed,DNR,691,5,12,0.0
+person,House,disease,poisoning,diagnosed,Occam's Razor,1192,2,16,0.0
+person,Wilson,disease,drug overdose,diagnosed,Histories,183,0,11,0.0
+person,Foreman,disease,drug overdose,diagnosed,Histories,183,2,11,0.0
+person,House,disease,brain tumor,diagnosed,Histories,473,9,17,0.0
+person,Foreman,disease,brain tumor,diagnosed,Histories,473,12,17,1.0
+person,Wilson,disease,ovarian cancer,diagnosed,Histories,647,0,9,0.0
+person,House,disease,paraneoplastic syndrome,diagnosed,Histories,659,0,3,0.0
+person,House,disease,tuberculosis,diagnosed,Histories,777,0,6,0.0
+person,House,disease,ovarian cancer,diagnosed,Histories,777,0,22,0.0
+person,Foreman,disease,tuberculosis,diagnosed,Histories,862,0,5,0.0
+person,Foreman,disease,tuberculosis,diagnosed,Histories,862,0,24,0.0
+person,Foreman,disease,rabies,diagnosed,Histories,1520,1,5,0.0
+person,Foreman,disease,bite,diagnosed,Histories,1566,1,22,0.0
+person,Foreman,disease,injury,diagnosed,Histories,1566,1,23,0.0
+person,Harvey,disease,nominal aphasia,diagnosed,Love Hurts,264,7,12,0.0
+person,Foreman,disease,mitral valve prolapse,diagnosed,Love Hurts,523,0,8,0.0
+person,Foreman,disease,aneurysm,diagnosed,Love Hurts,558,12,6,0.0
+person,Foreman,disease,trauma,diagnosed,Love Hurts,558,12,9,0.0
+person,Harvey,disease,choking,diagnosed,Love Hurts,632,8,13,0.0
+person,House,disease,trauma,diagnosed,Love Hurts,762,0,19,0.0
+person,House,disease,osteomyelitis,diagnosed,Love Hurts,1612,0,7,0.0
+person,House,disease,cancer,diagnosed,Babies & Bathwater,238,5,15,1.0
+person,Foreman,disease,cancer,diagnosed,Babies & Bathwater,238,19,15,0.0
+person,Vogler,disease,cancer,diagnosed,Babies & Bathwater,238,10,15,0.0
+person,Foreman,disease,choking,diagnosed,Babies & Bathwater,340,2,13,0.0
+person,Naomi,disease,choking,diagnosed,Babies & Bathwater,340,4,13,0.0
+person,Naomi,disease,cancer,diagnosed,Babies & Bathwater,686,0,4,0.0
+person,Naomi,disease,cancer,diagnosed,Babies & Bathwater,686,0,29,0.0
+person,House,disease,hemorrhoid,diagnosed,Babies & Bathwater,985,0,5,0.0
+person,Cuddy,disease,hemorrhoid,diagnosed,Babies & Bathwater,985,2,5,0.0
+person,Wilson,disease,hemorrhoid,diagnosed,Babies & Bathwater,985,14,5,0.0
+person,Vogler,disease,hemorrhoid,diagnosed,Babies & Bathwater,985,12,5,0.0
+person,Vogler,disease,infantile,diagnosed,Babies & Bathwater,1151,29,15,0.0
+person,Alexander,disease,infantile,diagnosed,Babies & Bathwater,1151,16,15,0.0
+person,Naomi,disease,pulmonary embolism,diagnosed,Babies & Bathwater,1230,3,28,0.0
+person,House,disease,embolism,diagnosed,Babies & Bathwater,1322,15,5,0.0
+person,Naomi,disease,embolism,diagnosed,Babies & Bathwater,1322,7,5,0.0
+person,House,disease,trauma,diagnosed,Babies & Bathwater,1363,0,7,0.0
+person,House,disease,infarction,diagnosed,Control,199,9,4,0.0
+person,Cameron,disease,infarction,diagnosed,Control,199,0,4,1.0
+person,House,disease,cancer,diagnosed,Control,536,11,16,0.0
+person,Cameron,disease,cancer,diagnosed,Control,536,0,16,0.0
+person,Wilson,disease,bone cancer,diagnosed,Control,554,0,2,1.0
+person,Vogler,disease,bone cancer,diagnosed,Control,554,6,2,0.0
+person,Wilson,disease,colon cancer,diagnosed,Control,624,0,5,1.0
+person,House,disease,strep,diagnosed,Control,1565,0,8,0.0
+person,Cuddy,disease,sepsis,diagnosed,Humpty Dumpty,300,7,19,0.0
+person,Cuddy,disease,bite,diagnosed,Humpty Dumpty,713,2,8,1.0
+person,Cuddy,disease,endocarditis,diagnosed,Humpty Dumpty,1196,2,9,0.0
+person,House,disease,burn,diagnosed,Distractions,20,5,2,0.0
+person,House,disease,burns,diagnosed,Distractions,253,0,13,0.0
+person,House,disease,multiple sclerosis,diagnosed,Distractions,449,0,9,0.0
+person,House,disease,adrenoleukodystrophy,diagnosed,Distractions,449,0,12,0.0
+person,House,disease,skin infection,diagnosed,Distractions,886,0,9,0.0
+person,House,disease,burn,diagnosed,Distractions,973,6,37,0.0
+person,Cameron,disease,burn,diagnosed,Distractions,973,4,37,0.0
+person,House,disease,burn,diagnosed,Distractions,1087,0,23,0.0
+person,House,disease,burn,diagnosed,Distractions,1389,9,15,0.5
+person,Adam,disease,burn,diagnosed,Distractions,1389,17,15,0.0
+person,Adams,disease,injuries,diagnosed,Distractions,1590,0,10,0.0
+person,House,disease,hangover,diagnosed,Acceptance,798,0,8,0.0
+person,House,disease,poisoning,diagnosed,Acceptance,825,2,14,0.0
+person,House,disease,pheochromocytoma,diagnosed,Acceptance,1120,0,10,1.0
+person,Cameron,disease,cancer,diagnosed,Acceptance,1324,7,18,1.0
+person,Wilson,disease,cancer,diagnosed,Acceptance,1344,3,12,0.0
+person,House,disease,lung cancer,diagnosed,Acceptance,1358,3,15,0.0
+person,Cameron,disease,lung cancer,diagnosed,Acceptance,1358,0,15,0.0
+person,Wilson,disease,lung cancer,diagnosed,Acceptance,1358,12,15,0.0
+person,House,disease,bleeding ulcers,diagnosed,The Mistake,562,0,8,0.0
+person,Chase,disease,bleeding ulcers,diagnosed,The Mistake,562,21,8,0.0
+person,Stacy,disease,bleeding ulcers,diagnosed,The Mistake,562,2,8,0.0
+person,House,disease,cancer,diagnosed,The Mistake,849,6,24,0.0
+person,House,disease,cancer,diagnosed,The Mistake,849,9,24,0.0
+person,House,disease,cancer,diagnosed,The Mistake,849,17,24,1.0
+person,House,disease,hepatitis C,diagnosed,The Mistake,849,6,14,0.0
+person,House,disease,hepatitis C,diagnosed,The Mistake,849,9,14,1.0
+person,House,disease,hepatitis C,diagnosed,The Mistake,849,17,14,0.0
+person,House,disease,cancer,diagnosed,The Mistake,1183,0,9,0.0
+person,Rowan,disease,cancer,diagnosed,The Mistake,1183,7,9,0.0
+person,House,disease,idiopathic pulmonary fibrosis,diagnosed,The Mistake,1371,0,11,0.0
+person,Foreman,disease,air embolism,diagnosed,Spin,230,0,17,1.0
+person,Forster,disease,embolism,diagnosed,Spin,334,6,3,0.0
+person,Wilson,disease,pure red cell aplasia,diagnosed,Spin,647,0,8,0.0
+person,Forster,disease,pure red cell aplasia,diagnosed,Spin,647,3,8,0.0
+person,House,disease,cancer,diagnosed,Spin,706,19,12,0.0
+person,Forster,disease,cancer,diagnosed,Spin,706,39,12,0.0
+person,House,disease,aplasia,diagnosed,Spin,901,0,4,0.0
+person,House,disease,cancer,diagnosed,Skin Deep,738,0,11,0.0
+person,House,disease,paraneoplastic syndrome,diagnosed,Skin Deep,738,0,8,1.0
+person,House,disease,cancer,diagnosed,Skin Deep,1002,0,11,0.0
+person,House,disease,sympathetic pregnancy,diagnosed,Skin Deep,1180,0,2,1.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,264,0,8,0.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,414,3,5,0.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,459,0,6,0.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,704,0,4,0.0
+person,House,disease,cancer,diagnosed,House vs. God,899,0,5,0.0
+person,House,disease,cancer,diagnosed,House vs. God,1011,2,5,0.0
+person,House,disease,cancer,diagnosed,House vs. God,1035,0,11,0.0
+person,House,disease,cancer,diagnosed,House vs. God,1035,19,11,0.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,1035,3,11,0.0
+person,Wilson,disease,cancer,diagnosed,House vs. God,1035,23,11,0.0
+person,House,disease,tuberous sclerosis,diagnosed,House vs. God,1175,0,8,0.0
+person,Wilson,disease,tuberous sclerosis,diagnosed,House vs. God,1240,0,7,1.0
+person,House,disease,cancer,diagnosed,House vs. God,1250,2,13,0.0
+person,House,disease,cancer,diagnosed,House vs. God,1250,2,25,0.0
+person,House,disease,herpes encephalitis,diagnosed,House vs. God,1250,2,18,0.0
+person,House,disease,AIDS,diagnosed,Hunting,17,7,5,0.0
+person,Chase,disease,berylliosis,diagnosed,Hunting,767,0,14,0.0
+person,Rowan,disease,berylliosis,diagnosed,Hunting,767,7,14,0.0
+person,Wilson,disease,lymphoma,diagnosed,Hunting,941,0,6,1.0
+person,Cameron,disease,sarcoidosis,diagnosed,Hunting,949,0,5,0.0
+person,Cameron,disease,sarcoidosis,diagnosed,Hunting,998,0,5,0.0
+person,Kalvin,disease,AIDS,diagnosed,Hunting,1024,0,10,0.0
+person,Wilson,disease,lymphoma,diagnosed,Hunting,1349,0,11,0.0
+person,House,disease,echinococcosis,diagnosed,Hunting,1472,0,13,1.0
+person,House,disease,TB,diagnosed,TB or Not TB,0,10,0,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,0,10,3,0.0
+person,House,disease,tuberculosis,diagnosed,TB or Not TB,20,0,4,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,20,0,11,0.0
+person,House,disease,tuberculosis,diagnosed,TB or Not TB,49,20,8,0.0
+person,House,disease,tuberculosis,diagnosed,TB or Not TB,49,20,26,0.0
+person,House,disease,cancer,diagnosed,TB or Not TB,95,27,17,0.0
+person,House,disease,cancer,diagnosed,TB or Not TB,95,35,17,0.0
+person,Foreman,disease,cancer,diagnosed,TB or Not TB,95,23,17,0.0
+person,Sebastian Charles,disease,tuberculosis,diagnosed,TB or Not TB,203,13,9,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,237,0,4,1.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,283,0,12,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,334,0,2,0.0
+person,House,disease,sick sinus syndrome,diagnosed,TB or Not TB,379,4,8,1.0
+person,Cameron,disease,sick sinus syndrome,diagnosed,TB or Not TB,379,0,8,0.0
+person,Sebastian,disease,sick sinus syndrome,diagnosed,TB or Not TB,379,2,8,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,592,0,5,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,592,0,17,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,611,3,26,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,754,5,26,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,754,18,26,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,818,0,13,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,841,0,10,0.0
+person,House,disease,TB,diagnosed,TB or Not TB,841,0,25,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,841,3,10,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,841,3,25,0.0
+person,Charles,disease,TB,diagnosed,TB or Not TB,903,7,4,0.0
+person,House,disease,breast cancer,diagnosed,TB or Not TB,1119,5,24,0.0
+person,House,disease,breast cancer,diagnosed,TB or Not TB,1119,10,24,0.0
+person,Foreman,disease,breast cancer,diagnosed,TB or Not TB,1119,1,24,0.0
+person,House,disease,bipolar disorder,diagnosed,Failure to Communicate,1339,0,23,0.5
+person,Luria,disease,carbon monoxide poisoning,diagnosed,Euphoria (Part 1),373,0,11,0.0
+person,House,disease,cancer,diagnosed,Euphoria (Part 1),1443,0,8,0.0
+person,Wilson,disease,cancer,diagnosed,Euphoria (Part 1),1443,4,8,0.0
+person,House,disease,cardiomyopathy,diagnosed,Euphoria (Part 1),3363,1,8,0.0
+person,House,disease,cancer,diagnosed,Forever,497,0,5,1.0
+person,Cuddy,disease,cancer,diagnosed,Forever,777,3,7,0.0
+person,House,disease,pellagra,diagnosed,Forever,889,0,5,1.0
+person,House,disease,cancer,diagnosed,Forever,1067,2,8,0.0
+person,Cuddy,disease,cancer,diagnosed,Forever,1067,4,8,0.0
+person,Wilson,disease,cancer,diagnosed,Forever,1067,0,8,0.0
+person,House,disease,poisoning,diagnosed,Clueless,17,23,30,1.0
+person,House,disease,allergies,diagnosed,Clueless,130,21,8,0.0
+person,Cameron,disease,allergies,diagnosed,Clueless,130,23,8,0.0
+person,Foreman,disease,trauma,diagnosed,Clueless,175,0,6,1.0
+person,Foreman,disease,food allergy,diagnosed,Clueless,335,0,8,0.0
+person,Chase,disease,food allergy,diagnosed,Clueless,335,5,8,1.0
+person,Cameron,disease,allergy,diagnosed,Clueless,346,0,16,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Clueless,365,0,2,1.0
+person,House,disease,lead poisoning,diagnosed,Clueless,534,0,18,0.0
+person,House,disease,food allergies,diagnosed,Clueless,534,0,31,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Clueless,585,6,15,0.5
+person,Foreman,disease,heavy metal poisoning,diagnosed,Clueless,585,0,15,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Clueless,673,0,5,1.0
+person,House,disease,poisoning,diagnosed,Clueless,704,6,13,0.5
+person,House,disease,viral infection,diagnosed,Clueless,912,0,6,1.0
+person,House,disease,herpes,diagnosed,Clueless,1235,4,6,1.0
+person,House,disease,herpes,diagnosed,Clueless,1304,0,17,0.0
+person,House,disease,poison ivy,diagnosed,Sleeping Dogs Lie,371,10,6,0.0
+person,Wegener,disease,poison ivy,diagnosed,Sleeping Dogs Lie,371,15,6,0.0
+person,House,disease,allergy,diagnosed,Sleeping Dogs Lie,543,0,4,0.0
+person,House,disease,cancer,diagnosed,Sleeping Dogs Lie,1010,0,17,0.0
+person,House,disease,plague,diagnosed,Sleeping Dogs Lie,1376,11,1,0.0
+person,House,disease,alcohol abuse,diagnosed,Deception,136,16,6,0.0
+person,Foreman,disease,alcohol abuse,diagnosed,Deception,136,0,6,0.0
+person,Cushing,disease,adenoma,diagnosed,Deception,225,4,21,0.0
+person,House,disease,alcohol withdrawal,diagnosed,Deception,319,13,29,0.0
+person,Foreman,disease,alcohol withdrawal,diagnosed,Deception,319,0,29,0.0
+person,Cameron,disease,cancer,diagnosed,Deception,442,0,14,0.0
+person,House,disease,cancer,diagnosed,Deception,489,8,5,0.0
+person,House,disease,aplastic anemia,diagnosed,Deception,768,0,16,0.0
+person,Munchausen,disease,aplastic anemia,diagnosed,Deception,768,7,16,0.0
+person,House,disease,aplastic anemia,diagnosed,Deception,929,0,15,0.0
+person,Munchausen,disease,aplastic anemia,diagnosed,Deception,929,22,15,0.0
+person,House,disease,trauma,diagnosed,No Reason,232,0,21,0.0
+person,House,disease,cancer,diagnosed,No Reason,866,3,10,1.0
+person,Chase,disease,cancer,diagnosed,No Reason,866,0,10,0.0
+person,Foreman,disease,testicular cancer,diagnosed,No Reason,1024,0,2,1.0
+person,House,disease,testicular cancer,diagnosed,No Reason,1029,0,10,0.0
+person,Wilson,disease,testicular cancer,diagnosed,No Reason,1029,3,10,0.0
+person,Hesseman,disease,absence seizure,diagnosed,Sex Kills,71,15,19,0.0
+person,House,disease,testicular cancer,diagnosed,Sex Kills,149,6,11,0.0
+person,Foreman,disease,testicular cancer,diagnosed,Sex Kills,149,15,11,0.0
+person,House,disease,STD,diagnosed,Sex Kills,172,0,10,0.0
+person,House,disease,STD,diagnosed,Sex Kills,241,0,6,1.0
+person,Foreman,disease,STD,diagnosed,Sex Kills,241,21,6,0.0
+person,House,disease,STD,diagnosed,Sex Kills,290,0,4,0.0
+person,Foreman,disease,hepatitis C,diagnosed,Sex Kills,674,0,11,0.0
+person,House,disease,hepatitis C,diagnosed,Sex Kills,792,0,5,0.0
+person,House,disease,gonorrhea,diagnosed,Sex Kills,1003,0,6,1.0
+person,House,disease,injury,diagnosed,Sex Kills,1341,4,17,0.0
+person,Ester,disease,wound,diagnosed,All In,302,5,8,0.0
+person,House,disease,gastrointestinal disease,diagnosed,All In,414,0,25,0.0
+person,House,disease,gastrointestinal disease,diagnosed,All In,414,11,25,0.0
+person,Chase,disease,gastrointestinal disease,diagnosed,All In,414,7,25,0.0
+person,House,disease,lymphoma,diagnosed,All In,515,6,3,0.5
+person,Cameron,disease,lymphoma,diagnosed,All In,515,1,3,1.0
+person,Wilson,disease,cancer,diagnosed,All In,861,2,7,0.0
+person,House,disease,STD,diagnosed,Daddy's Boy,1171,0,3,1.0
+person,Carnell,disease,STD,diagnosed,Daddy's Boy,1171,12,3,0.0
+person,House,disease,cancer,diagnosed,Autopsy,139,0,13,0.0
+person,House,disease,cancer,diagnosed,Autopsy,139,0,19,0.0
+person,Foreman,disease,syphilis,diagnosed,Autopsy,306,0,5,1.0
+person,House,disease,heart tumor,diagnosed,Autopsy,385,0,16,0.0
+person,House,disease,heart tumor,diagnosed,Autopsy,578,0,16,0.0
+person,House,disease,salmonella,diagnosed,Fools for Love,277,0,9,0.5
+person,Chase,disease,STD,diagnosed,Fools for Love,533,2,6,1.0
+person,House,disease,sarcoidosis,diagnosed,Fools for Love,685,10,15,1.0
+person,Foreman,disease,sarcoidosis,diagnosed,Fools for Love,685,0,15,0.0
+person,House,disease,sarcoidosis,diagnosed,Fools for Love,715,0,10,0.0
+person,Wilson,disease,sarcoidosis,diagnosed,Fools for Love,715,3,10,0.0
+person,Wilson,disease,sarcoidosis,diagnosed,Fools for Love,715,19,10,0.0
+person,Wilson,disease,sarcoidosis,diagnosed,Fools for Love,766,0,4,0.0
+person,House,disease,genetic diseases,diagnosed,Fools for Love,1035,7,13,0.0
+person,Foreman,disease,genetic diseases,diagnosed,Fools for Love,1035,0,13,0.0
+person,House,disease,flashing,diagnosed,Son of Coma Guy,255,5,7,0.0
+person,House,disease,mercury poisoning,diagnosed,Son of Coma Guy,973,0,7,0.0
+person,House,disease,CIPA,diagnosed,Insensitive,150,0,5,1.0
+person,House,disease,CIPA,diagnosed,Insensitive,172,0,15,0.0
+person,House,disease,amyloidosis,diagnosed,Informed Consent,1289,9,17,0.0
+person,Chase,disease,AA,diagnosed,Informed Consent,1335,6,14,0.5
+person,House,disease,infarction,diagnosed,Meaning,111,8,32,0.0
+person,House,disease,injury,diagnosed,Meaning,147,2,13,0.0
+person,House,disease,cancer,diagnosed,Meaning,302,29,17,0.0
+person,House,disease,cancer,diagnosed,Meaning,343,8,13,0.0
+person,House,disease,cancer,diagnosed,Meaning,378,2,11,0.0
+person,House,disease,cancer,diagnosed,Meaning,403,5,22,0.0
+person,House,disease,cancer,diagnosed,Meaning,403,13,22,0.0
+person,Cuddy,disease,cancer,diagnosed,Meaning,403,31,22,0.0
+person,Wilson,disease,cancer,diagnosed,Meaning,403,1,22,0.0
+person,Wilson,disease,cancer,diagnosed,Meaning,403,29,22,0.0
+person,House,disease,cancer,diagnosed,Meaning,445,0,10,0.0
+person,House,disease,cancer,diagnosed,Meaning,469,21,7,0.0
+person,House,disease,injury,diagnosed,Meaning,854,18,16,0.0
+person,Cuddy,disease,injuries,diagnosed,Meaning,931,0,21,0.0
+person,House,disease,attempted suicide,diagnosed,Meaning,1118,0,7,0.5
+person,House,disease,burns,diagnosed,Meaning,1204,0,1,0.0
+person,House,disease,scurvy,diagnosed,Meaning,1514,0,5,1.0
+person,House,disease,cancer,diagnosed,Meaning,1840,0,8,0.0
+person,House,disease,cancer,diagnosed,Meaning,1861,0,8,0.0
+person,House,disease,cancer,diagnosed,Meaning,1861,0,14,0.0
+person,Cuddy,disease,strains,diagnosed,Meaning,2324,1,15,0.0
+person,Wilson,disease,strains,diagnosed,Meaning,2324,8,15,0.0
+person,House,disease,burn,diagnosed,Meaning,2482,3,10,0.0
+person,House,disease,trauma,diagnosed,"One Day, One Room",75,12,10,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",98,2,10,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",305,0,12,0.0
+person,House,disease,STD,diagnosed,"One Day, One Room",494,0,5,0.0
+person,House,disease,STD,diagnosed,"One Day, One Room",502,9,6,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",687,0,2,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",1039,0,6,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",1051,4,9,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",1340,0,2,0.0
+person,Cameron,disease,cancer,diagnosed,"One Day, One Room",1439,0,2,0.0
+person,House,disease,addiction,diagnosed,Finding Judas,354,6,8,0.0
+person,House,disease,allergies,diagnosed,Finding Judas,515,0,6,0.0
+person,House,disease,calculus,diagnosed,Finding Judas,989,26,22,0.0
+person,House,disease,necrotizing fasciitis,diagnosed,Finding Judas,1465,0,6,1.0
+person,House,disease,erythropoietic protoporphyria,diagnosed,Finding Judas,1556,3,8,0.0
+person,House,disease,personality disorder,diagnosed,The Jerk,168,0,9,1.0
+person,House,disease,cluster headaches,diagnosed,The Jerk,168,0,19,0.0
+person,Cuddy,disease,cluster headache,diagnosed,The Jerk,382,3,15,0.0
+person,Foreman,disease,amyloidosis,diagnosed,The Jerk,963,0,2,1.0
+person,House,disease,amyloidosis,diagnosed,The Jerk,967,0,23,0.0
+person,House,disease,amyloidosis,diagnosed,The Jerk,1227,0,6,0.0
+person,Foreman,disease,amyloidosis,diagnosed,The Jerk,1227,2,6,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,486,2,7,0.0
+person,Wilson,disease,cancer,diagnosed,Half-Wit,486,0,7,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,525,0,20,0.0
+person,Chase,disease,cancer,diagnosed,Half-Wit,525,16,20,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,663,4,13,0.0
+person,House,disease,brain cancer,diagnosed,Half-Wit,740,10,5,0.0
+person,Foreman,disease,brain cancer,diagnosed,Half-Wit,740,0,5,0.0
+person,House,disease,arteritis,diagnosed,Half-Wit,1026,0,18,0.0
+person,Cuddy,disease,arteritis,diagnosed,Half-Wit,1026,3,18,0.0
+person,Takayasu,disease,arteritis,diagnosed,Half-Wit,1026,16,18,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,1162,8,20,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,1241,5,15,0.0
+person,House,disease,cancer,diagnosed,Half-Wit,1258,2,18,0.0
+person,House,disease,syphilis,diagnosed,Half-Wit,1258,2,22,0.0
+person,Wilson,disease,cancer,diagnosed,Half-Wit,1335,0,6,0.0
+person,Wilson,disease,cancer,diagnosed,Half-Wit,1335,0,18,0.0
+person,Takayasu,disease,arteritis,diagnosed,Half-Wit,1530,0,2,0.0
+person,Foreman,disease,histoplasmosis,diagnosed,Family,1413,2,7,1.0
+person,House,disease,pleural effusion,diagnosed,Resignation,550,0,15,0.0
+person,House,disease,kidney problems,diagnosed,Fetal Position,275,12,4,0.0
+person,Cameron,disease,kidney problems,diagnosed,Fetal Position,275,0,4,0.0
+person,House,disease,male menopause,diagnosed,Words and Deeds,297,0,5,1.0
+person,Cameron,disease,heart syndrome,diagnosed,Words and Deeds,802,0,4,1.0
+person,Chase,disease,infectious disease,diagnosed,Human Error,309,0,6,1.0
+person,House,disease,multiple sclerosis,diagnosed,Human Error,384,0,18,0.0
+person,Foreman,disease,multiple sclerosis,diagnosed,Human Error,384,8,18,0.0
+person,House,disease,multiple sclerosis,diagnosed,Que Será Será,1127,0,19,0.0
+person,House,disease,lung cancer,diagnosed,Que Será Será,1197,0,4,0.0
+person,Cameron,disease,small cell lung carcinoma,diagnosed,Que Será Será,1211,0,10,0.0
+person,Foreman,disease,lung cancer,diagnosed,Merry Little Christmas,364,0,4,1.0
+person,House,disease,injury,diagnosed,Merry Little Christmas,686,2,18,0.0
+person,Sebastian,disease,injury,diagnosed,Merry Little Christmas,686,10,18,0.0
+person,House,disease,cancer,diagnosed,Merry Little Christmas,1286,2,14,0.0
+person,Cuddy,disease,cancer,diagnosed,Merry Little Christmas,1286,0,14,0.0
+person,Chase,disease,cancer,diagnosed,Merry Little Christmas,1361,12,26,0.0
+person,Chase,disease,histiocytosis,diagnosed,Merry Little Christmas,1361,12,20,0.0
+person,Langerhans,disease,cancer,diagnosed,Merry Little Christmas,1361,18,26,0.0
+person,Langerhans,disease,histiocytosis,diagnosed,Merry Little Christmas,1361,18,20,0.0
+person,Langerhans,disease,histiocytosis,diagnosed,Merry Little Christmas,1697,0,2,0.0
+person,House,disease,hepatitis A,diagnosed,Whac-A-Mole,371,4,15,0.0
+person,House,disease,hepatitis A,diagnosed,Whac-A-Mole,371,23,15,0.0
+person,Wilson,disease,hepatitis A,diagnosed,Whac-A-Mole,371,18,15,0.0
+person,House,disease,hepatitis A,diagnosed,Whac-A-Mole,417,25,10,0.0
+person,House,disease,osteomyelitis,diagnosed,Whac-A-Mole,688,0,4,1.0
+person,House,disease,osteomyelitis,diagnosed,Whac-A-Mole,724,0,15,0.0
+person,Cameron,disease,osteomyelitis,diagnosed,Whac-A-Mole,724,5,15,0.0
+person,Foreman,disease,osteomyelitis,diagnosed,Whac-A-Mole,724,2,15,0.0
+person,Chase,disease,osteomyelitis,diagnosed,Whac-A-Mole,724,7,15,0.0
+person,Cameron,disease,PMS,diagnosed,Whac-A-Mole,907,0,4,0.0
+person,House,disease,fungal infection,diagnosed,Whac-A-Mole,958,0,6,1.0
+person,House,disease,genetic disorder,diagnosed,Whac-A-Mole,1041,0,7,1.0
+person,House,disease,autism,diagnosed,Lines in the Sand,114,0,16,0.0
+person,Foreman,disease,autism,diagnosed,Lines in the Sand,114,6,16,0.5
+person,Cameron,disease,cancer,diagnosed,Lines in the Sand,618,0,11,1.0
+person,House,disease,autism,diagnosed,Lines in the Sand,1043,4,15,0.0
+person,Cuddy,disease,autism,diagnosed,Lines in the Sand,1043,2,15,0.0
+person,Wilson,disease,autism,diagnosed,Lines in the Sand,1043,0,15,0.0
+person,Asperger,disease,autism,diagnosed,Lines in the Sand,1043,7,15,0.0
+person,House,disease,SP,diagnosed,Lines in the Sand,1141,13,17,0.0
+person,House,disease,SP,diagnosed,Lines in the Sand,1141,24,17,0.0
+person,House,disease,pleural effusion,diagnosed,Needle in a Haystack,184,2,17,0.0
+person,Foreman,disease,pleural effusion,diagnosed,Needle in a Haystack,184,8,17,0.0
+person,House,disease,cancer,diagnosed,Top Secret,571,7,4,0.0
+person,Wilson,disease,cancer,diagnosed,Top Secret,571,11,4,0.0
+person,Foreman,disease,cancer,diagnosed,Top Secret,571,0,4,1.0
+person,House,disease,brain tumors,diagnosed,Top Secret,795,2,9,0.0
+person,Wilson,disease,brain tumors,diagnosed,Top Secret,795,0,9,0.0
+person,House,disease,OCD,diagnosed,Top Secret,1602,2,5,0.0
+person,Chase,disease,fungal infection,diagnosed,Act Your Age,267,2,32,0.0
+person,Cameron,disease,brain cancer,diagnosed,Act Your Age,316,5,17,0.0
+person,Chase,disease,brain cancer,diagnosed,Act Your Age,316,3,17,0.0
+person,House,disease,juvenile rheumatoid arthritis,diagnosed,Act Your Age,378,0,5,1.0
+person,Cameron,disease,pituitary adenoma,diagnosed,Act Your Age,1281,0,13,0.5
+person,House,disease,bacterial meningitis,diagnosed,Airborne,493,9,27,0.0
+person,Cuddy,disease,bacterial meningitis,diagnosed,Airborne,493,6,27,0.0
+person,House,disease,hysteria,diagnosed,Airborne,583,0,16,0.0
+person,Wilson,disease,breast cancer,diagnosed,Airborne,887,6,12,1.0
+person,House,disease,hysteria,diagnosed,Airborne,1413,10,24,0.5
+person,House,disease,bacterial meningitis,diagnosed,Airborne,1413,10,18,0.0
+person,Cuddy,disease,the bends,diagnosed,Airborne,1886,0,21,0.0
+person,Foreman,disease,arsenic poisoning,diagnosed,House Training,608,4,12,0.0
+person,Foreman,disease,cancer,diagnosed,House Training,990,0,24,1.0
+person,House,disease,brain tumor,diagnosed,Living The Dream,176,0,7,0.0
+person,Kutner,disease,injury,diagnosed,Living The Dream,766,0,10,0.0
+person,House,disease,thyroid problem,diagnosed,Living The Dream,1375,0,24,0.0
+person,House,disease,allergy,diagnosed,Living The Dream,1669,0,10,0.0
+person,Cuddy,disease,allergy,diagnosed,Living The Dream,1853,0,9,0.0
+person,Foreman,disease,heat stroke,diagnosed,Whatever It Takes,19,9,15,1.0
+person,Foreman,disease,heat stroke,diagnosed,Whatever It Takes,206,2,7,1.0
+person,Foreman,disease,heat stroke,diagnosed,Whatever It Takes,374,0,9,1.0
+person,Taub,disease,lupus,diagnosed,Whatever It Takes,653,0,4,1.0
+person,Foreman,disease,MS,diagnosed,Whatever It Takes,659,2,8,0.0
+person,Foreman,disease,MS,diagnosed,Whatever It Takes,659,10,8,0.0
+person,Brennan,disease,MS,diagnosed,Whatever It Takes,659,0,8,0.0
+person,Cameron,disease,lupus,diagnosed,Whatever It Takes,776,40,34,0.0
+person,Cameron,disease,MS,diagnosed,Whatever It Takes,776,40,18,0.0
+person,Cameron,disease,MS,diagnosed,Whatever It Takes,776,40,26,0.0
+person,Foreman,disease,lupus,diagnosed,Whatever It Takes,776,20,34,0.0
+person,Foreman,disease,MS,diagnosed,Whatever It Takes,776,20,18,0.0
+person,Foreman,disease,MS,diagnosed,Whatever It Takes,776,20,26,0.0
+person,Taub,disease,lupus,diagnosed,Whatever It Takes,776,28,34,1.0
+person,Taub,disease,MS,diagnosed,Whatever It Takes,776,28,18,0.0
+person,Taub,disease,MS,diagnosed,Whatever It Takes,776,28,26,0.0
+person,Brennan,disease,polio,diagnosed,Whatever It Takes,917,2,6,1.0
+person,Foreman,disease,botulism,diagnosed,Whatever It Takes,937,0,7,0.0
+person,House,disease,cancer,diagnosed,Whatever It Takes,1133,6,21,0.0
+person,Wilson,disease,cancer,diagnosed,Whatever It Takes,1133,0,21,0.0
+person,Foreman,disease,polio,diagnosed,Whatever It Takes,1190,5,11,0.0
+person,Brennan,disease,polio,diagnosed,Whatever It Takes,1190,0,11,0.0
+person,House,disease,cancer,diagnosed,Whatever It Takes,1258,0,6,0.0
+person,House,disease,poisoning,diagnosed,Whatever It Takes,1473,0,8,0.0
+person,House,disease,selenium poisoning,diagnosed,Whatever It Takes,1486,0,17,0.0
+person,House,disease,poisoning,diagnosed,Whatever It Takes,1486,0,13,0.0
+person,Foreman,disease,polio,diagnosed,Whatever It Takes,1632,0,13,0.0
+person,Foreman,disease,porphyria,diagnosed,Whatever It Takes,1647,0,4,1.0
+person,House,disease,polio,diagnosed,Whatever It Takes,1653,0,8,0.0
+person,Brennan,disease,polio,diagnosed,Whatever It Takes,1653,4,8,0.0
+person,Brennan,disease,polio,diagnosed,Whatever It Takes,1653,18,8,0.0
+person,Foreman,disease,heat stroke,diagnosed,Whatever It Takes,1691,0,6,0.0
+person,Foreman,disease,heat stroke,diagnosed,Whatever It Takes,1845,9,4,0.0
+person,Casey,disease,heat stroke,diagnosed,Whatever It Takes,1845,0,4,0.0
+person,House,disease,breast cancer,diagnosed,It's a Wonderful Lie,240,2,17,0.0
+person,House,disease,breast cancer,diagnosed,It's a Wonderful Lie,278,0,12,0.0
+person,Wilson,disease,cancer,diagnosed,It's a Wonderful Lie,388,0,12,0.0
+person,House,disease,STD,diagnosed,It's a Wonderful Lie,414,9,6,0.5
+person,Taub,disease,MS,diagnosed,It's a Wonderful Lie,612,2,6,0.0
+person,Foreman,disease,conversion disorder,diagnosed,It's a Wonderful Lie,696,0,9,1.0
+person,House,disease,conversion disorder,diagnosed,It's a Wonderful Lie,876,0,9,0.0
+person,House,disease,sarcoidosis,diagnosed,It's a Wonderful Lie,900,2,8,1.0
+person,House,disease,strep,diagnosed,It's a Wonderful Lie,1688,0,4,1.0
+person,House,disease,gonorrhea,diagnosed,It's a Wonderful Lie,1752,0,4,1.0
+person,House,disease,endometriosis,diagnosed,Don't Ever Change,278,2,7,0.0
+person,House,disease,porphyria,diagnosed,Don't Ever Change,461,0,14,1.0
+person,House,disease,porphyria,diagnosed,Don't Ever Change,507,0,4,0.0
+person,Cuddy,disease,cryoglobulinemia,diagnosed,Don't Ever Change,544,0,6,0.0
+person,House,disease,EP,diagnosed,Ugly,666,0,4,0.0
+person,Cuddy,disease,EP,diagnosed,Ugly,666,7,4,0.0
+person,Taub,disease,EP,diagnosed,Ugly,746,0,5,0.0
+person,Taub,disease,liver failure,diagnosed,Ugly,923,3,7,0.5
+person,House,disease,mitochondrial disorder,diagnosed,Ugly,970,7,3,0.0
+person,Taub,disease,juvenile rheumatoid arthritis,diagnosed,Ugly,1087,0,11,0.0
+person,House,disease,food poisoning,diagnosed,Mirror Mirror,735,4,10,0.0
+person,House,disease,food poisoning,diagnosed,Mirror Mirror,1040,0,22,0.0
+person,House,disease,food poisoning,diagnosed,Mirror Mirror,1040,18,22,0.0
+person,Cuddy,disease,food poisoning,diagnosed,Mirror Mirror,1040,11,22,0.0
+person,Foreman,disease,lymphoma,diagnosed,97 Seconds,923,0,12,1.0
+person,House,disease,eosinophilic pneumonia,diagnosed,97 Seconds,1280,5,3,0.0
+person,Wilson,disease,eosinophilic pneumonia,diagnosed,97 Seconds,1280,10,3,0.0
+person,House,disease,hepatitis,diagnosed,Wilson's Heart,766,0,7,1.0
+person,House,disease,hepatitis,diagnosed,Wilson's Heart,791,2,18,0.0
+person,House,disease,skull fracture,diagnosed,Wilson's Heart,1365,0,10,0.0
+person,Foreman,disease,alcohol abuse,diagnosed,Games,45,13,23,1.0
+person,Cameron,disease,alcohol abuse,diagnosed,Games,265,8,15,1.0
+person,Wilson,disease,cancer,diagnosed,Games,492,0,8,0.0
+person,Kutner,disease,malaria,diagnosed,Games,1052,0,12,0.0
+person,Kutner,disease,embolism,diagnosed,Games,1181,0,5,1.0
+person,House,disease,embolism,diagnosed,Games,1188,0,20,0.0
+person,Kutner,disease,embolism,diagnosed,Games,1188,2,20,0.0
+person,Kutner,disease,embolism,diagnosed,Games,1188,14,20,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Games,1617,13,6,0.0
+person,House,disease,cancer,diagnosed,Games,1737,2,5,0.0
+person,House,disease,cancer,diagnosed,Games,1737,13,5,0.0
+person,Wilson,disease,cancer,diagnosed,Games,1737,0,5,0.0
+person,Wilson,disease,cancer,diagnosed,Games,1737,32,5,0.0
+person,House,disease,measles,diagnosed,Games,2008,7,15,1.0
+person,House,disease,concussion,diagnosed,House's Head,19,0,3,0.0
+person,House,disease,concussion,diagnosed,House's Head,159,9,14,0.0
+person,House,disease,wound,diagnosed,House's Head,159,9,4,0.0
+person,House,disease,concussion,diagnosed,House's Head,244,0,10,0.0
+person,Cameron,disease,wound,diagnosed,House's Head,256,5,9,0.0
+person,Wilson,disease,wound,diagnosed,House's Head,256,3,9,0.0
+person,House,disease,skull fracture,diagnosed,House's Head,1033,4,8,0.0
+person,House,disease,injuries,diagnosed,House's Head,1654,8,14,0.0
+person,House,disease,injuries,diagnosed,House's Head,1678,0,4,0.0
+person,House,disease,carbon monoxide poisoning,diagnosed,The Right Stuff,509,7,24,0.0
+person,Irene,disease,acute intermittent porphyria,diagnosed,Guardian Angels,1486,8,10,0.0
+person,House,disease,trauma,diagnosed,Alone,198,4,32,0.0
+person,Cuddy,disease,trauma,diagnosed,Alone,198,18,32,0.0
+person,House,disease,alcohol withdrawal,diagnosed,Alone,842,0,8,1.0
+person,House,disease,injuries,diagnosed,Alone,1269,0,7,0.5
+person,House,disease,injury,diagnosed,Alone,1269,0,23,0.0
+person,Cuddy,disease,injuries,diagnosed,Alone,1269,10,7,0.0
+person,Cuddy,disease,injury,diagnosed,Alone,1269,10,23,0.0
+person,House,disease,cancer,diagnosed,Alone,1458,0,5,0.0
+person,Wilson,disease,cancer,diagnosed,Alone,1458,11,5,0.0
+person,House,disease,crush syndrome,diagnosed,Alone,1580,1,10,0.0
+person,Imelda,disease,strep,diagnosed,Alone,1678,2,40,0.0
+person,Kutner,disease,tularemia,diagnosed,You Don't Want to Know,974,0,20,0.0
+person,Foreman,disease,amyloidosis,diagnosed,You Don't Want to Know,1131,0,13,1.0
+person,House,disease,amyloidosis,diagnosed,You Don't Want to Know,1210,0,4,1.0
+person,House,disease,amyloidosis,diagnosed,You Don't Want to Know,1289,0,6,0.0
+person,House,disease,amyloidosis,diagnosed,You Don't Want to Know,1289,0,26,0.0
+person,Foreman,disease,amyloidosis,diagnosed,You Don't Want to Know,1289,9,6,0.0
+person,Foreman,disease,amyloidosis,diagnosed,You Don't Want to Know,1289,9,26,0.0
+person,William,disease,genetic disorder,diagnosed,No More Mr. Nice Guy,524,5,10,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,629,0,5,1.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,629,8,5,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,733,9,18,0.0
+person,Foreman,disease,syphilis,diagnosed,No More Mr. Nice Guy,733,7,18,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,733,1,18,0.0
+person,Taub,disease,STD,diagnosed,No More Mr. Nice Guy,753,0,15,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,809,0,7,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,837,0,8,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,878,14,12,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,878,0,12,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,984,11,19,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,984,7,19,0.0
+person,House,disease,hepatitis,diagnosed,No More Mr. Nice Guy,1007,3,20,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,1029,3,6,0.0
+person,Cameron,disease,syphilis,diagnosed,No More Mr. Nice Guy,1045,2,10,0.0
+person,Chase,disease,syphilis,diagnosed,No More Mr. Nice Guy,1045,4,10,0.0
+person,House,disease,sarcoidosis,diagnosed,No More Mr. Nice Guy,1177,2,6,0.0
+person,Taub,disease,sarcoidosis,diagnosed,No More Mr. Nice Guy,1177,0,6,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,1276,8,15,0.0
+person,Wilson,disease,syphilis,diagnosed,No More Mr. Nice Guy,1276,0,15,0.0
+person,Wilson,disease,syphilis,diagnosed,No More Mr. Nice Guy,1276,10,15,0.0
+person,House,disease,syphilis,diagnosed,No More Mr. Nice Guy,1324,8,11,0.0
+person,Kutner,disease,syphilis,diagnosed,No More Mr. Nice Guy,1375,2,12,0.0
+person,Foreman,disease,cancer,diagnosed,Frozen,626,0,7,1.0
+person,Wilson,disease,cancer,diagnosed,Frozen,1169,0,12,0.0
+person,House,disease,fat embolism,diagnosed,Frozen,1896,1,16,0.0
+person,Kutner,disease,fat embolism,diagnosed,Frozen,1896,5,16,0.0
+person,House,disease,embolism,diagnosed,Frozen,1915,0,8,0.0
+person,Jerri Nielsen,disease,breast cancer,diagnosed,Frozen,2213,10,19,1.0
+person,Leonid Rogozov,disease,appendicitis,diagnosed,Frozen,2300,9,26,0.5
+person,Taub,disease,alien hand syndrome,diagnosed,Both Sides Now,862,0,7,0.0
+person,House,disease,meningioma,diagnosed,Both Sides Now,1146,0,4,0.5
+person,Scott,disease,meningioma,diagnosed,Both Sides Now,1146,11,4,0.0
+person,House,disease,sarcoidosis,diagnosed,Both Sides Now,1408,0,24,0.0
+person,Cuddy,disease,sarcoidosis,diagnosed,Both Sides Now,1408,2,24,0.0
+person,Wilson,disease,sarcoidosis,diagnosed,Both Sides Now,1408,8,24,0.0
+person,Taub,disease,sarcoidosis,diagnosed,Both Sides Now,1477,0,12,0.0
+person,Scott,disease,sarcoidosis,diagnosed,Both Sides Now,1477,10,12,0.0
+person,House,disease,pancreatic cancer,diagnosed,Both Sides Now,1689,17,28,0.0
+person,House,disease,pancreatic cancer,diagnosed,Both Sides Now,1689,24,28,1.0
+person,Scott,disease,pancreatic cancer,diagnosed,Both Sides Now,1689,35,28,0.0
+person,Taub,disease,pancreatic cancer,diagnosed,Both Sides Now,1909,0,11,0.0
+person,House,disease,lymphoma,diagnosed,Both Sides Now,1973,4,2,0.0
+person,Taub,disease,lymphoma,diagnosed,Both Sides Now,1973,0,2,1.0
+person,House,disease,cancer,diagnosed,Both Sides Now,2100,17,6,0.0
+person,Wilson,disease,cancer,diagnosed,Both Sides Now,2100,15,6,0.0
+person,House,disease,cancer,diagnosed,Both Sides Now,2217,0,14,0.0
+person,Foreman,disease,cancer,diagnosed,Both Sides Now,2217,7,14,0.0
+person,House,disease,pancreatic cancer,diagnosed,Both Sides Now,2660,0,20,0.0
+person,House,disease,pancreatic cancer,diagnosed,Both Sides Now,2660,17,20,0.5
+person,Scott,disease,pancreatic cancer,diagnosed,Both Sides Now,2660,23,20,0.0
+person,House,disease,heart problems,diagnosed,Both Sides Now,2685,3,19,0.0
+person,Taub,disease,heart problems,diagnosed,Both Sides Now,2685,0,19,0.0
+person,Scott,disease,heart problems,diagnosed,Both Sides Now,2685,5,19,0.0
+person,Taub,disease,tuberculosis,diagnosed,Joy to the World,785,0,5,1.0
+person,House,disease,tuberculosis,diagnosed,Joy to the World,922,3,24,0.0
+person,Cuddy,disease,tuberculosis,diagnosed,Joy to the World,922,1,24,0.0
+person,Kutner,disease,mold allergy,diagnosed,Joy to the World,1001,0,7,1.0
+person,Kutner,disease,fungal infection,diagnosed,Joy to the World,1001,0,11,1.0
+person,House,disease,allergy,diagnosed,Joy to the World,1015,0,3,0.0
+person,Kutner,disease,allergy,diagnosed,Joy to the World,1129,2,5,0.0
+person,Taub,disease,allergy,diagnosed,Joy to the World,1129,0,5,0.0
+person,Cuddy,disease,eclampsia,diagnosed,Joy to the World,1832,1,16,0.5
+person,Foreman,disease,sleepwalking,diagnosed,Joy,460,0,4,1.0
+person,Foreman,disease,sleepwalking,diagnosed,Joy,466,0,10,0.0
+person,Kutner,disease,narcolepsy,diagnosed,Joy,479,0,4,1.0
+person,House,disease,sleepwalking,diagnosed,Joy,496,0,11,0.0
+person,Cameron,disease,pulmonary hypoplasia,diagnosed,Joy,820,0,11,0.0
+person,House,disease,allergy,diagnosed,Joy,951,0,18,0.0
+person,House,disease,sleepwalking,diagnosed,Joy,1458,5,15,0.0
+person,Cuddy,disease,sleepwalking,diagnosed,Joy,1458,0,15,0.0
+person,Foreman,disease,schizophrenia,diagnosed,Joy,1628,0,4,1.0
+person,House,disease,cancer,diagnosed,Not Cancer,289,0,4,1.0
+person,House,disease,cancer,diagnosed,Not Cancer,289,0,22,0.0
+person,Foreman,disease,cancer,diagnosed,Not Cancer,289,7,4,0.0
+person,Foreman,disease,cancer,diagnosed,Not Cancer,289,7,22,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,315,0,3,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,655,0,5,1.0
+person,House,disease,cancer,diagnosed,Not Cancer,805,8,13,1.0
+person,House,disease,cancer,diagnosed,Not Cancer,890,0,6,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,1057,2,5,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,1057,2,12,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,1057,8,5,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,1057,8,12,0.0
+person,Foreman,disease,cancer,diagnosed,Not Cancer,1057,0,5,0.0
+person,Foreman,disease,cancer,diagnosed,Not Cancer,1057,0,12,0.0
+person,House,disease,cancer,diagnosed,Not Cancer,1071,0,10,0.0
+person,Taub,disease,food poisoning,diagnosed,Painless,433,11,8,0.0
+person,House,disease,rhabdomyolysis,diagnosed,Painless,454,0,4,1.0
+person,Foreman,disease,glycogen storage disease,diagnosed,Painless,789,0,5,1.0
+person,House,disease,burns,diagnosed,Painless,1356,0,1,0.0
+person,Kutner,disease,attempted suicide,diagnosed,Painless,1577,0,10,0.0
+person,Taub,disease,attempted suicide,diagnosed,Painless,1577,3,10,0.0
+person,House,disease,heart problems,diagnosed,Let Them Eat Cake,427,8,17,0.0
+person,Kutner,disease,heart problems,diagnosed,Let Them Eat Cake,427,2,17,0.0
+person,Taub,disease,heart problems,diagnosed,Let Them Eat Cake,427,0,17,0.0
+person,House,disease,myasthenia gravis,diagnosed,Let Them Eat Cake,971,2,9,0.0
+person,Taub,disease,myasthenia gravis,diagnosed,Let Them Eat Cake,971,0,9,0.0
+person,House,disease,myasthenia gravis,diagnosed,Let Them Eat Cake,983,0,15,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Let Them Eat Cake,1028,0,5,1.0
+person,Kutner,disease,paraneoplastic syndrome,diagnosed,Let Them Eat Cake,1307,2,13,0.5
+person,Taub,disease,brain tumor,diagnosed,Let Them Eat Cake,1592,10,6,0.0
+person,Taub,disease,prion disease,diagnosed,Let Them Eat Cake,1610,0,7,0.0
+person,House,disease,SARS,diagnosed,Birthmarks,776,0,12,0.0
+person,House,disease,SARS,diagnosed,Birthmarks,803,5,23,0.0
+person,Cuddy,disease,SARS,diagnosed,Birthmarks,803,0,23,0.0
+person,House,disease,liver diseases,diagnosed,Birthmarks,1037,17,38,0.0
+person,Foreman,disease,liver diseases,diagnosed,Birthmarks,1037,27,38,0.0
+person,House,disease,gallstones,diagnosed,Birthmarks,1753,9,24,0.0
+person,House,disease,gallstones,diagnosed,Birthmarks,1753,19,24,0.5
+person,Cameron,disease,gallstones,diagnosed,Birthmarks,1753,2,24,0.0
+person,Foreman,disease,gallstones,diagnosed,Birthmarks,1753,4,24,0.0
+person,Kutner,disease,gallstones,diagnosed,Birthmarks,1753,15,24,0.0
+person,House,disease,gallstones,diagnosed,Birthmarks,1909,0,13,0.0
+person,Kutner,disease,alcohol withdrawal,diagnosed,Birthmarks,1988,0,10,1.0
+person,Kutner,disease,addiction,diagnosed,Birthmarks,2668,10,22,0.0
+person,Robert Chase,disease,wound,diagnosed,Birthmarks,3791,2,11,0.0
+person,House,disease,pneumothorax,diagnosed,The Greater Good,259,0,12,0.0
+person,Foreman,disease,blastomycosis,diagnosed,The Greater Good,682,0,14,0.0
+person,House,disease,blastomycosis,diagnosed,The Greater Good,923,4,10,0.0
+person,Taub,disease,wound,diagnosed,The Greater Good,990,0,7,0.0
+person,Foreman,disease,brain tumor,diagnosed,The Greater Good,1220,4,12,0.0
+person,Taub,disease,cancer,diagnosed,The Greater Good,1760,0,8,1.0
+person,Taub,disease,syphilis,diagnosed,Unfaithful,1005,0,2,1.0
+person,Taub,disease,trauma,diagnosed,Unfaithful,1632,0,3,1.0
+person,House,disease,pneumocystis,diagnosed,Unfaithful,1855,5,9,0.0
+person,Taub,disease,pneumocystis,diagnosed,Unfaithful,1855,0,9,0.0
+person,House,disease,AIDS,diagnosed,Unfaithful,1878,0,5,1.0
+person,House,disease,AIDS,diagnosed,Unfaithful,1915,5,13,0.0
+person,House,disease,AIDS,diagnosed,Unfaithful,1915,5,19,0.0
+person,Kutner,disease,AIDS,diagnosed,Unfaithful,1915,0,13,0.0
+person,Kutner,disease,AIDS,diagnosed,Unfaithful,1915,0,19,0.0
+person,Taub,disease,AIDS,diagnosed,Unfaithful,1915,2,13,0.0
+person,Taub,disease,AIDS,diagnosed,Unfaithful,1915,2,19,0.0
+person,House,disease,AIDS,diagnosed,Unfaithful,1941,0,16,0.0
+person,Taub,disease,AIDS,diagnosed,Unfaithful,1941,2,16,0.0
+person,House,disease,AIDS,diagnosed,Unfaithful,3530,0,5,0.5
+person,Nietzsche,disease,AIDS,diagnosed,Unfaithful,3530,3,5,0.0
+person,House,disease,multiple sclerosis,diagnosed,Big Baby,753,0,30,0.5
+person,House,disease,multiple sclerosis,diagnosed,Big Baby,991,16,21,0.0
+person,House,disease,multiple sclerosis,diagnosed,Big Baby,1015,2,17,0.0
+person,House,disease,viral infection,diagnosed,Big Baby,1198,0,5,0.0
+person,Cameron,disease,viral infection,diagnosed,Big Baby,1198,9,5,0.0
+person,House,disease,patent ductus arteriosus,diagnosed,Big Baby,1453,0,13,0.0
+person,House,disease,craziness,diagnosed,Big Baby,1574,10,12,0.0
+person,Cuddy,disease,craziness,diagnosed,Big Baby,1574,0,12,0.0
+person,House,disease,brain tumor,diagnosed,The Social Contract,244,0,5,1.0
+person,Taub,disease,cancer,diagnosed,Simple Explanation,2088,2,13,0.0
+person,Eddie,disease,cancer,diagnosed,Simple Explanation,2088,7,13,0.0
+person,Taub,disease,MS,diagnosed,Simple Explanation,2219,14,12,0.0
+person,Taub,disease,ruptured spleen,diagnosed,Simple Explanation,2219,14,5,0.0
+person,Taub,disease,rheumatoid arthritis,diagnosed,Simple Explanation,2219,14,27,0.0
+person,House,disease,alpha 1-antitrypsin deficiency,diagnosed,Simple Explanation,2572,6,20,0.0
+person,House,disease,myelofibrosis,diagnosed,Simple Explanation,2944,0,9,0.5
+person,House,disease,fungal infection,diagnosed,Simple Explanation,3284,4,20,0.0
+person,House,disease,blastomycosis,diagnosed,Simple Explanation,3284,4,24,0.0
+person,Eddie,disease,fungal infection,diagnosed,Simple Explanation,3284,6,20,0.0
+person,Eddie,disease,blastomycosis,diagnosed,Simple Explanation,3284,6,24,0.0
+person,Allison Cameron,disease,strains,diagnosed,Simple Explanation,4287,3,18,0.0
+person,Cuddy,disease,addiction,diagnosed,Under My Skin,131,15,5,0.0
+person,House,disease,kidney cancer,diagnosed,Under My Skin,334,10,7,0.0
+person,Wilson,disease,kidney cancer,diagnosed,Under My Skin,334,0,7,0.0
+person,House,disease,cancer,diagnosed,Under My Skin,763,0,10,0.0
+person,Wilson,disease,multiple sclerosis,diagnosed,Under My Skin,833,2,20,0.0
+person,House,disease,multiple sclerosis,diagnosed,Under My Skin,961,2,7,0.0
+person,Wilson,disease,multiple sclerosis,diagnosed,Under My Skin,1073,0,6,0.0
+person,House,disease,trauma,diagnosed,Locked In,923,0,25,0.0
+person,House,disease,brain tumor,diagnosed,Locked In,1071,10,6,0.0
+person,House,disease,paraneoplastic syndrome,diagnosed,Locked In,1187,6,14,1.0
+person,House,disease,cancer,diagnosed,Locked In,1247,0,8,0.0
+person,House,disease,cancer,diagnosed,Locked In,1247,20,8,0.0
+person,Foreman,disease,cadmium poisoning,diagnosed,Locked In,2159,7,12,0.0
+person,House,disease,injuries,diagnosed,Locked In,2174,0,12,0.0
+person,Cameron,disease,injuries,diagnosed,Locked In,2174,6,12,0.0
+person,House,disease,wound,diagnosed,Locked In,2210,0,13,0.0
+person,Cameron,disease,wound,diagnosed,Locked In,2210,6,13,0.0
+person,Kutner,disease,leptospirosis,diagnosed,Locked In,2493,0,15,1.0
+person,House,disease,bite,diagnosed,The Itch,491,2,6,0.0
+person,House,disease,bite,diagnosed,The Itch,491,14,6,0.0
+person,Wilson,disease,bite,diagnosed,The Itch,491,0,6,0.0
+person,House,disease,bite,diagnosed,The Itch,538,0,4,0.0
+person,House,disease,phobia,diagnosed,The Itch,553,0,10,0.5
+person,Cameron,disease,agoraphobia,diagnosed,The Itch,1362,0,3,0.0
+person,House,disease,bite,diagnosed,The Itch,1528,0,19,0.0
+person,House,disease,agoraphobia,diagnosed,The Itch,1935,0,10,0.0
+person,House,disease,PTSD,diagnosed,The Itch,1935,0,6,0.0
+person,House,disease,exploding head syndrome,diagnosed,House Divided,292,2,23,0.0
+person,Seth,disease,exploding head syndrome,diagnosed,House Divided,292,17,23,0.0
+person,Seth,disease,neuropathy,diagnosed,House Divided,672,0,19,0.0
+person,House,disease,neuropathy,diagnosed,House Divided,711,3,7,0.0
+person,House,disease,neuropathy,diagnosed,House Divided,711,17,7,0.0
+person,Foreman,disease,neuropathy,diagnosed,House Divided,711,0,7,0.0
+person,Seth,disease,neuropathy,diagnosed,House Divided,711,20,7,0.0
+person,Foreman,disease,brain tumor,diagnosed,House Divided,752,0,10,0.0
+person,House,disease,cancer,diagnosed,House Divided,768,0,7,1.0
+person,Seth,disease,cancer,diagnosed,House Divided,768,11,7,0.0
+person,Taub,disease,cancer,diagnosed,House Divided,847,0,7,0.0
+person,Seth,disease,cancer,diagnosed,House Divided,847,15,7,0.0
+person,House,disease,cancer,diagnosed,House Divided,1173,3,16,0.0
+person,House,disease,cancer,diagnosed,House Divided,1173,11,16,0.0
+person,Foreman,disease,sarcoidosis,diagnosed,House Divided,1558,4,2,0.0
+person,Taub,disease,sarcoidosis,diagnosed,House Divided,1558,0,2,1.0
+person,House,disease,MS,diagnosed,House Divided,1965,0,13,0.0
+person,Foreman,disease,MS,diagnosed,House Divided,1965,2,13,0.0
+person,Uhthoff,disease,MS,diagnosed,House Divided,1965,8,13,0.0
+person,Seth,disease,MS,diagnosed,House Divided,2219,11,20,0.0
+person,House,disease,pneumonitis,diagnosed,House Divided,2326,5,3,0.0
+person,Foreman,disease,sarcoidosis,diagnosed,House Divided,2447,0,8,0.5
+person,Taub,disease,sarcoidosis,diagnosed,House Divided,2447,3,8,0.5
+person,Cameron,disease,cancer,diagnosed,Last Resort,1159,2,20,0.0
+person,Foreman,disease,cancer,diagnosed,Last Resort,1159,0,20,0.0
+person,House,disease,lung cancer,diagnosed,Last Resort,1473,0,19,1.0
+person,House,disease,cancer,diagnosed,Last Resort,1520,0,9,0.0
+person,Wilson,disease,cancer,diagnosed,Last Resort,1520,2,9,0.0
+person,Cameron,disease,melioidosis,diagnosed,Last Resort,2230,0,2,1.0
+person,House,disease,brain tumor,diagnosed,Adverse Events,459,0,16,0.0
+person,House,disease,bezoar,diagnosed,Adverse Events,1776,0,12,0.0
+person,House,disease,poisoning,diagnosed,Here Kitty,357,2,16,0.0
+person,Kutner,disease,melanoma,diagnosed,Here Kitty,1417,0,6,1.0
+person,Foreman,disease,atherosclerosis,diagnosed,Saviors,912,0,19,0.0
+person,Cameron,disease,organophosphate poisoning,diagnosed,Saviors,1338,0,2,1.0
+person,Foreman,disease,organophosphate poisoning,diagnosed,Saviors,1338,14,2,0.0
+person,Taub,disease,multiple sclerosis,diagnosed,Saviors,1366,0,2,1.0
+person,House,disease,MS,diagnosed,Saviors,1378,0,14,0.0
+person,Cameron,disease,MS,diagnosed,Saviors,1378,2,14,0.0
+person,House,disease,progressive systemic sclerosis,diagnosed,Saviors,1739,7,2,0.5
+person,House,disease,osteomyelitis,diagnosed,Saviors,1958,0,9,0.0
+person,Foreman,disease,cancer,diagnosed,Saviors,2185,8,5,0.0
+person,House,disease,cancer,diagnosed,Saviors,2240,2,5,0.0
+person,Foreman,disease,cancer,diagnosed,Saviors,2240,0,5,0.0
+person,House,disease,cancer,diagnosed,Saviors,2247,0,12,0.0
+person,House,disease,sporotrichosis,diagnosed,Saviors,2822,0,2,1.0
+person,House,disease,STD,diagnosed,Saviors,3139,0,8,1.0
+person,House,disease,skin disease,diagnosed,Saviors,3139,0,13,0.0
+person,House,disease,ventriculitis,diagnosed,Saviors,3139,0,17,0.0
+person,House,disease,psychotic break,diagnosed,Emancipation,509,0,5,0.0
+person,Cameron,disease,cancer,diagnosed,Emancipation,853,15,4,0.0
+person,Cameron,disease,porphyria,diagnosed,Emancipation,853,15,12,0.0
+person,Foreman,disease,cancer,diagnosed,Emancipation,853,7,4,0.0
+person,Foreman,disease,porphyria,diagnosed,Emancipation,853,7,12,1.0
+person,Chase,disease,cancer,diagnosed,Emancipation,853,17,4,0.0
+person,Chase,disease,porphyria,diagnosed,Emancipation,853,17,12,0.0
+person,House,disease,insulinoma,diagnosed,Dying Changes Everything,321,6,4,0.0
+person,Wilson,disease,lymphoma,diagnosed,Dying Changes Everything,1486,0,7,0.0
+person,House,disease,lymphoma,diagnosed,Dying Changes Everything,1721,0,12,0.0
+person,House,disease,ischemic cardiomyopathy,diagnosed,Lockdown,721,0,5,1.0
+person,Taub,disease,hypertrophic cardiomyopathy,diagnosed,Moving the Chains,711,0,9,0.0
+person,Taub,disease,rheumatoid arthritis,diagnosed,Moving the Chains,995,0,10,1.0
+person,Foreman,disease,lymphoma,diagnosed,Moving the Chains,1059,10,15,1.0
+person,Foreman,disease,arteritis,diagnosed,Moving the Chains,1059,10,7,0.0
+person,Takayasu,disease,lymphoma,diagnosed,Moving the Chains,1059,5,15,0.0
+person,Takayasu,disease,arteritis,diagnosed,Moving the Chains,1059,5,7,0.0
+person,House,disease,lymphoma,diagnosed,Moving the Chains,1109,0,21,0.0
+person,Takayasu,disease,lymphoma,diagnosed,Moving the Chains,1109,18,21,0.0
+person,Foreman,disease,lymphoma,diagnosed,Moving the Chains,1261,5,11,0.0
+person,Chase,disease,viral hepatitis,diagnosed,Moving the Chains,1527,3,27,0.0
+person,Taub,disease,viral hepatitis,diagnosed,Moving the Chains,1527,14,27,1.0
+person,Foreman,disease,cancer,diagnosed,Moving the Chains,2623,10,6,0.0
+person,House,disease,cancer,diagnosed,Moving the Chains,2642,0,4,0.0
+person,Foreman,disease,paraneoplastic syndrome,diagnosed,Brave Heart,1321,0,9,1.0
+person,Foreman,disease,bone cancer,diagnosed,Brave Heart,1321,0,5,0.0
+person,Chase,disease,cancer,diagnosed,Brave Heart,1542,8,1,0.0
+person,House,disease,autonomic neuropathy,diagnosed,Brave Heart,1569,2,11,1.0
+person,House,disease,cancer,diagnosed,Wilson (episode),41,0,12,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),41,2,12,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),56,0,10,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),265,0,15,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),265,2,15,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),265,7,15,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),404,0,14,0.0
+person,House,disease,cold sore,diagnosed,Wilson (episode),422,5,13,0.0
+person,House,disease,transverse myelitis,diagnosed,Wilson (episode),422,5,19,0.0
+person,Tucker,disease,cold sore,diagnosed,Wilson (episode),422,22,13,0.0
+person,Tucker,disease,transverse myelitis,diagnosed,Wilson (episode),422,22,19,0.0
+person,House,disease,cancer,diagnosed,Wilson (episode),517,10,24,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),517,3,24,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),635,9,4,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),635,0,4,0.0
+person,Chase,disease,fungal infection,diagnosed,Wilson (episode),1170,0,15,0.0
+person,Chase,disease,pneumocystis pneumonia,diagnosed,Wilson (episode),1170,0,9,0.0
+person,Tucker,disease,fungal infection,diagnosed,Wilson (episode),1170,3,15,0.0
+person,Tucker,disease,pneumocystis pneumonia,diagnosed,Wilson (episode),1170,3,9,0.0
+person,House,disease,cancer,diagnosed,Wilson (episode),1188,0,13,0.5
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),1188,6,13,0.0
+person,House,disease,cancer,diagnosed,Wilson (episode),1236,0,9,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),1236,5,9,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),1236,7,9,0.0
+person,Wilson,disease,acute lymphoblastic leukemia,diagnosed,Wilson (episode),1264,0,7,0.0
+person,Tucker,disease,acute lymphoblastic leukemia,diagnosed,Wilson (episode),1264,4,7,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),1573,12,5,0.0
+person,House,disease,cancer,diagnosed,Wilson (episode),1881,0,11,0.0
+person,Wilson,disease,cancer,diagnosed,Wilson (episode),1881,2,11,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),2424,10,8,0.0
+person,Tucker,disease,cancer,diagnosed,Wilson (episode),2424,10,26,0.0
+person,House,disease,injury,diagnosed,5 to 9,224,0,24,0.0
+person,Lucas,disease,injury,diagnosed,5 to 9,224,13,24,0.0
+person,House,disease,malaria,diagnosed,5 to 9,736,0,23,0.0
+person,Cuddy,disease,malaria,diagnosed,5 to 9,736,9,23,0.0
+person,House,disease,malaria,diagnosed,5 to 9,1238,2,12,0.0
+person,Cuddy,disease,malaria,diagnosed,5 to 9,1238,0,12,0.0
+person,House,disease,STD,diagnosed,Teamwork,257,0,3,0.0
+person,Foreman,disease,STD,diagnosed,Teamwork,257,19,3,0.0
+person,Foreman,disease,STD,diagnosed,Teamwork,283,2,8,0.0
+person,Hank,disease,STD,diagnosed,Teamwork,283,0,8,0.0
+person,House,disease,cerebral vasculitis,diagnosed,Teamwork,386,0,7,0.5
+person,Foreman,disease,cerebral vasculitis,diagnosed,Teamwork,386,18,7,0.0
+person,Forman,disease,cerebral vasculitis,diagnosed,Teamwork,386,3,7,0.5
+person,House,disease,sepsis,diagnosed,Teamwork,553,0,3,0.0
+person,Cameron,disease,sepsis,diagnosed,Teamwork,553,10,3,0.0
+person,House,disease,cardiomyopathy,diagnosed,Teamwork,1208,9,6,0.0
+person,Foreman,disease,lymphoma,diagnosed,Teamwork,1222,3,7,0.5
+person,Taub,disease,sickle-cell anemia,diagnosed,Ignorance is Bliss,239,0,4,1.0
+person,House,disease,thrombocytopenic purpura,diagnosed,Ignorance is Bliss,252,14,5,0.0
+person,Foreman,disease,thrombocytopenic purpura,diagnosed,Ignorance is Bliss,252,0,5,1.0
+person,House,disease,TTP,diagnosed,Ignorance is Bliss,399,7,2,0.0
+person,Taub,disease,TTP,diagnosed,Ignorance is Bliss,399,4,2,0.0
+person,House,disease,liver failure,diagnosed,Ignorance is Bliss,807,8,4,0.0
+person,Foreman,disease,TTP,diagnosed,Ignorance is Bliss,1806,0,21,0.0
+person,Taub,disease,lupus,diagnosed,Ignorance is Bliss,1829,0,2,1.0
+person,House,disease,hysteria,diagnosed,Ignorance is Bliss,1930,0,6,0.5
+person,Chase,disease,TTP,diagnosed,Ignorance is Bliss,2295,7,2,0.0
+person,House,disease,broken nose,diagnosed,Ignorance is Bliss,2420,5,7,0.0
+person,Taub,disease,broken nose,diagnosed,Ignorance is Bliss,2420,0,7,0.0
+person,House,disease,acoustic neuroma,diagnosed,The Down Low,257,8,4,0.0
+person,Foreman,disease,acoustic neuroma,diagnosed,The Down Low,257,0,4,1.0
+person,Eddie,disease,infarction,diagnosed,The Down Low,1439,1,9,0.0
+person,Dibala,disease,poisoning,diagnosed,The Tyrant,239,0,4,0.5
+person,Foreman,disease,malaria,diagnosed,The Tyrant,259,0,4,1.0
+person,House,disease,poisoning,diagnosed,The Tyrant,282,0,5,1.0
+person,Foreman,disease,lymphoma,diagnosed,The Tyrant,898,0,4,1.0
+person,House,disease,scleroderma,diagnosed,The Tyrant,1385,0,5,1.0
+person,Foreman,disease,blastomycosis,diagnosed,The Tyrant,1411,0,4,0.0
+person,Cameron,disease,scleroderma,diagnosed,The Tyrant,1552,0,9,0.0
+person,Chase,disease,scleroderma,diagnosed,The Tyrant,1840,2,8,0.0
+person,Cameron,disease,burns,diagnosed,The Tyrant,1968,18,21,0.0
+person,Foreman,disease,burns,diagnosed,The Tyrant,1968,20,21,0.0
+person,Chase,disease,burns,diagnosed,The Tyrant,1968,13,21,0.0
+person,Dibala,disease,burns,diagnosed,The Tyrant,1968,4,21,0.0
+person,House,disease,trauma,diagnosed,Help Me,263,0,6,0.0
+person,House,disease,neurological disorder,diagnosed,Help Me,422,0,18,1.0
+person,House,disease,trauma,diagnosed,Help Me,745,0,21,0.0
+person,Cuddy,disease,crush syndrome,diagnosed,Help Me,1026,0,3,1.0
+person,Taub,disease,trauma,diagnosed,Help Me,1109,0,8,0.5
+person,House,disease,injuries,diagnosed,Help Me,1461,0,12,0.0
+person,House,disease,crush syndrome,diagnosed,Help Me,1523,5,12,0.0
+person,Cuddy,disease,crush syndrome,diagnosed,Help Me,1523,0,12,0.0
+person,House,disease,arachnoid cyst,diagnosed,Help Me,1950,0,20,0.5
+person,House,disease,fat embolism,diagnosed,Help Me,2064,0,9,1.0
+person,House,disease,cancer,diagnosed,Black Hole,499,0,10,0.0
+person,Foreman,disease,aneurysm,diagnosed,Black Hole,591,0,15,0.0
+person,House,disease,sleepwalking,diagnosed,The Choice,201,0,5,0.0
+person,House,disease,pleural effusion,diagnosed,The Choice,411,0,11,0.0
+person,Foreman,disease,pleural effusion,diagnosed,The Choice,411,7,11,1.0
+person,Foreman,disease,systemic disease,diagnosed,The Choice,453,0,3,1.0
+person,Taub,disease,mononucleosis,diagnosed,The Choice,641,0,10,0.0
+person,Nicole,disease,trauma,diagnosed,The Choice,1077,3,8,0.0
+person,House,disease,POTS,diagnosed,The Choice,1113,0,5,1.0
+person,House,disease,mononucleosis,diagnosed,The Choice,1174,0,4,0.5
+person,Ted,disease,being drunk,diagnosed,The Choice,1665,13,20,0.0
+person,Ted,disease,being drunk,diagnosed,The Choice,1665,16,20,0.0
+person,Taub,disease,pituitary adenoma,diagnosed,The Choice,1856,0,6,1.0
+person,House,disease,bipolar disorder,diagnosed,Broken,676,0,11,0.0
+person,Juan Alvarez,disease,bipolar disorder,diagnosed,Broken,676,14,11,0.0
+person,Alvie,disease,bipolar disorder,diagnosed,Broken,676,20,11,0.0
+person,Jay-Bird,disease,claustrophobia,diagnosed,Broken,802,0,11,0.0
+person,Hal,disease,anorexia nervosa,diagnosed,Broken,832,2,12,0.5
+person,House,disease,infarction,diagnosed,Broken,3801,4,8,1.0
+person,House,disease,injuries,diagnosed,Broken,4078,0,14,0.0
+person,Foreman,disease,CRPS,diagnosed,Epic Fail,365,8,6,0.0
+person,Taub,disease,mercury poisoning,diagnosed,Epic Fail,379,2,13,0.0
+person,House,disease,burns,diagnosed,Epic Fail,679,9,2,0.0
+person,Wilson,disease,burns,diagnosed,Epic Fail,679,1,2,0.0
+person,Vince,disease,psittacosis,diagnosed,Epic Fail,889,3,16,0.0
+person,Foreman,disease,thrombocytosis,diagnosed,Epic Fail,942,4,7,1.0
+person,Foreman,disease,thrombocytosis,diagnosed,Epic Fail,1104,0,13,0.0
+person,Taub,disease,amyloidosis,diagnosed,Epic Fail,1410,7,3,0.0
+person,Foreman,disease,amyloidosis,diagnosed,Epic Fail,1552,0,8,0.0
+person,House,disease,brain cancer,diagnosed,Instant Karma,836,9,15,1.0
+person,House,disease,asymmetrical,diagnosed,Instant Karma,836,9,7,0.0
+person,Foreman,disease,brain cancer,diagnosed,Instant Karma,836,0,15,0.0
+person,Foreman,disease,asymmetrical,diagnosed,Instant Karma,836,0,7,0.0
+person,Cameron,disease,cancer,diagnosed,Instant Karma,1012,0,10,0.0
+person,House,disease,stomach cancer,diagnosed,Instant Karma,1024,7,13,1.0
+person,Cameron,disease,abdominal epilepsy,diagnosed,Instant Karma,1269,0,5,1.0
+person,House,disease,abdominal epilepsy,diagnosed,Instant Karma,1373,0,7,0.0
+person,Cameron,disease,lupus,diagnosed,Instant Karma,1412,0,3,1.0
+person,House,disease,spondylitis,diagnosed,Open and Shut,1601,2,9,0.0
+person,Wilson,disease,cancer,diagnosed,Private Lives,405,0,9,0.0
+person,Foreman,disease,cancer,diagnosed,Private Lives,1372,7,22,0.0
+person,Chase,disease,cancer,diagnosed,Private Lives,1372,5,22,0.0
+person,Frankie,disease,cancer,diagnosed,Private Lives,1372,1,22,0.0
+person,House,disease,lymphoma,diagnosed,Private Lives,1726,0,7,0.0
+person,Frankie,disease,lymphoma,diagnosed,Private Lives,1749,5,8,0.0
+person,Frankie,disease,lymphoma,diagnosed,Private Lives,1749,5,12,0.0
+person,House,disease,trauma,diagnosed,Known Unknowns,323,0,7,0.0
+person,House,disease,concussion,diagnosed,Knight Fall,432,15,4,0.0
+person,Foreman,disease,concussion,diagnosed,Knight Fall,432,0,4,1.0
+person,House,disease,concussion,diagnosed,Knight Fall,480,0,12,0.0
+person,Foreman,disease,concussion,diagnosed,Knight Fall,480,14,12,0.0
+person,Taub,disease,concussion,diagnosed,Knight Fall,480,2,12,0.0
+person,Foreman,disease,food poisoning,diagnosed,Knight Fall,746,8,12,1.0
+person,Taub,disease,food poisoning,diagnosed,Knight Fall,746,6,12,1.0
+person,House,disease,food poisoning,diagnosed,Knight Fall,780,14,19,0.0
+person,Foreman,disease,allergy,diagnosed,Knight Fall,893,2,8,0.0
+person,Chase,disease,MRSA,diagnosed,Knight Fall,1197,2,13,0.0
+person,Taub,disease,MRSA,diagnosed,Knight Fall,1197,0,13,0.0
+person,William,disease,MRSA,diagnosed,Knight Fall,1197,5,13,0.0
+person,House,disease,poison ivy,diagnosed,Knight Fall,1246,0,11,0.0
+person,House,disease,poison ivy,diagnosed,Knight Fall,1246,0,30,0.0
+person,William,disease,poison ivy,diagnosed,Knight Fall,1246,35,11,0.0
+person,William,disease,poison ivy,diagnosed,Knight Fall,1246,35,30,0.0
+person,House,disease,poison ivy,diagnosed,Knight Fall,1309,21,4,0.0
+person,House,disease,MRSA,diagnosed,Knight Fall,1309,21,1,0.0
+person,House,disease,trichinosis,diagnosed,Knight Fall,1340,0,8,0.5
+person,Foreman,disease,trichinosis,diagnosed,Knight Fall,1542,2,12,0.0
+person,Foreman,disease,fungal infection,diagnosed,Knight Fall,1556,10,14,1.0
+person,Foreman,disease,cancer,diagnosed,Knight Fall,1671,4,2,0.0
+person,Taub,disease,cancer,diagnosed,Knight Fall,1671,0,2,1.0
+person,Foreman,disease,cancer,diagnosed,Knight Fall,1708,6,19,0.0
+person,Taub,disease,cancer,diagnosed,Knight Fall,1708,8,19,0.0
+person,William,disease,cancer,diagnosed,Knight Fall,1708,10,19,0.0
+person,House,disease,lead poisoning,diagnosed,Knight Fall,1961,0,12,1.0
+person,House,disease,lead poisoning,diagnosed,Knight Fall,2183,4,18,0.0
+person,House,disease,BP,diagnosed,Knight Fall,2183,4,26,0.0
+person,William,disease,lead poisoning,diagnosed,Knight Fall,2183,22,18,0.0
+person,William,disease,BP,diagnosed,Knight Fall,2183,22,26,0.0
+person,House,disease,poisoning,diagnosed,Knight Fall,2370,5,12,0.0
+person,William,disease,poisoning,diagnosed,Knight Fall,2370,13,12,0.0
+person,House,disease,poisoning,diagnosed,Knight Fall,2445,9,6,0.0
+person,William,disease,poisoning,diagnosed,Knight Fall,2445,3,6,0.0
+person,William,disease,poisoning,diagnosed,Knight Fall,2445,11,6,0.0
+person,Miles,disease,poisoning,diagnosed,Knight Fall,2445,13,6,0.0
+person,House,disease,peliosis hepatis,diagnosed,Knight Fall,2668,0,8,0.0
+person,Chase,disease,heavy metal poisoning,diagnosed,Changes,544,13,8,0.0
+person,Taub,disease,heavy metal poisoning,diagnosed,Changes,544,0,8,1.0
+person,Wilson,disease,cancer,diagnosed,Changes,1072,0,6,0.5
+person,Wilson,disease,paraneoplastic syndrome,diagnosed,Changes,1072,0,16,0.5
+person,House,disease,cancer,diagnosed,Changes,1511,0,10,0.0
+person,House,disease,amyloidosis,diagnosed,Changes,2083,0,6,1.0
+person,Foreman,disease,burn,diagnosed,Fall From Grace,400,0,6,0.0
+person,House,disease,schizophrenia,diagnosed,Fall From Grace,1356,0,7,1.0
+person,Chase,disease,genetic diseases,diagnosed,Fall From Grace,1732,2,20,0.0
+person,Danny,disease,genetic diseases,diagnosed,Fall From Grace,1732,16,20,0.0
+person,Danny,disease,drug overdose,diagnosed,Fall From Grace,1755,4,8,0.0
+person,Refsum,disease,poisoning,diagnosed,Fall From Grace,2289,3,13,0.0
+person,House,disease,hepatitis C,diagnosed,After Hours,2939,0,9,0.0
+person,Cuddy,disease,trauma,diagnosed,Now What?,605,0,32,0.0
+person,Richardson,disease,trauma,diagnosed,Now What?,605,9,32,0.0
+person,House,disease,injuries,diagnosed,Now What?,740,8,25,0.0
+person,Chase,disease,injuries,diagnosed,Now What?,740,0,25,0.0
+person,House,disease,corn,diagnosed,Now What?,953,2,7,0.0
+person,Richardson,disease,food poisoning,diagnosed,Now What?,1347,5,30,0.0
+person,Richardson,disease,food poisoning,diagnosed,Now What?,1347,20,30,0.0
+person,Martha M,disease,liver failure,diagnosed,Office Politics,25,4,15,0.0
+person,Taub,disease,liver failure,diagnosed,Office Politics,293,0,12,0.0
+person,Chase,disease,neuroendocrine tumor,diagnosed,Office Politics,831,2,11,0.0
+person,Taub,disease,schistosomiasis,diagnosed,Office Politics,1659,2,11,1.0
+person,House,disease,hepatitis C,diagnosed,Office Politics,1941,1,12,0.0
+person,House,disease,hepatitis,diagnosed,Office Politics,1978,0,3,0.0
+person,House,disease,hepatitis A,diagnosed,Office Politics,2141,12,22,0.0
+person,House,disease,hepatitis C,diagnosed,Office Politics,2214,15,17,0.5
+person,House,disease,hepatitis C,diagnosed,Office Politics,2214,24,17,0.0
+person,House,disease,hepatitis C,diagnosed,Office Politics,2214,30,17,0.0
+person,House,disease,hepatitis A,diagnosed,Office Politics,2214,15,39,0.0
+person,House,disease,hepatitis A,diagnosed,Office Politics,2214,24,39,0.0
+person,House,disease,hepatitis A,diagnosed,Office Politics,2214,30,39,0.0
+person,Cuddy,disease,hepatitis C,diagnosed,Office Politics,2214,5,17,0.0
+person,Cuddy,disease,hepatitis A,diagnosed,Office Politics,2214,5,39,0.0
+person,House,disease,hepatitis C,diagnosed,Office Politics,2265,8,17,0.0
+person,House,disease,hepatitis C,diagnosed,Office Politics,2265,31,17,0.0
+person,Cuddy,disease,hepatitis C,diagnosed,Office Politics,2265,33,17,0.0
+person,Chase,disease,hepatitis C,diagnosed,Office Politics,2265,22,17,0.0
+person,House,disease,allergy,diagnosed,Recession Proof,417,0,13,0.0
+person,House,disease,brain tumor,diagnosed,Recession Proof,1786,0,8,0.5
+person,Taub,disease,brain tumor,diagnosed,Recession Proof,1786,3,8,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,369,0,9,0.0
+person,Taub,disease,smallpox,diagnosed,A Pox on Our House,420,0,8,0.0
+person,House,disease,IM,diagnosed,A Pox on Our House,491,5,3,0.0
+person,Taub,disease,smallpox,diagnosed,A Pox on Our House,561,0,11,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,652,0,3,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,919,0,17,0.0
+person,Broda,disease,smallpox,diagnosed,A Pox on Our House,919,8,17,1.0
+person,House,disease,tuberculosis,diagnosed,A Pox on Our House,1282,11,16,1.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1282,11,6,0.0
+person,Broda,disease,smallpox,diagnosed,A Pox on Our House,1494,2,32,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1616,0,6,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1773,2,8,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1834,0,6,1.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1872,0,34,0.0
+person,Broda,disease,smallpox,diagnosed,A Pox on Our House,1872,14,34,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,1934,12,9,0.0
+person,Broda,disease,smallpox,diagnosed,A Pox on Our House,1934,0,9,0.0
+person,Cuddy,disease,smallpox,diagnosed,A Pox on Our House,2122,0,18,0.0
+person,Foreman,disease,smallpox,diagnosed,A Pox on Our House,2122,5,18,0.0
+person,House,disease,smallpox,diagnosed,A Pox on Our House,2831,7,30,0.0
+person,House,disease,rickettsialpox,diagnosed,A Pox on Our House,2831,7,5,0.0
+person,House,disease,lead poisoning,diagnosed,Massage Therapy,345,5,2,0.0
+person,Taub,disease,lead poisoning,diagnosed,Massage Therapy,345,0,2,1.0
+person,Chase,disease,hepatic fibrosis,diagnosed,Massage Therapy,545,2,16,0.0
+person,House,disease,poisoning,diagnosed,Massage Therapy,909,0,5,0.0
+person,Foreman,disease,poisoning,diagnosed,Massage Therapy,1221,7,21,0.0
+person,Benedict,disease,legionellosis,diagnosed,Massage Therapy,1292,2,7,1.0
+person,Benedict,disease,bipolar disorder,diagnosed,Massage Therapy,1776,0,19,0.0
+person,Benedict,disease,bipolar disorder,diagnosed,Massage Therapy,1977,0,6,0.0
+person,House,disease,sarcoidosis,diagnosed,Two Stories,2226,2,12,0.0
+person,Foreman,disease,sarcoidosis,diagnosed,Two Stories,2226,0,12,0.0
+person,House,disease,sarcoidosis,diagnosed,Two Stories,2441,2,9,1.0
+person,Taub,disease,carbon monoxide poisoning,diagnosed,Moving On,476,0,11,0.0
+person,House,disease,gallstones,diagnosed,Moving On,1052,0,18,0.0
+person,House,disease,wound,diagnosed,Moving On,1386,2,8,0.0
+person,Foreman,disease,wound,diagnosed,Moving On,1386,0,8,0.0
+person,House,disease,pancreatic cyst,diagnosed,Moving On,1898,0,14,0.0
+person,House,disease,brain tumor,diagnosed,Moving On,1969,0,3,1.0
+person,House,disease,hand injury,diagnosed,Moving On,2943,18,5,0.0
+person,Cuddy,disease,hand injury,diagnosed,Moving On,2943,24,5,0.0
+person,Wilson,disease,hand injury,diagnosed,Moving On,2943,2,5,0.0
+person,Wilson,disease,hand injury,diagnosed,Moving On,2943,29,5,0.0
+person,House,disease,syphilis,diagnosed,Carrot or Stick,567,8,13,0.0
+person,House,disease,syphilis,diagnosed,Carrot or Stick,645,0,3,0.0
+person,Foreman,disease,allergy,diagnosed,Carrot or Stick,986,2,20,0.0
+person,House,disease,poisoning,diagnosed,Carrot or Stick,1065,3,13,0.0
+person,House,disease,poisoning,diagnosed,Carrot or Stick,1065,3,26,0.0
+person,House,disease,botulism,diagnosed,Carrot or Stick,1749,5,3,0.5
+person,Taub,disease,botulism,diagnosed,Carrot or Stick,1749,0,3,1.0
+person,Foreman,disease,genetic diseases,diagnosed,Carrot or Stick,1906,0,9,0.0
+person,House,disease,variegate porphyria,diagnosed,Carrot or Stick,2226,0,7,1.0
+person,Landon,disease,variegate porphyria,diagnosed,Carrot or Stick,2226,19,7,0.0
+person,House,disease,angiodysplasia,diagnosed,Bombshells,167,0,12,0.0
+person,House,disease,lead poisoning,diagnosed,Bombshells,327,0,12,0.0
+person,House,disease,kidney cancer,diagnosed,Bombshells,1933,0,14,0.0
+person,Foreman,disease,kidney cancer,diagnosed,Bombshells,1933,8,14,1.0
+person,House,disease,burn,diagnosed,Unwritten,535,0,18,0.0
+person,Taub,disease,syringomyelia,diagnosed,Unwritten,2330,2,18,1.0
+person,House,disease,microcytic anemia,diagnosed,Family Practice,373,9,5,0.0
+person,Cuddy,disease,microcytic anemia,diagnosed,Family Practice,373,0,5,0.0
+person,Arlene,disease,microcytic anemia,diagnosed,Family Practice,373,17,5,0.0
+person,Arlene,disease,STD,diagnosed,Family Practice,571,6,12,0.0
+person,House,disease,lead poisoning,diagnosed,Family Practice,786,19,8,0.0
+person,Arlene,disease,lead poisoning,diagnosed,Family Practice,786,0,8,0.0
+person,Cuddy,disease,heart problems,diagnosed,Family Practice,1276,0,13,0.0
+person,House,disease,cancer,diagnosed,Family Practice,1465,6,22,0.0
+person,Arlene,disease,cancer,diagnosed,Family Practice,1465,0,22,0.0
+person,Kaufman,disease,cancer,diagnosed,Family Practice,1465,18,22,0.0
+person,Taub,disease,lupus,diagnosed,Family Practice,1583,0,2,1.0
+person,Kaufman,disease,lupus,diagnosed,Family Practice,1583,7,2,0.0
+person,Foreman,disease,endocarditis,diagnosed,Family Practice,1597,0,2,1.0
+person,House,disease,infectious disease,diagnosed,Family Practice,1615,2,14,0.0
+person,Taub,disease,infectious disease,diagnosed,Family Practice,1615,0,14,0.0
+person,Kaufman,disease,infectious disease,diagnosed,Family Practice,1615,5,14,0.0
+person,Kaufman,disease,infectious disease,diagnosed,Family Practice,1615,10,14,0.0
+person,Foreman,disease,endocarditis,diagnosed,Family Practice,1720,0,14,0.0
+person,Chase,disease,endocarditis,diagnosed,Family Practice,1720,9,14,1.0
+person,House,disease,endocarditis,diagnosed,Family Practice,1962,2,10,0.0
+person,Kaufman,disease,endocarditis,diagnosed,Family Practice,2125,3,22,0.0
+person,Arlene,disease,endocarditis,diagnosed,Family Practice,2245,13,6,0.0
+person,Taub,disease,melanoma,diagnosed,Unplanned Parenthood,1831,0,7,1.0
+person,House,disease,cancer,diagnosed,Unplanned Parenthood,1847,2,16,0.0
+person,Foreman,disease,melanoma,diagnosed,Unplanned Parenthood,1872,0,19,0.0
+person,Foreman,disease,cancer,diagnosed,Unplanned Parenthood,2196,2,5,0.0
+person,Foreman,disease,pulmonary embolism,diagnosed,Unplanned Parenthood,2352,16,9,0.0
+person,House,disease,cancer,diagnosed,Small Sacrifices,338,0,17,0.0
+person,House,disease,cancer,diagnosed,Small Sacrifices,338,0,42,0.0
+person,House,disease,cancer,diagnosed,Small Sacrifices,455,2,18,0.0
+person,Wilson,disease,cancer,diagnosed,Small Sacrifices,455,0,18,0.0
+person,Karposi,disease,sarcoma,diagnosed,Small Sacrifices,723,2,4,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Small Sacrifices,736,6,2,0.0
+person,House,disease,MS,diagnosed,Small Sacrifices,1449,0,9,1.0
+person,Wilson,disease,cancer,diagnosed,Small Sacrifices,1538,0,12,0.0
+person,Wilson,disease,cancer,diagnosed,Small Sacrifices,1569,0,4,0.0
+person,House,disease,vasospasm,diagnosed,Last Temptation,1068,11,9,0.0
+person,Foreman,disease,alcohol withdrawal,diagnosed,The Fix,819,0,8,0.0
+person,Chase,disease,poisoning,diagnosed,The Fix,2104,2,10,0.0
+person,Foreman,disease,trauma,diagnosed,Out of the Chute,513,0,15,1.0
+person,Taub,disease,the flu,diagnosed,You Must Remember This,331,0,12,0.0
+person,House,disease,allergy,diagnosed,You Must Remember This,1472,2,9,1.0
+person,Chase,disease,OCD,diagnosed,You Must Remember This,2313,2,12,0.0
+person,House,disease,amyloidosis,diagnosed,Selfish,724,6,4,0.0
+person,House,disease,LAM,diagnosed,Selfish,1130,0,20,0.0
+person,House,disease,LAM,diagnosed,Selfish,1480,0,6,0.0
+person,Chase,disease,LAM,diagnosed,Selfish,1480,11,6,0.0
+person,House,disease,LAM,diagnosed,Selfish,1512,0,3,0.0
+person,House,disease,injury,diagnosed,Chase (episode),53,13,8,0.0
+person,Chase,disease,injury,diagnosed,Chase (episode),53,0,8,0.0
+person,House,disease,strain,diagnosed,Chase (episode),729,0,13,0.0
+person,House,disease,fungal infection,diagnosed,Chase (episode),847,0,10,0.0
+person,Adams,disease,vasospasm,diagnosed,Chase (episode),1381,0,6,1.0
+person,Chase,disease,injury,diagnosed,Chase (episode),1571,6,11,0.0
+person,Chase,disease,carotid artery dissection,diagnosed,Chase (episode),2110,0,5,1.0
+person,Chase,disease,wound,diagnosed,Chase (episode),2358,0,14,0.0
+person,House,disease,lupus,diagnosed,Chase (episode),2503,0,4,1.0
+person,House,disease,syphilis,diagnosed,Chase (episode),2566,8,26,1.0
+person,Chase,disease,syphilis,diagnosed,Chase (episode),2566,0,26,0.0
+person,Taub,disease,syphilis,diagnosed,Chase (episode),2566,14,26,0.0
+person,House,disease,liver failure,diagnosed,Chase (episode),2870,0,7,0.5
+person,House,disease,lymphoma,diagnosed,Chase (episode),2883,0,4,1.0
+person,House,disease,lymphoma,diagnosed,Chase (episode),2883,13,4,0.0
+person,Chase,disease,cancer,diagnosed,Chase (episode),2915,0,9,0.0
+person,House,disease,giant cell arteritis,diagnosed,Chase (episode),3083,0,6,0.5
+person,House,disease,SUNDS,diagnosed,Body and Soul,313,0,8,0.0
+person,House,disease,sudden death,diagnosed,Body and Soul,313,0,14,0.0
+person,House,disease,EP,diagnosed,Body and Soul,746,0,8,0.0
+person,House,disease,SUNDS,diagnosed,Body and Soul,746,0,18,0.0
+person,Chase,disease,thyroiditis,diagnosed,Body and Soul,974,13,20,1.0
+person,Adams,disease,thyroiditis,diagnosed,Body and Soul,974,0,20,0.0
+person,Hashimoto,disease,thyroiditis,diagnosed,Body and Soul,974,18,20,0.0
+person,House,disease,patent ductus arteriosus,diagnosed,Body and Soul,2226,4,12,1.0
+person,Wilson,disease,cancer,diagnosed,Body and Soul,2615,0,5,0.0
+person,House,disease,thymoma,diagnosed,Body and Soul,2622,0,20,0.0
+person,Wilson,disease,thymoma,diagnosed,Body and Soul,2622,2,20,0.0
+person,Wilson,disease,thymoma,diagnosed,Body and Soul,2622,13,20,0.0
+person,Wilson,disease,cancer,diagnosed,Love is Blind,666,2,11,0.0
+person,Taub,disease,choking,diagnosed,Love is Blind,800,0,4,1.0
+person,House,disease,cancer,diagnosed,Love is Blind,1012,11,8,0.0
+person,Wilson,disease,cancer,diagnosed,Love is Blind,1012,0,8,0.0
+person,Blythe,disease,cancer,diagnosed,Love is Blind,1012,5,8,0.0
+person,Melissa,disease,wound,diagnosed,Love is Blind,1502,8,11,0.0
+person,House,disease,lupus,diagnosed,Love is Blind,1844,8,5,0.0
+person,Adams,disease,lupus,diagnosed,Love is Blind,1844,0,5,1.0
+person,House,disease,cavernous sinus thrombosis,diagnosed,We Need the Eggs,311,10,6,0.0
+person,Chase,disease,cavernous sinus thrombosis,diagnosed,We Need the Eggs,330,13,6,0.0
+person,House,disease,hepatic fibrosis,diagnosed,We Need the Eggs,1670,0,5,0.0
+person,House,disease,allergies,diagnosed,We Need the Eggs,2136,0,13,0.0
+person,House,disease,psychotic break,diagnosed,Nobody's Fault,43,19,5,0.0
+person,House,disease,psychotic break,diagnosed,Nobody's Fault,43,21,5,0.0
+person,Foreman,disease,psychotic break,diagnosed,Nobody's Fault,43,56,5,0.0
+person,Walter Cofield,disease,psychotic break,diagnosed,Nobody's Fault,43,47,5,0.0
+person,Taub,disease,wound,diagnosed,Nobody's Fault,1965,0,5,0.0
+person,House,disease,pheochromocytoma,diagnosed,The Confession,872,0,8,1.0
+person,Adams,disease,lymphoma,diagnosed,The Confession,1298,0,4,1.0
+person,Adams,disease,liver failure,diagnosed,The Confession,1316,8,15,1.0
+person,House,disease,allergy,diagnosed,The Confession,1877,0,13,0.0
+person,Taub,disease,genetic diseases,diagnosed,The Confession,2167,0,6,0.0
+person,House,disease,aneurysm,diagnosed,The Confession,2462,0,5,0.0
+person,House,disease,burns,diagnosed,The Confession,2482,0,23,0.0
+person,House,disease,heavy metal poisoning,diagnosed,Dead & Buried,1145,0,9,0.0
+person,Wilson,disease,heavy metal poisoning,diagnosed,Dead & Buried,1145,2,9,0.0
+person,House,disease,flu,diagnosed,Dead & Buried,1645,17,13,0.0
+person,House,disease,dissociative identity disorder,diagnosed,Dead & Buried,1875,0,5,1.0
+person,House,disease,choriocarcinoma,diagnosed,Dead & Buried,2265,0,28,0.5
+person,House,disease,cancer,diagnosed,Dead & Buried,2316,0,9,0.0
+person,House,disease,sarcoidosis,diagnosed,Gut Check,156,0,9,0.0
+person,House,disease,psittacosis,diagnosed,Gut Check,156,0,15,0.0
+person,Adams,disease,sarcoidosis,diagnosed,Gut Check,156,11,9,0.0
+person,Adams,disease,psittacosis,diagnosed,Gut Check,156,11,15,0.5
+person,Taub,disease,trauma,diagnosed,Gut Check,506,0,14,0.0
+person,House,disease,leptospirosis,diagnosed,Gut Check,752,0,8,0.0
+person,Taub,disease,concussion,diagnosed,Gut Check,1285,0,19,0.0
+person,Taub,disease,botulism,diagnosed,Gut Check,1978,0,5,1.0
+person,Miller Fisher,disease,mononucleosis,diagnosed,Gut Check,2559,11,7,0.0
+person,House,disease,microscopic polyangiitis,diagnosed,Gut Check,2574,0,26,0.0
+person,Miller Fisher,disease,mononucleosis,diagnosed,Gut Check,2913,16,7,0.0
+person,Adams,disease,GPS,diagnosed,Charity Case,2776,0,15,0.0
+person,House,disease,trauma,diagnosed,Man of the House,626,7,18,0.0
+person,House,disease,multiple sclerosis,diagnosed,Man of the House,907,8,5,0.5
+person,Taub,disease,myasthenia gravis,diagnosed,Man of the House,1194,2,10,1.0
+person,House,disease,silent thyroiditis,diagnosed,Man of the House,2379,0,15,0.0
+person,House,disease,injury,diagnosed,Everybody Dies,223,14,26,0.0
+person,House,disease,injury,diagnosed,Everybody Dies,812,4,36,0.0
+person,House,disease,injury,diagnosed,Everybody Dies,812,15,36,0.0
+person,House,disease,eye injury,diagnosed,Everybody Dies,812,4,23,0.0
+person,House,disease,eye injury,diagnosed,Everybody Dies,812,15,23,0.0
+person,House,disease,burns,diagnosed,Everybody Dies,873,0,6,0.0
+person,House,disease,burns,diagnosed,Everybody Dies,901,0,4,0.0
+person,House,disease,perforated ulcer,diagnosed,Everybody Dies,1027,0,13,0.0
+person,Kutner,disease,perforated ulcer,diagnosed,Everybody Dies,1027,4,13,0.0
+person,House,disease,cancer,diagnosed,Everybody Dies,4428,6,11,0.0
+person,House,disease,cancer,diagnosed,Everybody Dies,4428,6,18,0.0
+person,House,disease,cancer,diagnosed,Everybody Dies,4428,16,11,0.0
+person,House,disease,cancer,diagnosed,Everybody Dies,4428,16,18,0.0
+person,Wilson,disease,cancer,diagnosed,Everybody Dies,4428,0,11,0.0
+person,Wilson,disease,cancer,diagnosed,Everybody Dies,4428,0,18,0.0
+person,House,disease,cancer,diagnosed,Everybody Dies,4527,12,4,0.0
+person,House,disease,GAD,diagnosed,Perils of Paranoia,1766,0,9,0.0
+person,Adams,disease,GAD,diagnosed,Perils of Paranoia,1766,4,9,0.0
+person,Adams,disease,GAD,diagnosed,Perils of Paranoia,2014,10,18,0.0
+person,House,disease,GAD,diagnosed,Perils of Paranoia,2056,0,20,0.0
+person,Park,disease,carcinoma,diagnosed,Perils of Paranoia,2428,2,5,1.0
+person,Derrick,disease,schizophrenia,diagnosed,Holding On,97,5,3,0.0
+person,Adams,disease,smoking marijuana,diagnosed,Holding On,667,3,14,0.0
+person,Creepy Taub,disease,smoking marijuana,diagnosed,Holding On,667,0,14,0.0
+person,Taub,disease,temporal lobe epilepsy,diagnosed,Holding On,987,0,5,1.0
+person,Wilson,disease,blastoma,diagnosed,Holding On,1291,5,25,0.0
+person,Wilson,disease,cancer,diagnosed,Holding On,1401,3,5,0.0
+person,Michael,disease,cancer,diagnosed,Holding On,1401,0,5,0.0
+person,Taub,disease,injuries,diagnosed,Holding On,2574,0,8,0.0
+person,Adams,disease,injuries,diagnosed,Holding On,2574,3,8,0.0
+person,House,disease,attempted suicide,diagnosed,Holding On,2873,2,12,0.0
+person,House,disease,trauma,diagnosed,Runaways,243,6,3,0.0
+person,Adams,disease,fungal infection,diagnosed,Runaways,809,5,12,0.0
+person,House,disease,aneurysm,diagnosed,Runaways,2030,2,24,0.0
+person,House,disease,aneurysm,diagnosed,Runaways,2030,10,24,0.0
+person,Adams,disease,aneurysm,diagnosed,Runaways,2030,0,24,0.0
+person,Adams,disease,aneurysm,diagnosed,Runaways,2541,11,18,1.0
+person,House,disease,ascariasis,diagnosed,Runaways,2699,6,10,0.5
+person,House,disease,thymoma,diagnosed,Post Mortem,446,0,8,0.0
+person,Wilson,disease,thymoma,diagnosed,Post Mortem,446,3,8,0.0
+person,House,disease,stimulant psychosis,diagnosed,Post Mortem,932,18,23,1.0
+person,Chase,disease,stimulant psychosis,diagnosed,Post Mortem,1013,0,6,0.0
+person,House,disease,cancer,diagnosed,Post Mortem,1125,0,8,0.0
+person,Wilson,disease,cancer,diagnosed,Post Mortem,1125,2,8,0.0
+person,Wilson,disease,cancer,diagnosed,Post Mortem,1125,11,8,0.0
+person,House,disease,porphyria,diagnosed,Post Mortem,1705,20,4,0.0
+person,Adams,disease,porphyria,diagnosed,Post Mortem,1705,11,4,0.0
+person,Adams,disease,porphyria,diagnosed,Post Mortem,1750,0,5,0.0
+person,Foreman,disease,sarcoidosis,diagnosed,Post Mortem,2111,4,2,0.0
+person,Taub,disease,sarcoidosis,diagnosed,Post Mortem,2111,0,2,1.0
+person,Chase,disease,MRSA,diagnosed,Post Mortem,3254,0,22,0.0
+person,Taub,disease,gallstones,diagnosed,Blowing the Whistle,499,0,10,0.5
+person,Taub,disease,sarcoidosis,diagnosed,Blowing the Whistle,1018,5,16,0.0
+person,House,disease,liver failure,diagnosed,Blowing the Whistle,1458,3,9,0.0
+person,Foreman,disease,malaria,diagnosed,Blowing the Whistle,1990,9,7,0.5
+person,House,disease,lice,diagnosed,Blowing the Whistle,2389,0,17,0.0
+person,House,disease,typhus,diagnosed,Blowing the Whistle,2389,0,20,0.0
+person,House,disease,thymoma,diagnosed,The C Word,304,2,13,0.0
+person,Wilson,disease,thymoma,diagnosed,The C Word,304,4,13,0.0
+person,Adams,disease,trauma,diagnosed,The C Word,557,0,3,1.0
+person,Chase,disease,lupus,diagnosed,The C Word,1183,2,5,0.0
+person,House,disease,thymoma,diagnosed,The C Word,1542,21,35,0.0
+person,Wilson,disease,cancer,diagnosed,The C Word,2493,0,12,0.0
+person,House,disease,cancer,diagnosed,The C Word,2507,22,33,0.0
+person,House,disease,cancer,diagnosed,The C Word,2904,0,8,0.0
+person,House,disease,hepatitis C,diagnosed,Risky Business,753,0,14,0.0
+person,House,disease,hepatitis C,diagnosed,Risky Business,753,18,14,0.0
+person,Adams,disease,hepatitis C,diagnosed,Risky Business,753,4,14,0.0
+person,Adams,disease,hepatitis C,diagnosed,Risky Business,753,29,14,0.0
+person,Non-Hodgkin,disease,lymphoma,diagnosed,Risky Business,828,28,30,0.0
+person,House,disease,flashing,diagnosed,Risky Business,1246,2,9,0.0
+person,Adams,disease,lymphoma,diagnosed,Risky Business,1304,7,18,0.5
+person,House,disease,gonorrhea,diagnosed,Twenty Vicodin,741,2,10,0.0
+person,House,disease,lupus,diagnosed,Twenty Vicodin,776,0,6,0.0
+person,Adams,disease,lupus,diagnosed,Twenty Vicodin,776,2,6,0.0
+person,House,disease,lupus,diagnosed,Twenty Vicodin,999,0,13,0.0
+person,Nick,disease,lupus,diagnosed,Twenty Vicodin,999,4,13,0.0
+person,House,disease,lupus,diagnosed,Twenty Vicodin,1407,13,20,0.0
+person,Nick,disease,lupus,diagnosed,Twenty Vicodin,1407,0,20,0.0
+person,House,disease,lupus,diagnosed,Twenty Vicodin,1487,0,11,0.0
+person,Nick,disease,lupus,diagnosed,Twenty Vicodin,1487,16,11,0.0
+person,Adams,disease,lupus,diagnosed,Twenty Vicodin,1487,4,11,0.0
+person,Nick,disease,lung cancer,diagnosed,Twenty Vicodin,1527,7,4,0.0
+person,House,disease,poisoning,diagnosed,Twenty Vicodin,1826,0,10,0.0
+person,Nick,disease,lipoma,diagnosed,Twenty Vicodin,1859,4,15,0.0
+person,Nick,disease,mastocytosis,diagnosed,Twenty Vicodin,2416,19,25,0.0
+person,Adams,disease,mastocytosis,diagnosed,Twenty Vicodin,2416,3,25,0.0
+person,House,disease,injuries,diagnosed,Twenty Vicodin,2774,3,5,0.0
+person,Adams,disease,injuries,diagnosed,Twenty Vicodin,2774,0,5,0.0
+person,House,disease,steatohepatitis,diagnosed,Better Half,580,4,2,0.0
+person,Foreman,disease,steatohepatitis,diagnosed,Better Half,580,0,2,1.0
+person,Adams,disease,thrombotic thrombocytopenic purpura,diagnosed,Better Half,935,0,4,1.0
+person,Andres,disease,eye injury,diagnosed,Better Half,971,7,4,0.0
+person,House,disease,flu,diagnosed,Better Half,1629,9,21,0.0
+person,Reye,disease,influenza,diagnosed,Better Half,2887,0,27,0.0
+person,Reye,disease,influenza,diagnosed,Better Half,2887,17,27,0.0
+person,Reye,disease,varicella,diagnosed,Better Half,2887,0,29,0.0
+person,Reye,disease,varicella,diagnosed,Better Half,2887,17,29,0.0
+person,House,disease,brain tumor,diagnosed,Transplant (episode),1320,0,13,0.0
+person,House,disease,sarcoidosis,diagnosed,Transplant (episode),2281,0,4,1.0

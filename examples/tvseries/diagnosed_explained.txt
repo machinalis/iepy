@@ -1,0 +1,56 @@
+This file barely explains the rule applied for labeling the reference corpus
+
+Marking as positive:
+    Doctor
+            thinks on
+            thinks is
+            thinks (patient) may have
+            thinks (patient) has had
+            diagnosed
+            diagnoses
+            insists on a diagnosis of
+            is diagnosing (patient) with
+            identifies it as
+            see may be
+            see the patient has
+            see the patient may have
+            suggest
+            guess
+            points out
+            finds out
+            determines the answer -
+            concludes (the patient) has
+            is sure is
+            still (any of the above)
+            returns to an old idea,
+                        Disease
+    Doctor thinks it is a disease
+        (some adjetives explaining the disease),
+                        Disease
+    Doctor thinks it is
+        (generic disease description) -
+            Disease (specific name)
+    Doctor
+        (suggests)
+            Disease
+                (can explain)
+                    (symptoms)
+
+Marking as negative
+    Doctor (thinks on doing) Disease test
+    Doctor (decides) do (paliative) to help Disease
+    Doctor argues that is Disease
+    Doctor thinks is DiseasePositive
+                                    due to
+                                    from
+                                    caused by
+                                    because of
+                                        DiseaseNegative (first is positive, second negative)
+    Doctor tells (to the patient) that he has Disease
+    Doctor asks (test) for Disease
+    Doctor says that the symptoms points to Disease
+    DoctorA agrees that DoctorB was right about Disease (negative for both)
+    Doctor says he has Disease
+    Doctor was right that the patient has Disease
+    Doctor ’s diagnosis of Disease (was easy)
+    Doctor decides to treat (patient) for Disease
