@@ -314,7 +314,9 @@ class BootstrappedIEPipeline(object):
         logger.debug(u'running filter_facts')
         n = len(self.knowledge)
         self.knowledge.update((e, s) for e, s in facts.items()
-                              if s > self.fact_threshold)
+                              if s > self.fact_threshold and
+                                    (e not in self.answers or
+                                    self.answers[e] == 1))
         logger.info(u'Learnt {} new facts this iteration (adding to a total '
                     u'of {} facts)'.format(len(self.knowledge) - n,
                                            len(self.knowledge)))
