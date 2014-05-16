@@ -27,7 +27,7 @@ disease,neurological disorder,symptom,passed out,CAUSES,Help Me,422,18,13,1.0
 disease,lymphoma,symptom,itching,CAUSES,Moving the Chains,1433,10,1,0.0
 disease,cancer,symptom,infection,CAUSES,Two Stories,1410,7,5,0.0
 disease,botulism,symptom,seizure,CAUSES,Poison,296,12,16,0.0
-disease,toxoplasmosis,symptom,infection,CAUSES,Role Model,522,14,15,0.0
+disease,toxoplasmosis,symptom,infection,CAUSES,Role Model,522,14,15,1.0
 disease,AIDS,symptom,headache,CAUSES,Role Model,587,18,6,0.0
 disease,common variable immunodeficiency,symptom,autoimmune disease,CAUSES,Role Model,1304,22,19,0.0
 disease,cancer,symptom,tumor,CAUSES,Pilot,777,10,20,0.0
@@ -36,7 +36,7 @@ disease,pulmonary embolism,symptom,thrombosis,CAUSES,The Socratic Method,230,20,
 disease,ALS,symptom,pneumonia,CAUSES,DNR,253,17,11,1.0
 disease,ALS,symptom,paralysis,CAUSES,DNR,832,7,3,1.0
 disease,thrombocytopenic purpura,symptom,rash,CAUSES,Kids,1174,21,9,0.0
-disease,thrombocytopenic purpura,symptom,bleeding,CAUSES,Kids,1174,21,13,1.0
+disease,thrombocytopenic purpura,symptom,bleeding,CAUSES,Kids,1174,21,13,0.0
 disease,menopause,symptom,infection,CAUSES,Kids,1198,22,14,0.0
 disease,cancer,symptom,infection,CAUSES,Detox,438,10,6,0.0
 disease,pancreatic cancer,symptom,infection,CAUSES,Detox,438,18,6,0.0
@@ -70,7 +70,7 @@ disease,peritonitis,symptom,cavity,CAUSES,The Mistake,472,16,13,0.0
 disease,sepsis,symptom,cavity,CAUSES,The Mistake,472,20,13,0.0
 disease,sepsis,symptom,liver damage,CAUSES,The Mistake,636,3,8,1.0
 disease,sepsis,symptom,blood clots,CAUSES,The Mistake,636,3,12,1.0
-disease,brucellosis,symptom,infection,CAUSES,Sex Kills,369,12,13,0.0
+disease,brucellosis,symptom,infection,CAUSES,Sex Kills,369,12,13,1.0
 disease,brucellosis,symptom,acid reflux,CAUSES,Sex Kills,384,6,16,0.0
 disease,allergies,symptom,panic attack,CAUSES,Clueless,130,8,11,0.0
 disease,bite,symptom,fever,CAUSES,Humpty Dumpty,713,8,9,1.0
