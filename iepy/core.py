@@ -314,12 +314,19 @@ class BootstrappedIEPipeline(object):
         logger.debug(u'running filter_facts')
         n = len(self.knowledge)
         self.knowledge.update((e, s) for e, s in facts.items()
-                              if s > self.fact_threshold and
-                                    (e not in self.answers or
-                                    self.answers[e] == 1))
+                              if s > self.fact_threshold)
+        logger.debug(u'  classifiers accepted {} new facts'.format(len(self.knowledge) - n))
+        # unlearn user negative answers:
+        m = len(self.knowledge)
+        for e, s in self.answers.items():
+            if s == 0 and e in self.knowledge:
+                del self.knowledge[e]
+        logger.debug(u'  user answers removed {} facts'.format(m - len(self.knowledge)))
+
         logger.info(u'Learnt {} new facts this iteration (adding to a total '
                     u'of {} facts)'.format(len(self.knowledge) - n,
                                            len(self.knowledge)))
+
         return facts
 
     def evaluate(self, facts):
