@@ -64,7 +64,7 @@ config = {
 def main(options):
     logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
     connection = db.connect(options['<dbname>'])
-    standard = Knowledge.load_from_csv(options['<gold_standard>'], connection)
+    standard = Knowledge.load_from_csv(options['<gold_standard>'])
     logging.info("Loaded %d samples from gold standard", len(standard))
     k = int(options['--k'])
 
