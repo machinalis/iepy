@@ -79,7 +79,7 @@ def main(options):
         for i, (e, s) in enumerate(standard.items()):
             if i % k == subsample:
                 test_data.append(e)
-                test_labels.append(s)
+                test_labels.append(int(s))
             else:
                 train_data[e] = s
         extractor = FactExtractorFactory(config, train_data)
