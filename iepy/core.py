@@ -286,10 +286,10 @@ class BootstrappedIEPipeline(object):
             classifiers[rel] = FactExtractorFactory(self.extractor_config, data)
         return classifiers
 
-    def extract_facts(self, extractors):
+    def extract_facts(self, classifiers):
         """
         Stage 5 of pipeline.
-        extractors is a dict {relation: classifier, ...}
+        classifiers is a dict {relation: classifier, ...}
         """
         # TODO: this probably is smarter as an outer iteration through segments
         # and then an inner iteration over relations
@@ -305,8 +305,8 @@ class BootstrappedIEPipeline(object):
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
                     evidence.append(e)
-            if r in extractors:
-                ps = extractors[r].predict_proba(evidence)
+            if r in classifiers:
+                ps = classifiers[r].predict_proba(evidence)
                 # scale probabilities to range [0.1, 0.9]:
                 max_score = max(ps)
                 min_score = min(ps)
