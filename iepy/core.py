@@ -118,10 +118,8 @@ class BootstrappedIEPipeline(object):
                     evidence[e] = 0.5
         # Classifier configuration
         self.extractor_config = {
-            #"classifier": "svm",
-            #"classifier_args": {"probability": True},
-            "classifier": "labelspreading",
-            "classifier_args": {},
+            "classifier": "svm",
+            "classifier_args": {"probability": True},
             "dimensionality_reduction": None,
             "dimensionality_reduction_dimension": None,
             "feature_selection": None,
