@@ -18,6 +18,7 @@ from sklearn.manifold import SpectralEmbedding
 from sklearn.decomposition import TruncatedSVD, NMF, PCA
 from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.semi_supervised.label_propagation import LabelSpreading
 
 
 from future.builtins import map, str
@@ -57,6 +58,7 @@ _classifiers = {
     "logit": LogisticRegression,
     "svm": SVC,
     "adaboost": adawrapper,
+    "labelspreading": LabelSpreading,
 }
 
 _configuration_options = """
@@ -150,7 +152,7 @@ class FactExtractor(object):
         for evidence, score in data.items():
             X.append(evidence)
             y.append(int(score))
-            assert y[-1] in (0, 1)
+            assert y[-1] in (0, 1, -1)
         self.predictor.fit(X, y)
 
     def predict_proba(self, evidences):
