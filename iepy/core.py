@@ -106,10 +106,22 @@ class BootstrappedIEPipeline(object):
             if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
                 raise ValueError("Ambiguous kinds for relation %r" % e.fact.relation)
             self.relations[e.fact.relation] = (t1, t2)
+        # Precompute all the evidence that must be classified
+        self.evidence = evidence = Knowledge()
+        for r, (lkind, rkind) in self.relations.items():
+            for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
+                for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
+                    e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
+                    e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
+                    f = Fact(e1, r, e2)
+                    e = Evidence(f, segment, o1, o2)
+                    evidence[e] = 0.5
         # Classifier configuration
         self.extractor_config = {
-            "classifier": "svm",
-            "classifier_args": {"probability": True},
+            #"classifier": "svm",
+            #"classifier_args": {"probability": True},
+            "classifier": "labelspreading",
+            "classifier_args": {},
             "dimensionality_reduction": None,
             "dimensionality_reduction_dimension": None,
             "feature_selection": None,
@@ -267,7 +279,11 @@ class BootstrappedIEPipeline(object):
             assert len(yesno) == 2, "Evidence is not binary!"
             logger.info(u'Training "{}" relation with {} '
                         u'evidences'.format(rel, len(k)))
-            classifiers[rel] = FactExtractorFactory(self.extractor_config, k)
+            data = Knowledge(k)
+            if self.extractor_config['classifier'] == 'labelspreading':
+                # semi-supervised learning: add unlabeled data
+                data.update((e, -1) for e in self.evidence if e not in data)
+            classifiers[rel] = FactExtractorFactory(self.extractor_config, data)
         return classifiers
 
     def extract_facts(self, extractors):
