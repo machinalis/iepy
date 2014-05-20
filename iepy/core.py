@@ -296,15 +296,9 @@ class BootstrappedIEPipeline(object):
         logger.debug(u'running extract_facts')
         result = Knowledge()
 
-        for r, (lkind, rkind) in self.relations.items():
-            evidence = []
-            for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
-                for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
-                    e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
-                    e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
-                    f = Fact(e1, r, e2)
-                    e = Evidence(f, segment, o1, o2)
-                    evidence.append(e)
+        for r, evidence in self.evidence.per_relation().items():
+            lkind, rkind = self.relations[r]
+            evidence = list(evidence)
             if r in classifiers:
                 ps = classifiers[r].predict_proba(evidence)
                 # scale probabilities to range [0.1, 0.9]:
