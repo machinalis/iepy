@@ -335,11 +335,24 @@ class BagOfVerbLemmas(BaseBagOfVerbs):
         return str(self.wn.lemmatize(token.lower(), 'v'))
 
 
+class RelationNominalBetween(Feature):
+    output_schema = Schema(bool)
+
+    def __init__(self, nominal):
+        self.nominal = nominal
+
+    def _evaluate(self, datapoint):
+        i, j = in_between_offsets(datapoint)
+        return self.nominal in datapoint.segment.tokens[i:j]
+
+    def name(self):
+        return u'<RelationNominal, nominal=%s>' % self.nominal
+
+
 @output_schema(int, lambda x: x in (0, 1))
 def in_same_sentence(datapoint):  # TODO: Test
     """
-    Returns 1 if the datapoints entities are in the same senteces.
-    0 otherwise.
+    Returns 1 if the datapoints entities are in the same sentence, 0 otherwise.
     """
     i, j = in_between_offsets(datapoint)
     for k in datapoint.segment.sentences:
@@ -351,7 +364,7 @@ def in_same_sentence(datapoint):  # TODO: Test
 @output_schema(int, lambda x: x in (0, 1))
 def symbols_in_between(datapoint):
     """
-    returns 1 if there are symbols between the entities, 0 if not.
+    Returns 1 if there are symbols between the entities, 0 if not.
     """
     i, j = in_between_offsets(datapoint)
     tokens = datapoint.segment.tokens[i:j]
