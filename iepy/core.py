@@ -169,13 +169,7 @@ class BootstrappedIEPipeline(object):
         """
         logger.info(u'Starting pipeline with {} seed '
                     u'facts'.format(len(self.knowledge)))
-        evidences = Knowledge(
-            (Evidence(fact, segment, o1, o2), 0.5)
-            for fact, _s, _o1, _o2 in self.knowledge
-            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
-            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
-        )
-        self.do_iteration(evidences)
+        self.do_iteration(self.knowledge)
 
     def questions_available(self):
         """
@@ -184,9 +178,9 @@ class BootstrappedIEPipeline(object):
         `force_process`.
         If `id` of the returned value hasn't changed the returned value is the
         same.
-        The questions avaiable are a list of evidence.
+        The available questions are a list of evidence.
         """
-        return self.questions.by_certainty()
+        return self.questions.by_score(reverse=True)
 
     def add_answer(self, evidence, answer):
         """
@@ -218,29 +212,38 @@ class BootstrappedIEPipeline(object):
     ### Pipeline steps
     ###
 
-    def generalize_knowledge(self, evidence):
+    def generalize_knowledge(self, knowledge):
         """
         Stage 1 of pipeline.
 
-        Based on the known facts, generates all possible evidences of them.
+        Based on the known facts (knowledge), generates all possible
+        evidences of them. The generated evidence is scored using the scores
+        given to the facts.
         """
         logger.debug(u'running generalize_knowledge')
-        facts = set(ent.fact for ent in self.knowledge)
-        k = Knowledge(x for x in evidence.items() if x[0].fact in facts)
+        # XXX: there may be several scores for the same fact in knowledge.
+        fact_knowledge = dict((e.fact, s) for e, s in knowledge.items())
+        knowledge_evidence = Knowledge((e, fact_knowledge[e.fact])
+                    for e, _ in self.evidence.items() if e.fact in fact_knowledge)
         logger.info(u'Found {} potential evidences where the known facts could'
-                    u' manifest'.format(len(k)))
-        return k
+                    u' manifest'.format(len(knowledge_evidence)))
+        return knowledge_evidence
 
-    def generate_questions(self, evidence):
+    def generate_questions(self, knowledge_evidence):
         """
         Stage 2.1 of pipeline.
-        confidence can be implemented using the output from step 5 or accessing
-        the classifier in step 3.
 
-        Stores questions in self.questions and stops.
+        Stores unanswered questions in self.questions and stops. Questions come
+        from generalized evidence for known facts (knowledge_evidence), with
+        high scores, and from undecided evidence scored by the last classifier
+        in step 5 (self.evidence).
         """
         logger.debug(u'running generate_questions')
-        self.questions = Knowledge((e, s) for e, s in evidence.items() if e not in self.answers)
+        # first add all evidence, then override scores for fact_evidence.
+        self.questions = Knowledge((e, s) for e, s in self.evidence.items()
+                                                    if e not in self.answers)
+        self.questions.update((e, s) for e, s in knowledge_evidence.items()
+                                                    if e not in self.answers)
 
     def filter_evidence(self, _):
         """
@@ -312,6 +315,8 @@ class BootstrappedIEPipeline(object):
                         u'potential evidences for "{}" '
                         u'relation'.format(len(ps), r))
             result.update(zip(evidence, ps))
+        # save scores for later use (e.g. in generate_questions, stage 2.1)
+        self.evidence.update(result)
         return result
 
     def filter_facts(self, facts):
@@ -335,20 +340,20 @@ class BootstrappedIEPipeline(object):
                     u'of {} facts)'.format(len(self.knowledge) - n,
                                            len(self.knowledge)))
 
-        return facts
+        return self.knowledge
 
-    def evaluate(self, facts):
+    def evaluate(self, knowledge):
         """
         If a gold standard was given, compute precision and recall for current
         knowledge.
         """
         if self.gold_standard:
             logger.debug(u'running evaluate')
-            result = evaluate(self.knowledge, self.gold_standard)
+            result = evaluate(knowledge, self.gold_standard)
             logger.info(u'Precision: {}'.format(result['precision']))
             logger.info(u'Recall: {}'.format(result['recall']))
 
-        return facts
+        return knowledge
 
     ###
     ### Aux methods
