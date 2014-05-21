@@ -223,17 +223,21 @@ class BootstrappedIEPipeline(object):
         Stage 1 of pipeline.
 
         Based on the known facts (self.knowledge), generates all possible
-        evidences of them.
+        evidences of them. The generated evidence is scored using the scores
+        given to the facts (i.e. the input evidence scores are ignored).
+
         The input parameter evidences can be the output of:
         - start(): evidences only for seed facts with 0.5 score.
         - filter_facts(): all evidence candidates with scores from classifier.
         """
         logger.debug(u'running generalize_knowledge')
-        facts = set(ent.fact for ent in self.knowledge)
-        k = Knowledge(x for x in evidence.items() if x[0].fact in facts)
+        # XXX: there may be several scores for the same fact in self.knowledge.
+        fact_knowledge = dict((e.fact, s) for e, s in self.knowledge.items())
+        fact_evidence = Knowledge((e, fact_knowledge[e.fact])
+                    for e, _ in evidence.items() if e.fact in fact_knowledge)
         logger.info(u'Found {} potential evidences where the known facts could'
-                    u' manifest'.format(len(k)))
-        return k
+                    u' manifest'.format(len(evidence)))
+        return fact_evidence
 
     def generate_questions(self, evidence):
         """
