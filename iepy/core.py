@@ -184,9 +184,9 @@ class BootstrappedIEPipeline(object):
         `force_process`.
         If `id` of the returned value hasn't changed the returned value is the
         same.
-        The questions avaiable are a list of evidence.
+        The available questions are a list of evidence.
         """
-        return self.questions.by_certainty()
+        return self.questions.by_score(reverse=True)
 
     def add_answer(self, evidence, answer):
         """

@@ -40,6 +40,13 @@ class Knowledge(OrderedDict):
             return (certainty(self[e]) if self[e] is not None else 0, e)
         return sorted(self.items(), key=key_funct, reverse=True)
 
+    def by_score(self, reverse=False):
+        """
+        Returns an iterable over the evidence sorted by score, in increasing
+        order if reverse=False (default), in decreasing order if reverse=True.
+        """
+        return sorted(self.items(), key=lambda x: x[1], reverse=reverse)
+
     def per_relation(self):
         """
         Returns a dictionary: relation -> Knowledge, where each value is only
