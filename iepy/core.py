@@ -233,22 +233,27 @@ class BootstrappedIEPipeline(object):
         logger.debug(u'running generalize_knowledge')
         # XXX: there may be several scores for the same fact in self.knowledge.
         fact_knowledge = dict((e.fact, s) for e, s in self.knowledge.items())
-        fact_evidence = Knowledge((e, fact_knowledge[e.fact])
+        knowledge_evidence = Knowledge((e, fact_knowledge[e.fact])
                     for e, _ in evidence.items() if e.fact in fact_knowledge)
         logger.info(u'Found {} potential evidences where the known facts could'
-                    u' manifest'.format(len(evidence)))
-        return fact_evidence
+                    u' manifest'.format(len(knowledge_evidence)))
+        return knowledge_evidence
 
-    def generate_questions(self, evidence):
+    def generate_questions(self, knowledge_evidence):
         """
         Stage 2.1 of pipeline.
-        confidence can be implemented using the output from step 5 or accessing
-        the classifier in step 3.
 
-        Stores questions in self.questions and stops.
+        Stores unanswered questions in self.questions and stops. Questions come
+        from generalized evidence for known facts (knowledge_evidence), with
+        high scores, and from undecided evidence scored by the last classifier
+        in step 5 (self.evidence).
         """
         logger.debug(u'running generate_questions')
-        self.questions = Knowledge((e, s) for e, s in evidence.items() if e not in self.answers)
+        # first add all evidence, then override scores for fact_evidence.
+        self.questions = Knowledge((e, s) for e, s in self.evidence.items()
+                                                    if e not in self.answers)
+        self.questions.update((e, s) for e, s in knowledge_evidence.items()
+                                                    if e not in self.answers)
 
     def filter_evidence(self, _):
         """
