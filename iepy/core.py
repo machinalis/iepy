@@ -325,6 +325,8 @@ class BootstrappedIEPipeline(object):
                         u'potential evidences for "{}" '
                         u'relation'.format(len(ps), r))
             result.update(zip(evidence, ps))
+        # save scores for later use (e.g. in generate_questions, stage 2.1)
+        self.evidence.update(result)
         return result
 
     def filter_facts(self, facts):
