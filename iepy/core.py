@@ -222,7 +222,11 @@ class BootstrappedIEPipeline(object):
         """
         Stage 1 of pipeline.
 
-        Based on the known facts, generates all possible evidences of them.
+        Based on the known facts (self.knowledge), generates all possible
+        evidences of them.
+        The input parameter evidences can be the output of:
+        - start(): evidences only for seed facts with 0.5 score.
+        - filter_facts(): all evidence candidates with scores from classifier.
         """
         logger.debug(u'running generalize_knowledge')
         facts = set(ent.fact for ent in self.knowledge)
