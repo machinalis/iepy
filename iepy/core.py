@@ -169,13 +169,7 @@ class BootstrappedIEPipeline(object):
         """
         logger.info(u'Starting pipeline with {} seed '
                     u'facts'.format(len(self.knowledge)))
-        evidences = Knowledge(
-            (Evidence(fact, segment, o1, o2), 0.5)
-            for fact, _s, _o1, _o2 in self.knowledge
-            for segment in self.db_con.segments.segments_with_both_entities(fact.e1, fact.e2)
-            for o1, o2 in segment.entity_occurrence_pairs(fact.e1, fact.e2)
-        )
-        self.do_iteration(evidences)
+        self.do_iteration(self.knowledge)
 
     def questions_available(self):
         """
@@ -218,23 +212,19 @@ class BootstrappedIEPipeline(object):
     ### Pipeline steps
     ###
 
-    def generalize_knowledge(self, evidence):
+    def generalize_knowledge(self, knowledge):
         """
         Stage 1 of pipeline.
 
-        Based on the known facts (self.knowledge), generates all possible
+        Based on the known facts (knowledge), generates all possible
         evidences of them. The generated evidence is scored using the scores
-        given to the facts (i.e. the input evidence scores are ignored).
-
-        The input parameter evidences can be the output of:
-        - start(): evidences only for seed facts with 0.5 score.
-        - filter_facts(): all evidence candidates with scores from classifier.
+        given to the facts.
         """
         logger.debug(u'running generalize_knowledge')
-        # XXX: there may be several scores for the same fact in self.knowledge.
-        fact_knowledge = dict((e.fact, s) for e, s in self.knowledge.items())
+        # XXX: there may be several scores for the same fact in knowledge.
+        fact_knowledge = dict((e.fact, s) for e, s in knowledge.items())
         knowledge_evidence = Knowledge((e, fact_knowledge[e.fact])
-                    for e, _ in evidence.items() if e.fact in fact_knowledge)
+                    for e, _ in self.evidence.items() if e.fact in fact_knowledge)
         logger.info(u'Found {} potential evidences where the known facts could'
                     u' manifest'.format(len(knowledge_evidence)))
         return knowledge_evidence
@@ -350,20 +340,20 @@ class BootstrappedIEPipeline(object):
                     u'of {} facts)'.format(len(self.knowledge) - n,
                                            len(self.knowledge)))
 
-        return facts
+        return self.knowledge
 
-    def evaluate(self, facts):
+    def evaluate(self, knowledge):
         """
         If a gold standard was given, compute precision and recall for current
         knowledge.
         """
         if self.gold_standard:
             logger.debug(u'running evaluate')
-            result = evaluate(self.knowledge, self.gold_standard)
+            result = evaluate(knowledge, self.gold_standard)
             logger.info(u'Precision: {}'.format(result['precision']))
             logger.info(u'Recall: {}'.format(result['recall']))
 
-        return facts
+        return knowledge
 
     ###
     ### Aux methods
