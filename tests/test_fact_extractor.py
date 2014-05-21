@@ -33,7 +33,7 @@ from iepy.fact_extractor import (FactExtractor,
                                  symbols_in_between,
                                  BagOfVerbStems,
                                  BagOfVerbLemmas,
-                                 RelationNominalBetween
+                                 LemmaBetween
                                  )
 from iepy.fact_extractor import ColumnFilter
 from iepy.utils import make_feature_list
@@ -474,8 +474,8 @@ class TestBagLemmaVerb(TestCase, FeatureEvidenceBaseCase):
     )
 
 
-class TestRelationNominalBetween(TestCase, FeatureEvidenceBaseCase):
-    feature = RelationNominalBetween(nominal='makes')
+class TestLemmaBetween(TestCase, FeatureEvidenceBaseCase):
+    feature = LemmaBetween(nominal='makes')
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
                    EQ, True),

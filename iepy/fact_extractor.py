@@ -335,7 +335,7 @@ class BagOfVerbLemmas(BaseBagOfVerbs):
         return str(self.wn.lemmatize(token.lower(), 'v'))
 
 
-class RelationNominalBetween(Feature):
+class LemmaBetween(Feature):
     output_schema = Schema(bool)
 
     def __init__(self, nominal):
@@ -346,7 +346,7 @@ class RelationNominalBetween(Feature):
         return self.nominal in datapoint.segment.tokens[i:j]
 
     def name(self):
-        return u'<RelationNominal, nominal=%s>' % self.nominal
+        return u'<LemmaBetween, nominal=%s>' % self.nominal
 
 
 @output_schema(int, lambda x: x in (0, 1))
