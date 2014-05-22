@@ -77,14 +77,16 @@ class BootstrappedIEPipeline(object):
     """
 
     def __init__(self, db_connector, seed_facts, gold_standard=None,
-                 extractor_config=None, prediction_config=None):
+                 extractor_config=None, prediction_config=None,
+                 evidence_threshold=defaults.evidence_threshold,
+                 fact_threshold=defaults.fact_threshold):
         """
         Not blocking.
         """
         self.db_con = db_connector
         self.knowledge = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
-        self.evidence_threshold = 0.89
-        self.fact_threshold = 0.89
+        self.evidence_threshold = evidence_threshold
+        self.fact_threshold = fact_threshold
         self.questions = Knowledge()
         self.answers = {}
         self.gold_standard = gold_standard

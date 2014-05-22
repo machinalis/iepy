@@ -44,3 +44,7 @@ prediction_config = {
     'method': 'predict_proba',
     'scale_to_range': [0.1, 0.9]
 }
+
+
+evidence_threshold = 0.89
+fact_threshold = 0.89
