@@ -62,11 +62,15 @@ class Knowledge(OrderedDict):
 
         The output CSV format can be seen on CSV_COLUMNS.
         """
+        def sort_funct(x):
+            ev, score = x
+            if not ev.segment:
+                return (None, None, ev.fact)
+            else:
+                return (ev.segment.document, ev.segment, ev.fact)
         with py_compatible_csv.writer(filepath) as evidence_writer:
             for (evidence, label) in sorted(self.items(),
-                                            key=lambda x: (x[0].segment.document,
-                                                           x[0].segment,
-                                                           x[0].fact)):
+                                            key=sort_funct):
                 fact = evidence.fact
                 segm = evidence.segment
                 entity_a = fact.e1
