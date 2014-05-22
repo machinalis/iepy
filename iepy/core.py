@@ -45,13 +45,15 @@ implemented as follows:
         Brin 1999
 """
 
+from copy import deepcopy
 import itertools
 import logging
 
 from iepy import db
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.utils import make_feature_list, evaluate
+from iepy.utils import evaluate
 
+from iepy import defaults
 from iepy.knowledge import certainty, Evidence, Fact, Knowledge
 
 logger = logging.getLogger(__name__)
@@ -74,7 +76,8 @@ class BootstrappedIEPipeline(object):
         facts = p.get_facts()  # profit
     """
 
-    def __init__(self, db_connector, seed_facts, gold_standard=None):
+    def __init__(self, db_connector, seed_facts, gold_standard=None,
+                 extractor_config=None):
         """
         Not blocking.
         """
@@ -85,6 +88,7 @@ class BootstrappedIEPipeline(object):
         self.questions = Knowledge()
         self.answers = {}
         self.gold_standard = gold_standard
+        self.extractor_config = deepcopy(extractor_config or defaults.extractor_config)
 
         self.steps = [
                 self.generalize_knowledge,   # Step 1
@@ -116,42 +120,6 @@ class BootstrappedIEPipeline(object):
                     f = Fact(e1, r, e2)
                     e = Evidence(f, segment, o1, o2)
                     evidence[e] = 0.5
-        # Classifier configuration
-        self.extractor_config = {
-            "classifier": "svm",
-            "classifier_args": {"probability": True},
-            "dimensionality_reduction": None,
-            "dimensionality_reduction_dimension": None,
-            "feature_selection": None,
-            "feature_selection_dimension": None,
-            "scaler": True,
-            "sparse": False,
-            "features": make_feature_list("""
-                    bag_of_words
-                    bag_of_pos
-                    bag_of_word_bigrams
-                    bag_of_wordpos
-                    bag_of_wordpos_bigrams
-                    bag_of_words_in_between
-                    bag_of_pos_in_between
-                    bag_of_word_bigrams_in_between
-                    bag_of_wordpos_in_between
-                    bag_of_wordpos_bigrams_in_between
-                    entity_order
-                    entity_distance
-                    other_entities_in_between
-                    in_same_sentence
-                    verbs_count_in_between
-                    verbs_count
-                    total_number_of_entities
-                    symbols_in_between
-                    number_of_tokens
-                    BagOfVerbStems True
-                    BagOfVerbStems False
-                    BagOfVerbLemmas True
-                    BagOfVerbLemmas False
-            """),
-        }
 
     def do_iteration(self, data):
         for step in self.step_iterator:
@@ -281,12 +249,14 @@ class BootstrappedIEPipeline(object):
             assert len(yesno) == 2, "Evidence is not binary!"
             logger.info(u'Training "{}" relation with {} '
                         u'evidences'.format(rel, len(k)))
-            data = Knowledge(k)
-            if self.extractor_config['classifier'] == 'labelspreading':
-                # semi-supervised learning: add unlabeled data
-                data.update((e, -1) for e in self.evidence if e not in data)
-            classifiers[rel] = FactExtractorFactory(self.extractor_config, data)
+            classifiers[rel] = self.build_extractor(rel, Knowledge(k))
         return classifiers
+
+    def build_extractor(self, relation, data):
+        if self.extractor_config['classifier'] == 'labelspreading':
+            # semi-supervised learning: add unlabeled data
+            data.update((e, -1) for e in self.evidence if e not in data)
+        return FactExtractorFactory(self.extractor_config, data)
 
     def extract_facts(self, classifiers):
         """
