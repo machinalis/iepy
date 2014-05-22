@@ -79,7 +79,8 @@ class BootstrappedIEPipeline(object):
     def __init__(self, db_connector, seed_facts, gold_standard=None,
                  extractor_config=None, prediction_config=None,
                  evidence_threshold=defaults.evidence_threshold,
-                 fact_threshold=defaults.fact_threshold):
+                 fact_threshold=defaults.fact_threshold,
+                 sort_questions_by=defaults.questions_sorting):
         """
         Not blocking.
         """
@@ -92,6 +93,7 @@ class BootstrappedIEPipeline(object):
         self.gold_standard = gold_standard
         self.extractor_config = deepcopy(extractor_config or defaults.extractor_config)
         self.prediction_config = deepcopy(prediction_config or defaults.prediction_config)
+        self.sort_questions_by = sort_questions_by
 
         self.steps = [
                 self.generalize_knowledge,   # Step 1
@@ -151,7 +153,14 @@ class BootstrappedIEPipeline(object):
         same.
         The available questions are a list of evidence.
         """
-        return self.questions.by_score(reverse=True)
+        if self.sort_questions_by == 'score':
+            return self.questions.by_score(reverse=True)
+        else:
+            assert self.sort_questions_by == 'certainty'
+            # TODO: Check: latest changes on generate_questions probably demand
+            # some extra work on the following line to have back the usual
+            # sort by certainty
+            return self.questions.by_certainty()
 
     def add_answer(self, evidence, answer):
         """

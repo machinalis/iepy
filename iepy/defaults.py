@@ -48,3 +48,4 @@ prediction_config = {
 
 evidence_threshold = 0.89
 fact_threshold = 0.89
+questions_sorting = 'score'
