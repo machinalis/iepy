@@ -80,7 +80,7 @@ class BootstrappedIEPipeline(object):
         """
         self.db_con = db_connector
         self.knowledge = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
-        self.evidence_threshold = 0.99
+        self.evidence_threshold = 0.89
         self.fact_threshold = 0.89
         self.questions = Knowledge()
         self.answers = {}
@@ -248,20 +248,21 @@ class BootstrappedIEPipeline(object):
     def filter_evidence(self, _):
         """
         Stage 2.2 of pipeline.
-        sorted_evidence is [(score, segment, (a, b, relation)), ...]
-        answers is {(segment, (a, b, relation)): is_evidence, ...}
+
+        Build evidence for training the classifiers, from user answers
+        (self.answers) and unanswered evidence (self.evidence) with last
+        classification score certainty over self.evidence_threshold.
         """
         logger.debug(u'running filter_evidence')
         evidence = Knowledge(self.answers)
         n = len(evidence)
         evidence.update(
-            (e, score > 0.5)
-            for e, score in self.questions.items()
+            (e, score > 0.5 and 1 or 0)
+            for e, score in self.evidence.items()
             if certainty(score) > self.evidence_threshold and e not in self.answers
         )
         logger.info(u'Filtering returns {} human-built evidences and {} '
                     u'over-threshold evidences'.format(n, len(evidence) - n))
-        # Answers + questions with a strong prediction
         return evidence
 
     def learn_fact_extractors(self, evidence):
