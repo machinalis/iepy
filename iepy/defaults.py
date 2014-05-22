@@ -38,3 +38,9 @@ extractor_config = {
             BagOfVerbLemmas False
     """),
 }
+
+
+prediction_config = {
+    'method': 'predict_proba',
+    'scale_to_range': [0.1, 0.9]
+}

@@ -77,7 +77,7 @@ class BootstrappedIEPipeline(object):
     """
 
     def __init__(self, db_connector, seed_facts, gold_standard=None,
-                 extractor_config=None):
+                 extractor_config=None, prediction_config=None):
         """
         Not blocking.
         """
@@ -89,6 +89,7 @@ class BootstrappedIEPipeline(object):
         self.answers = {}
         self.gold_standard = gold_standard
         self.extractor_config = deepcopy(extractor_config or defaults.extractor_config)
+        self.prediction_config = deepcopy(prediction_config or defaults.prediction_config)
 
         self.steps = [
                 self.generalize_knowledge,   # Step 1
@@ -249,14 +250,43 @@ class BootstrappedIEPipeline(object):
             assert len(yesno) == 2, "Evidence is not binary!"
             logger.info(u'Training "{}" relation with {} '
                         u'evidences'.format(rel, len(k)))
-            classifiers[rel] = self.build_extractor(rel, Knowledge(k))
+            classifiers[rel] = self._build_extractor(rel, Knowledge(k))
         return classifiers
 
-    def build_extractor(self, relation, data):
+    def _build_extractor(self, relation, data):
+        """Actual invocation of classifier"""
         if self.extractor_config['classifier'] == 'labelspreading':
             # semi-supervised learning: add unlabeled data
             data.update((e, -1) for e in self.evidence if e not in data)
         return FactExtractorFactory(self.extractor_config, data)
+
+    def _score_evidence(self, relation, classifier, evidence_list):
+        """Given a classifier and a list of evidences, predict if they
+        are positive evidences or not.
+        Depending on the settings, prediction can be:
+            - probabilistic or binary
+            - scaled to a range, or not
+        """
+        # TODO: Is probably cleaner if this logic is inside FactExtractorFactory
+        if classifier:
+            method = self.prediction_config['method']
+            ps = getattr(classifier, method)(evidence_list)
+            if self.prediction_config['scale_to_range']:
+                # scale scores to a given range
+                range_min, range_max = sorted(self.prediction_config['scale_to_range'])
+                range_delta = range_max - range_min
+                max_score = max(ps)
+                min_score = min(ps)
+                score_range = max_score - min_score
+                scale = lambda x: (x - min_score) * range_delta / score_range + range_min
+                ps = map(scale, ps)
+        else:
+            # There was no evidence to train this classifier
+            ps = [0.5] * len(evidence_list)  # Maximum uncertainty
+        logger.info(u'Estimated fact manifestation probabilities for {} '
+                    u'potential evidences for "{}" '
+                    u'relation'.format(len(ps), relation))
+        return ps
 
     def extract_facts(self, classifiers):
         """
@@ -269,22 +299,8 @@ class BootstrappedIEPipeline(object):
         result = Knowledge()
 
         for r, evidence in self.evidence.per_relation().items():
-            lkind, rkind = self.relations[r]
             evidence = list(evidence)
-            if r in classifiers:
-                ps = classifiers[r].predict_proba(evidence)
-                # scale probabilities to range [0.1, 0.9]:
-                max_score = max(ps)
-                min_score = min(ps)
-                score_range = max_score - min_score
-                scale = lambda x: (x - min_score) * 0.8 / score_range + 0.1
-                ps = map(scale, ps)
-            else:
-                # There was no evidence to train this classifier
-                ps = [0.5 for _ in evidence]  # Maximum uncertainty
-            logger.info(u'Estimated fact manifestation probabilities for {} '
-                        u'potential evidences for "{}" '
-                        u'relation'.format(len(ps), r))
+            ps = self._score_evidence(r, classifiers.get(r, None), evidence)
             result.update(zip(evidence, ps))
         # save scores for later use (e.g. in generate_questions, stage 2.1)
         self.evidence.update(result)
