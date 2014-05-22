@@ -167,7 +167,7 @@ class FactExtractor(object):
 
     def predict(self, evidences):
         return self.predictor.predict(evidences)
-        
+
 
 def FactExtractorFactory(config, data):
     """Instantiates and trains a classifier."""
