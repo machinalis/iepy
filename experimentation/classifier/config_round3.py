@@ -3,7 +3,7 @@ u"""
 Experimental evaluation round 3.
 
 Usage:
-    config_round2.py <testdata.csv> <dbname>
+    config_round3.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
