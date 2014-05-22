@@ -257,7 +257,7 @@ class BootstrappedIEPipeline(object):
         evidence = Knowledge(self.answers)
         n = len(evidence)
         evidence.update(
-            (e, score > 0.5)
+            (e, score > 0.5 and 1 or 0)
             for e, score in self.evidence.items()
             if certainty(score) > self.evidence_threshold and e not in self.answers
         )
