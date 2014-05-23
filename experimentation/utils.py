@@ -25,12 +25,13 @@ def _includes(config, include):
     return new == config
 
 
-def check_configs(configs, includes=None, excludes=None):
+def check_configs(configs, includes=None, excludes=None, always=None):
     if includes is None:
         includes = []
     if excludes is None:
         excludes = []
-    always = "config_version data_shuffle_seed train_percentage".split()
+    if always is None:
+        always = []
     for N, config in enumerate(configs):
         for exclude in excludes:
             if _includes(config, exclude):

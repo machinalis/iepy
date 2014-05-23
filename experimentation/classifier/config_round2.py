@@ -141,7 +141,8 @@ if __name__ == '__main__':
                 {u"feature_selection": u"kbest",
                  u"classifier": u"adaboost"}]
     configs = list(iter_configs(opts[u"<testdata.csv>"], opts[u"<dbname>"]))
-    check_configs(configs, requiered, excluded)
+    always = "config_version data_shuffle_seed train_percentage".split()
+    check_configs(configs, requiered, excluded, always=always)
 
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
