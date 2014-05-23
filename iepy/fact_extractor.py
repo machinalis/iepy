@@ -40,7 +40,7 @@ __all__ = ["FactExtractorFactory"]
 _selectors = {
     "kbest": lambda n: SelectKBest(chi2, n),
     "dtree": lambda n: DecisionTreeClassifier(),
-    "frequency_filter": lambda n: ColumnFilter(3),
+    "frequency_filter": lambda n: ColumnFilter(n),
 }
 
 _dimensionality_reduction = {
