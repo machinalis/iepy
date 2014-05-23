@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from itertools import product
 import os
-import os.path
 import datetime
 import logging
 
@@ -44,7 +43,11 @@ def check_configs(configs, includes=None, excludes=None, always=None):
             if key not in config:
                 raise ValueError("Mandatory key is missing in dict", key,
                                  config)
-        FactExtractor(config)
+        if 'classifier_config' in config:
+            # config dict wraps a classifier config. Let's check it inside
+            FactExtractor(config['classifier_config'])
+        else:
+            FactExtractor(config)
     N += 1
     if includes:
         raise ValueError("No configuration included {}".format(list(includes)))
