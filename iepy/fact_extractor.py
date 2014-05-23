@@ -19,6 +19,7 @@ from sklearn.decomposition import TruncatedSVD, NMF, PCA
 from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.semi_supervised.label_propagation import LabelSpreading
+from numpy import array
 
 
 from future.builtins import map, str
@@ -411,7 +412,13 @@ class ColumnFilter(object):
         self.mask = freq >= self.m
         if not any(self.mask):
             raise ValueError("ColumnFilter eliminates all columns!")
+        self.mapping = array(range(X.shape[1]))[self.mask]
         return self
 
     def transform(self, X):
         return X[:, self.mask]
+
+    def column_map(self, i):
+        """Returns the input column corresonding to the i-th output column.
+        """
+        return self.mapping[i]
