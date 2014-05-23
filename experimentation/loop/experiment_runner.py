@@ -148,12 +148,14 @@ def _fix_config(config):
     unicode because some parts of scikit-learn will complain.
     """
     if PY2:
-        for d in [config, config[u"classifier_args"]]:
+        for d in [config]:
             for key, value in list(d.items()):
                 del d[key]
                 key = str(key)
                 if isinstance(value, unicode):
                     value = str(value)
+                elif isinstance(value, dict):
+                    value = _fix_config(value)
                 d[key] = value
     return config
 
