@@ -478,15 +478,15 @@ class TestLemmaBetween(TestCase, FeatureEvidenceBaseCase):
     feature = LemmaBetween(nominal='makes')
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
-                   EQ, True),
+                   EQ, 1),
         test_rl=(_e(u"Drinking {Mate|thing**} makes you go to the {toilet|thing*}"),
-                  EQ, True),
+                  EQ, 1),
         test_no=(_e(u"Drinking {Mate|thing**} takes you to the {toilet|thing*}"),
-                  EQ, False),
+                  EQ, 0),
         test_before=(_e(u"Drinking makes {Mate|thing**} go to the {toilet|thing*}"),
-                  EQ, False),
+                  EQ, 0),
         test_after=(_e(u"Drinking {Mate|thing**} in the {toilet|thing*} makes fun"),
-                  EQ, False),
+                  EQ, 0),
     )
 
 

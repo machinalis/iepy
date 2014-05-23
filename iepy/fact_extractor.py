@@ -6,7 +6,7 @@ from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem import WordNetLemmatizer
-from schema import Schema
+from schema import Schema, And
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
@@ -20,7 +20,6 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.semi_supervised.label_propagation import LabelSpreading
 from numpy import array
-
 
 from future.builtins import map, str
 
@@ -336,14 +335,17 @@ class BagOfVerbLemmas(BaseBagOfVerbs):
 
 
 class LemmaBetween(Feature):
-    output_schema = Schema(bool)
+    output_schema = Schema(And(int, lambda x: x in (0, 1)))
 
     def __init__(self, nominal):
         self.nominal = nominal
 
     def _evaluate(self, datapoint):
         i, j = in_between_offsets(datapoint)
-        return self.nominal in datapoint.segment.tokens[i:j]
+        if self.nominal in datapoint.segment.tokens[i:j]:
+            return 1
+        else:
+            return 0
 
     def name(self):
         return u'<LemmaBetween, nominal=%s>' % self.nominal
