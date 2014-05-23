@@ -493,6 +493,9 @@ class TestColumnFilter(TestCase):
         cf.fit(self.X)
         Y = cf.transform(self.X)
         self.assertTrue((self.X == Y).all())
+        # the column mapping is the identity:
+        mapping_ok = [cf.column_map(i) == i for i in range(Y.shape[1])]
+        self.assertTrue(all(mapping_ok))
 
     def test_one(self):
         cf = ColumnFilter(1)
@@ -501,6 +504,8 @@ class TestColumnFilter(TestCase):
         self.assertEqual(Y.shape, (self.N, self.M - 1))
         mask = numpy.array([True, True, True, False, True])
         self.assertTrue((Y == self.X[:, mask]).all())
+        mapping = [cf.column_map(i) for i in range(Y.shape[1])]
+        self.assertEqual(mapping, [i for i in range(self.X.shape[1]) if mask[i]])
 
     def test_all(self):
         cf = ColumnFilter(6)
