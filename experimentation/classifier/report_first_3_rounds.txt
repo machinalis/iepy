@@ -16,7 +16,7 @@ To do that, configurations will:
 Results
 -------
 
-See `experimentation/Analisis round3.ipynb`.
+See `experimentation/classifier/Analisis round3.ipynb`.
 
 There where 100 different "strategies" evaluated, each with 10 training sizes
 and for each training size there where 20 different training sets (a-la
