@@ -6,7 +6,7 @@ from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem import WordNetLemmatizer
-from schema import Schema
+from schema import Schema, And
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
@@ -20,7 +20,6 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.semi_supervised.label_propagation import LabelSpreading
 from numpy import array
-
 
 from future.builtins import map, str
 
@@ -335,11 +334,27 @@ class BagOfVerbLemmas(BaseBagOfVerbs):
         return str(self.wn.lemmatize(token.lower(), 'v'))
 
 
+class LemmaBetween(Feature):
+    output_schema = Schema(And(int, lambda x: x in (0, 1)))
+
+    def __init__(self, nominal):
+        self.nominal = nominal
+
+    def _evaluate(self, datapoint):
+        i, j = in_between_offsets(datapoint)
+        if self.nominal in datapoint.segment.tokens[i:j]:
+            return 1
+        else:
+            return 0
+
+    def name(self):
+        return u'<LemmaBetween, nominal=%s>' % self.nominal
+
+
 @output_schema(int, lambda x: x in (0, 1))
 def in_same_sentence(datapoint):  # TODO: Test
     """
-    Returns 1 if the datapoints entities are in the same senteces.
-    0 otherwise.
+    Returns 1 if the datapoints entities are in the same sentence, 0 otherwise.
     """
     i, j = in_between_offsets(datapoint)
     for k in datapoint.segment.sentences:
@@ -351,7 +366,7 @@ def in_same_sentence(datapoint):  # TODO: Test
 @output_schema(int, lambda x: x in (0, 1))
 def symbols_in_between(datapoint):
     """
-    returns 1 if there are symbols between the entities, 0 if not.
+    Returns 1 if there are symbols between the entities, 0 if not.
     """
     i, j = in_between_offsets(datapoint)
     tokens = datapoint.segment.tokens[i:j]
