@@ -1,3 +1,6 @@
+"""
+Experiment definition for fine tuning the inner CLASSIFIER
+"""
 import hashlib
 import random
 import time
