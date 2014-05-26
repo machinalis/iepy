@@ -91,7 +91,7 @@ def iter_configs(input_file_path, dbname):
     }
 
     prediction_patch = {
-        u'method': [u'predic', u'predict_proba'],
+        u'method': [u'predict', u'predict_proba'],
         u'scale_to_range': [None, [0.1, 0.9]]
     }
     prediction_range = list(
