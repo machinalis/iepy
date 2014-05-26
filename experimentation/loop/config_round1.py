@@ -71,7 +71,7 @@ def iter_configs(input_file_path, dbname):
 
         # Human In The Middle configuration
         u'answers_per_round': 5,
-        u'max_number_of_rounds': 5,
+        u'max_number_of_rounds': 15,
 
         # Bootstrap configuration
         u'prediction_config': {
@@ -81,7 +81,7 @@ def iter_configs(input_file_path, dbname):
         u'fact_threshold': 0.89,
         u'evidence_threshold': 0.89,
         u'questions_sorting': 'score',
-        u'seed_facts_size': {
+        u'seed_facts': {
             u'number_to_use': 5,
             u'shuffle': "it's a trap"
         },
@@ -100,7 +100,6 @@ def iter_configs(input_file_path, dbname):
 
     patch = {
         u'answers_per_round': [5, 15, 25],
-        u'max_number_of_rounds': [10, 15],
         u'prediction_config': prediction_range,
         u'fact_threshold': [0.89, 0.85],
         u'evidence_threshold': [0.89, 0.85],
