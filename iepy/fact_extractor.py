@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from string import punctuation
 import ast
+from string import punctuation
 
 from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
