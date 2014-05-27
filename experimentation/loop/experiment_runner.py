@@ -1,6 +1,7 @@
 """
 Experiment definition for fine tuning the whole IEPY looping
 """
+from copy import copy
 import hashlib
 import random
 import time
@@ -20,6 +21,24 @@ from iepy.core import BootstrappedIEPipeline
 #
 
 
+def precision_recall_f1(true_pos, false_pos, false_neg):
+    # Make stats
+    tp, fp, fn = map(float, [true_pos, false_pos, false_neg])
+    try:
+        precision = tp / (tp + fp)
+    except ZeroDivisionError:
+        precision = 1.0
+    try:
+        recall = tp / (tp + fn)
+    except ZeroDivisionError:
+        recall = 1.0
+    try:
+        f1 = 2 * (precision * recall) / (precision + recall)
+    except ZeroDivisionError:
+        f1 = 0.0
+    return precision, recall, f1
+
+
 class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
     """Wraps the classic pipeline, providing:
         - automatic question answering, replacing Human In The Loop (uses
@@ -34,9 +53,10 @@ class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
     def run_experiment(self):
         self.start()  # blocking
         answers_given = []
+        progression = []
         keep_looping = True
-        round_nr = 1
-        while keep_looping and round_nr <= self.rounds:
+        round_nr = 0
+        while keep_looping and round_nr < self.rounds:
             round_nr += 1
             questions = list(self.questions_available())
             if not questions:
@@ -45,7 +65,7 @@ class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
             answered = 0
             for evidence, rank in questions:
                 reference_answer = self.gold_standard.get(evidence, None)
-                answers_given.append(reference_answer)
+                answers_given.append((evidence, reference_answer))
                 if reference_answer in [1.0, 0.0]:
                     self.add_answer(evidence, reference_answer)
                     answered += 1
@@ -53,7 +73,9 @@ class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
                     # enough answering for this round
                     break
             self.force_process()  # blocking
-        return answers_given
+            progression.append((copy(self.knowledge),
+                                copy(self.evidence)))
+        return answers_given, progression
 
 
 class Runner(object):
@@ -70,19 +92,19 @@ class Runner(object):
         config = _fix_config(config)
 
         # Prepare data
-        data = self.get_data(config)
+        reference = self.get_data(config)
         db_con = iepy.db.connect(self.dbname)
-        seed_facts = self.build_seed_facts(data, config)
+        seed_facts = self.build_seed_facts(reference, config)
 
         result = {
             "seed_facts": seed_facts,
-            "dataset_size": len(data),
+            "dataset_size": len(reference),
             "start_time": time.time(),
         }
 
         # Train
         iepyloop = ReferenceProxyBootstrappedIEPipeline(
-            db_connector=db_con, seed_facts=seed_facts, gold_standard=data,
+            db_connector=db_con, seed_facts=seed_facts, gold_standard=reference,
             rounds=config[u'max_number_of_rounds'],
             answers_per_round=config[u'answers_per_round'],
             extractor_config=config[u'classifier_config'],
@@ -92,62 +114,81 @@ class Runner(object):
             sort_questions_by=config[u'questions_sorting']
         )
 
-        answers_given = iepyloop.run_experiment()
+        answers_given, progression = iepyloop.run_experiment()
         result[u'answers_given'] = answers_given
+        result[u'prediction_numbers'] = prediction_numbers = []
+        result[u'learning_numbers'] = learning_numbers = []
+        for learnt, prediction in progression:
+            prediction_numbers.append(self.prediction_eval(prediction, reference))
+            learning_numbers.append(self.learning_eval(learnt, seed_facts, answers_given, reference))
+        import ipdb; ipdb.set_trace()
+        return result
 
-        # Evaluate
+    def learning_eval(self, learnt, seed_facts, answers_given, reference):
+        learnt_facts = set([ev.fact for ev in learnt])
+        all_facts = set([ev.fact for ev in reference])
+        # Strange Precision & recall measure about "facts"
+        facts_precision, facts_recall, facts_f1 = precision_recall_f1(
+            len(all_facts.intersection(learnt_facts)),
+            len(learnt_facts.difference(all_facts)),
+            len(all_facts.difference(learnt_facts))
+        )
+        human_learnt = [ev for ev, answers in answers_given if answers]
+        human_learnt_facts = list(set([ev.fact for ev in human_learnt]))
+
+        return {
+            u'facts_precision': facts_precision,
+            u'facts_recall': facts_recall,
+            u'facts_f1': facts_f1,
+            u'facts_size': len(learnt_facts),
+            u'human_learnt_facts_size': len(human_learnt_facts),
+            u'knownledge_size': len(learnt),
+            u'human_learnt_size': len(human_learnt),
+        }
+
+    def prediction_eval(self, prediction, reference):
+        assert len(prediction) == len(reference)
+        keys = sorted(reference.keys())
         correct = []
         incorrect = []
         tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
-        predicted_labels = extractor.predict(test_evidences)
-        for i, predicted_label in zip(test, predicted_labels):
-            evidence, real_label = data[i]
+        for ev_idx, evidence in enumerate(keys):
+            predicted_label = prediction[evidence]
+            real_label = reference[evidence]
             if real_label == predicted_label:
-                correct.append(i)
+                correct.append(ev_idx)
                 if real_label:
                     tp += 1
                 else:
                     tn += 1
             else:
-                incorrect.append(i)
+                incorrect.append(ev_idx)
                 if predicted_label:
                     fp += 1
                 else:
                     fn += 1
 
         # Make stats
-        try:
-            precision = tp / (tp + fp)
-        except ZeroDivisionError:
-            precision = 1.0
-        try:
-            recall = tp / (tp + fn)
-        except ZeroDivisionError:
-            recall = 1.0
-        try:
-            f1 = 2 * (precision * recall) / (precision + recall)
-        except ZeroDivisionError:
-            f1 = 0.0
-        result.update({
+        precision, recall, f1 = precision_recall_f1(tp, fp, fn)
+        return {
             "true_positives": tp,
             "false_positives": fp,
             "true_negatives": tn,
             "false_negatives": fn,
-            "accuracy": (tp + tn) / len(data),
+            "accuracy": (tp + tn) / len(reference),
             "precision": precision,
             "recall": recall,
             "f1": f1,
             "correctly_predicted": correct,
             "incorrectly_predicted": incorrect,
             "end_time": time.time()
-        })
-        return result
+        }
 
     def get_data(self, config):
         if self.last_dbname != self.dbname or self.last_path != self.path or \
            self.last_hash != config[u"input_file_md5"]:
             iepy.db.connect(self.dbname)
-            self.data = Knowledge.load_from_csv(self.path)
+            data = Knowledge.load_from_csv(self.path)
             self.last_dbname = self.dbname
             self.last_path = self.path
             hasher = hashlib.md5(open(self.path, "rb").read())
@@ -155,7 +196,7 @@ class Runner(object):
             if self.last_hash != config[u"input_file_md5"]:
                 raise ValueError("Configured input file and actual input "
                                  "file have different MD5 checksums")
-        return self.data
+            return data
 
     def build_seed_facts(self, data, config):
         seeds_info = config[u'seed_facts']
@@ -215,5 +256,5 @@ if __name__ == '__main__':
 
     r = Runner()
     runner.main(r.run_iepy, r.extender,
-                booking_duration=60 * 15,  # 15 minutes
+                booking_duration=60 * 2,  # 2 minutes
                 use_git_info_from_path=path)
