@@ -78,8 +78,10 @@ def iter_configs(input_file_path, dbname):
             u'method': u'predic',
             u'scale_to_range': [0.1, 0.9]
         },
-        u'fact_threshold': 0.89,
-        u'evidence_threshold': 0.89,
+        # threshold are expressed as delta to max, so it's uniformly expressed
+        # having scaling enabled or not
+        u'fact_threshold_distance': 0.01,
+        u'evidence_threshold_distance': 0.01,
         u'questions_sorting': 'score',
         u'seed_facts': {
             u'number_to_use': 5,
@@ -101,14 +103,19 @@ def iter_configs(input_file_path, dbname):
     patch = {
         u'answers_per_round': [5, 15, 25],
         u'prediction_config': prediction_range,
-        u'fact_threshold': [0.89, 0.85],
-        u'evidence_threshold': [0.89, 0.85],
+        u'fact_threshold_distance': [0.01, 0.05],
+        u'evidence_threshold_distance': [0.01, 0.05],
         u'questions_sorting': [u'score', u'certainty'],
     }
 
     for classifier_config in candidate_classifiers:
         base[u'classifier_config'] = classifier_config
         for config in apply_dict_combinations(base, patch):
+            max_score = 1.0
+            if config[u'prediction_config']['scale_to_range']:
+                max_score = max(config[u'prediction_config']['scale_to_range'])
+            config[u'fact_threshold'] = max_score - config.pop(u'fact_threshold_distance')
+            config[u'evidence_threshold'] = max_score - config.pop(u'evidence_threshold_distance')
             yield config
 
 
