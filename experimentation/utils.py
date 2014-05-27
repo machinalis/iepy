@@ -24,7 +24,8 @@ def _includes(config, include):
     return new == config
 
 
-def check_configs(configs, includes=None, excludes=None, always=None):
+def check_configs(configs, includes=None, excludes=None, always=None,
+                  estimated_minutes_per_config=1):
     if includes is None:
         includes = []
     if excludes is None:
@@ -53,6 +54,6 @@ def check_configs(configs, includes=None, excludes=None, always=None):
         raise ValueError("No configuration included {}".format(list(includes)))
     logger.info("All ok (ie, not plain wrong).")
     logger.info("Explored {} configs.".format(N))
-    t = datetime.timedelta(seconds=N * 1 * 10)
-    logger.info("At 1 minutes per config this would take "
-                "aproximately {} (h:mm:ss)".format(t))
+    t = datetime.timedelta(seconds=N * estimated_minutes_per_config * 60)
+    logger.info("At {} minutes per config this would take "
+                "aproximately {} (h:mm:ss)".format(estimated_minutes_per_config, t))

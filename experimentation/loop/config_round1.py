@@ -130,6 +130,6 @@ if __name__ == '__main__':
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
-    check_configs(configs)
+    check_configs(configs, estimated_minutes_per_config=2)
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
