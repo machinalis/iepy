@@ -85,7 +85,7 @@ def iter_configs(input_file_path, dbname):
         u'questions_sorting': 'score',
         u'seed_facts': {
             u'number_to_use': 5,
-            u'shuffle': "it's a trap"
+            u'shuffle': u"it's a trap"
         },
 
         # Classifier configuration
@@ -96,26 +96,39 @@ def iter_configs(input_file_path, dbname):
         u'method': [u'predict', u'predict_proba'],
         u'scale_to_range': [None, [0.1, 0.9]]
     }
-    prediction_range = list(
+    prediction_options_range = list(
         apply_dict_combinations(base['prediction_config'], prediction_patch)
+    )
+    seed_patch = {
+        u'number_to_use': [5, 10],
+        u'shuffle': [u"%i lemon and half lemon" % i for i in range(2)]
+    }
+    seed_options_range = list(
+        apply_dict_combinations(base[u'seed_facts'], seed_patch)
     )
 
     patch = {
         u'answers_per_round': [5, 15, 25],
-        u'prediction_config': prediction_range,
+        u'prediction_config': prediction_options_range,
         u'fact_threshold_distance': [0.01, 0.05],
         u'evidence_threshold_distance': [0.01, 0.05],
         u'questions_sorting': [u'score', u'certainty'],
+        u'seed_facts': seed_options_range
     }
 
     for classifier_config in candidate_classifiers:
         base[u'classifier_config'] = classifier_config
         for config in apply_dict_combinations(base, patch):
+            # Threshold adjustments
             max_score = 1.0
             if config[u'prediction_config']['scale_to_range']:
                 max_score = max(config[u'prediction_config']['scale_to_range'])
             config[u'fact_threshold'] = max_score - config.pop(u'fact_threshold_distance')
             config[u'evidence_threshold'] = max_score - config.pop(u'evidence_threshold_distance')
+            if (config[u'classifier_config'][u'classifier'] == u'svm' and
+                config[u'prediction_config'][u'method'] == u'predict_proba'):
+                # http://scikit-learn.org/stable/modules/svm.html#scores-and-probabilities
+                config[u'prediction_config'][u'method'] == u'decision_function'
             yield config
 
 
@@ -130,6 +143,6 @@ if __name__ == '__main__':
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
-    check_configs(configs, estimated_minutes_per_config=2)
+    check_configs(configs, estimated_minutes_per_config=1.5)
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
