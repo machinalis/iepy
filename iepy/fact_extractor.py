@@ -337,18 +337,18 @@ class BagOfVerbLemmas(BaseBagOfVerbs):
 class LemmaBetween(Feature):
     output_schema = Schema(And(int, lambda x: x in (0, 1)))
 
-    def __init__(self, nominal):
-        self.nominal = nominal
+    def __init__(self, lemma):
+        self.lemma = lemma
 
     def _evaluate(self, datapoint):
         i, j = in_between_offsets(datapoint)
-        if self.nominal in datapoint.segment.tokens[i:j]:
+        if self.lemma in datapoint.segment.tokens[i:j]:
             return 1
         else:
             return 0
 
     def name(self):
-        return u'<LemmaBetween, nominal=%s>' % self.nominal
+        return u'<LemmaBetween, lemma=%s>' % self.lemma
 
 
 @output_schema(int, lambda x: x in (0, 1))
