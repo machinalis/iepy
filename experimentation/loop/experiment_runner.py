@@ -290,7 +290,7 @@ if __name__ == '__main__':
     import logging
 
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     path = os.path.abspath(os.path.dirname(__file__))
