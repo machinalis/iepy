@@ -89,7 +89,8 @@ class Runner(object):
         config = _fix_config(config)
 
         # Prepare data
-        reference = self.get_data(config)
+        self.load_data(config)
+        reference = self.data
         all_facts = self.build_facts_list(reference)
         db_con = iepy.db.connect(self.dbname)
         seed_facts = self.pick_seeds_facts(all_facts, config)
@@ -158,9 +159,9 @@ class Runner(object):
         }
 
     def knowledge_stats(self, knowledge, reference):
-        # This will produce invalid numbers if the reference corpus contain
-        # gaps or undecided evidences.
-        assert len(knowledge) <= len(reference)
+        # things on the knowledge object that are not in the reference will
+        # be simply logged, but not used for computations
+        unknown = list(set(knowledge.keys()).difference(reference.keys()))
         correct = []
         incorrect = []
         tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
@@ -187,20 +188,22 @@ class Runner(object):
         # Make stats
         precision, recall, f1 = precision_recall_f1(tp, fp, fn)
         return {
-            "true_positives": tp,
-            "false_positives": fp,
-            "true_negatives": tn,
-            "false_negatives": fn,
-            "accuracy": (tp + tn) / len(reference),
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-            "correctly_learnt": correct,
-            "incorrectly_learnt": incorrect,
+            u'true_positives': tp,
+            u'false_positives': fp,
+            u'true_negatives': tn,
+            u'false_negatives': fn,
+            u'accuracy': (tp + tn) / len(reference),
+            u'precision': precision,
+            u'recall': recall,
+            u'f1': f1,
+            u'correctly_learnt': correct,
+            u'incorrectly_learnt': incorrect,
+            u'unknown': [str(u) for u in unknown]
         }
 
     def prediction_eval(self, prediction, reference):
-        assert len(prediction) == len(reference)
+        # things on the prediction object that are not in the reference will
+        # be simply ignored
         keys = sorted(reference.keys())
         real_labels = []
         predicted_labels = []
@@ -221,7 +224,7 @@ class Runner(object):
             u'avg_len_predic': apk(actual_ev, predicted_ev, k=len(predicted_ev))
         }
 
-    def get_data(self, config):
+    def load_data(self, config):
         if self.last_dbname != self.dbname or self.last_path != self.path or \
            self.last_hash != config[u"input_file_md5"]:
             iepy.db.connect(self.dbname)
@@ -233,7 +236,7 @@ class Runner(object):
             if self.last_hash != config[u"input_file_md5"]:
                 raise ValueError("Configured input file and actual input "
                                  "file have different MD5 checksums")
-            return data
+            self.data = data
 
     def build_facts_list(self, reference):
         facts = []
