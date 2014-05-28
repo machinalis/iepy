@@ -13,6 +13,7 @@ to evaluate the different configurations. The absolute path and the md5 of the
 file will be added to the configurations.
 
 """
+from copy import deepcopy
 import os
 import hashlib
 
@@ -127,8 +128,14 @@ def iter_configs(input_file_path, dbname):
             config[u'evidence_threshold'] = max_score - config.pop(u'evidence_threshold_distance')
             if (config[u'classifier_config'][u'classifier'] == u'svm' and
                 config[u'prediction_config'][u'method'] == u'predict_proba'):
+                # we'll split this config in 2 options: actual predict_proba,
+                # and decision_function
+                config_copied = deepcopy(config)
+                config_copied[u'classifier_config'][u'classifier_args'][u'probability'] = True
+                yield config_copied
                 # http://scikit-learn.org/stable/modules/svm.html#scores-and-probabilities
-                config[u'prediction_config'][u'method'] == u'decision_function'
+                config[u'classifier_config'][u'classifier_args'][u'probability'] = False
+                config[u'prediction_config'][u'method'] = u'decision_function'
             yield config
 
 
