@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from string import punctuation
 import ast
+from string import punctuation
 
 from featureforge.feature import output_schema, Feature
 from featureforge.vectorizer import Vectorizer
@@ -167,6 +167,14 @@ class FactExtractor(object):
 
     def predict(self, evidences):
         return self.predictor.predict(evidences)
+
+    def decision_function(self, evidences):
+        # SVM predictors have decision_function which is recommended instead of
+        # predict_proba, but it's not very standard.
+        # Probably will raise AttributeError with other classifiers.
+        result = self.predictor.decision_function(evidences)
+        # result is an array of 1-element arrays. Let's return the expected
+        return [r[0] for r in result]
 
 
 def FactExtractorFactory(config, data):

@@ -21,6 +21,7 @@ The development tools we are using:
     - nose (LGPL)
     - factory-boy (MIT)
 
+The file "average_precision.py" in the experimentation/loop folder comes from the Metrics project (https://github.com/benhamner/Metrics) and it's license can be found in LICENSE.Metrics.txt
 
 Additionally, in order to be able to create your own iepy-ready corpus with our
 preprocessing tools, you'll need to download the following things that are not

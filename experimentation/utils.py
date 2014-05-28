@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from itertools import product
 import os
-import os.path
 import datetime
 import logging
 
@@ -25,12 +24,14 @@ def _includes(config, include):
     return new == config
 
 
-def check_configs(configs, includes=None, excludes=None):
+def check_configs(configs, includes=None, excludes=None, always=None,
+                  estimated_minutes_per_config=1):
     if includes is None:
         includes = []
     if excludes is None:
         excludes = []
-    always = "config_version data_shuffle_seed train_percentage".split()
+    if always is None:
+        always = []
     for N, config in enumerate(configs):
         for exclude in excludes:
             if _includes(config, exclude):
@@ -43,12 +44,16 @@ def check_configs(configs, includes=None, excludes=None):
             if key not in config:
                 raise ValueError("Mandatory key is missing in dict", key,
                                  config)
-        FactExtractor(config)
+        if 'classifier_config' in config:
+            # config dict wraps a classifier config. Let's check it inside
+            FactExtractor(config['classifier_config'])
+        else:
+            FactExtractor(config)
     N += 1
     if includes:
         raise ValueError("No configuration included {}".format(list(includes)))
     logger.info("All ok (ie, not plain wrong).")
     logger.info("Explored {} configs.".format(N))
-    t = datetime.timedelta(seconds=N * 1 * 10)
-    logger.info("At 1 minutes per config this would take "
-                "aproximately {} (h:mm:ss)".format(t))
+    t = datetime.timedelta(seconds=N * estimated_minutes_per_config * 60)
+    logger.info("At {} minutes per config this would take "
+                "aproximately {} (h:mm:ss)".format(estimated_minutes_per_config, t))
