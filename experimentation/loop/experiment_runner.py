@@ -3,22 +3,19 @@ Experiment definition for fine tuning the whole IEPY looping
 """
 from copy import copy
 import hashlib
+from operator import itemgetter
 import random
 import time
 
 from featureforge.experimentation import runner
+from sklearn.metrics import log_loss
 
 from iepy.knowledge import Knowledge
 import iepy.db
 from iepy.pycompatibility import PY2
 from iepy.core import BootstrappedIEPipeline
 
-#
-# The class below is one way (an ugly one) to solve the issue of getting the
-# data file path into train_and_evaluate_classifier without having it in
-# the booked configuration.
-# There are other ways to do it, this one I hated less.
-#
+from average_precision import apk
 
 
 def precision_recall_f1(true_pos, false_pos, false_neg):
@@ -93,11 +90,12 @@ class Runner(object):
 
         # Prepare data
         reference = self.get_data(config)
+        all_facts = self.build_facts_list(reference)
         db_con = iepy.db.connect(self.dbname)
-        seed_facts = self.build_seed_facts(reference, config)
+        seed_facts = self.pick_seeds_facts(all_facts, config)
 
         result = {
-            "seed_facts": seed_facts,
+            "seed_facts": [all_facts.index(seed) for seed in seed_facts],
             "dataset_size": len(reference),
             "start_time": time.time(),
         }
@@ -115,55 +113,73 @@ class Runner(object):
         )
 
         answers_given, progression = iepyloop.run_experiment()
-        result[u'answers_given'] = answers_given
+        result[u'answers_given'] = [a for q, a in answers_given]
         result[u'prediction_numbers'] = prediction_numbers = []
         result[u'learning_numbers'] = learning_numbers = []
-        for learnt, prediction in progression:
+        answers_per_round = config[u'answers_per_round']
+        for round_nr, (learnt, prediction) in enumerate(progression, 1):
             prediction_numbers.append(self.prediction_eval(prediction, reference))
-            learning_numbers.append(self.learning_eval(learnt, seed_facts, answers_given, reference))
-        import ipdb; ipdb.set_trace()
+            answers_so_far = answers_given[:round_nr*answers_per_round]
+            learning_numbers.append(
+                self.learning_eval(learnt, seed_facts, all_facts, answers_so_far, reference)
+            )
         return result
 
-    def learning_eval(self, learnt, seed_facts, answers_given, reference):
+    def learning_eval(self, learnt, seed_facts, all_facts, answers_given, reference):
         learnt_facts = set([ev.fact for ev in learnt])
-        all_facts = set([ev.fact for ev in reference])
+        all_facts_set = set(all_facts)  # made set to have Set methods
         # Strange Precision & recall measure about "facts"
         facts_precision, facts_recall, facts_f1 = precision_recall_f1(
-            len(all_facts.intersection(learnt_facts)),
+            len(all_facts_set.intersection(learnt_facts)),
             len(learnt_facts.difference(all_facts)),
-            len(all_facts.difference(learnt_facts))
+            len(all_facts_set.difference(learnt_facts))
         )
         human_learnt = [ev for ev, answers in answers_given if answers]
-        human_learnt_facts = list(set([ev.fact for ev in human_learnt]))
+        human_learnt_facts = set([ev.fact for ev in human_learnt])
+        human_learnt_facts = human_learnt_facts.union(seed_facts)
+        assert len(learnt_facts) >= len(human_learnt_facts)
+        assert len(learnt) >= len(human_learnt)
 
         return {
+            # some stats about facts only
             u'facts_precision': facts_precision,
             u'facts_recall': facts_recall,
             u'facts_f1': facts_f1,
             u'facts_size': len(learnt_facts),
+
+            # some stats about things learnt only thanks to human
             u'human_learnt_facts_size': len(human_learnt_facts),
-            u'knownledge_size': len(learnt),
             u'human_learnt_size': len(human_learnt),
+            u'knownledge_size': len(learnt),
+
+            # and now the tipical info re the knowledge gained
+            u'knownledge': self.knowledge_stats(learnt, reference),
+            u'end_time': time.time()
         }
 
-    def prediction_eval(self, prediction, reference):
-        assert len(prediction) == len(reference)
-        keys = sorted(reference.keys())
+    def knowledge_stats(self, knowledge, reference):
+        # This will produce invalid numbers if the reference corpus contain
+        # gaps or undecided evidences.
+        assert len(knowledge) <= len(reference)
         correct = []
         incorrect = []
         tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
-        for ev_idx, evidence in enumerate(keys):
-            predicted_label = prediction[evidence]
+        for ev_idx, evidence in enumerate(sorted(reference.keys())):
+            # If it's part of knowledge, then is taken as valid
+            if evidence in knowledge:
+                learnt_label = 1.0
+            else:
+                learnt_label = 0.0
             real_label = reference[evidence]
-            if real_label == predicted_label:
+            if real_label == learnt_label:
                 correct.append(ev_idx)
-                if real_label:
+                if real_label == 1.0:
                     tp += 1
                 else:
                     tn += 1
             else:
                 incorrect.append(ev_idx)
-                if predicted_label:
+                if learnt_label:
                     fp += 1
                 else:
                     fn += 1
@@ -179,9 +195,30 @@ class Runner(object):
             "precision": precision,
             "recall": recall,
             "f1": f1,
-            "correctly_predicted": correct,
-            "incorrectly_predicted": incorrect,
-            "end_time": time.time()
+            "correctly_learnt": correct,
+            "incorrectly_learnt": incorrect,
+        }
+
+    def prediction_eval(self, prediction, reference):
+        assert len(prediction) == len(reference)
+        keys = sorted(reference.keys())
+        real_labels = []
+        predicted_labels = []
+        for key in keys:
+            real_labels.append(reference[key])
+            prob_1 = prediction[key]
+            predicted_labels.append(
+                [1-prob_1, prob_1]
+            )
+
+        actual_ev = [ev for ev, s in reference.items() if s == 1.0]
+        predicted_ev, _ = zip(
+            *sorted(prediction.items(), key=itemgetter(1))
+        )
+        return {
+            u'log_loss': log_loss(real_labels, predicted_labels),
+            u'avg_len_actual': apk(actual_ev, predicted_ev, k=len(actual_ev)),
+            u'avg_len_predic': apk(actual_ev, predicted_ev, k=len(predicted_ev))
         }
 
     def get_data(self, config):
@@ -198,16 +235,19 @@ class Runner(object):
                                  "file have different MD5 checksums")
             return data
 
-    def build_seed_facts(self, data, config):
-        seeds_info = config[u'seed_facts']
-        possible_seeds = []
-        for ev, s in data.items():
-            if s != 1.0 or ev.fact in possible_seeds:
+    def build_facts_list(self, reference):
+        facts = []
+        for ev, s in reference.items():
+            if s != 1.0 or ev.fact in facts:
                 continue
-            possible_seeds.append(ev.fact)
+            facts.append(ev.fact)
+        return facts
+
+    def pick_seeds_facts(self, facts_list, config):
+        seeds_info = config[u'seed_facts']
         r = random.Random()
         r.seed(seeds_info[u'shuffle'])
-        return r.sample(possible_seeds, seeds_info[u'number_to_use'])
+        return r.sample(facts_list, seeds_info[u'number_to_use'])
 
     def extender(self, config):
         config[u'classifier_config']["features"] = set(config[u'classifier_config']["features"])
