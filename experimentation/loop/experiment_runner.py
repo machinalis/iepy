@@ -138,8 +138,6 @@ class Runner(object):
         human_learnt = [ev for ev, answers in answers_given if answers]
         human_learnt_facts = set([ev.fact for ev in human_learnt])
         human_learnt_facts = human_learnt_facts.union(seed_facts)
-        assert len(learnt_facts) >= len(human_learnt_facts)
-        assert len(learnt) >= len(human_learnt)
 
         return {
             # some stats about facts only
