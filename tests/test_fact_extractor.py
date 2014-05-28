@@ -475,7 +475,7 @@ class TestBagLemmaVerb(TestCase, FeatureEvidenceBaseCase):
 
 
 class TestLemmaBetween(TestCase, FeatureEvidenceBaseCase):
-    feature = LemmaBetween(nominal='makes')
+    feature = LemmaBetween('makes')
     fixtures = dict(
         test_lr=(_e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
                    EQ, 1),
