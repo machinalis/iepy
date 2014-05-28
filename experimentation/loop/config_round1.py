@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     from docopt import docopt
 
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
