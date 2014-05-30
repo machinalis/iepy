@@ -135,7 +135,9 @@ class Runner(object):
 
     def learning_eval(self, learnt, seed_facts, all_facts, answers_given, reference):
         # First, remove the seed_facts from the knowledge object
-        learnt = [ev for ev in learnt if ev.segment is not None]
+        for ev in list(learnt.keys()):
+            if ev.segment is None:
+                del learnt[ev]
         learnt_facts = set([ev.fact for ev in learnt])
         all_facts = set(all_facts)  # made Set to have Set methods
         # Strange Precision & recall measure about "facts"
