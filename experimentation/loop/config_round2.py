@@ -64,7 +64,7 @@ def iter_configs(input_file_path, dbname):
     base = {
         # Experiment configuration
         u'experiment': u'bootstrap',
-        u'config_version': u'1',
+        u'config_version': u'2',
         u'data_shuffle_seed': "a-ha",
         u'input_file_path': input_file_path,
         u'input_file_md5': hasher.hexdigest(),
