@@ -8,6 +8,7 @@ from unittest import TestCase, skip
 from featureforge.validate import BaseFeatureFixture, EQ, RAISES
 from featureforge.feature import make_feature
 import numpy
+from scipy.sparse import csr_matrix
 
 from future.builtins import str
 
@@ -490,8 +491,7 @@ class TestLemmaBetween(TestCase, FeatureEvidenceBaseCase):
     )
 
 
-class TestColumnFilter(TestCase):
-    #ColumnFilter
+class TestDenseColumnFilter(TestCase):
     def setUp(self):
         self.X = numpy.array([
                 [0, 1, 0, 0, 5],
@@ -522,7 +522,48 @@ class TestColumnFilter(TestCase):
         mask = numpy.array([True, True, True, False, True])
         self.assertTrue((Y == self.X[:, mask]).all())
         mapping = [cf.column_map(i) for i in range(Y.shape[1])]
-        self.assertEqual(mapping, [i for i in range(self.X.shape[1]) if mask[i]])
+        self.assertEqual(mapping, [i for i in range(self.M) if mask[i]])
+
+    def test_all(self):
+        cf = ColumnFilter(6)
+        with self.assertRaises(ValueError):
+            cf.fit(self.X)
+
+
+class TestSparseColumnFilter(TestCase):
+    def setUp(self):
+        self.X = csr_matrix([
+                [0, 1, 0, 0, 5],
+                [0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0],
+        ])
+        self.N, self.M = self.X.shape
+
+    def test_zero(self):
+        cf = ColumnFilter(0)
+        cf.fit(self.X)
+        Y = cf.transform(self.X)
+        # == is inefficient, use != and check number of nonzeros:
+        self.assertTrue((self.X != Y).nnz == 0)
+        # the column mapping is the identity:
+        mapping_ok = [cf.column_map(i) == i for i in range(Y.shape[1])]
+        self.assertTrue(all(mapping_ok))
+
+    def test_one(self):
+        cf = ColumnFilter(1)
+        cf.fit(self.X)
+        Y = cf.transform(self.X)
+        self.assertEqual(Y.shape, (self.N, self.M - 1))
+        mask = numpy.array([True, True, True, False, True])
+        # == is inefficient, use != and check number of nonzeros:
+        self.assertTrue((Y != self.X[:, mask]).nnz == 0)
+        mapping = [cf.column_map(i) for i in range(Y.shape[1])]
+        self.assertEqual(mapping, [i for i in range(self.M) if mask[i]])
 
     def test_all(self):
         cf = ColumnFilter(6)
