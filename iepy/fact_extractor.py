@@ -20,6 +20,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.semi_supervised.label_propagation import LabelSpreading
 from numpy import array
+from scipy.sparse import issparse
 
 from future.builtins import map, str
 
@@ -432,10 +433,13 @@ class ColumnFilter(object):
 
     def fit(self, X, y=None):
         freq = X.sum(axis=0)
+        if issparse(X):
+            # freq is a matrix with shape (1, 5), make it array with shape (5,)
+            freq = array(freq)[0]
         self.mask = freq >= self.m
-        if not any(self.mask):
+        if not self.mask.any():
             raise ValueError("ColumnFilter eliminates all columns!")
-        self.mapping = array(range(X.shape[1]))[self.mask]
+        self.mapping = array([i for i, b in enumerate(self.mask) if b])
         return self
 
     def transform(self, X):
