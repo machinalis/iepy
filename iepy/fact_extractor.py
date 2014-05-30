@@ -105,7 +105,8 @@ class FactExtractor(object):
                                  "{!r}".format(dimred))
 
         # Scaling
-        scaler = StandardScaler() if config["scaler"] else None
+        with_mean = not config["sparse"] # center data only if dense matrix
+        scaler = StandardScaler(with_mean=with_mean) if config["scaler"] else None
 
         # Classifier
         try:
