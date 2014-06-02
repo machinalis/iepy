@@ -323,6 +323,6 @@ if __name__ == '__main__':
 
     r = Runner()
     runner.main(r.run_iepy, r.extender,
-                # they seem to be taking 1.5 minutes, lets put 5 jic
-                booking_duration=60 * 5,
+                # they seem to be taking several minutes with the diagnosis relation
+                booking_duration=60 * 60,  # 1 hour
                 use_git_info_from_path=path)
