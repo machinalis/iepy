@@ -1,7 +1,7 @@
 """
 Experiment definition for fine tuning the whole IEPY looping
 """
-from copy import copy
+from copy import deepcopy
 import hashlib
 from operator import itemgetter
 import random
@@ -70,8 +70,8 @@ class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
                     # enough answering for this round
                     break
             self.force_process()  # blocking
-            progression.append((copy(self.knowledge),
-                                copy(self.evidence)))
+            progression.append((deepcopy(self.knowledge),
+                                deepcopy(self.evidence)))
         return answers_given, progression
 
 
@@ -80,6 +80,13 @@ class Runner(object):
         self.last_dbname = None
         self.last_path = None
         self.last_hash = None
+
+    def index_of_ev(self, evs, reference):
+        sref = sorted(reference.keys())
+        if not isinstance(evs, (list, set)):
+            return sref.index(evs)
+        else:
+            return [sref.index(e) for e in evs]
 
     def run_iepy(self, config):
         assert self.config == config
@@ -127,18 +134,29 @@ class Runner(object):
         return result
 
     def learning_eval(self, learnt, seed_facts, all_facts, answers_given, reference):
+        # First, remove the seed_facts from the knowledge object
+        for ev in list(learnt.keys()):
+            if ev.segment is None:
+                del learnt[ev]
         learnt_facts = set([ev.fact for ev in learnt])
-        all_facts_set = set(all_facts)  # made set to have Set methods
+        all_facts = set(all_facts)  # made Set to have Set methods
         # Strange Precision & recall measure about "facts"
         facts_precision, facts_recall, facts_f1 = precision_recall_f1(
-            len(all_facts_set.intersection(learnt_facts)),
+            len(all_facts.intersection(learnt_facts)),
             len(learnt_facts.difference(all_facts)),
-            len(all_facts_set.difference(learnt_facts))
+            len(all_facts.difference(learnt_facts))
         )
         human_learnt = [ev for ev, answers in answers_given if answers]
         human_learnt_facts = set([ev.fact for ev in human_learnt])
         human_learnt_facts = human_learnt_facts.union(seed_facts)
 
+        machine_learnt = set(learnt).difference(human_learnt)
+        machine_guess_ok = [ev for ev in machine_learnt if reference[ev] == 1.0]
+        machine_errors = list(machine_learnt.difference(machine_guess_ok))
+        if machine_learnt:
+            machine_accuracy = float(len(machine_guess_ok)) / len(machine_learnt)
+        else:
+            machine_accuracy = 0.0
         return {
             # some stats about facts only
             u'facts_precision': facts_precision,
@@ -150,6 +168,11 @@ class Runner(object):
             u'human_learnt_facts_size': len(human_learnt_facts),
             u'human_learnt_size': len(human_learnt),
             u'knownledge_size': len(learnt),
+            u'machine_learnt': len(machine_learnt),
+            u'machine_accuracy': machine_accuracy,
+            u'machine_guess_ok': str(machine_guess_ok),
+            u'machine_guess_bad': sorted(self.index_of_ev(machine_guess_ok, reference)),
+            u'machine_errors': sorted(self.index_of_ev(machine_errors, reference)),
 
             # and now the tipical info re the knowledge gained
             u'knownledge': self.knowledge_stats(learnt, reference),
@@ -297,5 +320,6 @@ if __name__ == '__main__':
 
     r = Runner()
     runner.main(r.run_iepy, r.extender,
-                booking_duration=60 * 2,  # 2 minutes
+                # they seem to be taking 1.5 minutes, lets put 5 jic
+                booking_duration=60 * 5,
                 use_git_info_from_path=path)
