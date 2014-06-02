@@ -122,11 +122,11 @@ class Runner(object):
 
         answers_given, progression = iepyloop.run_experiment()
         result[u'answers_given'] = [a for q, a in answers_given]
-        result[u'prediction_numbers'] = prediction_numbers = []
+        #result[u'prediction_numbers'] = prediction_numbers = []
         result[u'learning_numbers'] = learning_numbers = []
         answers_per_round = config[u'answers_per_round']
         for round_nr, (learnt, prediction) in enumerate(progression, 1):
-            prediction_numbers.append(self.prediction_eval(prediction, reference))
+            #prediction_numbers.append(self.prediction_eval(prediction, reference))
             answers_so_far = answers_given[:round_nr*answers_per_round]
             learning_numbers.append(
                 self.learning_eval(learnt, seed_facts, all_facts, answers_so_far, reference)
@@ -193,6 +193,9 @@ class Runner(object):
             else:
                 learnt_label = 0.0
             real_label = reference[evidence]
+            if real_label not in [1.0, 0.0]:
+                # it's undecided on the reference
+                continue
             if real_label == learnt_label:
                 correct.append(ev_idx)
                 if real_label == 1.0:
