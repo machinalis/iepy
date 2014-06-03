@@ -80,7 +80,8 @@ class BootstrappedIEPipeline(object):
                  extractor_config=None, prediction_config=None,
                  evidence_threshold=defaults.evidence_threshold,
                  fact_threshold=defaults.fact_threshold,
-                 sort_questions_by=defaults.questions_sorting):
+                 sort_questions_by=defaults.questions_sorting,
+                 drop_guesses_each_round=False):
         """
         Not blocking.
         """
@@ -94,6 +95,7 @@ class BootstrappedIEPipeline(object):
         self.extractor_config = deepcopy(extractor_config or defaults.extractor_config)
         self.prediction_config = deepcopy(prediction_config or defaults.prediction_config)
         self.sort_questions_by = sort_questions_by
+        self.drop_guesses_each_round = drop_guesses_each_round
 
         self.steps = [
                 self.generalize_knowledge,   # Step 1
@@ -323,20 +325,25 @@ class BootstrappedIEPipeline(object):
         facts is [((a, b, relation), confidence), ...]
         """
         logger.debug(u'running filter_facts')
+        if self.drop_guesses_each_round:
+            logger.info(u'Discarding previously auto-accepted evidence.')
+            self.knowledge = Knowledge(
+                (e, answer) for (e, answer) in self.answers.items() if answer
+            )
         n = len(self.knowledge)
         self.knowledge.update((e, s) for e, s in facts.items()
                               if s > self.fact_threshold)
-        logger.debug(u'  classifiers accepted {} new facts'.format(len(self.knowledge) - n))
+        logger.debug(u'  classifiers accepted {} new evidences'.format(len(self.knowledge) - n))
         # unlearn user negative answers:
         m = len(self.knowledge)
         for e, s in self.answers.items():
             if s == 0 and e in self.knowledge:
                 del self.knowledge[e]
-        logger.debug(u'  user answers removed {} facts'.format(m - len(self.knowledge)))
+        logger.debug(u'  user answers removed {} evidences'.format(m - len(self.knowledge)))
 
-        logger.info(u'Learnt {} new facts this iteration (adding to a total '
-                    u'of {} facts)'.format(len(self.knowledge) - n,
-                                           len(self.knowledge)))
+        logger.info(u'Learnt {} new evidences this iteration (adding to a total '
+                    u'of {} evidences)'.format(len(self.knowledge) - n,
+                                               len(self.knowledge)))
 
         return self.knowledge
 
