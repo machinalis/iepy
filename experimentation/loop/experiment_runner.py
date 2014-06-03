@@ -321,8 +321,16 @@ if __name__ == '__main__':
 
     path = os.path.abspath(os.path.dirname(__file__))
 
+    minutes = 60  # 1 hour
+    from sys import argv
+    for arg in list(argv):
+        if arg.startswith('--duration='):
+            minutes = float(arg.split('=')[1])
+            argv.remove(arg)
+            break
+
     r = Runner()
     runner.main(r.run_iepy, r.extender,
                 # they seem to be taking several minutes with the diagnosis relation
-                booking_duration=60 * 60,  # 1 hour
+                booking_duration=60 * minutes,
                 use_git_info_from_path=path)
