@@ -140,9 +140,9 @@ def iter_configs(input_file_path, dbname):
     patch = {
         u'answers_per_round': [3, 5],
         u'prediction_config': prediction_options_range,
-        u'fact_threshold_distance': [0.05, 0.1, 0.15],
-        u'evidence_threshold_distance': [0.05, 0.1, 0.15],
-        #u'questions_sorting': [u'score', u'certainty'],
+        u'fact_threshold_distance': [0.01, 0.05, 0.1],
+        u'evidence_threshold_distance': [0.05, 0.1],
+        u'questions_sorting': [u'score', u'certainty'],
         u'seed_facts': seed_options_range
     }
 
@@ -168,8 +168,9 @@ def iter_configs(input_file_path, dbname):
                 # http://scikit-learn.org/stable/modules/svm.html#scores-and-probabilities
                 config[u'classifier_config'][u'classifier_args'][u'probability'] = False
                 config[u'prediction_config'][u'method'] = u'decision_function'
-                # Also, given that decision_function doest run on sparse matrixes
-                config[u'classifier_config'][u'sparse'] = False
+                # Also, given that decision_function  with rbf doest run on sparse matrixes
+                if config[u'classifier_config'][u'classifier_args'].get('kernel', '') == 'rbf':
+                    config[u'classifier_config'][u'sparse'] = False
             yield config
 
 
