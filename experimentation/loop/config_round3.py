@@ -59,7 +59,7 @@ candidate_classifiers = [
     {
         u'classifier': u'svm',
         u'classifier_args': {
-            u'class_weight': {u'false': 1, u'true': 0.1},
+            u'class_weight': 'auto',
             u'gamma': 0.0001,
             u'kernel': u'rbf'},
         u'dimensionality_reduction': None,
@@ -70,11 +70,10 @@ candidate_classifiers = [
         u'scaler': True,
         u'sparse': True,
     },
-
     {
         u'classifier': u'svm',
         u'classifier_args': {
-            u'class_weight': {u'false': 1, u'true': 10},
+            u'class_weight': 'auto',
             u'degree': 4,
             u'gamma': 0.0,
             u'kernel': u'poly'},
@@ -82,7 +81,7 @@ candidate_classifiers = [
         u'dimensionality_reduction_dimension': None,
         u'features': features,
         u'feature_selection': u'kbest',
-        u'feature_selection_dimension': 500,
+        u'feature_selection_dimension': 100,
         u'scaler': True,
         u'sparse': True,
     }
@@ -187,6 +186,6 @@ if __name__ == '__main__':
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
-    check_configs(configs, estimated_minutes_per_config=1.5)
+    check_configs(configs, estimated_minutes_per_config=15)
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
