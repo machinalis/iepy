@@ -81,7 +81,7 @@ class BootstrappedIEPipeline(object):
                  evidence_threshold=defaults.evidence_threshold,
                  fact_threshold=defaults.fact_threshold,
                  sort_questions_by=defaults.questions_sorting,
-                 drop_guesses_each_round=False):
+                 drop_guesses_each_round=defaults.drop_guesses_each_round):
         """
         Not blocking.
         """
