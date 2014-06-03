@@ -3,6 +3,7 @@ Experiment definition for fine tuning the whole IEPY looping
 """
 from copy import deepcopy
 import hashlib
+import logging
 from operator import itemgetter
 import random
 import time
@@ -16,6 +17,8 @@ from iepy.pycompatibility import PY2
 from iepy.core import BootstrappedIEPipeline
 
 from average_precision import apk
+
+logger = logging.getLogger(__name__)
 
 
 def precision_recall_f1(true_pos, false_pos, false_neg):
@@ -55,6 +58,7 @@ class ReferenceProxyBootstrappedIEPipeline(BootstrappedIEPipeline):
         round_nr = 0
         while keep_looping and round_nr < self.rounds:
             round_nr += 1
+            logger.info('   -> Starting iepy loop round %s', round_nr)
             questions = list(self.questions_available())
             if not questions:
                 keep_looping = False
@@ -313,7 +317,6 @@ def _fix_config(config):
 
 if __name__ == '__main__':
     import os.path
-    import logging
 
     logging.basicConfig(
         level=logging.INFO,
