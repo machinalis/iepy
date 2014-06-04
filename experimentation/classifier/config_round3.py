@@ -134,20 +134,20 @@ if __name__ == '__main__':
     opts = docopt(__doc__)
 
     # First check that configurations look ok.
-    # Requiered to be included in some config
-    requiered = [{u"classifier": u"svm",
+    # Required to be included in some config
+    required = [{u"classifier": u"svm",
                   u"scaler": True},
                  #{u"classifier": u"adaboost",
                  # u"scaler": False}
                  ]
-    # Requiered to be excluded from all configs
+    # Required to be excluded from all configs
     excluded = [{u"feature_selection": u"dtree",
                  u"classifier": u"adaboost"},
                 {u"feature_selection": u"kbest",
                  u"classifier": u"adaboost"}]
     configs = list(iter_configs(opts[u"<testdata.csv>"], opts[u"<dbname>"]))
     always = "config_version data_shuffle_seed train_percentage".split()
-    check_configs(configs, requiered, excluded, always=always)
+    check_configs(configs, required, excluded, always=always)
 
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
