@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 u"""
-Experimental evaluation round 3.
+Experimental evaluation round 5.
 
 Usage:
-    config_round3.py <testdata.csv> <dbname>
+    config_round5.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
@@ -16,20 +16,27 @@ file will be added to the configurations.
 Description:
 Regarding the statistical classification stage of IEPY, the goal of this
 round of experiments is:
-    - Obtain configurations for SVM that yield high precision across many train
-      sizes.
+    - Obtain good configurations for SVM that can be efficiently used with big
+    datasets.
+    (the same goal as in the previous round, given the bad results for it)
 
 To do that, configurations will:
-    - Explore a variety of configurations for SVM:
-        - RBF kernel (4*5 = 20 configurations):
-            - 4 gamma values: [0.0, 1e-4, 1e-5, 1e-6].
-            - 5 class weights: [(10, 1), (1, 0.1), (1, 1), (0.1, 1), (1, 10)].
-            - No feature selection.
-        - Polynomial kernel  (4*5*4 = 80 configurations):
-            - Degree 4.
-            - 4 gamma values: [0.0, 1e-4, 1e-5, 1e-6].
-            - 5 class weights: [(10, 1), (1, 0.1), (1, 1), (0.1, 1), (1, 10)].
-            - KBest feature selection with 4 dimensions: [500, 1000, 2000, 4000].
+    - Keep working with sparse matrices (sparse=True).
+    - Try a new reduced 7 feature set:
+        - bag_of_words_in_between
+        - bag_of_pos_in_between
+        - bag_of_wordpos_in_between
+        - entity_order
+        - entity_distance
+        - other_entities_in_between
+        - verbs_count_in_between
+    - Explore a variety of configurations for SVM: The same as in rounds 3 and 4,
+    but with different feature selection. Specifically:
+        - 2 kernels: RBF and polynomial of degree 4.
+        - 4 gamma values: [0.0, 1e-4, 1e-5, 1e-6].
+        - 5 class weights: [(10, 1), (1, 0.1), (1, 1), (0.1, 1), (1, 10)].
+        - 4 values for frequency feature selection: [1 (no selection), 2, 5 10].
+    (2*4*5*4 = 160 configurations in total)
 """
 
 import os
@@ -44,7 +51,7 @@ def iter_configs(input_file_path, dbname):
     hasher = hashlib.md5(open(input_file_path, "rb").read())
     base = {
         # Experiment configuration
-        u"config_version": u"1",
+        u"config_version": u"5",
         u"data_shuffle_seed": None,
         u"train_percentage": None,
         u"input_file_path": input_file_path,
@@ -56,41 +63,26 @@ def iter_configs(input_file_path, dbname):
         u"classifier_args": dict(),
         u"dimensionality_reduction": None,
         u"dimensionality_reduction_dimension": None,
-        u"feature_selection": None,
+        u"feature_selection": 'frequency_filter',
         u"feature_selection_dimension": None,
         u"scaler": True,
-        u"sparse": False,
+        u"sparse": True,
         u"features": make_feature_list(u"""
-                bag_of_words
-                bag_of_pos
-                bag_of_word_bigrams
-                bag_of_wordpos
-                bag_of_wordpos_bigrams
                 bag_of_words_in_between
                 bag_of_pos_in_between
-                bag_of_word_bigrams_in_between
                 bag_of_wordpos_in_between
-                bag_of_wordpos_bigrams_in_between
                 entity_order
                 entity_distance
                 other_entities_in_between
-                in_same_sentence
                 verbs_count_in_between
-                verbs_count
-                total_number_of_entities
-                symbols_in_between
-                number_of_tokens
-                BagOfVerbStems True
-                BagOfVerbStems False
-                BagOfVerbLemmas True
-                BagOfVerbLemmas False
         """)
     }
 
     # RBF
     ######
     patch = {u"train_percentage": [0.07 * x for x in range(1, 11)],
-             u"data_shuffle_seed": [u"sussieq" + str(i) for i in range(20)]}
+             u"data_shuffle_seed": [u"sussieq" + str(i) for i in range(20)],
+             u"feature_selection_dimension": [1, 2, 5, 10]}
     argpatch = {
         u"kernel": [u"rbf"],
         u"gamma": [0.0, 1e-4, 1e-5, 1e-6],
@@ -110,10 +102,9 @@ def iter_configs(input_file_path, dbname):
     # POLY
     #######
 
-    base[u"feature_selection"] = "kbest"
     patch = {u"train_percentage": [0.07 * x for x in range(1, 11)],
              u"data_shuffle_seed": [u"sussieq" + str(i) for i in range(20)],
-             u"feature_selection_dimension": [500, 1000, 2000, 4000]}
+             u"feature_selection_dimension": [1, 2, 5, 10]}
 
     argpatch = {
         u"kernel": [u"poly"], u"degree": [4],
@@ -144,16 +135,9 @@ if __name__ == '__main__':
 
     # First check that configurations look ok.
     # Required to be included in some config
-    required = [{u"classifier": u"svm",
-                  u"scaler": True},
-                 #{u"classifier": u"adaboost",
-                 # u"scaler": False}
-                 ]
+    required = []
     # Required to be excluded from all configs
-    excluded = [{u"feature_selection": u"dtree",
-                 u"classifier": u"adaboost"},
-                {u"feature_selection": u"kbest",
-                 u"classifier": u"adaboost"}]
+    excluded = [{u'sparse': False}]
     configs = list(iter_configs(opts[u"<testdata.csv>"], opts[u"<dbname>"]))
     always = "config_version data_shuffle_seed train_percentage".split()
     check_configs(configs, required, excluded, always=always)
