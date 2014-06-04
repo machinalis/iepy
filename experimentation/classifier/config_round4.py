@@ -20,8 +20,8 @@ round of experiments is:
     datasets.
 
 To do that, configurations will:
-    - Repeat the experiments done in round 3 but with sparse=True to support
-    potentially big datasets.
+    - Repeat the experiments done in round 3 but with sparse matrices
+    (sparse=True) to support potentially big datasets.
 """
 
 import os
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     opts = docopt(__doc__)
 
     # First check that configurations look ok.
+    # Required to be included in some config
     required = []
     # Required to be excluded from all configs
     excluded = [{u'sparse': False}]
