@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 u"""
-Bootstrap Experimental evaluation round 1.
+Bootstrap Experimental evaluation round 3.
 
 Usage:
-    config_round1.py <testdata.csv> <dbname>
+    config_round3.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
