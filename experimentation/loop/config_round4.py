@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 u"""
-Bootstrap Experimental evaluation round 3.
+Bootstrap Experimental evaluation round 4.
 
 Usage:
-    config_round3.py <testdata.csv> <dbname>
+    config_round4.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
@@ -13,7 +13,6 @@ to evaluate the different configurations. The absolute path and the md5 of the
 file will be added to the configurations.
 
 """
-from copy import deepcopy
 import os
 import hashlib
 
@@ -94,7 +93,7 @@ def iter_configs(input_file_path, dbname):
     base = {
         # Experiment configuration
         u'experiment': u'bootstrap',
-        u'config_version': u'3',
+        u'config_version': u'4',
         u'data_shuffle_seed': "a-ha",
         u'input_file_path': input_file_path,
         u'input_file_md5': hasher.hexdigest(),
@@ -114,6 +113,7 @@ def iter_configs(input_file_path, dbname):
         u'fact_threshold_distance': 0.01,
         u'evidence_threshold_distance': 0.01,
         u'questions_sorting': u'score',
+        u'drop_guesses_each_round': True,
         u'seed_facts': {
             u'number_to_use': 5,
             u'shuffle': u"it's a trap"
@@ -140,9 +140,9 @@ def iter_configs(input_file_path, dbname):
     patch = {
         u'answers_per_round': [3, 5],
         u'prediction_config': prediction_options_range,
-        u'fact_threshold_distance': [0.05, 0.1, 0.15],
-        u'evidence_threshold_distance': [0.05, 0.1, 0.15],
-        #u'questions_sorting': [u'score', u'certainty'],
+        u'fact_threshold_distance': [0.01, 0.05, 0.1],
+        u'evidence_threshold_distance': [0.05, 0.1],
+        u'questions_sorting': [u'score', u'certainty'],
         u'seed_facts': seed_options_range
     }
 
@@ -164,14 +164,13 @@ def iter_configs(input_file_path, dbname):
             config[u'evidence_threshold'] = max_score - config.pop(u'evidence_threshold_distance')
             if (config[u'classifier_config'][u'classifier'] == u'svm' and
                 config[u'prediction_config'][u'method'] == u'predict_proba'):
-                # we'll split this config in 2 options: actual predict_proba,
-                # and decision_function
-                config_copied = deepcopy(config)
-                config_copied[u'classifier_config'][u'classifier_args'][u'probability'] = True
-                yield config_copied
+                # For SVMs, predict_proba will be replaced with decision_function
                 # http://scikit-learn.org/stable/modules/svm.html#scores-and-probabilities
                 config[u'classifier_config'][u'classifier_args'][u'probability'] = False
                 config[u'prediction_config'][u'method'] = u'decision_function'
+                # Also, given that decision_function  with rbf doest run on sparse matrixes
+                if config[u'classifier_config'][u'classifier_args'].get('kernel', '') == 'rbf':
+                    config[u'classifier_config'][u'sparse'] = False
             yield config
 
 
@@ -186,6 +185,6 @@ if __name__ == '__main__':
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
-    check_configs(configs, estimated_minutes_per_config=15)
+    check_configs(configs, estimated_minutes_per_config=18)
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))

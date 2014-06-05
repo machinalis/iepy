@@ -121,16 +121,15 @@ class Runner(object):
             prediction_config=config[u'prediction_config'],
             evidence_threshold=config[u'evidence_threshold'],
             fact_threshold=config[u'fact_threshold'],
-            sort_questions_by=config[u'questions_sorting']
+            sort_questions_by=config[u'questions_sorting'],
+            drop_guesses_each_round=config[u'drop_guesses_each_round']
         )
 
         answers_given, progression = iepyloop.run_experiment()
         result[u'answers_given'] = [a for q, a in answers_given]
-        #result[u'prediction_numbers'] = prediction_numbers = []
         result[u'learning_numbers'] = learning_numbers = []
         answers_per_round = config[u'answers_per_round']
         for round_nr, (learnt, prediction) in enumerate(progression, 1):
-            #prediction_numbers.append(self.prediction_eval(prediction, reference))
             answers_so_far = answers_given[:round_nr*answers_per_round]
             learning_numbers.append(
                 self.learning_eval(learnt, seed_facts, all_facts, answers_so_far, reference)
