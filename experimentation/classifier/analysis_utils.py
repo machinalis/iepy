@@ -84,7 +84,7 @@ def average_stats(xs):
         if len(ys) < 10:
             continue
         x = copy.deepcopy(ys[0])
-        for name in ["f1", "precision", "recall", "accuracy"]:
+        for name in ["f1", "precision", "recall", "accuracy", "true_positives"]:
             values = [y["results"][name] for y in ys]
             avg = sum(values) / len(values)
             var = sum((y - avg) ** 2 for y in values) / (len(values) - 1)
@@ -112,10 +112,9 @@ def rkey(r):
 #            rday(r))
 
 
-# francolq's:
-
-# print the results for a specific strategy, ordered by train_percentage:
 def pprint_strategy_result(l):
+    """Print the results for a specific strategy, ordered by train_percentage.
+    """
     print '%\ttp\tP\tR\tF1'
     for p in sorted(l, key=lambda p: p[u'train_percentage']):
-        print '{}\t{}\t{:.2}\t{:.2}\t{:.2}'.format(p[u'train_percentage'], p[u'results'][u'true_positives'], p[u'results'][u'precision_avg'], p[u'results'][u'recall_avg'], p[u'results'][u'f1_avg'])
+        print '{}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}'.format(p[u'train_percentage'], p[u'results'][u'true_positives_avg'], p[u'results'][u'precision_avg'], p[u'results'][u'recall_avg'], p[u'results'][u'f1_avg'])
