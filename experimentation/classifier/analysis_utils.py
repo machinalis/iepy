@@ -1,12 +1,16 @@
-##
-## helper functions
-##
+# -*- coding: utf-8 -*-
+"""
+Analysis utils: Helper functions for the result analysis ipython notebooks.
+
+"""
 
 from collections import defaultdict
 import pprint
 import copy
 import json
 import time
+import pylab
+import numpy
 
 from featureforge.experimentation.stats_manager import StatsManager
 from featureforge.experimentation.utils import DictNormalizer
@@ -32,12 +36,12 @@ def pprint_solution(d, delfields=None):
         delfields = []
     else:
         delfields = delfields.split()
-    delfields += "results features database_hash data_shuffle_seed config_version input_file_md5 marshalled_key git_info".split()
-    # added by francolq:
-    delfields += "experiment_status train_percentage".split()
+    delfields.extend("results features database_hash data_shuffle_seed config_version input_file_md5 marshalled_key git_info".split())
+    delfields.extend("_id booked_at experiment_status train_percentage".split())
     d = copy.deepcopy(d)
     for name in delfields:
-        del d[name]
+        if name in d:
+            del d[name]
     pprint.pprint(d)
 
 
@@ -49,6 +53,11 @@ def group_by_strategy(xs):
         d = copy.deepcopy(point)
         for name in delnames:
             del d[name]
+        # "booked_at" and "_id" unhashable by the normalizer:
+        if "booked_at" in d:
+            del d["booked_at"]
+        if "_id" in d:
+            del d["_id"]
         d = normalizer(d)
         key = json.dumps(d, sort_keys=True)
         groups[key].append(point)
@@ -62,6 +71,11 @@ def average_stats(xs):
         del d["results"]
         del d["marshalled_key"]
         del d["data_shuffle_seed"]
+        # "booked_at" and "_id" unhashable by the normalizer:
+        if "booked_at" in d:
+            del d["booked_at"]
+        if "_id" in d:
+            del d["_id"]
         d = normalizer(d)
         key = json.dumps(d, sort_keys=True)
         groups[key].append(point)
@@ -70,7 +84,7 @@ def average_stats(xs):
         if len(ys) < 10:
             continue
         x = copy.deepcopy(ys[0])
-        for name in ["f1", "precision", "recall", "accuracy"]:
+        for name in ["f1", "precision", "recall", "accuracy", "true_positives"]:
             values = [y["results"][name] for y in ys]
             avg = sum(values) / len(values)
             var = sum((y - avg) ** 2 for y in values) / (len(values) - 1)
@@ -98,10 +112,9 @@ def rkey(r):
 #            rday(r))
 
 
-# francolq's:
-
-# print the results for a specific strategy, ordered by train_percentage:
 def pprint_strategy_result(l):
+    """Print the results for a specific strategy, ordered by train_percentage.
+    """
     print '%\ttp\tP\tR\tF1'
     for p in sorted(l, key=lambda p: p[u'train_percentage']):
-        print '{}\t{}\t{:.2}\t{:.2}\t{:.2}'.format(p[u'train_percentage'], p[u'results'][u'true_positives'], p[u'results'][u'precision_avg'], p[u'results'][u'recall_avg'], p[u'results'][u'f1_avg'])
+        print '{}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}'.format(p[u'train_percentage'], p[u'results'][u'true_positives_avg'], p[u'results'][u'precision_avg'], p[u'results'][u'recall_avg'], p[u'results'][u'f1_avg'])
