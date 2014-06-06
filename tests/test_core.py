@@ -119,3 +119,46 @@ class TestBootstrappedIEPipelineRelations(unittest.TestCase):
                          relation=u'x')
         self.assertRaises(ValueError, BootstrappedIEPipeline,
                           mock.MagicMock(), [f1, f2])
+
+
+class TestBootstrapAcceptingKnowledge(unittest.TestCase):
+    """Step 6 of iepy takes the output of the classifier, and uses it for
+    increasing the known things"""
+
+    def setUp(self):
+        self.threshold = 0.5
+        self.b = BootstrappedIEPipeline(mock.MagicMock(), [],
+                                        fact_threshold=self.threshold)
+        assert len(self.b.knowledge) == 0
+
+    def test_evidences_with_high_prediction_score_are_accepted(self):
+        ev1 = EvidenceFactory()
+        ev2 = EvidenceFactory()
+        ev3 = EvidenceFactory()
+        classifier_out = {ev1: 1, ev2: 0.5, ev3: 0.1}
+        self.b.filter_facts(classifier_out)
+        self.assertIn(ev1, self.b.knowledge)
+        self.assertNotIn(ev2, self.b.knowledge)
+        self.assertNotIn(ev3, self.b.knowledge)
+
+    def test_no_accept_evidence_well_ranked_if_human_previously_rejected(self):
+        ev1 = EvidenceFactory()
+        classifier_out = {ev1: 1}
+        self.b.answers[ev1] = 0
+        self.b.filter_facts(classifier_out)
+        self.assertNotIn(ev1, self.b.knowledge)
+
+    def test_dropping_mode_discards_previous_not_human_knowledge(self):
+        self.b.drop_guesses_each_round = True
+        ev1 = EvidenceFactory()
+        ev2 = EvidenceFactory()
+        self.b.knowledge[ev1] = 1.0
+        self.b.knowledge[ev2] = 1.0
+        self.b.answers[ev1] = 1.0
+        assert ev2 not in self.b.answers
+        # Nothing new to add
+        self.b.filter_facts({})
+        # ev1 shall be preserved cause was human provided
+        self.assertIn(ev1, self.b.knowledge)
+        # ev2 not
+        self.assertNotIn(ev2, self.b.knowledge)
