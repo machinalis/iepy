@@ -359,18 +359,3 @@ class BootstrappedIEPipeline(object):
             logger.info(u'Recall: {}'.format(result['recall']))
 
         return knowledge
-
-    ###
-    ### Aux methods
-    ###
-    def _confidence(self, evidence):
-        """
-        Returns a probability estimation of segment being an manifestation of
-        fact.
-        fact is (a, b, relation).
-        """
-        if evidence in self.knowledge:
-            return self.knowledge[evidence]
-
-        # FIXME: to be implemented on ticket IEPY-47
-        return 0.5
