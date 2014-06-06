@@ -11,7 +11,16 @@ round of experiments is:
       sizes.
 
 To do that, configurations will:
-    - Explore a variety of configurations for SVM.
+    - Explore a variety of configurations for SVM:
+        - RBF kernel (4*5 = 20 configurations):
+            - 4 gamma values: [0.0, 1e-4, 1e-5, 1e-6].
+            - 5 class weights: [(10, 1), (1, 0.1), (1, 1), (0.1, 1), (1, 10)].
+            - No feature selection.
+        - Polynomial kernel  (4*5*4 = 80 configurations):
+            - Degree 4.
+            - 4 gamma values: [0.0, 1e-4, 1e-5, 1e-6].
+            - 5 class weights: [(10, 1), (1, 0.1), (1, 1), (0.1, 1), (1, 10)].
+            - KBest feature selection with 4 dimensions: [500, 1000, 2000, 4000].
 
 Results
 -------
