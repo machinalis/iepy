@@ -9,6 +9,8 @@ import pprint
 import copy
 import json
 import time
+import pylab
+import numpy
 
 from featureforge.experimentation.stats_manager import StatsManager
 from featureforge.experimentation.utils import DictNormalizer
