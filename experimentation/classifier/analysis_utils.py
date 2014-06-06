@@ -1,6 +1,8 @@
-##
-## helper functions
-##
+# -*- coding: utf-8 -*-
+"""
+Analysis utils: Helper functions for the result analysis ipython notebooks.
+
+"""
 
 from collections import defaultdict
 import pprint
@@ -32,12 +34,12 @@ def pprint_solution(d, delfields=None):
         delfields = []
     else:
         delfields = delfields.split()
-    delfields += "results features database_hash data_shuffle_seed config_version input_file_md5 marshalled_key git_info".split()
-    # added by francolq:
-    delfields += "experiment_status train_percentage".split()
+    delfields.extend("results features database_hash data_shuffle_seed config_version input_file_md5 marshalled_key git_info".split())
+    delfields.extend("_id booked_at experiment_status train_percentage".split())
     d = copy.deepcopy(d)
     for name in delfields:
-        del d[name]
+        if name in d:
+            del d[name]
     pprint.pprint(d)
 
 
@@ -49,6 +51,11 @@ def group_by_strategy(xs):
         d = copy.deepcopy(point)
         for name in delnames:
             del d[name]
+        # "booked_at" and "_id" unhashable by the normalizer:
+        if "booked_at" in d:
+            del d["booked_at"]
+        if "_id" in d:
+            del d["_id"]
         d = normalizer(d)
         key = json.dumps(d, sort_keys=True)
         groups[key].append(point)
@@ -62,6 +69,11 @@ def average_stats(xs):
         del d["results"]
         del d["marshalled_key"]
         del d["data_shuffle_seed"]
+        # "booked_at" and "_id" unhashable by the normalizer:
+        if "booked_at" in d:
+            del d["booked_at"]
+        if "_id" in d:
+            del d["_id"]
         d = normalizer(d)
         key = json.dumps(d, sort_keys=True)
         groups[key].append(point)
