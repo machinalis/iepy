@@ -50,7 +50,7 @@ import itertools
 import logging
 
 from iepy import db
-from iepy.fact_extractor import FactExtractorFactory
+from iepy.fact_extractor import FactExtractorFactory, MoreSamplesNeededException
 from iepy.utils import evaluate
 
 from iepy import defaults
@@ -263,7 +263,12 @@ class BootstrappedIEPipeline(object):
             assert len(yesno) == 2, "Evidence is not binary!"
             logger.info(u'Training "{}" relation with {} '
                         u'evidences'.format(rel, len(k)))
-            classifiers[rel] = self._build_extractor(rel, Knowledge(k))
+            try:
+                classifiers[rel] = self._build_extractor(rel, Knowledge(k))
+            except MoreSamplesNeededException as err:
+                logger.warning(u'Failed training a fact extractor'
+                               u' for the "{}" relation: {}'.format(rel, err))
+                continue
         return classifiers
 
     def _build_extractor(self, relation, data):

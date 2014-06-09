@@ -34,7 +34,8 @@ from iepy.fact_extractor import (FactExtractor,
                                  symbols_in_between,
                                  BagOfVerbStems,
                                  BagOfVerbLemmas,
-                                 LemmaBetween
+                                 LemmaBetween,
+                                 MoreSamplesNeededException
                                  )
 from iepy.fact_extractor import ColumnFilter
 from iepy.utils import make_feature_list
@@ -526,7 +527,7 @@ class TestDenseColumnFilter(TestCase):
 
     def test_all(self):
         cf = ColumnFilter(6)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(MoreSamplesNeededException):
             cf.fit(self.X)
 
 
@@ -567,5 +568,5 @@ class TestSparseColumnFilter(TestCase):
 
     def test_all(self):
         cf = ColumnFilter(6)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(MoreSamplesNeededException):
             cf.fit(self.X)
