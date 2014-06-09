@@ -97,6 +97,12 @@ class Runner(object):
         assert "input_file_path" not in config
         assert "database_name" not in config
 
+        classif_cfg = config['classifier_config']
+        if u"class_weight" in classif_cfg[u"classifier_args"]:
+            d = classif_cfg[u"classifier_args"][u"class_weight"]
+            assert "true" in d and "false" in d and len(d) == 2
+            classif_cfg[u"classifier_args"][u"class_weight"] = {True: d["true"],
+                                                                False: d["false"]}
         config = _fix_config(config)
 
         # Prepare data
@@ -304,6 +310,8 @@ def _fix_config(config):
     if PY2:
         for d in [config]:
             for key, value in list(d.items()):
+                if isinstance(key, (bool, int)):
+                    continue
                 del d[key]
                 key = str(key)
                 if isinstance(value, unicode):
