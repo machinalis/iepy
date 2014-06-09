@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 u"""
-Bootstrap Experimental evaluation round 5.
+Bootstrap Experimental evaluation round 6.
 
 Usage:
-    config_round5.py <testdata.csv> <dbname>
+    config_round6.py <testdata.csv> <dbname>
 
 Options:
  -h --help              Show this screen.
@@ -34,7 +34,7 @@ features = make_feature_list(u"""
 
 # Proposing as classifiers the champions of the
 # experimentation/classifier/config_round5.py
-# Note: they will suffer small modifications (on class_weight)
+# Note: they will suffer small modifications (on feature_selection_dimension)
 candidate_classifiers = [
     {
         u'classifier': u'svm',
@@ -74,7 +74,7 @@ loop_champions_round_4 = [
         "answers_per_round": 3,
         "classifier_config": {},
         "data_shuffle_seed": "a-ha",
-        "drop_guesses_each_round": False,
+        "drop_guesses_each_round": True,
         "evidence_threshold": 0.85,
         "experiment": "bootstrap",
         "fact_threshold": 0.85,
@@ -213,6 +213,6 @@ if __name__ == '__main__':
 
     opts = docopt(__doc__)
     configs = list(iter_configs(opts[u'<testdata.csv>'], opts[u'<dbname>']))
-    check_configs(configs, estimated_minutes_per_config=18)
+    check_configs(configs, estimated_minutes_per_config=8)
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(u',', u': '))
