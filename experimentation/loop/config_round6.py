@@ -196,11 +196,11 @@ def iter_configs(input_file_path, dbname):
             u'seed_facts': seed_options_range
         }
         for config in apply_dict_combinations(champ, patch):
+            if config['prediction_config']['method'] == u'predict_proba':
+                config['classifier_config']['classifier_args'][u'probability'] = True
             yield config
             config = deepcopy(config)
             config['classifier_config']['feature_selection_dimension'] = 10
-            if config['prediction_config']['method'] == u'predict_proba':
-                config['classifier_config']['classifier_args'][u'probability'] = True
             yield config
 
 
