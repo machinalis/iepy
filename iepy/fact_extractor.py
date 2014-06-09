@@ -25,6 +25,10 @@ from scipy.sparse import issparse
 from future.builtins import map, str
 
 
+class MoreSamplesNeededException(Exception):
+    pass
+
+
 def adawrapper(**kwargs):
     base = {}
     estimator = dict(kwargs)
@@ -105,7 +109,7 @@ class FactExtractor(object):
                                  "{!r}".format(dimred))
 
         # Scaling
-        with_mean = not config["sparse"] # center data only if dense matrix
+        with_mean = not config["sparse"]  # center data only if dense matrix
         scaler = StandardScaler(with_mean=with_mean) if config["scaler"] else None
 
         # Classifier
@@ -439,7 +443,7 @@ class ColumnFilter(object):
             freq = array(freq)[0]
         self.mask = freq >= self.m
         if not self.mask.any():
-            raise ValueError("ColumnFilter eliminates all columns!")
+            raise MoreSamplesNeededException("ColumnFilter eliminates all columns!")
         self.mapping = array([i for i, b in enumerate(self.mask) if b])
         return self
 
