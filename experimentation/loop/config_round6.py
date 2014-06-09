@@ -196,8 +196,12 @@ def iter_configs(input_file_path, dbname):
             u'seed_facts': seed_options_range
         }
         for config in apply_dict_combinations(champ, patch):
+            config = deepcopy(config)
             if config['prediction_config']['method'] == u'predict_proba':
                 config['classifier_config']['classifier_args'][u'probability'] = True
+            if config['prediction_config']['method'] == u'decision_function':
+                config['classifier_config']['sparse'] = False  # in some cases is failing
+
             yield config
             config = deepcopy(config)
             config['classifier_config']['feature_selection_dimension'] = 10
