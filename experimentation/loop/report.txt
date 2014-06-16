@@ -8,25 +8,31 @@ built was automatically done, and how good it's.
 
 -------- Round 6 ------------
 Description:
-    Hand created configurations.
-    Goal: to see the 4 champions of round 4 a bit further, with the 10% of the questions answered.
+
+# Note: they will suffer small modifications (on )
+
+    Using the best classifiers of experimentation/classifier/config_round5.py with some
+    exploration of the feature_selection_dimension value, mixed up with the best IEPY
+    configurations (the same used on Round 5), with also focus on exploring:
+        - still different prediction methods
+        - several seed facts
+    Goal: see BEST IEPY possible with best classifiers for the known relation.
+
+Classifiers:
 
 Conclusions:
-    - 2 of the 8 runs produced very decent behavior.
-    - Surprisely, those 2 nice IEPY configurations worked very badly only changing the seed facts
+    - There are pretty decent experiments, but surprisingly changing seed facts
+    is causing lot of changes. We need to find ways of stabilize that.
 
 Results Exploration:
-    experimentation/loop/Analisis_round5.ipynb
+    experimentation/loop/Analisis_round6.ipynb
 
 Results Data:
-    DB "db_loop_experiments_results" on "goedel", config_version 5
+    DB "db_loop_experiments_results" on "goedel", config_version 6
 
 Relation:
     DIAGNOSED
         1335 Possible evidences on the reference, 208 of them positives (15.58%)
-
-Consisted on 8 finished experiments, varying:
-    the 4 champions of round 4, each one 2 times with different seed facts
 
 
 -------- Round 5 ------------
