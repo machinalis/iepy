@@ -6,6 +6,35 @@ built was automatically done, and how good it's.
 
 
 
+-------- Round 6 ------------
+Description:
+
+# Note: they will suffer small modifications (on )
+
+    Using the best classifiers of experimentation/classifier/config_round5.py with some
+    exploration of the feature_selection_dimension value, mixed up with the best IEPY
+    configurations (the same used on Round 5), with also focus on exploring:
+        - still different prediction methods
+        - several seed facts
+    Goal: see BEST IEPY possible with best classifiers for the known relation.
+
+Classifiers:
+
+Conclusions:
+    - There are pretty decent experiments, but surprisingly changing seed facts
+    is causing lot of changes. We need to find ways of stabilize that.
+
+Results Exploration:
+    experimentation/loop/Analisis_round6.ipynb
+
+Results Data:
+    DB "db_loop_experiments_results" on "goedel", config_version 6
+
+Relation:
+    DIAGNOSED
+        1335 Possible evidences on the reference, 208 of them positives (15.58%)
+
+
 -------- Round 5 ------------
 Description:
     Hand created configurations.
@@ -19,7 +48,7 @@ Results Exploration:
     experimentation/loop/Analisis_round5.ipynb
 
 Results Data:
-    DB "db_loop_experiments_results" on "goedel", dataset 8
+    DB "db_loop_experiments_results" on "goedel", config_version 5
 
 Relation:
     DIAGNOSED
@@ -54,7 +83,7 @@ Results Exploration:
 
 Results Data:
     Analysis made with rounds 3 and 4 together
-    DB "db_loop_experiments_results" on "goedel", datasets 3, 5 and 6
+    DB "db_loop_experiments_results" on "goedel", config_version 3 and 4
 
 Classifiers:
     3 classifiers:
@@ -85,9 +114,6 @@ Conclusions:
     fixes were planned and attempted on round 4.
     Basically, the 2 new classifiers were not working.
 
-
-Results Data:
-    DB "db_loop_experiments_results" on "goedel", dataset 3
 
 Classifiers:
     3 classifiers:
@@ -130,7 +156,7 @@ Results Exploration:
     experimentation/loop/Analisis_round2.ipynb
 
 Results Data:
-    DB "db_loop_experiments_results" on "goedel", dataset 2
+    DB "db_loop_experiments_results" on "goedel", config_version 2
 
 Classifiers:
     Same than round 1
@@ -159,7 +185,7 @@ Conclusions:
         - human ends up answering entire corpus
 
 Results Data:
-    DB "db_loop_experiments_results" on "goedel", dataset 0
+    DB "db_loop_experiments_results" on "goedel", config_version 1
 
 Classifiers:
     Proposed as unique candidate the champion of the

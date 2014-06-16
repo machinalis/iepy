@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from itertools import product
-import os
 import datetime
 import logging
 
