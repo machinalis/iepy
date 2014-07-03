@@ -15,10 +15,10 @@ from docopt import docopt
 
 from iepy.db import connect, DocumentManager
 
-logger = logging.getLogger(__name__)
-
 
 if __name__ == '__main__':
+    logger = logging.getLogger('createdb')
+    logger.setLevel(logging.DEBUG)
     opts = docopt(__doc__, version=0.1)
     dbname = opts['<dbname>']
     connect(dbname)
@@ -35,5 +35,5 @@ if __name__ == '__main__':
                 'raw_data': 'Raw content of document {0}.'.format(i),
             })
 
-    logger.info('Database %s created with %i documents', dbname, )
+    logger.info('Database %s created with %i documents', dbname, 10)
 

@@ -9,6 +9,8 @@ Options:
   -h --help             Show this screen
   --version             Version number
 """
+import logging
+
 from docopt import docopt
 
 from iepy.db import connect, DocumentManager
@@ -34,10 +36,8 @@ CUSTOM_ENTITIES_FILES = []
 
 
 if __name__ == '__main__':
-    import logging
-    logger = logging.getLogger('iepy')
+    logger = logging.getLogger('preprocess')
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(logging.StreamHandler())
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
