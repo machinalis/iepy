@@ -36,4 +36,3 @@ if __name__ == '__main__':
             })
 
     logger.info('Database %s created with %i documents', dbname, 10)
-

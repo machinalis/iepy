@@ -20,8 +20,6 @@ import xmltodict
 
 from iepy.db import connect, DocumentManager
 
-logger = logging.getLogger(__name__)
-
 
 def build_pages_dict(dump_path):
     SerieData = xmltodict.parse(GzipFile(dump_path))
@@ -44,6 +42,8 @@ def get_episode(pages_dict, number_of_seasons, all_tag, season_tag_pattern):
     return per_season
 
 if __name__ == '__main__':
+    logger = logging.getLogger('wikia_to_iepy')
+    logger.setLevel(logging.DEBUG)
     opts = docopt(__doc__, version=0.1)
     connect(opts['<dbname>'])
     docs = DocumentManager()
