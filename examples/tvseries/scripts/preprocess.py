@@ -9,6 +9,7 @@ Options:
   -h --help             Show this screen
   --version             Version number
 """
+import logging
 import re
 
 from docopt import docopt
@@ -43,10 +44,8 @@ CUSTOM_ENTITIES_FILES = [u'examples/tvseries/notable_people.txt',
 
 
 if __name__ == '__main__':
-    import logging
-    logger = logging.getLogger(u'iepy')
+    logger = logging.getLogger(u'preprocess')
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(logging.StreamHandler())
     opts = docopt(__doc__, version=0.1)
     connect(opts[u'<dbname>'])
     docs = DocumentManager()
