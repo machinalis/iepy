@@ -47,9 +47,9 @@ if __name__ == '__main__':
         extract_plain_text, # optional custom step
         TokenizeSentencerRunner(),
         StanfordTaggerRunner(),
-        CombinedNERRunner(
+        CombinedNERRunner([
             LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
-            StanfordNERRunner()),
+            StanfordNERRunner()]),
         SyntacticSegmenterRunner(),
     ], docs
     )
