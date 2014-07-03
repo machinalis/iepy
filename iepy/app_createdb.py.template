@@ -15,10 +15,10 @@ from docopt import docopt
 
 from iepy.db import connect, DocumentManager
 
-logger = logging.getLogger(__name__)
-
 
 if __name__ == '__main__':
+    logger = logging.getLogger('createdb')
+    logger.setLevel(logging.DEBUG)
     opts = docopt(__doc__, version=0.1)
     dbname = opts['<dbname>']
     connect(dbname)
