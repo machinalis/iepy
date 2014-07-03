@@ -35,5 +35,5 @@ if __name__ == '__main__':
                 'raw_data': 'Raw content of document {0}.'.format(i),
             })
 
-    logger.info('Database %s created with %i documents', dbname, )
+    logger.info('Database %s created with %i documents', dbname, 10)
 
