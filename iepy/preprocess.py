@@ -25,7 +25,7 @@ class PreProcessPipeline(object):
     def process_step_in_batch(self, runner):
         """Tries to apply the required step to all documents lacking it"""
         logger.info('Starting preprocessing step %s', runner)
-        if hasattr(runner, 'step'):
+        if hasattr(runner, 'step') and not runner.override:
             docs = self.documents.get_documents_lacking_preprocess(runner.step)
         else:
             docs = self.documents  # everything
