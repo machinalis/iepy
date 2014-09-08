@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from iepy.literal_ner import LiteralNER, LiteralNERRunner
 from iepy.data.models import PreProcessSteps, IEDocument
+from iepy.preprocess.literal_ner import LiteralNER, LiteralNERRunner
 from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
 from tests.manager_case import ManagerTestCase
 

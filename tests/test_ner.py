@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from iepy.data.models import PreProcessSteps, IEDocument
-from iepy.ner import NERRunner, StanfordNERRunner
+from iepy.preprocess.ner import NERRunner, StanfordNERRunner
 from tests.factories import SentencedIEDocFactory, IEDocFactory
 from tests.manager_case import ManagerTestCase
 

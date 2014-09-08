@@ -5,8 +5,9 @@ except ImportError:
 
 from unittest import TestCase
 
-from iepy.combined_ner import (CombinedNERRunner, NoOverlapCombinedNERRunner,
-                               KindPreferenceCombinedNERRunner)
+from iepy.preprocess.combined_ner import (
+    CombinedNERRunner, NoOverlapCombinedNERRunner,
+    KindPreferenceCombinedNERRunner)
 
 from iepy.data.models import PreProcessSteps
 from .factories import EntityOccurrenceFactory
