@@ -32,8 +32,8 @@ def startapp(name):
     scripts = ['createdb.py', 'preprocess.py']
     for s in scripts:
         template_filename = 'app_{0}.template'.format(s)
-        template_file = os.path.join(iepy_basedir, template_filename)
-        preprocess_file = os.path.join(folder, 'scripts', s) 
+        template_file = os.path.join(iepy_basedir, 'tutorial', template_filename)
+        preprocess_file = os.path.join(folder, 'scripts', s)
         shutil.copyfile(template_file, preprocess_file)
 
 
