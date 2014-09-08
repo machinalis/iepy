@@ -1,6 +1,6 @@
 from mongoengine.base import ValidationError
 
-from iepy import models
+from iepy.data import models
 
 from .manager_case import ManagerTestCase
 

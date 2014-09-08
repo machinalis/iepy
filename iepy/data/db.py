@@ -7,7 +7,7 @@ except:
 from mongoengine import connect as mongoconnect
 from mongoengine.connection import get_db
 
-from iepy.models import (
+from iepy.data.models import (
     IEDocument, PreProcessSteps, InvalidPreprocessSteps, TextSegment, Entity)
 
 

@@ -38,8 +38,8 @@ def load_facts_from_csv(filepath):
     Everything else in the file will be ignored.
     Row with less column than stated, will be ignored.
     """
-    from iepy.knowledge import Fact  # Done here to avoid circular dependency
-    from iepy import db
+    from iepy.data.knowledge import Fact  # Done here to avoid circular dependency
+    from iepy.data import db
 
     with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
         factsreader = reader(csvfile, delimiter=',')

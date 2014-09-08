@@ -19,9 +19,9 @@ import sys
 
 from docopt import docopt
 
-from iepy import db
+from iepy.data import db
+from iepy.data.knowledge import Knowledge
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.knowledge import Knowledge
 from iepy.utils import make_feature_list
 
 config = {

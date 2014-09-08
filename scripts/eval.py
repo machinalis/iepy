@@ -11,8 +11,8 @@ Options:
 """
 from docopt import docopt
 
-from iepy.db import connect
-from iepy.knowledge import Knowledge
+from iepy.data.db import connect
+from iepy.data.knowledge import Knowledge
 from iepy.utils import evaluate
 
 

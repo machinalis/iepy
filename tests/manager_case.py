@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from mongoengine.connection import get_connection, disconnect
 
-from iepy.db import connect
+from iepy.data.db import connect
 
 
 class ManagerTestCase(TestCase):

@@ -8,8 +8,8 @@ import time
 from featureforge.experimentation import runner
 
 from iepy.fact_extractor import FactExtractorFactory
-from iepy.knowledge import Knowledge
-import iepy.db
+from iepy.data.knowledge import Knowledge
+import iepy.data.db
 from iepy.pycompatibility import PY2
 
 
@@ -105,7 +105,7 @@ class Runner(object):
     def get_data(self, config):
         if self.last_dbname != self.dbname or self.last_path != self.path or \
            self.last_hash != config[u"input_file_md5"]:
-            iepy.db.connect(self.dbname)
+            iepy.data.db.connect(self.dbname)
             data = sorted(Knowledge.load_from_csv(self.path).items())
             self.data = data
             self.last_dbname = self.dbname
@@ -134,10 +134,10 @@ class Runner(object):
         self.config = config
 
         # Add a database id/hash
-        iepy.db.connect(self.dbname)
-        dbhash = (iepy.db.TextSegment.objects.count(),
-                  iepy.db.IEDocument.objects.count(),
-                  iepy.db.Entity.objects.count())
+        iepy.data.db.connect(self.dbname)
+        dbhash = (iepy.data.db.TextSegment.objects.count(),
+                  iepy.data.db.IEDocument.objects.count(),
+                  iepy.data.db.Entity.objects.count())
         config["database_hash"] = dbhash
         return config
 

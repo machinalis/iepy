@@ -49,12 +49,12 @@ from copy import deepcopy
 import itertools
 import logging
 
-from iepy import db
+from iepy.data import db
 from iepy.fact_extractor import FactExtractorFactory, MoreSamplesNeededException
 from iepy.utils import evaluate
 
 from iepy import defaults
-from iepy.knowledge import certainty, Evidence, Fact, Knowledge
+from iepy.data.knowledge import certainty, Evidence, Fact, Knowledge
 
 logger = logging.getLogger(__name__)
 

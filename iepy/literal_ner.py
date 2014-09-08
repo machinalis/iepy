@@ -2,7 +2,7 @@ import json
 import urllib
 import codecs
 
-from iepy.models import PreProcessSteps, Entity, EntityOccurrence
+from iepy.data.models import PreProcessSteps, Entity, EntityOccurrence
 from iepy.preprocess import BasePreProcessStepRunner
 
 

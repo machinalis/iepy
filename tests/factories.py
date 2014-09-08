@@ -6,7 +6,7 @@ import factory
 import nltk
 
 from iepy.core import Fact, Evidence
-from iepy.models import (
+from iepy.data.models import (
     IEDocument, Entity, PreProcessSteps, EntityInSegment,
     TextSegment)
 

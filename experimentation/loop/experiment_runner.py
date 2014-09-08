@@ -11,8 +11,8 @@ import time
 from featureforge.experimentation import runner
 from sklearn.metrics import log_loss
 
-from iepy.knowledge import Knowledge
-import iepy.db
+from iepy.data.knowledge import Knowledge
+import iepy.data.db
 from iepy.pycompatibility import PY2
 from iepy.core import BootstrappedIEPipeline
 
@@ -109,7 +109,7 @@ class Runner(object):
         self.load_data(config)
         reference = self.data
         all_facts = self.build_facts_list(reference)
-        db_con = iepy.db.connect(self.dbname)
+        db_con = iepy.data.db.connect(self.dbname)
         seed_facts = self.pick_seeds_facts(all_facts, config)
 
         result = {
@@ -260,7 +260,7 @@ class Runner(object):
     def load_data(self, config):
         if self.last_dbname != self.dbname or self.last_path != self.path or \
            self.last_hash != config[u"input_file_md5"]:
-            iepy.db.connect(self.dbname)
+            iepy.data.db.connect(self.dbname)
             data = Knowledge.load_from_csv(self.path)
             self.last_dbname = self.dbname
             self.last_path = self.path
@@ -294,10 +294,10 @@ class Runner(object):
         self.config = config
 
         # Add a database id/hash
-        iepy.db.connect(self.dbname)
-        dbhash = (iepy.db.TextSegment.objects.count(),
-                  iepy.db.IEDocument.objects.count(),
-                  iepy.db.Entity.objects.count())
+        iepy.data.db.connect(self.dbname)
+        dbhash = (iepy.data.db.TextSegment.objects.count(),
+                  iepy.data.db.IEDocument.objects.count(),
+                  iepy.data.db.Entity.objects.count())
         config["database_hash"] = dbhash
         return config
 

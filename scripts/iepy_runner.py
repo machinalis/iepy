@@ -13,9 +13,9 @@ from docopt import docopt
 import logging
 
 from iepy.core import BootstrappedIEPipeline
-from iepy import db
+from iepy.data import db
+from iepy.data.knowledge import Knowledge
 from iepy.human_validation import TerminalInterviewer
-from iepy.knowledge import Knowledge
 from iepy.utils import load_facts_from_csv
 
 

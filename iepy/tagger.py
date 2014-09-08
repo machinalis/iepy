@@ -5,7 +5,7 @@ import logging
 from nltk.tag.stanford import POSTagger
 import wget
 
-from iepy.models import PreProcessSteps
+from iepy.data.models import PreProcessSteps
 from iepy.preprocess import BasePreProcessStepRunner
 from iepy.utils import DIRS, unzip_file
 

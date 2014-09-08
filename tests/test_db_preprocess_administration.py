@@ -4,8 +4,8 @@ try:
 except ImportError:
     import mock
 
-from iepy.db import DocumentManager, TextSegmentManager
-from iepy.models import (PreProcessSteps, InvalidPreprocessSteps,
+from iepy.data.db import DocumentManager, TextSegmentManager
+from iepy.data.models import (PreProcessSteps, InvalidPreprocessSteps,
                          EntityInSegment, Entity)
 
 from .factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn

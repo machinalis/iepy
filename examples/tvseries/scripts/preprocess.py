@@ -15,8 +15,8 @@ import re
 from docopt import docopt
 from mwtextextractor import get_body_text
 
-from iepy.db import connect, DocumentManager
-from iepy.models import set_custom_entity_kinds
+from iepy.data.db import connect, DocumentManager
+from iepy.data.models import set_custom_entity_kinds
 from iepy.preprocess import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.tagger import StanfordTaggerRunner
