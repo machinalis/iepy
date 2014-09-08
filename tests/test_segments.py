@@ -1,8 +1,9 @@
 import unittest
 
+from iepy.data.models import TextSegment, EntityInSegment, EntityOccurrence
+
 from .factories import IEDocFactory, EntityFactory, TextSegmentFactory
 from .manager_case import ManagerTestCase
-from iepy.models import TextSegment, EntityInSegment, EntityOccurrence
 
 
 class TextSegmentTest(unittest.TestCase):

@@ -93,8 +93,10 @@ def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
     default value for hi is len(a)
     """
     # Default key: identity
-    if key is None: key = lambda x: x
-    if hi is None: hi = len(a)
+    if key is None:
+        key = lambda x: x
+    if hi is None:
+        hi = len(a)
     if lo < 0:
         raise ValueError("lo must not be negative")
     if xl > xr:
@@ -145,6 +147,7 @@ class Entity(DynamicDocument, SortableDocumentMixin):
 
 
 class EntityOccurrence(EmbeddedDocument):
+    """Models the occurrence of a particular Entity on a Document"""
     entity = fields.ReferenceField('Entity', required=True)
     offset = fields.IntField(required=True)  # Offset in tokens wrt to document
     offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
@@ -168,6 +171,7 @@ class EntityOccurrence(EmbeddedDocument):
 
 
 class EntityInSegment(EmbeddedDocument):
+    """Models occurrence of a particular entity on a TextSegment"""
     key = fields.StringField(required=True)
     canonical_form = fields.StringField(required=True)
     kind = fields.StringField(choices=ENTITY_KINDS, required=True)

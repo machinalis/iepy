@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from tests.factories import SentencedIEDocFactory
-from iepy.models import PreProcessSteps, IEDocument
-from iepy.tagger import TaggerRunner, StanfordTaggerRunner
+from iepy.data.models import PreProcessSteps, IEDocument
+from iepy.preprocess.tagger import TaggerRunner, StanfordTaggerRunner
 from .manager_case import ManagerTestCase
 
 

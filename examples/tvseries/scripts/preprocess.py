@@ -15,15 +15,15 @@ import re
 from docopt import docopt
 from mwtextextractor import get_body_text
 
-from iepy.db import connect, DocumentManager
-from iepy.models import set_custom_entity_kinds
-from iepy.preprocess import PreProcessPipeline
-from iepy.tokenizer import TokenizeSentencerRunner
-from iepy.tagger import StanfordTaggerRunner
-from iepy.combined_ner import NoOverlapCombinedNERRunner
-from iepy.literal_ner import LiteralNERRunner
-from iepy.ner import StanfordNERRunner
-from iepy.segmenter import SyntacticSegmenterRunner
+from iepy.data.db import connect, DocumentManager
+from iepy.data.models import set_custom_entity_kinds
+from iepy.preprocess.pipeline import PreProcessPipeline
+from iepy.preprocess.tokenizer import TokenizeSentencerRunner
+from iepy.preprocess.tagger import StanfordTaggerRunner
+from iepy.preprocess.combined_ner import NoOverlapCombinedNERRunner
+from iepy.preprocess.literal_ner import LiteralNERRunner
+from iepy.preprocess.ner import StanfordNERRunner
+from iepy.preprocess.segmenter import SyntacticSegmenterRunner
 
 
 def media_wiki_to_txt(doc):

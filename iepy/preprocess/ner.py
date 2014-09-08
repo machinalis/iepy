@@ -6,8 +6,8 @@ import logging
 from nltk.tag.stanford import NERTagger
 import wget
 
-from iepy.models import PreProcessSteps, EntityOccurrence
-from iepy.preprocess import BasePreProcessStepRunner
+from iepy.data.models import PreProcessSteps, EntityOccurrence
+from iepy.preprocess.pipeline import BasePreProcessStepRunner
 from iepy.utils import DIRS, unzip_file
 
 logger = logging.getLogger(__name__)

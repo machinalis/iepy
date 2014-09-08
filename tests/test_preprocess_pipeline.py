@@ -5,7 +5,7 @@ except ImportError:
 
 from unittest import TestCase
 
-from iepy.preprocess import PreProcessPipeline
+from iepy.preprocess.pipeline import PreProcessPipeline
 
 
 class TestPreProcessPipeline(TestCase):

@@ -2,8 +2,8 @@ import errno
 import os
 
 import nltk.data
-from iepy.tagger import download as download_tagger
-from iepy.ner import download as download_ner
+from iepy.preprocess.tagger import download as download_tagger
+from iepy.preprocess.ner import download as download_ner
 from iepy.utils import DIRS
 
 

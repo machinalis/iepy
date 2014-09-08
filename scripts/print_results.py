@@ -15,8 +15,8 @@ from docopt import docopt
 
 from colorama import Back, Style
 
-from iepy import db
-from iepy.knowledge import Knowledge
+from iepy.data import db
+from iepy.data.knowledge import Knowledge
 
 
 if __name__ == '__main__':

@@ -4,8 +4,8 @@ import csv
 import tempfile
 import unittest
 
-from iepy.models import IEDocument
-from iepy.knowledge import Evidence, Fact, Knowledge
+from iepy.data.models import IEDocument
+from iepy.data.knowledge import Evidence, Fact, Knowledge
 from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
 

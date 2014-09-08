@@ -4,7 +4,7 @@ try:
 except ImportError:
     import mock
 
-from iepy.models import IEDocument
+from iepy.data.models import IEDocument
 from tvseries.scripts.preprocess import media_wiki_to_txt
 
 

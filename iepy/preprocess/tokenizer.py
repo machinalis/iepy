@@ -4,8 +4,8 @@ import re
 import nltk.data
 from nltk.tokenize import RegexpTokenizer
 
-from iepy.models import PreProcessSteps
-from iepy.preprocess import BasePreProcessStepRunner
+from iepy.data.models import PreProcessSteps
+from iepy.preprocess.pipeline import BasePreProcessStepRunner
 from iepy.utils import DIRS
 
 

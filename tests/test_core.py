@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from future.builtins import range
 
 from iepy.core import BootstrappedIEPipeline
-from iepy.knowledge import certainty, Knowledge
+from iepy.data.knowledge import certainty, Knowledge
 from .factories import EntityFactory, EvidenceFactory, FactFactory
 
 

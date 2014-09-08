@@ -7,7 +7,7 @@ try:
 except ImportError:
     import mock
 
-from iepy.tokenizer import en_tokenize_and_segment, _get_tokenizer
+from iepy.preprocess.tokenizer import en_tokenize_and_segment, _get_tokenizer
 
 
 class TestTokenization(TestCase):

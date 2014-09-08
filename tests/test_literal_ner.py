@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from iepy.literal_ner import LiteralNER, LiteralNERRunner
-from iepy.models import PreProcessSteps, IEDocument
+from iepy.data.models import PreProcessSteps, IEDocument
+from iepy.preprocess.literal_ner import LiteralNER, LiteralNERRunner
 from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
 from tests.manager_case import ManagerTestCase
 
@@ -70,7 +70,7 @@ class TestLiteralNERRunner(ManagerTestCase):
 
     def tearDown(self):
         super(TestLiteralNERRunner, self).tearDown()
-        from iepy import models
+        from iepy.data import models
         models.set_custom_entity_kinds([])
 
     def setUp(self):
@@ -82,7 +82,7 @@ class TestLiteralNERRunner(ManagerTestCase):
         f.write('MRI\nCT scan\ndrooling\n')
         f.seek(0)
         self.tmp_file2 = f
-        from iepy import models
+        from iepy.data import models
         models.set_custom_entity_kinds(zip(map(lambda x: x.lower(), NEW_ENTITIES),
                                            NEW_ENTITIES))  # id, label
 
