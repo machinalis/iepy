@@ -3,7 +3,7 @@ import urllib
 import codecs
 
 from iepy.data.models import PreProcessSteps, Entity, EntityOccurrence
-from iepy.preprocess import BasePreProcessStepRunner
+from iepy.preprocess.pipeline import BasePreProcessStepRunner
 
 
 class LiteralNER(object):

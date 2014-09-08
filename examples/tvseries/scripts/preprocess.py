@@ -17,7 +17,7 @@ from mwtextextractor import get_body_text
 
 from iepy.data.db import connect, DocumentManager
 from iepy.data.models import set_custom_entity_kinds
-from iepy.preprocess import PreProcessPipeline
+from iepy.preprocess.pipeline import PreProcessPipeline
 from iepy.tokenizer import TokenizeSentencerRunner
 from iepy.tagger import StanfordTaggerRunner
 from iepy.combined_ner import NoOverlapCombinedNERRunner
