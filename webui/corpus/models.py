@@ -1,7 +1,9 @@
+# This module is the nexus/connection between the UI definitions (django models)
+# and the IEPY models. Modifications of this file will be with the awareness of
+# this dual-impact.
 from django.db import models
 
 from corpus.fields import ListField
-
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
@@ -48,14 +50,15 @@ class IEDocument(models.Model):
     # entities = Reversed ForeignKey of EntityOccurrence
     # text_segments = Reversed ForeignKey of TextSegment
 
-    # Fields and stuff that is computed while traveling the pre-process pipeline
-    preprocess_metadata = jsonfield.JSONField()
+    # Metadata annotations that're computed while traveling the pre-process pipeline
+    tokenization_done_at = models.DateTimeField(null=True, blank=True)
+    sentencer_done_at = models.DateTimeField(null=True, blank=True)
+    tagging = models.DateTimeField(null=True, blank=True)
+    ner = models.DateTimeField(null=True, blank=True)
+    segmentation = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField()
-
-    #class Meta:
-        #db_table = 'iedocuments'
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
