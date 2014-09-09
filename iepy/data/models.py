@@ -1,6 +1,6 @@
 # This module is the nexus/connection between the UI definitions (django models)
-# and the IEPY models. Modifications of this file will be with the awareness of
-# this dual-impact.
+# and the IEPY models. Modifications of this file should be done with the
+# awareness of this dual-impact.
 from django.db import models
 
 from corpus.fields import ListField
@@ -8,26 +8,28 @@ import jsonfield
 
 CHAR_MAX_LENGHT = 256
 
-#app_label = 'corpus'
+
+class BaseModel(models.Model):
+    class Meta:
+        abstract = True
+        app_label = 'corpus'  # Name of the django app.
 
 
-class EntityKind(models.Model):
+class EntityKind(BaseModel):
     # There's a fixture declaring an initial set of Entity Kinds, containing
     # PERSON, LOCATION, AND ORGANIZATION
     name = models.CharField(max_length=CHAR_MAX_LENGHT, unique=True)
 
-    class Meta:
-        #app_label = app_label
+    class Meta(BaseModel.Meta):
         ordering = ['name']
 
 
-class Entity(models.Model):
+class Entity(BaseModel):
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
     canonical_form = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
 
-    class Meta:
-        #app_label = app_label
+    class Meta(BaseModel.Meta):
         ordering = ['kind', 'key', 'canonical_form']
         unique_together = (('key', 'kind'), )
 
@@ -35,7 +37,7 @@ class Entity(models.Model):
         return u'%s (%s)' % (self.key, self.kind.name)
 
 
-class IEDocument(models.Model):
+class IEDocument(BaseModel):
     human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
                                         unique=True)
     title = models.CharField(max_length=CHAR_MAX_LENGHT)
@@ -64,8 +66,8 @@ class IEDocument(models.Model):
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField()
 
-    #class Meta:
-        #app_label = app_label
+    class Meta(BaseModel.Meta):
+        pass
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
@@ -78,7 +80,7 @@ class IEDocument(models.Model):
             start = end
 
 
-class EntityOccurrence(models.Model):
+class EntityOccurrence(BaseModel):
     """Models the occurrence of a particular Entity on a Document"""
     entity = models.ForeignKey('Entity')
     document = models.ForeignKey('IEDocument', related_name='entity_ocurrences')
@@ -88,15 +90,14 @@ class EntityOccurrence(models.Model):
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
 
-    class Meta:
-        #app_label = app_label
+    class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
 
     def __unicode__(self):
         return u'{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
 
 
-class TextSegment(models.Model):
+class TextSegment(BaseModel):
     document = models.ForeignKey('IEDocument')
     text = models.TextField()
     offset = models.IntegerField()  # Offset in tokens wrt document
@@ -105,8 +106,8 @@ class TextSegment(models.Model):
     # Reversed fields:
     # entity_ocurrences = Reversed ManyToManyField of EntityOccurrence
 
-    #class Meta:
-        #app_label = app_label
+    class Meta(BaseModel.Meta):
+        pass
 
     def __unicode__(self):
         return u'{0}'.format(' '.join(self.tokens))
