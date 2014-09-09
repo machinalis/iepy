@@ -8,6 +8,8 @@ import jsonfield
 
 CHAR_MAX_LENGHT = 256
 
+app_label = 'corpus'
+
 
 class EntityKind(models.Model):
     # There's a fixture declaring an initial set of Entity Kinds, containing
@@ -15,6 +17,7 @@ class EntityKind(models.Model):
     name = models.CharField(max_length=CHAR_MAX_LENGHT, unique=True)
 
     class Meta:
+        app_label = app_label
         ordering = ['name']
 
 
@@ -24,6 +27,7 @@ class Entity(models.Model):
     kind = models.ForeignKey(EntityKind)
 
     class Meta:
+        app_label = app_label
         ordering = ['kind', 'key', 'canonical_form']
         unique_together = (('key', 'kind'), )
 
@@ -60,6 +64,9 @@ class IEDocument(models.Model):
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField()
 
+    class Meta:
+        app_label = app_label
+
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
         """
@@ -82,6 +89,7 @@ class EntityOccurrence(models.Model):
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
 
     class Meta:
+        app_label = app_label
         ordering = ['document', 'offset', 'offset_end']
 
     def __unicode__(self):
@@ -96,6 +104,9 @@ class TextSegment(models.Model):
 
     # Reversed fields:
     # entity_ocurrences = Reversed ManyToManyField of EntityOccurrence
+
+    class Meta:
+        app_label = app_label
 
     def __unicode__(self):
         return u'{0}'.format(' '.join(self.tokens))
