@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['kind', 'key', 'canonical_form'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -33,6 +34,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['name'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -46,6 +48,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['document', 'offset', 'offset_end'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -70,6 +73,7 @@ class Migration(migrations.Migration):
                 ('metadata', jsonfield.fields.JSONField(default=__builtin__.dict)),
             ],
             options={
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -83,6 +87,7 @@ class Migration(migrations.Migration):
                 ('document', models.ForeignKey(to='corpus.IEDocument')),
             ],
             options={
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
