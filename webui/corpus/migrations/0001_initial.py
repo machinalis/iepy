@@ -62,7 +62,11 @@ class Migration(migrations.Migration):
                 ('offsets_to_text', corpus.fields.ListField()),
                 ('postags', corpus.fields.ListField()),
                 ('sentences', corpus.fields.ListField()),
-                ('preprocess_metadata', jsonfield.fields.JSONField(default=__builtin__.dict)),
+                ('tokenization_done_at', models.DateTimeField(null=True, blank=True)),
+                ('sentencer_done_at', models.DateTimeField(null=True, blank=True)),
+                ('tagging', models.DateTimeField(null=True, blank=True)),
+                ('ner', models.DateTimeField(null=True, blank=True)),
+                ('segmentation', models.DateTimeField(null=True, blank=True)),
                 ('metadata', jsonfield.fields.JSONField(default=__builtin__.dict)),
             ],
             options={
