@@ -4,11 +4,7 @@ try:
 except:
     from functools32 import lru_cache
 
-from mongoengine import connect as mongoconnect
-from mongoengine.connection import get_db
-
-from iepy.data.models import (
-    IEDocument, PreProcessSteps, InvalidPreprocessSteps, TextSegment, Entity)
+from iepy.data.models import IEDocument, TextSegment, Entity
 
 
 IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
@@ -18,11 +14,12 @@ ENTITY_CACHE_SIZE = 20  # reasonable compromise
 
 
 def connect(db_name):
-    return IEPYDBConnector(
-        mongoconnect(db_name),
-        TextSegmentManager(),
-        DocumentManager(),
-    )
+    pass
+    #return IEPYDBConnector(
+    #    mongoconnect(db_name),
+    #    TextSegmentManager(),
+    #    DocumentManager(),
+    #)
 
 
 class DocumentManager(object):

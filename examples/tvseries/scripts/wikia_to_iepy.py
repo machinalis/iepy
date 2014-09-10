@@ -18,7 +18,7 @@ from docopt import docopt
 
 import xmltodict
 
-from iepy.db import connect, DocumentManager
+from iepy.data.db import connect, DocumentManager
 
 
 def build_pages_dict(dump_path):
