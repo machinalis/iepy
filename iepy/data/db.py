@@ -1,25 +1,26 @@
+"""
+IEPY DB Abstraction level.
+
+The goal of this module is to provide some thin abstraction between
+the chosen database engine and ORM and the IEPY core and tools.
+"""
+
 from collections import namedtuple
 try:
     from functools import lru_cache
 except:
     from functools32 import lru_cache
 
+import iepy
+iepy.setup()
+
 from iepy.data.models import IEDocument, TextSegment, Entity
 
 
-IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
+IEPYDBConnector = namedtuple('IEPYDBConnector', 'segments documents')
 
 # Number of entities that will be cached on get_entity function.
 ENTITY_CACHE_SIZE = 20  # reasonable compromise
-
-
-def connect(db_name):
-    pass
-    #return IEPYDBConnector(
-    #    mongoconnect(db_name),
-    #    TextSegmentManager(),
-    #    DocumentManager(),
-    #)
 
 
 class DocumentManager(object):
