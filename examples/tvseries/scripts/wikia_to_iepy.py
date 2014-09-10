@@ -2,7 +2,7 @@
 Wikia to IEPy Corpus Builder
 
 Usage:
-    wikia_to_iepy.py <wikia_zipped_xml_dump_file> <dbname> <nr_of_seasons> [options]
+    wikia_to_iepy.py <wikia_zipped_xml_dump_file> <nr_of_seasons> [options]
     wikia_to_iepy.py -h | --help | --version
 
 Options:
@@ -18,7 +18,7 @@ from docopt import docopt
 
 import xmltodict
 
-from iepy.data.db import connect, DocumentManager
+from iepy.data.db import DocumentManager
 
 
 def build_pages_dict(dump_path):
@@ -45,7 +45,6 @@ if __name__ == '__main__':
     logger = logging.getLogger('wikia_to_iepy')
     logger.setLevel(logging.DEBUG)
     opts = docopt(__doc__, version=0.1)
-    connect(opts['<dbname>'])
     docs = DocumentManager()
     pages_dict = build_pages_dict(opts['<wikia_zipped_xml_dump_file>'])
     eps = get_episode(pages_dict, int(opts['<nr_of_seasons>']),
