@@ -14,7 +14,7 @@ except:
 import iepy
 iepy.setup()
 
-from iepy.data.models import IEDocument, TextSegment, Entity
+from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind
 
 
 IEPYDBConnector = namedtuple('IEPYDBConnector', 'segments documents')
@@ -93,6 +93,15 @@ class TextSegmentManager(object):
             objects = db.text_segment.aggregate(pipeline)
             segments = list(TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values())
             return segments
+
+
+class EntityManager(object):
+
+    @classmethod
+    def ensure_kinds(cls, kind_names):
+        for kn in kind_names:
+            EntityKind.objects.get_or_create(name=kn)
+
 
 
 @lru_cache(maxsize=ENTITY_CACHE_SIZE)
