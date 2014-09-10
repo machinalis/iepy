@@ -64,10 +64,13 @@ class IEDocument(BaseModel):
     segmentation = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
-    metadata = jsonfield.JSONField()
+    metadata = jsonfield.JSONField(blank=True)
 
     class Meta(BaseModel.Meta):
         pass
+
+    def __unicode__(self):
+        return u'<IEDocument {0}>'.format(self.human_identifier)
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
