@@ -6,10 +6,8 @@ import factory
 import nltk
 
 from iepy.core import Fact, Evidence
-from iepy.data.models import (
-    IEDocument, Entity, PreProcessSteps, EntityInSegment,
-    TextSegment)
-
+from iepy.data.models import IEDocument, Entity, TextSegment
+from iepy.preprocess.pipeline import PreProcessSteps
 
 def naive_tkn(text):
     """Makes a naive tokenization returning pairs of tokens and
@@ -30,13 +28,13 @@ class EntityFactory(factory.Factory):
     kind = 'person'
 
 
-class EntityInSegmentFactory(factory.Factory):
-    FACTORY_FOR = EntityInSegment
-    key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
-    offset = 0
-    offset_end = 1
+#class EntityInSegmentFactory(factory.Factory):
+#    FACTORY_FOR = EntityInSegment
+#    key = factory.Sequence(lambda n: 'id:%i' % n)
+#    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
+#    kind = 'person'
+#    offset = 0
+#    offset_end = 1
 
 
 class EntityOccurrenceFake(object):

@@ -4,21 +4,12 @@
 from datetime import datetime
 
 from django.db import models
-from enum import Enum
 
 from iepy.utils import unzip
 from corpus.fields import ListField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
-
-
-class PreProcessSteps(Enum):
-    tokenization = 1
-    sentencer = 2
-    tagging = 3
-    ner = 4
-    segmentation = 5
 
 
 class BaseModel(models.Model):

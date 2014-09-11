@@ -1,6 +1,15 @@
 import logging
+from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+
+class PreProcessSteps(Enum):
+    tokenization = 1
+    sentencer = 2
+    tagging = 3
+    ner = 4
+    segmentation = 5
 
 
 class PreProcessPipeline(object):

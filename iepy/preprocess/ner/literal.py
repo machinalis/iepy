@@ -2,8 +2,8 @@ import json
 import urllib
 import codecs
 
-from iepy.data.models import PreProcessSteps, Entity, EntityOccurrence
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.data.models import Entity, EntityOccurrence
+from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 
 
 class LiteralNER(object):

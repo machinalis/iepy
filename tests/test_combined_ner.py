@@ -8,8 +8,8 @@ from unittest import TestCase
 from iepy.preprocess.ner.combiner import (
     CombinedNERRunner, NoOverlapCombinedNERRunner,
     KindPreferenceCombinedNERRunner)
+from iepy.preprocess.pipeline import PreProcessSteps
 
-from iepy.data.models import PreProcessSteps
 from .factories import EntityOccurrenceFactory
 
 

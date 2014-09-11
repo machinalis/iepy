@@ -5,8 +5,9 @@ except ImportError:
     import mock
 
 from iepy.data.db import DocumentManager, TextSegmentManager
-from iepy.data.models import (PreProcessSteps, InvalidPreprocessSteps,
-                         EntityInSegment, Entity)
+from iepy.data.models import (InvalidPreprocessSteps,
+                              EntityInSegment, Entity)
+from iepy.preprocess.pipeline import PreProcessSteps
 
 from .factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn
 from .manager_case import ManagerTestCase

@@ -1,5 +1,4 @@
-from iepy.data.models import PreProcessSteps
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 
 
 class CombinedNERRunner(BasePreProcessStepRunner):

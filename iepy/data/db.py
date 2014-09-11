@@ -14,7 +14,8 @@ except:
 import iepy
 iepy.setup()
 
-from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind, PreProcessSteps
+from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind
+from iepy.preprocess.pipeline import PreProcessSteps
 
 
 IEPYDBConnector = namedtuple('IEPYDBConnector', 'segments documents')
