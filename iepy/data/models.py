@@ -129,6 +129,14 @@ class IEDocument(BaseModel):
         self.sentencer_done_at = datetime.now()
         return self
 
+    def set_tagging_result(self, value):
+        if len(value) != len(self.tokens):
+            raise ValueError(
+                'Tagging result must have same cardinality than tokens')
+        self.postags = value
+        self.tagging_done_at = datetime.now()
+        return self
+
 
 class EntityOccurrence(BaseModel):
     """Models the occurrence of a particular Entity on a Document"""
