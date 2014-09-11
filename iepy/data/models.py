@@ -59,9 +59,9 @@ class IEDocument(BaseModel):
     # Metadata annotations that're computed while traveling the pre-process pipeline
     tokenization_done_at = models.DateTimeField(null=True, blank=True)
     sentencer_done_at = models.DateTimeField(null=True, blank=True)
-    tagging = models.DateTimeField(null=True, blank=True)
-    ner = models.DateTimeField(null=True, blank=True)
-    segmentation = models.DateTimeField(null=True, blank=True)
+    tagging_done_at = models.DateTimeField(null=True, blank=True)
+    ner_done_at = models.DateTimeField(null=True, blank=True)
+    segmentation_done_at = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField(blank=True)
