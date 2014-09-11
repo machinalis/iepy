@@ -2,11 +2,20 @@
 # and the IEPY models. Modifications of this file should be done with the
 # awareness of this dual-impact.
 from django.db import models
+from enum import Enum
 
 from corpus.fields import ListField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
+
+
+class PreProcessSteps(Enum):
+    tokenization = 1
+    sentencer = 2
+    tagging = 3
+    ner = 4
+    segmentation = 5
 
 
 class BaseModel(models.Model):
