@@ -89,9 +89,9 @@ class LiteralNERRunner(BasePreProcessStepRunner):
 
     def __call__(self, doc):
         # this step does not requires PreProcessSteps.tagging:
-        if not doc.was_preprocess_done(PreProcessSteps.sentencer):
+        if not doc.was_preprocess_step_done(PreProcessSteps.sentencer):
             return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
+        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.ner):
             return
 
         entities = []

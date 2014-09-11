@@ -5,7 +5,8 @@ from iepy.preprocess.pipeline import BasePreProcessStepRunner
 class CombinedNERRunner(BasePreProcessStepRunner):
     """A NER runner that is the combination of different NER runners
     (therefore, different NERs).
-    The entities returned by each NERs are combined by method merge_entities
+
+    The entities returned by each NER are combined by the method merge_entities
     without any check, possibly leading to duplicate or overlapping entities;
     but subclassing this combiner you may define something different.
     """
@@ -13,17 +14,18 @@ class CombinedNERRunner(BasePreProcessStepRunner):
 
     def __init__(self, ners, override=False):
         """The NER runners should be instances of BasePreProcessStepRunner.
-        The override attributes of each NER runner is set to True, ignoring the
-        previous values.
-        The override parameter is used for all NER runners (overriding only one
-        part is not allowed).
+        Notes:
+            - Each of the sub-ners will be configured to run with override-mode
+            "on", no matter what is the global override value.
+            The global override, will be used for determining wether to start
+            or not the global-combined process.
+            - Overriding only some NERs and not others is not allowed.
         """
         if not ners:
-            raise ValueError(u'Empty ners to combine')
+            raise ValueError(u'Empty NERs to combine')
         self.ners = ners
         self.override = override
 
-        # Do not allow overriding by parts
         for sub_ner in self.ners:
             sub_ner.override = True
 
@@ -35,7 +37,7 @@ class CombinedNERRunner(BasePreProcessStepRunner):
         return sorted(all_entities, key=lambda x: x.offset)
 
     def __call__(self, doc):
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
+        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.ner):
             # Already done
             return
 
