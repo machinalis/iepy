@@ -14,7 +14,7 @@ except:
 import iepy
 iepy.setup()
 
-from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind
+from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind, PreProcessSteps
 
 
 IEPYDBConnector = namedtuple('IEPYDBConnector', 'segments documents')
@@ -49,21 +49,22 @@ class DocumentManager(object):
         return doc
 
     def __iter__(self):
-        return IEDocument.objects.timeout(False).all()
+        return iter(IEDocument.objects.all())
 
     def get_raw_documents(self):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        return IEDocument.objects(text='').timeout(False)
+        return IEDocument.objects.filter(text='')
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given
         step."""
-        if not isinstance(step, PreProcessSteps):
-            raise InvalidPreprocessSteps
-        query = {'preprocess_metadata__%s__exists' % step.name: False}
-        return IEDocument.objects(**query).timeout(False)
+        if step in PreProcessSteps:
+            flag_field_name = "%s_done_at" % step.name
+            query = {"%s__isnull" % flag_field_name: True}
+            return IEDocument.objects.filter(**query)
+        return IEDocument.objects.none()
 
 
 class TextSegmentManager(object):

@@ -34,14 +34,14 @@ class TokenizeSentencerRunner(BasePreProcessStepRunner):
         self.snt_step = PreProcessSteps.sentencer
 
     def __call__(self, doc):
-        tkn_done = doc.was_preprocess_done(self.tkn_step)
-        snt_done = doc.was_preprocess_done(self.snt_step)
+        tkn_done = doc.was_preprocess_step_done(self.tkn_step)
+        snt_done = doc.was_preprocess_step_done(self.snt_step)
         if self.override or not (tkn_done and snt_done):
             # Ok, let's do it
             result = en_tokenize_and_segment(doc.text)
-            doc.set_preprocess_result(
-                self.tkn_step, list(zip(result['spans'], result['tokens'])))
-            doc.set_preprocess_result(self.snt_step, result['sentences'])
+            doc.set_tokenization_result(
+                list(zip(result['spans'], result['tokens'])))
+            doc.set_sentencer_result(result['sentences'])
             doc.save()
 
 

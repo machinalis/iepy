@@ -1,9 +1,12 @@
 # This module is the nexus/connection between the UI definitions (django models)
 # and the IEPY models. Modifications of this file should be done with the
 # awareness of this dual-impact.
+from datetime import datetime
+
 from django.db import models
 from enum import Enum
 
+from iepy.utils import unzip
 from corpus.fields import ListField
 import jsonfield
 
@@ -90,6 +93,41 @@ class IEDocument(BaseModel):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
+
+    def was_preprocess_step_done(self, step):
+        return getattr(self, '%s_done_at' % step.name) is not None
+
+    def set_tokenization_result(self, value):
+        """Sets the value to the correspondent storage format"""
+        if not isinstance(value, list):
+            raise ValueError("Tokenization expected result should be a list "
+                             "of tuples (token-string, token-offset on text (int)).")
+        tkn_offsets, tokens = unzip(value, 2)
+        self.tokens = list(tokens)
+        self.offsets_to_text = list(tkn_offsets)
+        self.tokenization_done_at = datetime.now()
+        return self
+
+    def set_sentencer_result(self, value):
+        if not isinstance(value, list):
+            raise ValueError("Sentencer expected result should be a list.")
+        if not all(isinstance(x, int) for x in value):
+            raise ValueError('Sentencer result shall only contain ints: %r' % value)
+        if sorted(value) != value:
+            raise ValueError('Sentencer result shall be ordered.')
+        if len(set(value)) < len(value):
+            raise ValueError(
+                'Sentencer result shall not contain duplicates.')
+        if value[0] != 0:
+            raise ValueError(
+                'Sentencer result must start with 0. Actual=%r' % value[0])
+        if value[-1] != len(self.tokens):
+            raise ValueError(
+                'Sentencer result must end with token count=%d. Actual=%r' % (
+                    len(self.tokens), value[-1]))
+        self.sentences = value
+        self.sentencer_done_at = datetime.now()
+        return self
 
 
 class EntityOccurrence(BaseModel):
