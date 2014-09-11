@@ -3,7 +3,7 @@ import os
 
 import nltk.data
 from iepy.preprocess.tagger import download as download_tagger
-from iepy.preprocess.ner import download as download_ner
+from iepy.preprocess.ner.stanford import download as download_ner
 from iepy.utils import DIRS
 
 

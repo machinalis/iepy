@@ -19,9 +19,8 @@ from iepy.data.db import DocumentManager, EntityManager
 from iepy.preprocess.pipeline import PreProcessPipeline
 from iepy.preprocess.tokenizer import TokenizeSentencerRunner
 from iepy.preprocess.tagger import StanfordTaggerRunner
-from iepy.preprocess.combined_ner import NoOverlapCombinedNERRunner
-from iepy.preprocess.literal_ner import LiteralNERRunner
-from iepy.preprocess.ner import StanfordNERRunner
+from iepy.preprocess.ner import (StanfordNERRunner, NoOverlapCombinedNERRunner,
+                                 LiteralNERRunner)
 from iepy.preprocess.segmenter import SyntacticSegmenterRunner
 
 

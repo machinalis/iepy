@@ -5,7 +5,7 @@ except ImportError:
 
 from unittest import TestCase
 
-from iepy.preprocess.combined_ner import (
+from iepy.preprocess.ner.combiner import (
     CombinedNERRunner, NoOverlapCombinedNERRunner,
     KindPreferenceCombinedNERRunner)
 
