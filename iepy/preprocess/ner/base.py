@@ -36,5 +36,5 @@ class BaseNERRunner(BasePreProcessStepRunner):
         # Define logic in here
         return []
 
-    def build_occurrence(self, key, kind, alias, offset, offset_end):
-        return FoundEntity(key, kind, alias, offset, offset_end)
+    def build_occurrence(self, key, kind_name, alias, offset, offset_end):
+        return FoundEntity(key, kind_name, alias, offset, offset_end)
