@@ -93,8 +93,8 @@ class SentencedIEDocFactory(IEDocFactory):
             tokens.extend(list(enumerate(sent_tokens)))
             sentences.append(sentences[-1] + len(sent_tokens))
 
-        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
-        self.set_preprocess_result(PreProcessSteps.sentencer, sentences)
+        self.set_tokenization_result(tokens)
+        self.set_sentencer_result(sentences)
 
 
 def NamedTemporaryFile23(*args, **kwargs):
