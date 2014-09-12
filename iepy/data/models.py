@@ -26,6 +26,9 @@ class EntityKind(BaseModel):
     class Meta(BaseModel.Meta):
         ordering = ['name']
 
+    def __unicode__(self):
+        return self.kind.name
+
 
 class Entity(BaseModel):
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
@@ -129,6 +132,21 @@ class IEDocument(BaseModel):
         return self
 
     def set_ner_result(self, value):
+        for found_entity in value:
+            key, kind_name, alias, offset, offset_end = found_entity
+            kind, _ = EntityKind.objects.get_or_create(name=kind_name)
+            entity, created = Entity.objects.get_or_create(
+                key=key,
+                kind=kind,
+                defaults={'canonical_form': alias})
+            EntityOccurrence.objects.get_or_create(
+                document=self,
+                entity=entity,
+                offset=offset,
+                offset_end=offset_end,
+                alias=alias
+            )
+        self.ner_done_at = datetime.now()
         return self
 
 
@@ -144,6 +162,7 @@ class EntityOccurrence(BaseModel):
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
+        unique_together = ['entity', 'document', 'offset', 'offset_end']
 
     def __unicode__(self):
         return u'{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
