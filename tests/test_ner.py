@@ -22,6 +22,9 @@ class NERTestMixin(object):
             return [[(t, self.entity_map.get(t, 'O')) for t in sent] for sent in sents]
         ner_runner = NERRunner(ner)
         ner_runner(doc)
+        self.check_ner_result(doc, entities_triples)
+
+    def check_ner_result(self, doc, entities_triples):
         self.assertTrue(doc.was_preprocess_step_done(PreProcessSteps.ner))
         entities = self.get_ner_result(doc)
         self.assertEqual(len(entities), len(entities_triples))
