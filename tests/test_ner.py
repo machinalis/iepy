@@ -73,7 +73,6 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         self.assertEqual(entities[1].entity.kind.name, 'organization')
 
     def test_runner_does_not_split_contractions(self):
-        print 'check if should not be replaced with SentencedIEDocFactory'
         doc = IEDocFactory()
         tokens = list(enumerate(("I can't study with Rami Eid").split()))
         doc.set_tokenization_result(tokens)
@@ -89,12 +88,13 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         self.assertEqual(result[0].alias, "Rami Eid")
 
     def test_if_runner_segments_can_still_keep_working(self):
-        print 'check if should not be replaced with SentencedIEDocFactory'
         doc = IEDocFactory()
-        doc.save()
-        tokens = list(enumerate(("This is a sentence . This is another with Rami Eid").split()))
+        tokens = list(
+            enumerate(("This is a sentence . This is other with Rami Eid").split())
+        )
         doc.set_tokenization_result(tokens)
         doc.set_sentencer_result([0, len(tokens)])
+        doc.save()
 
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
