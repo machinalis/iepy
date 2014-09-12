@@ -6,7 +6,6 @@ import logging
 from nltk.tag.stanford import NERTagger
 import wget
 
-from iepy.data.models import EntityOccurrence
 from iepy.preprocess.ner.base import BaseNERRunner
 from iepy.utils import DIRS, unzip_file
 
@@ -31,16 +30,7 @@ class NERRunner(BaseNERRunner):
         super(NERRunner, self).__init__(override=override)
         self.ner = ner
 
-    def __call__(self, doc):
-        if not self.ok_for_running(doc):
-            return
-
-        entities = self.execute(doc)
-        doc.set_ner_result(entities)
-        doc.save()
-        logger.debug("NER tagged a document")
-
-    def execute(self, doc):
+    def run_ner(self, doc):
         entities = []
         # Apply the ner algorithm which takes a list of sentences and returns
         # a list of sentences, each being a list of NER-tokens, each of which is
@@ -71,7 +61,9 @@ class NERRunner(BaseNERRunner):
                 if last_kind != 'O':
                     # Found a new entity in offset:i
                     name = ' '.join(doc.tokens[offset:i])
-                    entities.append(EntityOccurrence.build(name, last_kind.lower(), name, offset, i))
+                    entities.append(
+                        self.build_occurrence(name, last_kind.lower(), name, offset, i)
+                    )
                 # Restart offset counter at each change of entity type
                 offset = i
             last_kind = kind

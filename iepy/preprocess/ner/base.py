@@ -1,4 +1,8 @@
+from collections import namedtuple
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
+
+
+FoundEntity = namedtuple('FoundEntity', 'key kind_name alias offset offset_end')
 
 
 class BaseNERRunner(BasePreProcessStepRunner):
@@ -16,3 +20,21 @@ class BaseNERRunner(BasePreProcessStepRunner):
             # Current step was already done, and not working in override mode
             return False
         return True
+
+    def __call__(self, doc):
+        # Do not override this method when subclassing. Instead,
+        # do it on the "run_ner"
+        if not self.ok_for_running(doc):
+            return
+
+        entities = self.run_ner(doc)
+
+        doc.set_ner_result(entities)
+        doc.save()
+
+    def run_ner(self, doc):
+        # Define logic in here
+        return []
+
+    def build_occurrence(self, key, kind, alias, offset, offset_end):
+        return FoundEntity(key, kind, alias, offset, offset_end)

@@ -1,3 +1,5 @@
+import mock
+
 from iepy.preprocess.ner.base import BaseNERRunner
 from iepy.preprocess.pipeline import PreProcessSteps
 
@@ -35,20 +37,17 @@ class CombinedNERRunner(BaseNERRunner):
             all_entities.extend(sub_entities)
         return sorted(all_entities, key=lambda x: x.offset)
 
-    def __call__(self, doc):
-        if not self.ok_for_running(doc):
-            return
-
+    def run_ner(self, doc):
         sub_results = []
+
         for sub_ner in self.ners:
-            sub_ner(doc)
             sub_results.append(
-                (sub_ner, doc.get_preprocess_result(PreProcessSteps.ner))
+                (sub_ner,
+                 sub_ner.run_ner(doc)
+                 )
             )
 
-        entities = self.merge_entities(sub_results)
-        doc.set_ner_result(entities)
-        doc.save()
+        return self.merge_entities(sub_results)
 
 
 class NoOverlapCombinedNERRunner(CombinedNERRunner):
