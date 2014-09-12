@@ -7,7 +7,7 @@ from nltk.tag.stanford import NERTagger
 import wget
 
 from iepy.data.models import EntityOccurrence
-from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
+from iepy.preprocess.ner.base import BaseNERRunner
 from iepy.utils import DIRS, unzip_file
 
 logger = logging.getLogger(__name__)
@@ -24,24 +24,19 @@ class NonTokenizingNERTagger(NERTagger):
         return old
 
 
-class NERRunner(BasePreProcessStepRunner):
+class NERRunner(BaseNERRunner):
     """Wrapper to insert a generic callable sentence NER tagger into the pipeline.
     """
-    step = PreProcessSteps.ner
-
     def __init__(self, ner, override=False):
-        self.override = override
+        super(NERRunner, self).__init__(override=override)
         self.ner = ner
 
     def __call__(self, doc):
-        if not doc.was_preprocess_step_done(PreProcessSteps.sentencer):
-            return
-        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.ner):
+        if not self.ok_for_running(doc):
             return
 
         entities = self.execute(doc)
-
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
+        doc.set_ner_result(entities)
         doc.save()
         logger.debug("NER tagged a document")
 

@@ -3,7 +3,7 @@ import urllib
 import codecs
 
 from iepy.data.models import Entity, EntityOccurrence
-from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
+from iepy.preprocess.ner.base import BaseNERRunner
 
 
 class LiteralNER(object):
@@ -80,18 +80,14 @@ class LiteralNER(object):
         return result
 
 
-class LiteralNERRunner(BasePreProcessStepRunner):
-    step = PreProcessSteps.ner
+class LiteralNERRunner(BaseNERRunner):
 
     def __init__(self, labels, src_filenames, override=False):
+        super(LiteralNERRunner, self).__init__(override=override)
         self.lit_tagger = LiteralNER(labels, src_filenames)
-        self.override = override
 
     def __call__(self, doc):
-        # this step does not requires PreProcessSteps.tagging:
-        if not doc.was_preprocess_step_done(PreProcessSteps.sentencer):
-            return
-        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.ner):
+        if not self.ok_for_running(doc):
             return
 
         entities = []
@@ -110,7 +106,7 @@ class LiteralNERRunner(BasePreProcessStepRunner):
 
             sent_offset += len(sent)
 
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
+        doc.set_ner_result(entities)
         doc.save()
 
 

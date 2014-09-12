@@ -1,7 +1,8 @@
-from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
+from iepy.preprocess.ner.base import BaseNERRunner
+from iepy.preprocess.pipeline import PreProcessSteps
 
 
-class CombinedNERRunner(BasePreProcessStepRunner):
+class CombinedNERRunner(BaseNERRunner):
     """A NER runner that is the combination of different NER runners
     (therefore, different NERs).
 
@@ -9,7 +10,6 @@ class CombinedNERRunner(BasePreProcessStepRunner):
     without any check, possibly leading to duplicate or overlapping entities;
     but subclassing this combiner you may define something different.
     """
-    step = PreProcessSteps.ner
 
     def __init__(self, ners, override=False):
         """The NER runners should be instances of BasePreProcessStepRunner.
@@ -20,10 +20,10 @@ class CombinedNERRunner(BasePreProcessStepRunner):
             or not the global-combined process.
             - Overriding only some NERs and not others is not allowed.
         """
+        super(CombinedNERRunner, self).__init__(override=override)
         if not ners:
             raise ValueError(u'Empty NERs to combine')
         self.ners = ners
-        self.override = override
 
         for sub_ner in self.ners:
             sub_ner.override = True
@@ -36,8 +36,7 @@ class CombinedNERRunner(BasePreProcessStepRunner):
         return sorted(all_entities, key=lambda x: x.offset)
 
     def __call__(self, doc):
-        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.ner):
-            # Already done
+        if not self.ok_for_running(doc):
             return
 
         sub_results = []
@@ -48,7 +47,7 @@ class CombinedNERRunner(BasePreProcessStepRunner):
             )
 
         entities = self.merge_entities(sub_results)
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
+        doc.set_ner_result(entities)
         doc.save()
 
 
