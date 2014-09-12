@@ -1,8 +1,11 @@
 # This module is the nexus/connection between the UI definitions (django models)
 # and the IEPY models. Modifications of this file should be done with the
 # awareness of this dual-impact.
+from datetime import datetime
+
 from django.db import models
 
+from iepy.utils import unzip
 from corpus.fields import ListField
 import jsonfield
 
@@ -23,14 +26,18 @@ class EntityKind(BaseModel):
     class Meta(BaseModel.Meta):
         ordering = ['name']
 
+    def __unicode__(self):
+        return self.kind.name
+
 
 class Entity(BaseModel):
+    # the "key" IS the "canonical-form". Alieses are stored on
+    # Entity Occurrences
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
-    canonical_form = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
 
     class Meta(BaseModel.Meta):
-        ordering = ['kind', 'key', 'canonical_form']
+        ordering = ['kind', 'key']
         unique_together = (('key', 'kind'), )
 
     def __unicode__(self):
@@ -59,15 +66,18 @@ class IEDocument(BaseModel):
     # Metadata annotations that're computed while traveling the pre-process pipeline
     tokenization_done_at = models.DateTimeField(null=True, blank=True)
     sentencer_done_at = models.DateTimeField(null=True, blank=True)
-    tagging = models.DateTimeField(null=True, blank=True)
-    ner = models.DateTimeField(null=True, blank=True)
-    segmentation = models.DateTimeField(null=True, blank=True)
+    tagging_done_at = models.DateTimeField(null=True, blank=True)
+    ner_done_at = models.DateTimeField(null=True, blank=True)
+    segmentation_done_at = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
-    metadata = jsonfield.JSONField()
+    metadata = jsonfield.JSONField(blank=True)
 
     class Meta(BaseModel.Meta):
         pass
+
+    def __unicode__(self):
+        return u'<IEDocument {0}>'.format(self.human_identifier)
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
@@ -78,6 +88,66 @@ class IEDocument(BaseModel):
         for i, end in enumerate(sentences[1:]):
             yield tokens[start:end]
             start = end
+
+    def was_preprocess_step_done(self, step):
+        return getattr(self, '%s_done_at' % step.name) is not None
+
+    def set_tokenization_result(self, value):
+        """Sets the value to the correspondent storage format"""
+        if not isinstance(value, list):
+            raise ValueError("Tokenization expected result should be a list "
+                             "of tuples (token-string, token-offset on text (int)).")
+        tkn_offsets, tokens = unzip(value, 2)
+        self.tokens = list(tokens)
+        self.offsets_to_text = list(tkn_offsets)
+        self.tokenization_done_at = datetime.now()
+        return self
+
+    def set_sentencer_result(self, value):
+        if not isinstance(value, list):
+            raise ValueError("Sentencer expected result should be a list.")
+        if not all(isinstance(x, int) for x in value):
+            raise ValueError('Sentencer result shall only contain ints: %r' % value)
+        if sorted(value) != value:
+            raise ValueError('Sentencer result shall be ordered.')
+        if len(set(value)) < len(value):
+            raise ValueError(
+                'Sentencer result shall not contain duplicates.')
+        if value[0] != 0:
+            raise ValueError(
+                'Sentencer result must start with 0. Actual=%r' % value[0])
+        if value[-1] != len(self.tokens):
+            raise ValueError(
+                'Sentencer result must end with token count=%d. Actual=%r' % (
+                    len(self.tokens), value[-1]))
+        self.sentences = value
+        self.sentencer_done_at = datetime.now()
+        return self
+
+    def set_tagging_result(self, value):
+        if len(value) != len(self.tokens):
+            raise ValueError(
+                'Tagging result must have same cardinality than tokens')
+        self.postags = value
+        self.tagging_done_at = datetime.now()
+        return self
+
+    def set_ner_result(self, value):
+        for found_entity in value:
+            key, kind_name, alias, offset, offset_end = found_entity
+            kind, _ = EntityKind.objects.get_or_create(name=kind_name)
+            entity, created = Entity.objects.get_or_create(
+                key=key,
+                kind=kind)
+            EntityOccurrence.objects.get_or_create(
+                document=self,
+                entity=entity,
+                offset=offset,
+                offset_end=offset_end,
+                alias=alias
+            )
+        self.ner_done_at = datetime.now()
+        return self
 
 
 class EntityOccurrence(BaseModel):
@@ -92,6 +162,7 @@ class EntityOccurrence(BaseModel):
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
+        unique_together = ['entity', 'document', 'offset', 'offset_end']
 
     def __unicode__(self):
         return u'{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)

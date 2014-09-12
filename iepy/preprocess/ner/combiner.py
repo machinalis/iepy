@@ -1,29 +1,29 @@
-from iepy.data.models import PreProcessSteps
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.preprocess.ner.base import BaseNERRunner
 
 
-class CombinedNERRunner(BasePreProcessStepRunner):
+class CombinedNERRunner(BaseNERRunner):
     """A NER runner that is the combination of different NER runners
     (therefore, different NERs).
-    The entities returned by each NERs are combined by method merge_entities
+
+    The entities returned by each NER are combined by the method merge_entities
     without any check, possibly leading to duplicate or overlapping entities;
     but subclassing this combiner you may define something different.
     """
-    step = PreProcessSteps.ner
 
     def __init__(self, ners, override=False):
         """The NER runners should be instances of BasePreProcessStepRunner.
-        The override attributes of each NER runner is set to True, ignoring the
-        previous values.
-        The override parameter is used for all NER runners (overriding only one
-        part is not allowed).
+        Notes:
+            - Each of the sub-ners will be configured to run with override-mode
+            "on", no matter what is the global override value.
+            The global override, will be used for determining wether to start
+            or not the global-combined process.
+            - Overriding only some NERs and not others is not allowed.
         """
+        super(CombinedNERRunner, self).__init__(override=override)
         if not ners:
-            raise ValueError(u'Empty ners to combine')
+            raise ValueError(u'Empty NERs to combine')
         self.ners = ners
-        self.override = override
 
-        # Do not allow overriding by parts
         for sub_ner in self.ners:
             sub_ner.override = True
 
@@ -34,21 +34,15 @@ class CombinedNERRunner(BasePreProcessStepRunner):
             all_entities.extend(sub_entities)
         return sorted(all_entities, key=lambda x: x.offset)
 
-    def __call__(self, doc):
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
-            # Already done
-            return
-
+    def run_ner(self, doc):
         sub_results = []
         for sub_ner in self.ners:
-            sub_ner(doc)
             sub_results.append(
-                (sub_ner, doc.get_preprocess_result(PreProcessSteps.ner))
+                (sub_ner,
+                 sub_ner.run_ner(doc)
+                 )
             )
-
-        entities = self.merge_entities(sub_results)
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
-        doc.save()
+        return self.merge_entities(sub_results)
 
 
 class NoOverlapCombinedNERRunner(CombinedNERRunner):
@@ -99,8 +93,8 @@ class KindPreferenceCombinedNERRunner(CombinedNERRunner):
         self.worst_rank = len(self.kinds_rank)
         super(KindPreferenceCombinedNERRunner, self).__init__(ners, override)
 
-    def get_rank(self, entityocc):
-        return self.kinds_rank.setdefault(entityocc.entity.kind, self.worst_rank)
+    def get_rank(self, found_entity):
+        return self.kinds_rank.setdefault(found_entity.kind_name, self.worst_rank)
 
     def merge_entities(self, sub_results):
         sorted_occurrences = super(KindPreferenceCombinedNERRunner,

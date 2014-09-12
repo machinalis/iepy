@@ -6,8 +6,7 @@ import logging
 from nltk.tag.stanford import NERTagger
 import wget
 
-from iepy.data.models import PreProcessSteps, EntityOccurrence
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.preprocess.ner.base import BaseNERRunner
 from iepy.utils import DIRS, unzip_file
 
 logger = logging.getLogger(__name__)
@@ -24,29 +23,14 @@ class NonTokenizingNERTagger(NERTagger):
         return old
 
 
-class NERRunner(BasePreProcessStepRunner):
+class NERRunner(BaseNERRunner):
     """Wrapper to insert a generic callable sentence NER tagger into the pipeline.
     """
-    step = PreProcessSteps.ner
-
     def __init__(self, ner, override=False):
-        self.override = override
+        super(NERRunner, self).__init__(override=override)
         self.ner = ner
 
-    def __call__(self, doc):
-        # this step does not necessarily requires PreProcessSteps.tagging:
-        if not doc.was_preprocess_done(PreProcessSteps.sentencer):
-            return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
-            return
-
-        entities = self.execute(doc)
-
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
-        doc.save()
-        logger.debug("NER tagged a document")
-
-    def execute(self, doc):
+    def run_ner(self, doc):
         entities = []
         # Apply the ner algorithm which takes a list of sentences and returns
         # a list of sentences, each being a list of NER-tokens, each of which is
@@ -77,7 +61,9 @@ class NERRunner(BasePreProcessStepRunner):
                 if last_kind != 'O':
                     # Found a new entity in offset:i
                     name = ' '.join(doc.tokens[offset:i])
-                    entities.append(EntityOccurrence.build(name, last_kind.lower(), name, offset, i))
+                    entities.append(
+                        self.build_occurrence(name, last_kind.lower(), name, offset, i)
+                    )
                 # Restart offset counter at each change of entity type
                 offset = i
             last_kind = kind

@@ -1,5 +1,4 @@
-from iepy.data.models import PreProcessSteps
-from iepy.preprocess import BasePreProcessStepRunner
+from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 
 
 class SyntacticSegmenterRunner(BasePreProcessStepRunner):
@@ -10,7 +9,7 @@ class SyntacticSegmenterRunner(BasePreProcessStepRunner):
         self.override = override
 
     def __call__(self, doc):
-        if not doc.was_preprocess_done(PreProcessSteps.ner) or not doc.was_preprocess_done(PreProcessSteps.sentencer):
+        if not doc.was_preprocess_step_done(PreProcessSteps.ner) or not doc.was_preprocess_done(PreProcessSteps.sentencer):
             return
         if self.override or not doc.was_preprocess_done(self.step):
             assert all(doc.entities[i].offset <= doc.entities[i + 1].offset for i in range(len(doc.entities) - 1))

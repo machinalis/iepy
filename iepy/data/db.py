@@ -1,25 +1,27 @@
+"""
+IEPY DB Abstraction level.
+
+The goal of this module is to provide some thin abstraction between
+the chosen database engine and ORM and the IEPY core and tools.
+"""
+
 from collections import namedtuple
 try:
     from functools import lru_cache
 except:
     from functools32 import lru_cache
 
-from iepy.data.models import IEDocument, TextSegment, Entity
+import iepy
+iepy.setup()
+
+from iepy.data.models import IEDocument, TextSegment, Entity, EntityKind
+from iepy.preprocess.pipeline import PreProcessSteps
 
 
-IEPYDBConnector = namedtuple('IEPYDBConnector', 'connector segments documents')
+IEPYDBConnector = namedtuple('IEPYDBConnector', 'segments documents')
 
 # Number of entities that will be cached on get_entity function.
 ENTITY_CACHE_SIZE = 20  # reasonable compromise
-
-
-def connect(db_name):
-    pass
-    #return IEPYDBConnector(
-    #    mongoconnect(db_name),
-    #    TextSegmentManager(),
-    #    DocumentManager(),
-    #)
 
 
 class DocumentManager(object):
@@ -48,21 +50,22 @@ class DocumentManager(object):
         return doc
 
     def __iter__(self):
-        return IEDocument.objects.timeout(False).all()
+        return iter(IEDocument.objects.all())
 
     def get_raw_documents(self):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        return IEDocument.objects(text='').timeout(False)
+        return IEDocument.objects.filter(text='')
 
     def get_documents_lacking_preprocess(self, step):
         """Returns an iterator of documents that shall be processed on the given
         step."""
-        if not isinstance(step, PreProcessSteps):
-            raise InvalidPreprocessSteps
-        query = {'preprocess_metadata__%s__exists' % step.name: False}
-        return IEDocument.objects(**query).timeout(False)
+        if step in PreProcessSteps:
+            flag_field_name = "%s_done_at" % step.name
+            query = {"%s__isnull" % flag_field_name: True}
+            return IEDocument.objects.filter(**query)
+        return IEDocument.objects.none()
 
 
 class TextSegmentManager(object):
@@ -92,6 +95,15 @@ class TextSegmentManager(object):
             objects = db.text_segment.aggregate(pipeline)
             segments = list(TextSegment.objects.in_bulk([c['id'] for c in objects[u'result']]).values())
             return segments
+
+
+class EntityManager(object):
+
+    @classmethod
+    def ensure_kinds(cls, kind_names):
+        for kn in kind_names:
+            EntityKind.objects.get_or_create(name=kn)
+
 
 
 @lru_cache(maxsize=ENTITY_CACHE_SIZE)

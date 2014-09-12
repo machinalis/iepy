@@ -6,9 +6,7 @@ import factory
 import nltk
 
 from iepy.core import Fact, Evidence
-from iepy.data.models import (
-    IEDocument, Entity, PreProcessSteps, EntityInSegment,
-    TextSegment)
+from iepy.data.models import IEDocument, EntityKind, Entity, EntityOccurrence, TextSegment
 
 
 def naive_tkn(text):
@@ -23,45 +21,34 @@ def naive_tkn(text):
 logging.getLogger("factory").setLevel(logging.WARN)
 
 
+class EntityKindFactory(factory.Factory):
+    FACTORY_FOR = EntityKind
+    name = 'person'
+
+
 class EntityFactory(factory.Factory):
     FACTORY_FOR = Entity
     key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
+    kind = factory.SubFactory(EntityKindFactory)
 
 
+# NEEDS TO BE REWRITTEN
 class EntityInSegmentFactory(factory.Factory):
-    FACTORY_FOR = EntityInSegment
-    key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
-    offset = 0
-    offset_end = 1
-
-
-class EntityOccurrenceFake(object):
-    # Since EntityOccurrence is an EmbeddedDocument it cant be saved, and
-    # because of that, fails when attempting comparisons
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def __str__(self):
-        return u'<EntityOccurrence %s (%s, %s)>' % (
-            self.entity.kind, self.offset, self.offset_end)
-
-    def __repr__(self):
-        return str(self)
-
-    def __lt__(self, other):  # python2 & python3 way of defining sorting
-        return self.offset < other.offset
+    pass
+#    FACTORY_FOR = EntityInSegment
+#    key = factory.Sequence(lambda n: 'id:%i' % n)
+#    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
+#    kind = 'person'
+#    offset = 0
+#    offset_end = 1
 
 
 class EntityOccurrenceFactory(factory.Factory):
-    FACTORY_FOR = EntityOccurrenceFake
+    FACTORY_FOR = EntityOccurrence
     entity = factory.SubFactory(EntityFactory)
     offset = 0
     offset_end = 1
+    alias = ''
 
 
 class IEDocFactory(factory.Factory):
@@ -95,8 +82,8 @@ class SentencedIEDocFactory(IEDocFactory):
             tokens.extend(list(enumerate(sent_tokens)))
             sentences.append(sentences[-1] + len(sent_tokens))
 
-        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
-        self.set_preprocess_result(PreProcessSteps.sentencer, sentences)
+        self.set_tokenization_result(tokens)
+        self.set_sentencer_result(sentences)
 
 
 def NamedTemporaryFile23(*args, **kwargs):

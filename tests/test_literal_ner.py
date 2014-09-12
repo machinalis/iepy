@@ -1,9 +1,11 @@
 from unittest import TestCase
 
-from iepy.data.models import PreProcessSteps, IEDocument
-from iepy.preprocess.literal_ner import LiteralNER, LiteralNERRunner
+from iepy.data.models import IEDocument
+from iepy.preprocess.ner.literal import LiteralNER, LiteralNERRunner
+from iepy.preprocess.pipeline import PreProcessSteps
 from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
 from tests.manager_case import ManagerTestCase
+from tests.test_ner import NERTestMixin
 
 NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
 
@@ -21,9 +23,8 @@ class TestLiteralNER(TestCase):
         self.tmp_file2 = f
 
     def test_tagging(self):
-
         tagger = LiteralNER(NEW_ENTITIES,
-                           [self.tmp_file1.name, self.tmp_file2.name])
+                            [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.tag(s.split())
@@ -46,7 +47,7 @@ class TestLiteralNER(TestCase):
 
     def test_entities(self):
         tagger = LiteralNER(NEW_ENTITIES,
-                           [self.tmp_file1.name, self.tmp_file2.name])
+                            [self.tmp_file1.name, self.tmp_file2.name])
 
         s = "Chase notes she's negative for HIV and Hepatitis C"
         result = tagger.entities(s.split())
@@ -65,13 +66,7 @@ class TestLiteralNER(TestCase):
         self.assertEqual(result, expected_entities)
 
 
-class TestLiteralNERRunner(ManagerTestCase):
-    ManagerClass = IEDocument
-
-    def tearDown(self):
-        super(TestLiteralNERRunner, self).tearDown()
-        from iepy.data import models
-        models.set_custom_entity_kinds([])
+class TestLiteralNERRunner(ManagerTestCase, NERTestMixin):
 
     def setUp(self):
         f = NamedTemporaryFile23(mode="w", encoding="utf8")
@@ -82,13 +77,11 @@ class TestLiteralNERRunner(ManagerTestCase):
         f.write('MRI\nCT scan\ndrooling\n')
         f.seek(0)
         self.tmp_file2 = f
-        from iepy.data import models
-        models.set_custom_entity_kinds(zip(map(lambda x: x.lower(), NEW_ENTITIES),
-                                           NEW_ENTITIES))  # id, label
 
     def test(self):
         doc = SentencedIEDocFactory(
             text="Chase notes she's negative for HIV and Hepatitis C")
+        doc.save()
 
         lit_tagger_runner = LiteralNERRunner(['disease'], [self.tmp_file1.name])
         lit_tagger_runner(doc)
@@ -96,11 +89,4 @@ class TestLiteralNERRunner(ManagerTestCase):
         # (the tokenizer splits she's in two parts)
         entities_triples = [(6, 7, 'disease'), (8, 10, 'disease')]
 
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.ner))
-        entities = doc.get_preprocess_result(PreProcessSteps.ner)
-
-        self.assertEqual(len(entities), len(entities_triples))
-        for e, (offset, offset_end, kind) in zip(entities, entities_triples):
-            self.assertEqual(e.offset, offset)
-            self.assertEqual(e.offset_end, offset_end)
-            self.assertEqual(e.entity.kind, kind)
+        self.check_ner_result(doc, entities_triples)

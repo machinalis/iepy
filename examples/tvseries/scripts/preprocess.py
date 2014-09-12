@@ -2,7 +2,7 @@
 Wikia TV series preprocessing script
 
 Usage:
-    preprocess.py <dbname>
+    preprocess.py
     preprocess.py -h | --help | --version
 
 Options:
@@ -15,14 +15,13 @@ import re
 from docopt import docopt
 from mwtextextractor import get_body_text
 
-from iepy.data.db import connect, DocumentManager
-from iepy.data.models import set_custom_entity_kinds
+from iepy.data.db import DocumentManager, EntityManager
 from iepy.preprocess.pipeline import PreProcessPipeline
 from iepy.preprocess.tokenizer import TokenizeSentencerRunner
 from iepy.preprocess.tagger import StanfordTaggerRunner
-from iepy.preprocess.combined_ner import NoOverlapCombinedNERRunner
-from iepy.preprocess.literal_ner import LiteralNERRunner
-from iepy.preprocess.ner import StanfordNERRunner
+from iepy.preprocess.ner.combiner import NoOverlapCombinedNERRunner
+from iepy.preprocess.ner.stanford import StanfordNERRunner
+from iepy.preprocess.ner.literal import LiteralNERRunner
 from iepy.preprocess.segmenter import SyntacticSegmenterRunner
 
 
@@ -45,12 +44,12 @@ CUSTOM_ENTITIES_FILES = [u'examples/tvseries/notable_people.txt',
 
 if __name__ == '__main__':
     logger = logging.getLogger(u'preprocess')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO,
+                        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     opts = docopt(__doc__, version=0.1)
-    connect(opts[u'<dbname>'])
     docs = DocumentManager()
-    set_custom_entity_kinds(zip(map(lambda x: x.lower(), CUSTOM_ENTITIES),
-                                CUSTOM_ENTITIES))
+    EntityManager.ensure_kinds(CUSTOM_ENTITIES)
     pipeline = PreProcessPipeline([
         media_wiki_to_txt,
         TokenizeSentencerRunner(),

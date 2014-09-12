@@ -2,8 +2,7 @@ import json
 import urllib
 import codecs
 
-from iepy.data.models import PreProcessSteps, Entity, EntityOccurrence
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.preprocess.ner.base import BaseNERRunner
 
 
 class LiteralNER(object):
@@ -80,20 +79,13 @@ class LiteralNER(object):
         return result
 
 
-class LiteralNERRunner(BasePreProcessStepRunner):
-    step = PreProcessSteps.ner
+class LiteralNERRunner(BaseNERRunner):
 
     def __init__(self, labels, src_filenames, override=False):
+        super(LiteralNERRunner, self).__init__(override=override)
         self.lit_tagger = LiteralNER(labels, src_filenames)
-        self.override = override
 
-    def __call__(self, doc):
-        # this step does not requires PreProcessSteps.tagging:
-        if not doc.was_preprocess_done(PreProcessSteps.sentencer):
-            return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.ner):
-            return
-
+    def run_ner(self, doc):
         entities = []
         sent_offset = 0
         for sent in doc.get_sentences():
@@ -102,16 +94,18 @@ class LiteralNERRunner(BasePreProcessStepRunner):
             for ((i, j), label) in sent_entities:
                 name = ' '.join(sent[i:j])
                 kind = label.lower()  # XXX: should be in models.ENTITY_KINDS
-                entity, created = Entity.objects.get_or_create(
-                    key=name, kind=kind, defaults={'canonical_form': name})
-                entity_oc = EntityOccurrence(
-                    entity=entity, offset=sent_offset + i, offset_end=sent_offset + j)
-                entities.append(entity_oc)
+
+                entities.append(
+                    self.build_occurrence(
+                        key=name,
+                        kind_name=kind,
+                        alias=name,
+                        offset=sent_offset + i,
+                        offset_end=sent_offset + j)
+                )
 
             sent_offset += len(sent)
-
-        doc.set_preprocess_result(PreProcessSteps.ner, entities)
-        doc.save()
+        return entities
 
 
 def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=False):
