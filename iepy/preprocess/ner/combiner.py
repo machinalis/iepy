@@ -1,7 +1,4 @@
-import mock
-
 from iepy.preprocess.ner.base import BaseNERRunner
-from iepy.preprocess.pipeline import PreProcessSteps
 
 
 class CombinedNERRunner(BaseNERRunner):
@@ -39,14 +36,12 @@ class CombinedNERRunner(BaseNERRunner):
 
     def run_ner(self, doc):
         sub_results = []
-
         for sub_ner in self.ners:
             sub_results.append(
                 (sub_ner,
                  sub_ner.run_ner(doc)
                  )
             )
-
         return self.merge_entities(sub_results)
 
 
@@ -98,8 +93,8 @@ class KindPreferenceCombinedNERRunner(CombinedNERRunner):
         self.worst_rank = len(self.kinds_rank)
         super(KindPreferenceCombinedNERRunner, self).__init__(ners, override)
 
-    def get_rank(self, entityocc):
-        return self.kinds_rank.setdefault(entityocc.entity.kind, self.worst_rank)
+    def get_rank(self, found_entity):
+        return self.kinds_rank.setdefault(found_entity.kind_name, self.worst_rank)
 
     def merge_entities(self, sub_results):
         sorted_occurrences = super(KindPreferenceCombinedNERRunner,

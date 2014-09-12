@@ -26,9 +26,7 @@ class BaseNERRunner(BasePreProcessStepRunner):
         # do it on the "run_ner"
         if not self.ok_for_running(doc):
             return
-
         entities = self.run_ner(doc)
-
         doc.set_ner_result(entities)
         doc.save()
 
