@@ -128,6 +128,9 @@ class IEDocument(BaseModel):
         self.tagging_done_at = datetime.now()
         return self
 
+    def set_ner_result(self, value):
+        return self
+
 
 class EntityOccurrence(BaseModel):
     """Models the occurrence of a particular Entity on a Document"""
