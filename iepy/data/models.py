@@ -31,12 +31,13 @@ class EntityKind(BaseModel):
 
 
 class Entity(BaseModel):
+    # the "key" IS the "canonical-form". Alieses are stored on
+    # Entity Occurrences
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
-    canonical_form = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
 
     class Meta(BaseModel.Meta):
-        ordering = ['kind', 'key', 'canonical_form']
+        ordering = ['kind', 'key']
         unique_together = (('key', 'kind'), )
 
     def __unicode__(self):
@@ -137,8 +138,7 @@ class IEDocument(BaseModel):
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             entity, created = Entity.objects.get_or_create(
                 key=key,
-                kind=kind,
-                defaults={'canonical_form': alias})
+                kind=kind)
             EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
