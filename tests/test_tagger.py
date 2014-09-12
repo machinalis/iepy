@@ -19,9 +19,8 @@ class TestTaggerRunner(ManagerTestCase):
             return (zip(sent, next(i)) for sent in sents)
         tag = TaggerRunner(postagger)
         tag(doc)
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
-        postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertEqual(postags, sum(expected_postags, []))
+        self.assertTrue(doc.was_preprocess_step_done(PreProcessSteps.tagging))
+        self.assertEqual(doc.postags, sum(expected_postags, []))
 
     def test_tagger_runner_not_overriding_by_default(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
@@ -31,8 +30,7 @@ class TestTaggerRunner(ManagerTestCase):
         tag(doc)
         tag.postagger = postagger2  # XXX: accessing implementation
         tag(doc)
-        postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertTrue(all(x == 'A' for x in postags))
+        self.assertTrue(all(x == 'A' for x in doc.postags))
 
     def test_tagger_runner_overriding_when_selected(self):
         doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
@@ -42,8 +40,7 @@ class TestTaggerRunner(ManagerTestCase):
         tag(doc)
         tag.postagger = postagger2  # XXX: accessing implementation
         tag(doc)
-        postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertTrue(all(x == 'B' for x in postags))
+        self.assertTrue(all(x == 'B' for x in doc.postags))
 
 
 class TestStanfordTaggerRunner(ManagerTestCase):
@@ -54,6 +51,5 @@ class TestStanfordTaggerRunner(ManagerTestCase):
         expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
         tag = StanfordTaggerRunner()
         tag(doc)
-        self.assertTrue(doc.was_preprocess_done(PreProcessSteps.tagging))
-        postags = doc.get_preprocess_result(PreProcessSteps.tagging)
-        self.assertEqual(postags, expected_postags)
+        self.assertTrue(doc.was_preprocess_step_done(PreProcessSteps.tagging))
+        self.assertEqual(doc.postags, expected_postags)
