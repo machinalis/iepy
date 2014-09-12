@@ -1,8 +1,4 @@
-import unittest
-
-from django.conf import settings
 from django.test import TestCase
-from django.test.utils import setup_test_environment, teardown_test_environment
 
 import iepy
 
