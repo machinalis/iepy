@@ -8,7 +8,7 @@ import iepy
 ORM_NEEDED_PATH = os.path.join(iepy.__path__[0], 'webui')
 
 if ORM_NEEDED_PATH not in sys.path:
-    print 'Adding %s to the python path' % ORM_NEEDED_PATH
+    print('Adding %s to the python path' % ORM_NEEDED_PATH)
     sys.path.append(ORM_NEEDED_PATH)
     iepy.setup()
 
