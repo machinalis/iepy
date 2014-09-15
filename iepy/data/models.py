@@ -89,6 +89,10 @@ class IEDocument(BaseModel):
             yield tokens[start:end]
             start = end
 
+    def get_entity_occurrences(self):
+        """Returns an iterable of EntityOccurrences, sorted by offset"""
+        return self.entitiy_occurrences.all().order_by('offset')
+
     def was_preprocess_step_done(self, step):
         return getattr(self, '%s_done_at' % step.name) is not None
 
@@ -147,6 +151,10 @@ class IEDocument(BaseModel):
                 alias=alias
             )
         self.ner_done_at = datetime.now()
+        return self
+
+    def set_segmentation_result(self, value):
+        self.segmentation_done_at = datetime.now()
         return self
 
 
