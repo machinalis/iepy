@@ -22,7 +22,7 @@ class ListField(models.TextField):
         if value is None:
             return value
 
-        return unicode(value)
+        return str(value)
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
