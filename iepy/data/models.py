@@ -47,9 +47,9 @@ class Entity(BaseModel):
 class IEDocument(BaseModel):
     human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
                                         unique=True)
-    title = models.CharField(max_length=CHAR_MAX_LENGHT)
-    url = models.URLField()
-    text = models.TextField()
+    title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
+    url = models.URLField()  # TODO: remove
+    text = models.TextField()  # TODO: remove
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
@@ -181,4 +181,51 @@ class TextSegment(BaseModel):
         pass
 
     def __unicode__(self):
-        return u'{0}'.format(' '.join(self.tokens))
+        return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
+
+
+class Relation(BaseModel):
+    name = models.CharField(max_length=CHAR_MAX_LENGHT)
+    left_entity_kind = models.ForeignKey('EntityKind')
+    right_entity_kind = models.ForeignKey('EntityKind')
+
+    # Reversed fields:
+    # evidence_relations = Reversed ForeignKey of LabeledRelationEvidence
+
+    def __str__(self):
+        return '{}({}, {})'.format(self.name, self.left_entity_kind,
+                                   self.right_entity_kind)
+
+
+class LabeledRelationEvidence(BaseModel):
+    NORELATION = "NO"
+    YESRELATION = "YE"
+    DONTKNOW = "DK"
+    SKIP = "SK"
+    NONSENSE = "NS"
+    LABEL_CHOICES = (
+        (NORELATION, "No relation present"),
+        (YESRELATION, "Yes, relation is present"),
+        (DONTKNOW, "Don't know if the relation is present"),
+        (SKIP, "Skipped labeling of this evidence"),
+        (NONSENSE, "Evidence is nonsense")
+    )
+
+    left_entity_occurrence = models.ForeignKey('EntityOccurrence')
+    right_entity_occurrence = models.ForeignKey('EntityOccurrence')
+    relation = models.ForeignKey('Relation', related_name='evidence_relations')
+    segment = models.ForeignKey('TextSegment')
+    label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP)
+
+    date = models.DateTimeField(auto_now_add=True)
+    # The judge field is meant to be the username of the person that decides
+    # the label of this evidence. It's not modelled as a foreign key to allow
+    # easier interaction with non-django code.
+    judge = models.CharField(max_length=CHAR_MAX_LENGHT)
+
+    def __str__(self):
+        s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
+        return s.format(self.segment, self.relation.name,
+                        self.left_entity_occurrence.alias,
+                        self.right_entity_occurrence.alias,
+                        self.judge, self.label)
