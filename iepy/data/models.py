@@ -60,7 +60,7 @@ class IEDocument(BaseModel):
     sentences = ListField()  # ints, it's a list of token-offsets
 
     # Reversed fields:
-    # entities = Reversed ForeignKey of EntityOccurrence
+    # entitiy_occurrences = Reversed ForeignKey of EntityOccurrence
     # text_segments = Reversed ForeignKey of TextSegment
 
     # Metadata annotations that're computed while traveling the pre-process pipeline
@@ -170,7 +170,6 @@ class EntityOccurrence(BaseModel):
 
 class TextSegment(BaseModel):
     document = models.ForeignKey('IEDocument')
-    text = models.TextField()
     offset = models.IntegerField()  # Offset in tokens wrt document
     offset_end = models.IntegerField()  # in tokens wrt document
 
@@ -178,7 +177,8 @@ class TextSegment(BaseModel):
     # entity_ocurrences = Reversed ManyToManyField of EntityOccurrence
 
     class Meta(BaseModel.Meta):
-        pass
+        ordering = ['document', 'offset', 'offset_end']
+        unique_together = ['document', 'offset', 'offset_end']
 
     def __unicode__(self):
         return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
