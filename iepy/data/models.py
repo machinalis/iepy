@@ -157,7 +157,39 @@ class IEDocument(BaseModel):
         self.ner_done_at = datetime.now()
         return self
 
-    def set_segmentation_result(self, value):
+    def set_segmentation_result(self, value, increment=True, override=False):
+        if override:
+            self.segments.all().delete()
+            logger.info('Previous segments removed')
+        get_offsets = attrgetter('offset', 'offset_end')
+        value = sorted(value, key=get_offsets)
+        logger.info('About to set %s segments for current doc', len(value))
+        doc_ent_occurrences = list(self.entity_occurrences.all())
+        currents = set(self.segments.all().values_list('offset', 'offset_end'))
+        new_segs = []
+        for i, raw_segment in enumerate(value):
+            if (raw_segment.offset, raw_segment.offset_end) in currents:
+                continue
+            _segm = TextSegment(
+                document=self, offset=raw_segment.offset,
+                offset_end=raw_segment.offset_end)
+            new_segs.append((_segm, raw_segment))
+        if new_segs:
+            TextSegment.objects.bulk_create(zip(*new_segs)[0])
+            logger.info('New %s segments created', len(new_segs))
+        doc_segments = dict((get_offsets(s), s) for s in self.segments.all())
+        for _segm, raw_segment in new_segs:
+            segm = doc_segments[get_offsets(_segm)]
+            if raw_segment.entity_occurrences is None:
+                # Entity Ocurrences not provided, need to compute them
+                segm.entity_occurrences = [
+                    eo for eo in doc_ent_occurrences
+                    if eo.offset >= segm.offset
+                    and eo.offset_end < segm.offset_end
+                ]
+            else:
+                segm.entity_occurrences = raw_segment.entity_occurrences
+
         self.segmentation_done_at = datetime.now()
         return self
 
