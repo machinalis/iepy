@@ -97,6 +97,10 @@ class IEDocument(BaseModel):
         """Returns an iterable of EntityOccurrences, sorted by offset"""
         return self.entity_occurrences.all().order_by('offset')
 
+    def get_text_segments(self):
+        """Returns the iterable of TextSegments, sorted by offset"""
+        return self.segments.all().order_by('offset')
+
     def was_preprocess_step_done(self, step):
         return getattr(self, '%s_done_at' % step.name) is not None
 
@@ -177,6 +181,8 @@ class IEDocument(BaseModel):
         if new_segs:
             TextSegment.objects.bulk_create(zip(*new_segs)[0])
             logger.info('New %s segments created', len(new_segs))
+        # And now, taking care of setting Entity Occurrences
+
         doc_segments = dict((get_offsets(s), s) for s in self.segments.all())
         for _segm, raw_segment in new_segs:
             segm = doc_segments[get_offsets(_segm)]
@@ -218,11 +224,32 @@ class TextSegment(BaseModel):
     offset_end = models.IntegerField(db_index=True)  # in tokens wrt document
 
     # Reversed fields:
-    # entity_ocurrences = Reversed ManyToManyField of EntityOccurrence
+    # entity_occurrences = Reversed ManyToManyField of EntityOccurrence
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
         unique_together = ['document', 'offset', 'offset_end']
+
+    def hydrate(self):
+        # Using the segment offsets, and the data on document itself, constructs
+        # on-memory attributes for the segment
+        doc = self.document
+        self.tokens = doc.tokens[self.offset: self.offset_end]
+        self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
+        self.postags = doc.postags[self.offset: self.offset_end]
+        if self.offsets_to_text:
+            # grab the text except the last token
+            self.text = doc.text[self.offsets_to_text[0]:
+                                 doc.offsets_to_text[self.offset_end - 1]]
+            # and now append the "pure" last token.
+            self.text += self.tokens[-1]
+        else:
+            self.text = ""
+        return self
+
+    def get_entity_occurrences(self):
+        """Returns an iterable of EntityOccurrences, sorted by offset"""
+        return self.entity_occurrences.all().order_by('offset')
 
     def __unicode__(self):
         # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
