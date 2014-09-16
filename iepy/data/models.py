@@ -2,6 +2,8 @@
 # and the IEPY models. Modifications of this file should be done with the
 # awareness of this dual-impact.
 from datetime import datetime
+import logging
+from operator import attrgetter
 
 from django.db import models
 
@@ -10,6 +12,8 @@ from corpus.fields import ListField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
+
+logger = logging.getLogger(__name__)
 
 
 class BaseModel(models.Model):
@@ -91,7 +95,7 @@ class IEDocument(BaseModel):
 
     def get_entity_occurrences(self):
         """Returns an iterable of EntityOccurrences, sorted by offset"""
-        return self.entitiy_occurrences.all().order_by('offset')
+        return self.entity_occurrences.all().order_by('offset')
 
     def was_preprocess_step_done(self, step):
         return getattr(self, '%s_done_at' % step.name) is not None
@@ -161,8 +165,8 @@ class IEDocument(BaseModel):
 class EntityOccurrence(BaseModel):
     """Models the occurrence of a particular Entity on a Document"""
     entity = models.ForeignKey('Entity')
-    document = models.ForeignKey('IEDocument', related_name='entity_ocurrences')
-    segments = models.ManyToManyField('TextSegment', related_name='entity_ocurrences')
+    document = models.ForeignKey('IEDocument', related_name='entity_occurrences')
+    segments = models.ManyToManyField('TextSegment', related_name='entity_occurrences')
     offset = models.IntegerField()  # Offset in tokens wrt to document
     offset_end = models.IntegerField()  # Offset in tokens wrt to document
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
@@ -177,9 +181,9 @@ class EntityOccurrence(BaseModel):
 
 
 class TextSegment(BaseModel):
-    document = models.ForeignKey('IEDocument')
-    offset = models.IntegerField()  # Offset in tokens wrt document
-    offset_end = models.IntegerField()  # in tokens wrt document
+    document = models.ForeignKey('IEDocument', related_name='segments', db_index=True)
+    offset = models.IntegerField(db_index=True)  # Offset in tokens wrt document
+    offset_end = models.IntegerField(db_index=True)  # in tokens wrt document
 
     # Reversed fields:
     # entity_ocurrences = Reversed ManyToManyField of EntityOccurrence
@@ -189,7 +193,8 @@ class TextSegment(BaseModel):
         unique_together = ['document', 'offset', 'offset_end']
 
     def __unicode__(self):
-        return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
+        # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
+        return u'({0} {1})'.format(self.offset, self.offset_end)
 
 
 class Relation(BaseModel):
@@ -237,3 +242,4 @@ class LabeledRelationEvidence(BaseModel):
                         self.left_entity_occurrence.alias,
                         self.right_entity_occurrence.alias,
                         self.judge, self.label)
+        return u'({0} {1})'.format(self.offset, self.offset_end)
