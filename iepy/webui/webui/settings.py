@@ -65,10 +65,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join('/', 'tmp', 'db.sqlite3'),
-    },
-    'test': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join('/', 'tmp', 'db.sqlite3'),
     }
 }
 
@@ -84,6 +80,11 @@ except ValueError as error:
 else:
     DATABASES.update(user_db_cfg)
     print 'Using user defined databases at %s' % user_db_cfg_path
+
+if 'test' in sys.argv or 'nosetests' in str(sys.argv):
+    # No matter what, tests use ram-sqlite as database
+    print 'Using sqlite on memory as test database'
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
