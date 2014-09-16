@@ -50,7 +50,7 @@ class SyntacticSegmenterRunner(BasePreProcessStepRunner):
             for eo_counter in range(eo_counter, len(entity_occs)):
                 # Count entities inside the sentence
                 eo = entity_occs[eo_counter]
-                if eo.offset >= end or eo.offset_end >= end:
+                if eo.offset >= end or eo.offset_end > end:
                     # occurrence is not completely inside the sentence, then
                     # better to not consider it inside
                     break
@@ -60,4 +60,3 @@ class SyntacticSegmenterRunner(BasePreProcessStepRunner):
             if len(sentence_occurrences) >= 2:
                 result.append(RawSegment(start, end, sentence_occurrences))
         return result
-
