@@ -32,17 +32,6 @@ class EntityFactory(factory.Factory):
     kind = factory.SubFactory(EntityKindFactory)
 
 
-# NEEDS TO BE REWRITTEN
-class EntityInSegmentFactory(factory.Factory):
-    pass
-#    FACTORY_FOR = EntityInSegment
-#    key = factory.Sequence(lambda n: 'id:%i' % n)
-#    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-#    kind = 'person'
-#    offset = 0
-#    offset_end = 1
-
-
 class EntityOccurrenceFactory(factory.Factory):
     FACTORY_FOR = EntityOccurrence
     entity = factory.SubFactory(EntityFactory)
