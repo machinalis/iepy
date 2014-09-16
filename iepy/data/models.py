@@ -2,6 +2,7 @@
 # and the IEPY models. Modifications of this file should be done with the
 # awareness of this dual-impact.
 from datetime import datetime
+import itertools
 import logging
 from operator import attrgetter
 
@@ -191,7 +192,7 @@ class IEDocument(BaseModel):
                 segm.entity_occurrences = [
                     eo for eo in doc_ent_occurrences
                     if eo.offset >= segm.offset
-                    and eo.offset_end < segm.offset_end
+                    and eo.offset_end <= segm.offset_end
                 ]
             else:
                 segm.entity_occurrences = raw_segment.entity_occurrences
@@ -205,8 +206,15 @@ class EntityOccurrence(BaseModel):
     entity = models.ForeignKey('Entity')
     document = models.ForeignKey('IEDocument', related_name='entity_occurrences')
     segments = models.ManyToManyField('TextSegment', related_name='entity_occurrences')
-    offset = models.IntegerField()  # Offset in tokens wrt to document
-    offset_end = models.IntegerField()  # Offset in tokens wrt to document
+
+    # Offset in tokens wrt to document
+    offset = models.IntegerField()  # offset of the 1st token included on the occurrence
+    offset_end = models.IntegerField()  # offset of the 1st token NOT included
+
+    # Hydrated fields: same than "offsets", but wrt segment
+    # segment_offset = IntegerField
+    # segment_offset_end = IntegerField
+
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
 
@@ -217,11 +225,22 @@ class EntityOccurrence(BaseModel):
     def __unicode__(self):
         return u'{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
 
+    def hydrate_for_segment(self, segment):
+        # creates some on-memory attributes with respect to the segment
+        self.segment_offset = self.offset - segment.offset
+        self.segment_offset_end = self.offset_end - segment.offset_end
+        return self
+
 
 class TextSegment(BaseModel):
     document = models.ForeignKey('IEDocument', related_name='segments', db_index=True)
-    offset = models.IntegerField(db_index=True)  # Offset in tokens wrt document
-    offset_end = models.IntegerField(db_index=True)  # in tokens wrt document
+
+    # Offset in tokens wrt to document
+    #     They represent:
+    #      - offset: index of the first token included on the segment
+    #      - offset_end: index of the first token NOT included on the segment
+    offset = models.IntegerField(db_index=True)
+    offset_end = models.IntegerField(db_index=True)
 
     # Reversed fields:
     # entity_occurrences = Reversed ManyToManyField of EntityOccurrence
@@ -245,11 +264,27 @@ class TextSegment(BaseModel):
             self.text += self.tokens[-1]
         else:
             self.text = ""
+        self.sentences = [i - self.offset for i in doc.sentences
+                          if i >= self.offset and i < self.offset_end]
         return self
 
     def get_entity_occurrences(self):
         """Returns an iterable of EntityOccurrences, sorted by offset"""
-        return self.entity_occurrences.all().order_by('offset')
+        return map(lambda eo: eo.hydrate_for_segment(self),
+                   self.entity_occurrences.all().order_by('offset')
+                   )
+
+    def entity_occurrence_pairs(self, e1, e2):
+        eos = list(self.get_entity_occurrences())
+        left = [eo for eo in eos if eo.entity == e1]
+        right = [eo for eo in eos if eo.entity == e2]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
+
+    def kind_occurrence_pairs(self, lkind, rkind):
+        eos = list(self.get_entity_occurrences())
+        left = [o for o in eos if o.entity.kind == lkind]
+        right = [o for o in eos if o.entity.kind == rkind]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
     def __unicode__(self):
         # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
