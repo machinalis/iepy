@@ -35,7 +35,7 @@ class NERTestMixin(object):
 
     def get_ner_result(self, doc):
         # hacked ORM detail
-        return list(doc.entity_ocurrences.all())
+        return list(doc.entity_occurrences.all())
 
 
 class TestNERRunner(ManagerTestCase, NERTestMixin):
