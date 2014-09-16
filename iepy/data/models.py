@@ -31,7 +31,7 @@ class EntityKind(BaseModel):
         ordering = ['name']
 
     def __unicode__(self):
-        return self.kind.name
+        return self.name
 
 
 class Entity(BaseModel):
