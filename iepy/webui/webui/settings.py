@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import json
 import os
 import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -64,8 +65,25 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join('/', 'tmp', 'db.sqlite3'),
+    },
+    'test': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join('/', 'tmp', 'db.sqlite3'),
     }
 }
+
+from iepy.utils import DIRS
+try:
+    user_db_cfg_path = os.path.join(DIRS.user_data_dir, 'database_cfg.json')
+    user_db_cfg = json.load(file(user_db_cfg_path))
+except IOError:
+    # file does not exist, nothing to do.
+    pass
+except ValueError as error:
+    print 'User database settings not loaded: ', error
+else:
+    DATABASES.update(user_db_cfg)
+    print 'Using user defined databases at %s' % user_db_cfg_path
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
