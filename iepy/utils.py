@@ -1,12 +1,16 @@
 import codecs
 from csv import reader, writer
 from getpass import getuser
+import os
 import zipfile
 
 from appdirs import AppDirs
 
 
 DIRS = AppDirs('iepy', getuser())
+if not os.path.exists(DIRS.user_data_dir):
+    # making sure that user_data_dir exists
+    os.mkdir(DIRS.user_data_dir)
 
 
 def unzip(zipped_list, n):
