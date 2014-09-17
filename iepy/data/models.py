@@ -299,6 +299,10 @@ class Relation(BaseModel):
     # Reversed fields:
     # evidence_relations = Reversed ForeignKey of LabeledRelationEvidence
 
+    class Meta(BaseModel.Meta):
+        ordering = ['name', 'left_entity_kind', 'right_entity_kind']
+        unique_together = ['name', 'left_entity_kind', 'right_entity_kind']
+
     def __str__(self):
         return '{}({}, {})'.format(self.name, self.left_entity_kind,
                                    self.right_entity_kind)
