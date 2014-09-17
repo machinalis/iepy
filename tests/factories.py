@@ -20,30 +20,22 @@ def naive_tkn(text):
 # of Factory-Boy itself
 logging.getLogger("factory").setLevel(logging.WARN)
 
+# declared like this to "facilitate" changing the ORM
+BaseFactory = factory.django.DjangoModelFactory
 
-class EntityKindFactory(factory.Factory):
+
+class EntityKindFactory(BaseFactory):
     FACTORY_FOR = EntityKind
-    name = 'person'
+    name = factory.Sequence(lambda n: 'kind_%i' % n)
 
 
-class EntityFactory(factory.Factory):
+class EntityFactory(BaseFactory):
     FACTORY_FOR = Entity
     key = factory.Sequence(lambda n: 'id:%i' % n)
     kind = factory.SubFactory(EntityKindFactory)
 
 
-# NEEDS TO BE REWRITTEN
-class EntityInSegmentFactory(factory.Factory):
-    pass
-#    FACTORY_FOR = EntityInSegment
-#    key = factory.Sequence(lambda n: 'id:%i' % n)
-#    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-#    kind = 'person'
-#    offset = 0
-#    offset_end = 1
-
-
-class EntityOccurrenceFactory(factory.Factory):
+class EntityOccurrenceFactory(BaseFactory):
     FACTORY_FOR = EntityOccurrence
     entity = factory.SubFactory(EntityFactory)
     offset = 0
@@ -51,22 +43,18 @@ class EntityOccurrenceFactory(factory.Factory):
     alias = ''
 
 
-class IEDocFactory(factory.Factory):
+class IEDocFactory(BaseFactory):
     FACTORY_FOR = IEDocument
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
     title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
-class TextSegmentFactory(factory.Factory):
+class TextSegmentFactory(BaseFactory):
     FACTORY_FOR = TextSegment
     document = factory.SubFactory(IEDocFactory)
-    text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
     offset = factory.Sequence(lambda n: n * 3)
     offset_end = factory.Sequence(lambda n: n * 3 + 1)
-    tokens = ['lorem', 'ipsum', 'dolor']
-    postags = ['NN', 'NN', 'V']
-    entities = []
 
 
 class SentencedIEDocFactory(IEDocFactory):

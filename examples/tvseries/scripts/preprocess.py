@@ -58,7 +58,7 @@ if __name__ == '__main__':
             ners=[LiteralNERRunner(CUSTOM_ENTITIES, CUSTOM_ENTITIES_FILES),
                   StanfordNERRunner()]
         ),
-        SyntacticSegmenterRunner(),
+        SyntacticSegmenterRunner(increment=True),
     ], docs
     )
     pipeline.process_everything()

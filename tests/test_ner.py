@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 from iepy.data.models import IEDocument
 from iepy.preprocess.ner.stanford import NERRunner, StanfordNERRunner
 from iepy.preprocess.pipeline import PreProcessSteps
@@ -35,7 +33,7 @@ class NERTestMixin(object):
 
     def get_ner_result(self, doc):
         # hacked ORM detail
-        return list(doc.entity_ocurrences.all())
+        return list(doc.entity_occurrences.all())
 
 
 class TestNERRunner(ManagerTestCase, NERTestMixin):
@@ -45,13 +43,11 @@ class TestNERRunner(ManagerTestCase, NERTestMixin):
     def test_ner_runner_is_calling_ner(self):
         doc = SentencedIEDocFactory(
             text='Rami Eid is studying . At Stony Brook University in NY')
-        doc.save()
         self.check_ner(doc, [(0, 2, 'person'), (6, 9, 'organization')])
 
     def test_ner_runner_finds_consecutive_entities(self):
         doc = SentencedIEDocFactory(
             text='The student Rami Eid Stony Brook University in NY')
-        doc.save()
         self.check_ner(doc, [(2, 4, 'person'), (4, 7, 'organization')])
 
 
@@ -62,7 +58,6 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
     def test_stanford_ner_is_called_if_found(self):
         doc = SentencedIEDocFactory(
             text='Rami Eid is studying . At Stony Brook University in NY')
-        doc.save()
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
         self.assertTrue(doc.was_preprocess_step_done(PreProcessSteps.ner))
@@ -80,7 +75,6 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         tokens = list(enumerate(("I can't study with Rami Eid").split()))
         doc.set_tokenization_result(tokens)
         doc.set_sentencer_result([0, len(tokens)])
-        doc.save()
 
         ner_runner = StanfordNERRunner()
         ner_runner(doc)
@@ -97,7 +91,6 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         )
         doc.set_tokenization_result(tokens)
         doc.set_sentencer_result([0, len(tokens)])
-        doc.save()
 
         ner_runner = StanfordNERRunner()
         ner_runner(doc)

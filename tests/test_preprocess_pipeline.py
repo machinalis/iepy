@@ -5,7 +5,7 @@ except ImportError:
 
 from unittest import TestCase
 
-from iepy.preprocess.pipeline import PreProcessPipeline
+from iepy.preprocess.pipeline import PreProcessPipeline, PreProcessSteps
 
 
 class TestPreProcessPipeline(TestCase):
@@ -57,8 +57,8 @@ class TestPreProcessPipeline(TestCase):
         self.assertFalse(runner1.called)
 
     def test_process_step_in_batch_filter_docs_to_apply_if_has_attr_step(self):
-        step_runner = mock.MagicMock()
-        step_runner.step = 'something'
+        step_runner = mock.MagicMock(step=PreProcessSteps.tokenization,
+                                     override=False)
         all_docs = [object() for i in range(5)]
         docs_manager = mock.MagicMock()
         docs_manager.__iter__.return_value = all_docs

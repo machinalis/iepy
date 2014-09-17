@@ -81,7 +81,6 @@ class TestLiteralNERRunner(ManagerTestCase, NERTestMixin):
     def test(self):
         doc = SentencedIEDocFactory(
             text="Chase notes she's negative for HIV and Hepatitis C")
-        doc.save()
 
         lit_tagger_runner = LiteralNERRunner(['disease'], [self.tmp_file1.name])
         lit_tagger_runner(doc)
