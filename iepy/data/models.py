@@ -293,8 +293,8 @@ class TextSegment(BaseModel):
 
 class Relation(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGHT)
-    left_entity_kind = models.ForeignKey('EntityKind')
-    right_entity_kind = models.ForeignKey('EntityKind')
+    left_entity_kind = models.ForeignKey('EntityKind', related_name='left_relations')
+    right_entity_kind = models.ForeignKey('EntityKind', related_name='right_relations')
 
     # Reversed fields:
     # evidence_relations = Reversed ForeignKey of LabeledRelationEvidence
@@ -318,8 +318,10 @@ class LabeledRelationEvidence(BaseModel):
         (NONSENSE, "Evidence is nonsense")
     )
 
-    left_entity_occurrence = models.ForeignKey('EntityOccurrence')
-    right_entity_occurrence = models.ForeignKey('EntityOccurrence')
+    left_entity_occurrence = models.ForeignKey('EntityOccurrence',
+                                               related_name='left_evidence_relations')
+    right_entity_occurrence = models.ForeignKey('EntityOccurrence',
+                                                related_name='right_evidence_relations')
     relation = models.ForeignKey('Relation', related_name='evidence_relations')
     segment = models.ForeignKey('TextSegment')
     label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP)
