@@ -1,8 +1,8 @@
 from iepy.data.models import IEDocument
 from iepy.preprocess.ner.stanford import NERRunner, StanfordNERRunner
 from iepy.preprocess.pipeline import PreProcessSteps
-from tests.factories import SentencedIEDocFactory, IEDocFactory
-from tests.manager_case import ManagerTestCase
+from .factories import SentencedIEDocFactory, IEDocFactory
+from .manager_case import ManagerTestCase
 
 
 class NERTestMixin(object):
@@ -43,12 +43,12 @@ class TestNERRunner(ManagerTestCase, NERTestMixin):
     def test_ner_runner_is_calling_ner(self):
         doc = SentencedIEDocFactory(
             text='Rami Eid is studying . At Stony Brook University in NY')
-        self.check_ner(doc, [(0, 2, 'person'), (6, 9, 'organization')])
+        self.check_ner(doc, [(0, 2, 'PERSON'), (6, 9, 'ORGANIZATION')])
 
     def test_ner_runner_finds_consecutive_entities(self):
         doc = SentencedIEDocFactory(
             text='The student Rami Eid Stony Brook University in NY')
-        self.check_ner(doc, [(2, 4, 'person'), (4, 7, 'organization')])
+        self.check_ner(doc, [(2, 4, 'PERSON'), (4, 7, 'ORGANIZATION')])
 
 
 class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
@@ -65,10 +65,10 @@ class TestStanfordNERRunner(ManagerTestCase, NERTestMixin):
         self.assertEqual(len(entities), 2)
         self.assertEqual(entities[0].offset, 0)
         self.assertEqual(entities[0].offset_end, 2)
-        self.assertEqual(entities[0].entity.kind.name, 'person')
+        self.assertEqual(entities[0].entity.kind.name, 'PERSON')
         self.assertEqual(entities[1].offset, 6)
         self.assertEqual(entities[1].offset_end, 9)
-        self.assertEqual(entities[1].entity.kind.name, 'organization')
+        self.assertEqual(entities[1].entity.kind.name, 'ORGANIZATION')
 
     def test_runner_does_not_split_contractions(self):
         doc = IEDocFactory()

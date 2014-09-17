@@ -299,9 +299,22 @@ class Relation(BaseModel):
     # Reversed fields:
     # evidence_relations = Reversed ForeignKey of LabeledRelationEvidence
 
+    class Meta(BaseModel.Meta):
+        ordering = ['name', 'left_entity_kind', 'right_entity_kind']
+        unique_together = ['name', 'left_entity_kind', 'right_entity_kind']
+
     def __str__(self):
         return '{}({}, {})'.format(self.name, self.left_entity_kind,
                                    self.right_entity_kind)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            # Object already exists, this is a modification
+            original_obj = Relation.objects.get(pk=self.pk)
+            for fname in ['left_entity_kind', 'right_entity_kind']:
+                if getattr(original_obj, fname) != getattr(self, fname):
+                    raise ValueError("Relation kinds can't be modified after creation")
+        return super(Relation, self).save(*args, **kwargs)
 
 
 class LabeledRelationEvidence(BaseModel):

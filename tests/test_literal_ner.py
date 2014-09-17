@@ -3,9 +3,10 @@ from unittest import TestCase
 from iepy.data.models import IEDocument
 from iepy.preprocess.ner.literal import LiteralNER, LiteralNERRunner
 from iepy.preprocess.pipeline import PreProcessSteps
-from tests.factories import SentencedIEDocFactory, NamedTemporaryFile23
-from tests.manager_case import ManagerTestCase
-from tests.test_ner import NERTestMixin
+
+from .factories import SentencedIEDocFactory, NamedTemporaryFile23
+from .manager_case import ManagerTestCase
+from .test_ner import NERTestMixin
 
 NEW_ENTITIES = ['DISEASE', 'MEDICAL_TEST']
 
@@ -86,6 +87,6 @@ class TestLiteralNERRunner(ManagerTestCase, NERTestMixin):
         lit_tagger_runner(doc)
 
         # (the tokenizer splits she's in two parts)
-        entities_triples = [(6, 7, 'disease'), (8, 10, 'disease')]
+        entities_triples = [(6, 7, 'DISEASE'), (8, 10, 'DISEASE')]
 
         self.check_ner_result(doc, entities_triples)

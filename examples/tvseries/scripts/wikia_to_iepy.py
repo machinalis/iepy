@@ -42,6 +42,7 @@ def get_episode(pages_dict, number_of_seasons, all_tag, season_tag_pattern):
     return per_season
 
 if __name__ == '__main__':
+    logging.basicConfig()
     logger = logging.getLogger('wikia_to_iepy')
     logger.setLevel(logging.DEBUG)
     opts = docopt(__doc__, version=0.1)
@@ -51,13 +52,19 @@ if __name__ == '__main__':
                       opts['--all-episodes-tag'],
                       opts['--season-tag-pattern'])
     for season_nr, season in enumerate(eps, 1):
+        issues_counter = 0
         for i, e in enumerate(season):
-            docs.create_document(
-                identifier=e['title'],
-                text='',
-                metadata={
-                    'raw_text': e['revision']['text']['#text'],
-                    'season': season_nr,
-                    'source': opts['<wikia_zipped_xml_dump_file>']
-                })
-        logger.info('Dumped %i episodes from season %i', len(season), season_nr)
+            try:
+                docs.create_document(
+                    identifier=e['title'],
+                    text='',
+                    metadata={
+                        'raw_text': e['revision']['text']['#text'],
+                        'season': season_nr,
+                        'source': opts['<wikia_zipped_xml_dump_file>']
+                    })
+            except Exception as err:
+                issues_counter += 1
+                logger.error('Document not created, %s', err)
+                continue
+        logger.info('Dumped %i episodes from season %i', len(season) - issues_counter, season_nr)

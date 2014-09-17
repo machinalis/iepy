@@ -6,7 +6,8 @@ import factory
 import nltk
 
 from iepy.core import Fact, Evidence
-from iepy.data.models import IEDocument, EntityKind, Entity, EntityOccurrence, TextSegment
+from iepy.data.models import (IEDocument, EntityKind, Entity, EntityOccurrence,
+                              TextSegment, Relation)
 
 
 def naive_tkn(text):
@@ -74,6 +75,13 @@ class SentencedIEDocFactory(IEDocFactory):
         self.set_sentencer_result(sentences)
 
 
+class RelationFactory(BaseFactory):
+    FACTORY_FOR = Relation
+    name = factory.Sequence(lambda n: 'relation:%i' % n)
+    left_entity_kind = factory.SubFactory(EntityKindFactory)
+    right_entity_kind = factory.SubFactory(EntityKindFactory)
+
+
 def NamedTemporaryFile23(*args, **kwargs):
     """Works exactly as a wrapper to tempfile.NamedTemporaryFile except that
        in python2.x, it excludes the "encoding" parameter when provided."""
@@ -83,6 +91,7 @@ def NamedTemporaryFile23(*args, **kwargs):
 
 
 class FactFactory(factory.Factory):
+    # TODO: shouldn't we remove this?
     FACTORY_FOR = Fact
     e1 = factory.SubFactory(EntityFactory)
     e2 = factory.SubFactory(EntityFactory)
@@ -90,6 +99,7 @@ class FactFactory(factory.Factory):
 
 
 class EvidenceFactory(factory.Factory):
+    # TODO: shouldn't we remove this?
     """Factory for Evidence instances()
 
     In addition to the usual Factory Boy behavior, this factory also accepts a
