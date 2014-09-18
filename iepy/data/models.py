@@ -180,7 +180,7 @@ class IEDocument(BaseModel):
                 offset_end=raw_segment.offset_end)
             new_segs.append((_segm, raw_segment))
         if new_segs:
-            TextSegment.objects.bulk_create(zip(*new_segs)[0])
+            TextSegment.objects.bulk_create(list(zip(*new_segs))[0])
             logger.info('New %s segments created', len(new_segs))
         # And now, taking care of setting Entity Occurrences
 
@@ -341,7 +341,7 @@ class LabeledRelationEvidence(BaseModel):
     right_entity_occurrence = models.ForeignKey('EntityOccurrence',
                                                 related_name='right_evidence_relations')
     relation = models.ForeignKey('Relation', related_name='evidence_relations')
-    segment = models.ForeignKey('TextSegment')
+    segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
     label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP)
 
     date = models.DateTimeField(auto_now_add=True)

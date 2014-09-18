@@ -2,9 +2,8 @@ from django.db import models
 import ast
 
 
-class ListField(models.TextField):
-    __metaclass__ = models.SubfieldBase
-    description = "Stores a python list"
+class ListField(models.TextField, metaclass=models.SubfieldBase):
+    description = "Python list"
 
     def __init__(self, *args, **kwargs):
         super(ListField, self).__init__(*args, **kwargs)
@@ -27,4 +26,3 @@ class ListField(models.TextField):
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
-

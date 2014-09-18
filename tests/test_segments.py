@@ -28,11 +28,11 @@ class TextSegmentCreationTest(ManagerTestCase):
         self.assertEqual(s.offset, 0)
         self.assertEqual(s.tokens, [])
         self.assertEqual(s.postags, [])
-        self.assertItemsEqual(s.get_entity_occurrences(), [])
+        self.assertEqual(list(s.get_entity_occurrences()), [])
 
     def test_data_copied_simple(self):
         d = self.d
-        d.offsets_to_text = range(7)
+        d.offsets_to_text = list(range(7))
         d.tokens = list("ABCDEFG")
         d.postags = list("NNVANVA")
         d.text = "ABCDEFG"
@@ -40,7 +40,7 @@ class TextSegmentCreationTest(ManagerTestCase):
         self.assertEqual(s.offset, 2)
         self.assertEqual(s.tokens, ["C", "D", "E"])
         self.assertEqual(s.postags, ["V", "A", "N"])
-        self.assertItemsEqual(s.get_entity_occurrences(), [])
+        self.assertEqual(list(s.get_entity_occurrences()), [])
         self.assertEqual(s.text, "CDE")
 
     def hack_document(self, text):
@@ -77,7 +77,7 @@ class TextSegmentCreationTest(ManagerTestCase):
         self.d.save()
         eo = EntityOccurrenceFactory(document=self.d, offset=4, offset_end=5)
         s = self.build_and_get_segment_from_raw(RSF(2, 6))
-        self.assertItemsEqual(s.get_entity_occurrences(), [eo])
+        self.assertEqual(list(s.get_entity_occurrences()), [eo])
 
     def test_hydrated_entity_occurrences_from_segment(self):
         # verify the segment offsets: ie, the goal is that obtaining tokens from
@@ -87,7 +87,7 @@ class TextSegmentCreationTest(ManagerTestCase):
         expected = ["the", "world"]
         assert self.d.tokens[eo.offset:eo.offset_end] == expected
         segm = self.build_and_get_segment_from_raw(RSF(2, 6))
-        s_eo = segm.get_entity_occurrences()[0]
+        s_eo = list(segm.get_entity_occurrences())[0]
         self.assertEqual(
             segm.tokens[s_eo.segment_offset:s_eo.segment_offset_end],
             expected)
@@ -97,31 +97,31 @@ class TextSegmentCreationTest(ManagerTestCase):
         self.hack_document("The people around the world is crazy.")
         eo = EntityOccurrenceFactory(document=self.d, offset=4, offset_end=5)
         s = self.build_and_get_segment_from_raw(RSF(2, 5))
-        self.assertItemsEqual(s.get_entity_occurrences(), [eo])
+        self.assertEqual(list(s.get_entity_occurrences()), [eo])
 
     def test_entities_capture_start_border(self):
         # check that occurrence starting on the first token is correcly captured
         self.hack_document("The people around the world is crazy.")
         eo = EntityOccurrenceFactory(document=self.d, offset=2, offset_end=3)
         s = self.build_and_get_segment_from_raw(RSF(2, 5))
-        self.assertItemsEqual(s.get_entity_occurrences(), [eo])
+        self.assertEqual(list(s.get_entity_occurrences()), [eo])
 
     def test_entities_capture_ending_outside_are_not_included(self):
         self.hack_document("The people around the world is crazy.")
         EntityOccurrenceFactory(document=self.d, offset=4, offset_end=6)
         s = self.build_and_get_segment_from_raw(RSF(2, 5))
-        self.assertItemsEqual(s.get_entity_occurrences(), [])
+        self.assertEqual(list(s.get_entity_occurrences()), [])
 
     def test_entities_capture_starting_before_are_not_included(self):
         self.hack_document("The people around the world is crazy.")
         EntityOccurrenceFactory(document=self.d, offset=1, offset_end=3)
         s = self.build_and_get_segment_from_raw(RSF(2, 5))
-        self.assertItemsEqual(s.get_entity_occurrences(), [])
+        self.assertEqual(list(s.get_entity_occurrences()), [])
 
     def test_sentence_information(self):
         d = self.d
         L = 100
-        d.offsets = range(L)
+        d.offsets = list(range(L))
         d.tokens = ["X"]*L
         d.postags = ["N"]*L
         d.sentences = [0, 5, 35, 36, 41, 90]
@@ -188,7 +188,7 @@ class TestDocumentSegmenter(ManagerTestCase):
 
     def set_doc_length(self, n):
         self.doc.tokens = ["x"] * n
-        self.doc.offsets = range(n)
+        self.doc.offsets = list(range(n))
         self.doc.postags = ["tag"] * n
         self.doc.sentences = [0]
 
