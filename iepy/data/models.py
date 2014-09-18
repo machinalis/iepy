@@ -316,6 +316,9 @@ class Relation(BaseModel):
                     raise ValueError("Relation kinds can't be modified after creation")
         return super(Relation, self).save(*args, **kwargs)
 
+    def get_next_segment_to_label(self):
+        return None
+
 
 class LabeledRelationEvidence(BaseModel):
     NORELATION = "NO"
