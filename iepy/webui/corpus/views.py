@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 
-from corpus.models import Relation
+from corpus.models import Relation, TextSegment
 
 
 def start_labeling_evidence(request, relation_id):
@@ -9,10 +9,14 @@ def start_labeling_evidence(request, relation_id):
     if segment is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
-    return redirect('label_evidence_for_segment', segment.pk)
-    #return render_to_response('label_evidence.html',
-    #                          {'title': 'hello world'})
+    return redirect('corpus:label_evidence_for_segment', relation.pk, segment.pk)
 
 
-#def show_and_process_questions_for_segment(request, relation_id, segment_id):
-#    pass
+def label_evidence_for_segment(request, relation_id, segment_id):
+    segment = get_object_or_404(TextSegment, pk=segment_id)
+    relation = get_object_or_404(Relation, pk=relation_id)
+    segment.hydrate()
+    return render_to_response(
+        'label_evidence.html',
+        {'title': 'hello world. You\'re gonna answer questions for segment '
+         '"{0}" respect relation "{1}"'.format(segment, relation)})

@@ -317,6 +317,8 @@ class Relation(BaseModel):
         return super(Relation, self).save(*args, **kwargs)
 
     def get_next_segment_to_label(self):
+        # We will pick a TextSegment not having labeled evidences for relation
+        return TextSegment.objects.all()[0]
         return None
 
 
