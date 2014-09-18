@@ -341,7 +341,7 @@ class LabeledRelationEvidence(BaseModel):
     right_entity_occurrence = models.ForeignKey('EntityOccurrence',
                                                 related_name='right_evidence_relations')
     relation = models.ForeignKey('Relation', related_name='evidence_relations')
-    segment = models.ForeignKey('TextSegment')
+    segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
     label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP)
 
     date = models.DateTimeField(auto_now_add=True)
