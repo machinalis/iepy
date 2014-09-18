@@ -31,7 +31,7 @@ class EntityKind(BaseModel):
     class Meta(BaseModel.Meta):
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -45,8 +45,8 @@ class Entity(BaseModel):
         ordering = ['kind', 'key']
         unique_together = (('key', 'kind'), )
 
-    def __unicode__(self):
-        return u'%s (%s)' % (self.key, self.kind.name)
+    def __str__(self):
+        return '%s (%s)' % (self.key, self.kind.name)
 
 
 class IEDocument(BaseModel):
@@ -81,8 +81,8 @@ class IEDocument(BaseModel):
     class Meta(BaseModel.Meta):
         pass
 
-    def __unicode__(self):
-        return u'<IEDocument {0}>'.format(self.human_identifier)
+    def __str__(self):
+        return '<IEDocument {0}>'.format(self.human_identifier)
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
@@ -222,8 +222,8 @@ class EntityOccurrence(BaseModel):
         ordering = ['document', 'offset', 'offset_end']
         unique_together = ['entity', 'document', 'offset', 'offset_end']
 
-    def __unicode__(self):
-        return u'{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
+    def __str__(self):
+        return '{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
 
     def hydrate_for_segment(self, segment):
         # creates some on-memory attributes with respect to the segment
@@ -248,6 +248,10 @@ class TextSegment(BaseModel):
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
         unique_together = ['document', 'offset', 'offset_end']
+
+    def __str__(self):
+        # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
+        return u'({0} {1})'.format(self.offset, self.offset_end)
 
     def hydrate(self):
         # Using the segment offsets, and the data on document itself, constructs
@@ -285,10 +289,6 @@ class TextSegment(BaseModel):
         left = [o for o in eos if o.entity.kind == lkind]
         right = [o for o in eos if o.entity.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
-
-    def __unicode__(self):
-        # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
-        return u'({0} {1})'.format(self.offset, self.offset_end)
 
 
 class Relation(BaseModel):
