@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+
+{% block messages %}
+    {{ block.super }}
+    <ul class="messagelist">
+        <li{% if msg_tags %} class="{{ msg_tags }}"{% endif %}>{{ msg|capfirst }}</li>
+    </ul>
+{% endblock messages %}
+
+{% block content%}
+<a href="javascript:history.back()">Back</a>
+{% endblock %}

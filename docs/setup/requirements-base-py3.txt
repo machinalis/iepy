@@ -1,6 +1,6 @@
 -r requirements-base.txt
-http://www.nltk.org/nltk3-alpha/nltk-3.0a3.tar.gz#egg=nltk-3.0a3
+nltk==3.0.0
 
 numpy==1.8.0
 scipy==0.13.3
-scikit-learn==0.14.1
+scikit-learn==0.15.2

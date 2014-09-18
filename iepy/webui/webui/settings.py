@@ -71,19 +71,19 @@ DATABASES = {
 from iepy.utils import DIRS
 try:
     user_db_cfg_path = os.path.join(DIRS.user_data_dir, 'database_cfg.json')
-    user_db_cfg = json.load(file(user_db_cfg_path))
+    user_db_cfg = json.load(open(user_db_cfg_path))
 except IOError:
     # file does not exist, nothing to do.
     pass
 except ValueError as error:
-    print 'User database settings not loaded: ', error
+    print('User database settings not loaded: ', error)
 else:
     DATABASES.update(user_db_cfg)
-    print 'Using user defined databases at %s' % user_db_cfg_path
+    print('Using user defined databases at %s' % user_db_cfg_path)
 
 if 'test' in sys.argv or 'nosetests' in str(sys.argv):
     # No matter what, tests use ram-sqlite as database
-    print 'Using sqlite on memory as test database'
+    print('Using sqlite on memory as test database')
     DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
 
 # Internationalization

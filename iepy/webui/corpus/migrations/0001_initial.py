@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import __builtin__
 import jsonfield.fields
 import corpus.fields
 
@@ -16,12 +15,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Entity',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
                 ('key', models.CharField(max_length=256)),
-                ('canonical_form', models.CharField(max_length=256)),
             ],
             options={
-                'ordering': ['kind', 'key', 'canonical_form'],
+                'ordering': ['kind', 'key'],
                 'abstract': False,
             },
             bases=(models.Model,),
@@ -29,8 +27,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EntityKind',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(unique=True, max_length=256)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=256, unique=True)),
             ],
             options={
                 'ordering': ['name'],
@@ -41,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EntityOccurrence',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
                 ('offset', models.IntegerField()),
                 ('offset_end', models.IntegerField()),
                 ('alias', models.CharField(max_length=256)),
@@ -55,8 +53,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='IEDocument',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('human_identifier', models.CharField(unique=True, max_length=256)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('human_identifier', models.CharField(max_length=256, unique=True)),
                 ('title', models.CharField(max_length=256)),
                 ('url', models.URLField()),
                 ('text', models.TextField()),
@@ -65,12 +63,12 @@ class Migration(migrations.Migration):
                 ('offsets_to_text', corpus.fields.ListField()),
                 ('postags', corpus.fields.ListField()),
                 ('sentences', corpus.fields.ListField()),
-                ('tokenization_done_at', models.DateTimeField(null=True, blank=True)),
-                ('sentencer_done_at', models.DateTimeField(null=True, blank=True)),
-                ('tagging', models.DateTimeField(null=True, blank=True)),
-                ('ner', models.DateTimeField(null=True, blank=True)),
-                ('segmentation', models.DateTimeField(null=True, blank=True)),
-                ('metadata', jsonfield.fields.JSONField(default=__builtin__.dict)),
+                ('tokenization_done_at', models.DateTimeField(blank=True, null=True)),
+                ('sentencer_done_at', models.DateTimeField(blank=True, null=True)),
+                ('tagging_done_at', models.DateTimeField(blank=True, null=True)),
+                ('ner_done_at', models.DateTimeField(blank=True, null=True)),
+                ('segmentation_done_at', models.DateTimeField(blank=True, null=True)),
+                ('metadata', jsonfield.fields.JSONField(blank=True)),
             ],
             options={
                 'abstract': False,
@@ -78,23 +76,77 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='TextSegment',
+            name='LabeledRelationEvidence',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('text', models.TextField()),
-                ('offset', models.IntegerField()),
-                ('offset_end', models.IntegerField()),
-                ('document', models.ForeignKey(to='corpus.IEDocument')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('label', models.CharField(default='SK', max_length=2, choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')])),
+                ('date', models.DateTimeField(auto_now_add=True)),
+                ('judge', models.CharField(max_length=256)),
+                ('left_entity_occurrence', models.ForeignKey(to='corpus.EntityOccurrence', related_name='left_evidence_relations')),
             ],
             options={
                 'abstract': False,
             },
             bases=(models.Model,),
         ),
+        migrations.CreateModel(
+            name='Relation',
+            fields=[
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=256)),
+                ('left_entity_kind', models.ForeignKey(to='corpus.EntityKind', related_name='left_relations')),
+                ('right_entity_kind', models.ForeignKey(to='corpus.EntityKind', related_name='right_relations')),
+            ],
+            options={
+                'ordering': ['name', 'left_entity_kind', 'right_entity_kind'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TextSegment',
+            fields=[
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('offset', models.IntegerField(db_index=True)),
+                ('offset_end', models.IntegerField(db_index=True)),
+                ('document', models.ForeignKey(to='corpus.IEDocument', related_name='segments')),
+            ],
+            options={
+                'ordering': ['document', 'offset', 'offset_end'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='textsegment',
+            unique_together=set([('document', 'offset', 'offset_end')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='relation',
+            unique_together=set([('name', 'left_entity_kind', 'right_entity_kind')]),
+        ),
+        migrations.AddField(
+            model_name='labeledrelationevidence',
+            name='relation',
+            field=models.ForeignKey(to='corpus.Relation', related_name='evidence_relations'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='labeledrelationevidence',
+            name='right_entity_occurrence',
+            field=models.ForeignKey(to='corpus.EntityOccurrence', related_name='right_evidence_relations'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='labeledrelationevidence',
+            name='segment',
+            field=models.ForeignKey(to='corpus.TextSegment'),
+            preserve_default=True,
+        ),
         migrations.AddField(
             model_name='entityoccurrence',
             name='document',
-            field=models.ForeignKey(related_name=b'entity_ocurrences', to='corpus.IEDocument'),
+            field=models.ForeignKey(to='corpus.IEDocument', related_name='entity_occurrences'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -106,8 +158,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='entityoccurrence',
             name='segments',
-            field=models.ManyToManyField(related_name=b'entity_ocurrences', to='corpus.TextSegment'),
+            field=models.ManyToManyField(to='corpus.TextSegment', related_name='entity_occurrences'),
             preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='entityoccurrence',
+            unique_together=set([('entity', 'document', 'offset', 'offset_end')]),
         ),
         migrations.AddField(
             model_name='entity',
