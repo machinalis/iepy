@@ -180,7 +180,7 @@ class IEDocument(BaseModel):
                 offset_end=raw_segment.offset_end)
             new_segs.append((_segm, raw_segment))
         if new_segs:
-            TextSegment.objects.bulk_create(zip(*new_segs)[0])
+            TextSegment.objects.bulk_create(list(zip(*new_segs))[0])
             logger.info('New %s segments created', len(new_segs))
         # And now, taking care of setting Entity Occurrences
 
