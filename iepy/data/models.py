@@ -406,6 +406,10 @@ class LabeledRelationEvidence(BaseModel):
     # easier interaction with non-django code.
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
 
+    class Meta(BaseModel.Meta):
+        ordering = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
+        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
+
     def __str__(self):
         s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
         return s.format(self.segment, self.relation.name,
