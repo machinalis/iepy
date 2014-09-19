@@ -92,7 +92,7 @@ class StanfordNERRunner(NERRunner):
             os.path.join(ner_path, 'stanford-ner.jar'),
             encoding='utf8')
 
-        super(StanfordNERRunner, self).__init__(ner.batch_tag, override)
+        super(StanfordNERRunner, self).__init__(ner.tag_sents, override)
 
 
 def download():
