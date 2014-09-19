@@ -1,0 +1,16 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+
+{% block content_title %}{% endblock %}
+
+{% block inner_content %}
+    {% include "corpus/segment_render.html" %}
+
+    {% for question_form in question_forms %}
+        <div class="question">
+            {{ question_form }}
+        </div>
+    {% endfor %}
+
+{% endblock %}
+

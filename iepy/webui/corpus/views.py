@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 
+from corpus import forms
 from corpus.models import Relation, TextSegment
 
 
@@ -16,7 +17,17 @@ def label_evidence_for_segment(request, relation_id, segment_id):
     segment = get_object_or_404(TextSegment, pk=segment_id)
     relation = get_object_or_404(Relation, pk=relation_id)
     segment.hydrate()
-    return render_to_response(
-        'label_evidence.html',
-        {'title': 'hello world. You\'re gonna answer questions for segment '
-         '"{0}" respect relation "{1}"'.format(segment, relation)})
+
+    evidence_forms = []
+    for evidence in segment.get_labeled_evidences(relation):
+        form = forms.LabeledRelationEvidenceForm(instance=evidence)
+        evidence_forms.append(form)
+
+    title = "You're gonna answer questions for segment " \
+            "'{0}' respect relation '{1}'".format(segment, relation)
+    context = {
+        "title": title,
+        "segment": segment,
+        "question_forms": evidence_forms,
+    }
+    return render_to_response('corpus/segment_questions.html', context)

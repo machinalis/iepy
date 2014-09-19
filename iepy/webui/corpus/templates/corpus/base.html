@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {% comment %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/foundation.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/foundation-icons.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/iepy.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+
+    <!-- Javascript -->
+    <script src="{% static 'js/vendor/modernizr.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.js' %}"></script>
+    <script src="{% static 'js/foundation.min.js' %}"></script>
+    <script>
+        $(document).foundation();
+    </script>
+    {% endcomment %}
+    {% block extra_js %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="large-12 columns">
+            {% block inner_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
