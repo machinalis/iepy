@@ -304,21 +304,14 @@ class TextSegment(BaseModel):
 
     def get_enrich_tokens(self):
         # TODO: implement real method
-        RichToken = namedtuple("RichToken", "token pos entity_occurrences")
-        import random
-        for i in self.tokens:
-            entities = []
-            if i == "embolism":
-                entities = [1]
-            if i == "brain" or i == "damage":
-                entities = [2]
-            if i == "baby":
-                entities = [3]
-
+        eos = list(self.get_entity_occurrences())
+        RichToken = namedtuple("RichToken", "token pos entities")
+        for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
             yield RichToken(
-                token=i,
-                pos=random.choice(["JJ", "NNP", "VBZ"]),
-                entity_occurrences=entities
+                token=tkn,
+                pos=postag,
+                entities=[eo.id for eo in eos
+                          if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
             )
 
 
