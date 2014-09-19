@@ -5,6 +5,7 @@ from datetime import datetime
 import itertools
 import logging
 from operator import attrgetter
+from collections import namedtuple
 
 from django.db import models
 
@@ -300,6 +301,17 @@ class TextSegment(BaseModel):
         left = [o for o in eos if o.entity.kind == lkind]
         right = [o for o in eos if o.entity.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
+
+    def get_enrich_tokens(self):
+        # TODO: implement real method
+        RichToken = namedtuple("RichToken", "token pos entities")
+        import random
+        for i in self.tokens:
+            yield RichToken(
+                token=i,
+                pos=random.choice(["JJ", "NNP", "VBZ"]),
+                entities=[]
+            )
 
 
 class Relation(BaseModel):
