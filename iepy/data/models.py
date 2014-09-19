@@ -318,7 +318,27 @@ class Relation(BaseModel):
 
     def get_next_segment_to_label(self):
         # We will pick a TextSegment not having labeled evidences for relation
-        return TextSegment.objects.all()[0]
+        candidate_segments = TextSegment.objects.filter(
+            entity_occurrences__entity__kind=self.left_entity_kind).filter(
+                entity_occurrences__entity__kind=self.right_entity_kind,
+            ).order_by('id')
+        never_answered = candidate_segments.exclude(
+            evidence_relations__relation=self)
+        try:
+            return never_answered[0]
+        except Exception as err:
+            print('Error is %s' % err)
+            pass
+        re_answer_labels = [LabeledRelationEvidence.SKIP]
+        to_re_answer = candidate_segments.filter(
+            evidence_relations__relation=self).filter(
+                evidence_relations__label__in=re_answer_labels)
+        try:
+            return to_re_answer[0]
+        except Exception as err:
+            print('Error is %s' % err)
+            pass
+
         return None
 
 
