@@ -56,7 +56,7 @@ class StanfordTaggerRunner(TaggerRunner):
             os.path.join(tagger_path, 'models', 'english-bidirectional-distsim.tagger'),
             os.path.join(tagger_path, 'stanford-postagger.jar'),
             encoding='utf8')
-        super(StanfordTaggerRunner, self).__init__(postagger.batch_tag, override)
+        super(StanfordTaggerRunner, self).__init__(postagger.tag_sents, override)
 
 
 def download():
