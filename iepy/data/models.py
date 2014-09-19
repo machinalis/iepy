@@ -5,6 +5,7 @@ from datetime import datetime
 import itertools
 import logging
 from operator import attrgetter
+from collections import namedtuple
 
 from django.db import models
 
@@ -301,6 +302,17 @@ class TextSegment(BaseModel):
         right = [o for o in eos if o.entity.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
+    def get_enrich_tokens(self):
+        # TODO: implement real method
+        RichToken = namedtuple("RichToken", "token pos entities")
+        import random
+        for i in self.tokens:
+            yield RichToken(
+                token=i,
+                pos=random.choice(["JJ", "NNP", "VBZ"]),
+                entities=[]
+            )
+
 
 class Relation(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGHT)
@@ -393,6 +405,10 @@ class LabeledRelationEvidence(BaseModel):
     # the label of this evidence. It's not modelled as a foreign key to allow
     # easier interaction with non-django code.
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
+
+    class Meta(BaseModel.Meta):
+        ordering = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
+        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
 
     def __str__(self):
         s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
