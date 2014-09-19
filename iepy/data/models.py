@@ -278,6 +278,17 @@ class TextSegment(BaseModel):
                    self.entity_occurrences.all().order_by('offset')
                    )
 
+    def get_labeled_evidences(self, relation):
+        lkind = relation.left_entity_kind
+        rkind = relation.right_entity_kind
+        for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
+            yield LabeledRelationEvidence(
+                left_entity_occurrence=l_eo,
+                right_entity_occurrence=r_eo,
+                relation=relation,
+                segment=self
+            )
+
     def entity_occurrence_pairs(self, e1, e2):
         eos = list(self.get_entity_occurrences())
         left = [eo for eo in eos if eo.entity == e1]
@@ -318,7 +329,36 @@ class Relation(BaseModel):
 
     def get_next_segment_to_label(self):
         # We will pick a TextSegment not having labeled evidences for relation
-        return TextSegment.objects.all()[0]
+        candidates = TextSegment.objects.filter(
+            entity_occurrences__entity__kind=self.left_entity_kind).order_by('id')
+        if self.left_entity_kind == self.right_entity_kind:
+            # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
+            # after doing the first filter (before entering this if-branch) gave us
+            # <TextSegments> whose "entity_occurrences" are not all of them, but only
+            # those that match the criteria expressed above. Because of that, is that
+            # when annotating Count of such thing, we trust is counting EOccurrences of
+            # the kind we are interested in, and not the others.
+            candidates = candidates.annotate(
+                kind_count=models.Count('entity_occurrences__entity__kind')).filter(
+                    kind_count__gte=2
+                )
+        else:
+            candidates = candidates.filter(
+                entity_occurrences__entity__kind=self.right_entity_kind,
+            )
+        never_answered = candidates.exclude(
+            evidence_relations__relation=self)
+        try:
+            return never_answered[0]
+        except IndexError:
+            pass
+        to_re_answer = candidates.filter(
+            evidence_relations__relation=self).filter(
+                evidence_relations__label__in=LabeledRelationEvidence.NEED_RELABEL)
+        try:
+            return to_re_answer[0]
+        except IndexError:
+            pass
         return None
 
 
@@ -334,6 +374,10 @@ class LabeledRelationEvidence(BaseModel):
         (DONTKNOW, "Don't know if the relation is present"),
         (SKIP, "Skipped labeling of this evidence"),
         (NONSENSE, "Evidence is nonsense")
+    )
+    NEED_RELABEL = (
+        # list of evidence labels that means it would be good to ask again
+        DONTKNOW, SKIP
     )
 
     left_entity_occurrence = models.ForeignKey('EntityOccurrence',
