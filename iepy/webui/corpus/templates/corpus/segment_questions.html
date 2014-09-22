@@ -21,29 +21,39 @@
 
     <div class="title"> Complete: </div>
 
-    {% for question in questions %}
-        <div class="question row">
-            <div class="large-4 columns">
-                <span class="entity-occurrence" data-occurrence-id="{{ question.left_occurrence.id }}">
-                    {{ question.left_occurrence.name }}
-                </span>
-                {{ relation.name }}
-                <span class="entity-occurrence" data-occurrence-id="{{ question.right_occurrence.id }}">
-                    {{ question.right_occurrence.name }}
-                </span>
-                ?
-            </div>
-            <div class="large-4 columns">
-                {{ question.options|safe }}
-            </div>
-            <div class="large-2 columns"> </div>
-        </div>
-    {% endfor %}
+    <form action="." method="POST">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for question_form in formset %}
+            <div class="question row">
+                <div class="large-4 columns">
+                    {% with left_eo=question_form.instance.left_entity_occurrence%}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ left_eo.id }}"> {{ left_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    {{ relation.name }}
 
-    <div class="row">
-        <div class="large-4 large-offset-4 columns">
-            <a role="button" href="#" class="button">Save</a>
+                    {% with right_eo=question_form.instance.right_entity_occurrence %}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ right_eo.id }}"> {{ right_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    ?
+
+                </div>
+                <div class="large-4 columns">
+                    {{ question_form.as_p }}
+                </div>
+                <div class="large-2 columns"> </div>
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="large-4 large-offset-4 columns">
+                <input type="submit" value="save" />
+            </div>
         </div>
-    </div>
+    </form>
 
 {% endblock %}

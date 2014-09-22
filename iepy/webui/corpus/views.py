@@ -72,8 +72,16 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
     def get_context_data(self, **kwargs):
         ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
         self.segment.hydrate()
+        title = "Labeling Evidence for Relation {0}".format(self.relation)
+        subtitle = 'For Document "{0}", Text Segment id {1}'.format(
+            self.segment.document.human_identifier,
+            self.segment.id)
+
         ctx.update({
+            'title': title,
+            'subtitle': subtitle,
             'segment': self.segment,
+            'segment_rich_tokens': list(self.segment.get_enriched_tokens()),
             'relation': self.relation
         })
         return ctx
@@ -100,5 +108,6 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
         """
         If the formset is valid redirect to the supplied URL
         """
-        messages.add_message(self.request, messages.INFO, 'Changes saved.')
+        messages.add_message(self.request, messages.INFO,
+                             'Changes saved for segment {0}.'.format(self.segment.id))
         return super().formset_valid(formset)
