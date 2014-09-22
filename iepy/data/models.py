@@ -229,7 +229,7 @@ class EntityOccurrence(BaseModel):
     def hydrate_for_segment(self, segment):
         # creates some on-memory attributes with respect to the segment
         self.segment_offset = self.offset - segment.offset
-        self.segment_offset_end = self.offset_end - segment.offset_end
+        self.segment_offset_end = self.offset_end - segment.offset
         return self
 
 
@@ -305,16 +305,18 @@ class TextSegment(BaseModel):
         right = [o for o in eos if o.entity.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
-    def get_enrich_tokens(self):
+    def get_enriched_tokens(self):
         # TODO: implement real method
         eos = list(self.get_entity_occurrences())
-        RichToken = namedtuple("RichToken", "token pos entities")
+        RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds")
         for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
+            tkn_eos = [eo for eo in eos
+                       if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
             yield RichToken(
                 token=tkn,
                 pos=postag,
-                entities=[eo.id for eo in eos
-                          if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
+                eo_ids=[eo.id for eo in tkn_eos],
+                eo_kinds=set(eo.entity.kind for eo in tkn_eos)
             )
 
 
