@@ -1,16 +1,59 @@
 {% extends "corpus/base.html" %}
 {% load static %}
 
-{% block content_title %}{% endblock %}
-
-{% block inner_content %}
-    {% include "corpus/segment_render.html" %}
-
-    {% for question_form in question_forms %}
-        <div class="question">
-            {{ question_form }}
-        </div>
-    {% endfor %}
-
+{% block content_title %}{{subtitle}}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
 {% endblock %}
 
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/segment_questions.js' %}"></script>
+{% endblock %}
+
+
+{% block inner_content %}
+    <br />
+
+    {% include "corpus/segment_render.html" %}
+
+    <br /> <br />
+
+    <div class="title"> Complete: </div>
+
+    <form action="." method="POST">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for question_form in formset %}
+            <div class="question row">
+                <div class="large-4 columns">
+                    {% with left_eo=question_form.instance.left_entity_occurrence%}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ left_eo.id }}"> {{ left_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    {{ relation.name }}
+
+                    {% with right_eo=question_form.instance.right_entity_occurrence %}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ right_eo.id }}"> {{ right_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    ?
+
+                </div>
+                <div class="large-4 columns">
+                    {{ question_form.as_p }}
+                </div>
+                <div class="large-2 columns"> </div>
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="large-4 large-offset-4 columns">
+                <input type="submit" value="save" />
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

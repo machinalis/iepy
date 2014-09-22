@@ -91,7 +91,7 @@ def NamedTemporaryFile23(*args, **kwargs):
 
 
 class FactFactory(factory.Factory):
-    # TODO: shouldn't we remove this?
+    # TODO: This shall be removed/replaced when finished relation-storage branch
     FACTORY_FOR = Fact
     e1 = factory.SubFactory(EntityFactory)
     e2 = factory.SubFactory(EntityFactory)
@@ -99,7 +99,7 @@ class FactFactory(factory.Factory):
 
 
 class EvidenceFactory(factory.Factory):
-    # TODO: shouldn't we remove this?
+    # TODO: This shall be removed/replaced when finished relation-storage branch
     """Factory for Evidence instances()
 
     In addition to the usual Factory Boy behavior, this factory also accepts a

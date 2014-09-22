@@ -2,12 +2,10 @@
 {% load static %}
 
 {% block extrahead %}
-    {% comment %}
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/foundation.css' %}" />
     <link rel="stylesheet" href="{% static 'css/foundation-icons.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/iepy.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
 
     <!-- Javascript -->
     <script src="{% static 'js/vendor/modernizr.js' %}"></script>
@@ -16,7 +14,6 @@
     <script>
         $(document).foundation();
     </script>
-    {% endcomment %}
     {% block extra_js %}{% endblock %}
 {% endblock %}
 

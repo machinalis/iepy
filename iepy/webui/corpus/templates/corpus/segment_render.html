@@ -5,8 +5,12 @@
 
 
 <div class="segment">
-    {% for rich_token in segment.get_enrich_tokens %}
-        <span class="rich-token" data-entities="{{ rich_token.entities }}">
+    {% for rich_token in segment_rich_tokens %}
+        {% if rich_token.eo_ids %}
+            <span class="rich-token entity-occurrence" data-occurrence-ids="{{ rich_token.eo_ids }}">
+        {% else %}
+            <span class="rich-token">
+        {% endif %}
             <span class="pos-tag"> {{ rich_token.pos }} </span>
             <span class="token"> {{ rich_token.token }} </span>
         </span>

@@ -1,0 +1,35 @@
+.segment{
+    line-height: 40px;
+}
+
+.rich-token{
+    position: relative;
+}
+
+.rich-token .token{
+    font-size: 20px;
+}
+
+.rich-token .pos-tag{
+    position: absolute;
+    color: #ddd;
+    font-size: 10px;
+    top: -25px;
+    left: 35%;
+}
+
+.rich-token:hover .pos-tag{
+    color: #666;
+}
+
+.entity-occurrence{
+    font-weight: bold;
+    border-bottom: 2px dashed #bbb;
+    padding: 4px;
+    cursor: help;
+}
+
+
+.rich-token.entity-occurrence.hover{
+    background: #FFEFC7;
+}

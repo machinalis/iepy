@@ -229,7 +229,7 @@ class EntityOccurrence(BaseModel):
     def hydrate_for_segment(self, segment):
         # creates some on-memory attributes with respect to the segment
         self.segment_offset = self.offset - segment.offset
-        self.segment_offset_end = self.offset_end - segment.offset_end
+        self.segment_offset_end = self.offset_end - segment.offset
         return self
 
 
@@ -280,15 +280,18 @@ class TextSegment(BaseModel):
                    )
 
     def get_labeled_evidences(self, relation):
+        # Gets or creates Labeled Evidences (when creating, lable is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
         for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
-            yield LabeledRelationEvidence(
+            obj, created = LabeledRelationEvidence.objects.get_or_create(
                 left_entity_occurrence=l_eo,
                 right_entity_occurrence=r_eo,
                 relation=relation,
-                segment=self
+                segment=self,
+                defaults={'label': None}
             )
+            yield obj
 
     def entity_occurrence_pairs(self, e1, e2):
         eos = list(self.get_entity_occurrences())
@@ -302,15 +305,18 @@ class TextSegment(BaseModel):
         right = [o for o in eos if o.entity.kind == rkind]
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
-    def get_enrich_tokens(self):
+    def get_enriched_tokens(self):
         # TODO: implement real method
-        RichToken = namedtuple("RichToken", "token pos entities")
-        import random
-        for i in self.tokens:
+        eos = list(self.get_entity_occurrences())
+        RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds")
+        for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
+            tkn_eos = [eo for eo in eos
+                       if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
             yield RichToken(
-                token=i,
-                pos=random.choice(["JJ", "NNP", "VBZ"]),
-                entities=[]
+                token=tkn,
+                pos=postag,
+                eo_ids=[eo.id for eo in tkn_eos],
+                eo_kinds=set(eo.entity.kind for eo in tkn_eos)
             )
 
 
@@ -358,19 +364,30 @@ class Relation(BaseModel):
             candidates = candidates.filter(
                 entity_occurrences__entity__kind=self.right_entity_kind,
             )
-        never_answered = candidates.exclude(
-            evidence_relations__relation=self)
+        # We have now the set og TextSegments with Entity Ocurrences that match the
+        # relation entity kinds. We'll pick first those Segments having already created
+        # questions with empty answer (label). After finishing those, we'll look for
+        # Segments never considered (ie, that doest have any question created).
+        # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
+        with_questions_created = candidates.filter(evidence_relations__relation=self)
+        empty_answers = with_questions_created.filter(
+            evidence_relations__label__isnull=True)
         try:
-            return never_answered[0]
+            return empty_answers[0]
         except IndexError:
             pass
-        to_re_answer = candidates.filter(
-            evidence_relations__relation=self).filter(
-                evidence_relations__label__in=LabeledRelationEvidence.NEED_RELABEL)
+        never_considered = candidates.exclude(evidence_relations__relation=self)
+        try:
+            return never_considered[0]
+        except IndexError:
+            pass
+        to_re_answer = with_questions_created.filter(
+            evidence_relations__label__in=LabeledRelationEvidence.NEED_RELABEL)
         try:
             return to_re_answer[0]
         except IndexError:
             pass
+
         return None
 
 
@@ -398,7 +415,8 @@ class LabeledRelationEvidence(BaseModel):
                                                 related_name='right_evidence_relations')
     relation = models.ForeignKey('Relation', related_name='evidence_relations')
     segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
-    label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP)
+    label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP,
+                             null=True, blank=False)
 
     date = models.DateTimeField(auto_now_add=True)
     # The judge field is meant to be the username of the person that decides
@@ -407,8 +425,11 @@ class LabeledRelationEvidence(BaseModel):
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
 
     class Meta(BaseModel.Meta):
-        ordering = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
-        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
+        ordering = ['segment_id', 'relation_id', 'left_entity_occurrence',
+                    'right_entity_occurrence',
+                    ]
+        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation',
+                           'segment']
 
     def __str__(self):
         s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
