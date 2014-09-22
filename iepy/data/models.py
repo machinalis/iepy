@@ -304,13 +304,21 @@ class TextSegment(BaseModel):
 
     def get_enrich_tokens(self):
         # TODO: implement real method
-        RichToken = namedtuple("RichToken", "token pos entities")
+        RichToken = namedtuple("RichToken", "token pos entity_occurrences")
         import random
         for i in self.tokens:
+            entities = []
+            if i == "embolism":
+                entities = [1]
+            if i == "brain" or i == "damage":
+                entities = [2]
+            if i == "baby":
+                entities = [3]
+
             yield RichToken(
                 token=i,
                 pos=random.choice(["JJ", "NNP", "VBZ"]),
-                entities=[]
+                entity_occurrences=entities
             )
 
 
@@ -371,6 +379,7 @@ class Relation(BaseModel):
             return to_re_answer[0]
         except IndexError:
             pass
+
         return None
 
 
