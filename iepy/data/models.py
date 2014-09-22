@@ -283,12 +283,13 @@ class TextSegment(BaseModel):
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
         for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
-            yield LabeledRelationEvidence(
+            obj, created = LabeledRelationEvidence.objects.get_or_create(
                 left_entity_occurrence=l_eo,
                 right_entity_occurrence=r_eo,
                 relation=relation,
                 segment=self
             )
+            yield obj
 
     def entity_occurrence_pairs(self, e1, e2):
         eos = list(self.get_entity_occurrences())
@@ -409,8 +410,11 @@ class LabeledRelationEvidence(BaseModel):
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
 
     class Meta(BaseModel.Meta):
-        ordering = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
-        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment']
+        ordering = ['segment_id', 'relation_id', 'left_entity_occurrence',
+                    'right_entity_occurrence',
+                    ]
+        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation',
+                           'segment']
 
     def __str__(self):
         s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
