@@ -5,9 +5,9 @@
 
 
 <div class="segment">
-    {% for rich_token in segment.get_enrich_tokens %}
-        {% if rich_token.entity_occurrences %}
-            <span class="rich-token entity-occurrence" data-occurrence-ids="{{ rich_token.entity_occurrences }}">
+    {% for rich_token in segment_rich_tokens %}
+        {% if rich_token.eo_ids %}
+            <span class="rich-token entity-occurrence" data-occurrence-ids="{{ rich_token.eo_ids }}">
         {% else %}
             <span class="rich-token">
         {% endif %}
