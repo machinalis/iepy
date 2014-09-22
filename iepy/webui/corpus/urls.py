@@ -10,6 +10,6 @@ urlpatterns = patterns(
     #    views.label_evidence_for_segment,
     #    name='label_evidence_for_segment'),
     url(r'^label_evidence_for_segment/(?P<relation_id>\d+)/(?P<segment_id>\d+)/',
-        views.MyModelFormSetView.as_view(),
+        views.LabelEvidenceOnSegmentView.as_view(),
         name='label_evidence_for_segment'),
 )

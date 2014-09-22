@@ -1,7 +1,12 @@
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+
+from extra_views import ModelFormSetView
 
 from corpus import forms
 from corpus.models import Relation, TextSegment, LabeledRelationEvidence
+from corpus.forms import EvidenceForm
 
 
 def start_labeling_evidence(request, relation_id):
@@ -55,14 +60,7 @@ def label_evidence_for_segment(request, relation_id, segment_id):
     return render(request, 'corpus/segment_questions.html', context)
 
 
-from django.http import HttpResponseRedirect
-#from django.views.generic.edit import FormView
-from corpus.forms import EvidenceForm
-from extra_views import ModelFormSetView
-from django.core.urlresolvers import reverse
-
-
-class MyModelFormSetView(ModelFormSetView):
+class LabelEvidenceOnSegmentView(ModelFormSetView):
     template_name = 'corpus/segment_questions.html'
     form_class = EvidenceForm
     model = LabeledRelationEvidence
@@ -72,7 +70,7 @@ class MyModelFormSetView(ModelFormSetView):
     can_delete = False
 
     def get_context_data(self, **kwargs):
-        ctx = super(MyModelFormSetView, self).get_context_data(**kwargs)
+        ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
         self.segment.hydrate()
         ctx.update({
             'segment': self.segment,
@@ -102,6 +100,5 @@ class MyModelFormSetView(ModelFormSetView):
         """
         If the formset is valid redirect to the supplied URL
         """
-        from django.contrib import messages
         messages.add_message(self.request, messages.INFO, 'Changes saved.')
         return super().formset_valid(formset)
