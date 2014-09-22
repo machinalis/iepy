@@ -18,6 +18,7 @@ class EvidenceForm(forms.ModelForm):
             # For such cases, on forms, we'll suggest the model.default
             instance.label = DEFAULT_LABEL
         super().__init__(*args, **kwargs)
+        self.fields['label'].label = ''
 
     def has_changed(self, *args, **kwargs):
         changed = super().has_changed(*args, **kwargs)
