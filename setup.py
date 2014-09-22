@@ -39,7 +39,7 @@ setup(
     long_description=long_description,
     author=("Rafael Carrascosa, Franco M. Luque, Laura Alonso, "
             "Javier Mansilla, Daniel Moisset"),
-    packages=['scripts', 'iepy', 'tests', 'iepy.preprocess', 'iepy.data']
+    packages=['scripts', 'iepy', 'tests', 'iepy.preprocess', 'iepy.data'],
     install_requires=reqs,
     dependency_links=deps,
 )
