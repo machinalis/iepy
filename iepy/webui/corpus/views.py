@@ -1,7 +1,7 @@
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 
 from corpus import forms
-from corpus.models import Relation, TextSegment
+from corpus.models import Relation, TextSegment, LabeledRelationEvidence
 
 
 def start_labeling_evidence(request, relation_id):
@@ -52,4 +52,56 @@ def label_evidence_for_segment(request, relation_id, segment_id):
             },
         ]
     }
-    return render_to_response('corpus/segment_questions.html', context)
+    return render(request, 'corpus/segment_questions.html', context)
+
+
+from django.http import HttpResponseRedirect
+#from django.views.generic.edit import FormView
+from corpus.forms import EvidenceForm
+from extra_views import ModelFormSetView
+from django.core.urlresolvers import reverse
+
+
+class MyModelFormSetView(ModelFormSetView):
+    template_name = 'corpus/segment_questions.html'
+    form_class = EvidenceForm
+    model = LabeledRelationEvidence
+    extra = 0
+    max_num = None
+    can_order = False
+    can_delete = False
+
+    def get_context_data(self, **kwargs):
+        ctx = super(MyModelFormSetView, self).get_context_data(**kwargs)
+        self.segment.hydrate()
+        ctx.update({
+            'segment': self.segment,
+            'relation': self.relation
+        })
+        return ctx
+
+    def get_segment_and_relation(self):
+        if hasattr(self, 'segment') and hasattr(self, 'relation'):
+            return self.segment, self.relation
+        self.segment = get_object_or_404(TextSegment, pk=self.kwargs['segment_id'])
+        self.segment.hydrate()
+        self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
+        self.evidences = list(self.segment.get_labeled_evidences(self.relation))
+        return self.segment, self.relation
+
+    def get_queryset(self):
+        segment, relation = self.get_segment_and_relation()
+        return super().get_queryset().filter(
+            segment=self.segment, relation=self.relation
+        )
+
+    def get_success_url(self):
+        return reverse('corpus:start_labeling_evidence', args=[self.relation.pk])
+
+    def formset_valid(self, formset):
+        """
+        If the formset is valid redirect to the supplied URL
+        """
+        from django.contrib import messages
+        messages.add_message(self.request, messages.INFO, 'Changes saved.')
+        return super().formset_valid(formset)
