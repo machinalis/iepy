@@ -1,7 +1,7 @@
 {% extends "corpus/base.html" %}
 {% load static %}
 
-{% block content_title %}{% endblock %}
+{% block content_title %}{{subtitle}}{% endblock %}
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
@@ -15,7 +15,6 @@
 {% block inner_content %}
     <br />
 
-    <div class="title"> Text segment: </div>
     {% include "corpus/segment_render.html" %}
 
     <br /> <br />
