@@ -369,6 +369,43 @@ class Relation(BaseModel):
             )
         return matching_segms
 
+    def neighbor_labeled_segments(self, segment_id, back=False):
+        """Returns the id of closest segment (respect the one indicated by segment),
+        with labeled evidences for the given relation.
+        By "closest", it's mean the distance of the id numbers.
+        If back is True, it's picked the previous segment, otherwise, the next one.
+
+        It's assumed that the given segment HAS labeled evidence already. If not,
+        the id of the last labeled segment will be returned.
+
+        If current segment is at the end of such direction, same id will be returned.
+        """
+        candidates = self._matching_text_segments()
+        candidates = candidates.filter(evidence_relations__relation=self).filter(
+            evidence_relations__label__isnull=False).distinct()
+        ids = list(candidates.values_list('id', flat=True).order_by('id'))
+        if not ids:
+            return None
+        try:
+            base_idx = ids.index(segment_id)
+        except ValueError:
+            # the base-segment provided is not in the list of labeled evidence
+            # Returning last labeled one
+            return ids[-1]
+        else:
+            if back:
+                if base_idx == 0:
+                    # there is no previous one. Returning same.
+                    return segment_id
+                else:
+                    return ids[base_idx - 1]
+            else:
+                if base_idx == len(ids) - 1:
+                    # there is no next one. Returning same.
+                    return segment_id
+                else:
+                    return ids[base_idx + 1]
+
     def get_next_segment_to_label(self):
         candidates = self._matching_text_segments().order_by('id')
         # We'll pick first those Segments having already created questions with empty
