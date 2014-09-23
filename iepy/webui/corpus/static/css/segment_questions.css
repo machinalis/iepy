@@ -17,3 +17,8 @@
     margin-bottom: 5px;
     border: 1px solid #E1EBF0;
 }
+
+.previous-judgement .value, .previous-judgement .judge {
+    font-style: italic;
+    font-weight: bold;
+}
