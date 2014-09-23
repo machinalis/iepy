@@ -418,7 +418,7 @@ class LabeledRelationEvidence(BaseModel):
     label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP,
                              null=True, blank=False)
 
-    date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
     # The judge field is meant to be the username of the person that decides
     # the label of this evidence. It's not modelled as a foreign key to allow
     # easier interaction with non-django code.
