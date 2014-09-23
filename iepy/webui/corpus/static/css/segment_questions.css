@@ -11,3 +11,9 @@
     background: #008cba;
     color: #fff !important;
 }
+
+.navigation {
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #E1EBF0;
+}

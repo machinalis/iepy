@@ -1,22 +1,33 @@
 "use strict"
 
-var occurrences_by_id = {}
+var occurrences_by_id = {};
 
-$(document).ready(function(){
+$(document).ready(function () {
     $(".question .entity-occurrence")
         .mouseover(on_question_occurrence_hover)
         .mouseout(on_question_occurrence_hover);
+    $(".navigation a").click(navigate_segments);
 
     generate_occurrences_by_id();
 });
 
 
-function generate_occurrences_by_id(){
-    $(".segment .entity-occurrence").each(function(){
+function navigate_segments() {
+    var elem = $(this);
+    if (elem.hasClass('history-back')) {
+        history.back();
+    } else {
+        history.forward();
+    }
+    return false;
+}
+
+function generate_occurrences_by_id() {
+    $(".segment .entity-occurrence").each(function () {
         var $this = $(this);
         var ids = $this.data("occurrence-ids");
-        for(var i in ids){
-            if(ids[i] in occurrences_by_id){
+        for (var i in ids) {
+            if (ids[i] in occurrences_by_id) {
                 occurrences_by_id[ids[i]].push($this);
             } else {
                 occurrences_by_id[ids[i]] = [$this];
@@ -25,10 +36,10 @@ function generate_occurrences_by_id(){
     });
 }
 
-function on_question_occurrence_hover(){
+function on_question_occurrence_hover() {
     var $this = $(this);
     var occurrence_id = $this.data("occurrence-id");
-    for(var i in occurrences_by_id[occurrence_id]){
+    for (var i in occurrences_by_id[occurrence_id]) {
         var $occurrence = occurrences_by_id[occurrence_id][i];
         $occurrence.toggleClass("hover");
     }
