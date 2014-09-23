@@ -73,4 +73,7 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
         """
         messages.add_message(self.request, messages.INFO,
                              'Changes saved for segment {0}.'.format(self.segment.id))
+        for form in formset:
+            if form.has_changed():
+                form.instance.judge = str(self.request.user)
         return super().formset_valid(formset)
