@@ -1,10 +1,9 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+from django.shortcuts import get_object_or_404, render_to_response, redirect
 
 from extra_views import ModelFormSetView
 
-from corpus import forms
 from corpus.models import Relation, TextSegment, LabeledRelationEvidence
 from corpus.forms import EvidenceForm
 
