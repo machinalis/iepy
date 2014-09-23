@@ -1,6 +1,8 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.utils.decorators import method_decorator
 
 from extra_views import ModelFormSetView
 
@@ -25,6 +27,10 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
     max_num = None
     can_order = False
     can_delete = False
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
