@@ -413,16 +413,20 @@ class Relation(BaseModel):
         # Segments never considered (ie, that doest have any question created).
         # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
         never_considered = candidates.exclude(evidence_relations__relation=self)
-        with_questions_created = candidates.filter(evidence_relations__relation=self)
-        empty_answers = with_questions_created.filter(
-            evidence_relations__label__isnull=True).distinct()
-        to_re_answer = with_questions_created.filter(
-            evidence_relations__label__in=LabeledRelationEvidence.NEED_RELABEL).distinct()
+        LRE = LabeledRelationEvidence
+        labeleds = LRE.objects.filter(relation=self).order_by('segment_id')
+        empty_answers = labeleds.filter(label__isnull=True)
+        to_re_answer = labeleds.filter(label__in=LRE.NEED_RELABEL)
         for qset in [empty_answers, never_considered, to_re_answer]:
             try:
-                return qset[0]
+                obj = qset[0]
             except IndexError:
                 pass
+            else:
+                if isinstance(obj, TextSegment):
+                    return obj
+                else:
+                    return obj.segment
         return None
 
 
