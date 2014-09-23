@@ -1,6 +1,8 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.utils.decorators import method_decorator
 
 from extra_views import ModelFormSetView
 
@@ -17,6 +19,26 @@ def start_labeling_evidence(request, relation_id):
     return redirect('corpus:label_evidence_for_segment', relation.pk, segment.pk)
 
 
+def navigate_labeled_segments(request, relation_id, segment_id, direction):
+    relation = get_object_or_404(Relation, pk=relation_id)
+    segment = get_object_or_404(TextSegment, pk=segment_id)
+    going_back = direction.lower() == 'back'
+    segm_id_to_show = relation.neighbor_labeled_segments(segment.id, going_back)
+    if segm_id_to_show is None:
+        # Internal logic couldn't decide what other segment to show. Better to
+        # forward to the one already shown
+        messages.add_message(request, messages.WARNING,
+                             'No other segment to show.')
+        return redirect('corpus:label_evidence_for_segment', relation.pk, segment_id)
+    else:
+        if segm_id_to_show == segment.id:
+            direction_str = "previous" if going_back else "next"
+            messages.add_message(
+                request, messages.WARNING,
+                'No {0} segment to show.'.format(direction_str))
+        return redirect('corpus:label_evidence_for_segment', relation.pk, segm_id_to_show)
+
+
 class LabelEvidenceOnSegmentView(ModelFormSetView):
     template_name = 'corpus/segment_questions.html'
     form_class = EvidenceForm
@@ -25,6 +47,10 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
     max_num = None
     can_order = False
     can_delete = False
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
@@ -67,4 +93,7 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
         """
         messages.add_message(self.request, messages.INFO,
                              'Changes saved for segment {0}.'.format(self.segment.id))
+        for form in formset:
+            if form.has_changed():
+                form.instance.judge = str(self.request.user)
         return super().formset_valid(formset)

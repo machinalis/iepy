@@ -345,10 +345,13 @@ class Relation(BaseModel):
                     raise ValueError("Relation kinds can't be modified after creation")
         return super(Relation, self).save(*args, **kwargs)
 
-    def get_next_segment_to_label(self):
-        # We will pick a TextSegment not having labeled evidences for relation
-        candidates = TextSegment.objects.filter(
-            entity_occurrences__entity__kind=self.left_entity_kind).order_by('id')
+    def _matching_text_segments(self):
+        """Returns a queryset of TextSegments having at least one Entity
+        Occurrence of the left entity kind, and at least one Entity Occurrence
+        of the right entity kind. If left and rigth kinds are the same, at least
+        two occurrences expected."""
+        matching_segms = TextSegment.objects.filter(
+            entity_occurrences__entity__kind=self.left_entity_kind)
         if self.left_entity_kind == self.right_entity_kind:
             # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
             # after doing the first filter (before entering this if-branch) gave us
@@ -356,38 +359,74 @@ class Relation(BaseModel):
             # those that match the criteria expressed above. Because of that, is that
             # when annotating Count of such thing, we trust is counting EOccurrences of
             # the kind we are interested in, and not the others.
-            candidates = candidates.annotate(
+            matching_segms = matching_segms.annotate(
                 kind_count=models.Count('entity_occurrences__entity__kind')).filter(
                     kind_count__gte=2
                 )
         else:
-            candidates = candidates.filter(
+            matching_segms = matching_segms.filter(
                 entity_occurrences__entity__kind=self.right_entity_kind,
             )
-        # We have now the set og TextSegments with Entity Ocurrences that match the
-        # relation entity kinds. We'll pick first those Segments having already created
-        # questions with empty answer (label). After finishing those, we'll look for
+        return matching_segms
+
+    def neighbor_labeled_segments(self, segment_id, back=False):
+        """Returns the id of closest segment (respect the one indicated by segment),
+        with labeled evidences for the given relation.
+        By "closest", it's mean the distance of the id numbers.
+        If back is True, it's picked the previous segment, otherwise, the next one.
+
+        It's assumed that the given segment HAS labeled evidence already. If not,
+        the id of the last labeled segment will be returned.
+
+        If current segment is at the end of such direction, same id will be returned.
+        """
+        candidates = self._matching_text_segments()
+        candidates = candidates.filter(evidence_relations__relation=self).filter(
+            evidence_relations__label__isnull=False).distinct()
+        ids = list(candidates.values_list('id', flat=True).order_by('id'))
+        if not ids:
+            return None
+        try:
+            base_idx = ids.index(segment_id)
+        except ValueError:
+            # the base-segment provided is not in the list of labeled evidence
+            # Returning last labeled one
+            return ids[-1]
+        else:
+            if back:
+                if base_idx == 0:
+                    # there is no previous one. Returning same.
+                    return segment_id
+                else:
+                    return ids[base_idx - 1]
+            else:
+                if base_idx == len(ids) - 1:
+                    # there is no next one. Returning same.
+                    return segment_id
+                else:
+                    return ids[base_idx + 1]
+
+    def get_next_segment_to_label(self):
+        candidates = self._matching_text_segments().order_by('id')
+        # We'll pick first those Segments having already created questions with empty
+        # answer (label=None). After finishing those, we'll look for
         # Segments never considered (ie, that doest have any question created).
         # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
-        with_questions_created = candidates.filter(evidence_relations__relation=self)
-        empty_answers = with_questions_created.filter(
-            evidence_relations__label__isnull=True)
-        try:
-            return empty_answers[0]
-        except IndexError:
-            pass
         never_considered = candidates.exclude(evidence_relations__relation=self)
-        try:
-            return never_considered[0]
-        except IndexError:
-            pass
-        to_re_answer = with_questions_created.filter(
-            evidence_relations__label__in=LabeledRelationEvidence.NEED_RELABEL)
-        try:
-            return to_re_answer[0]
-        except IndexError:
-            pass
-
+        LRE = LabeledRelationEvidence
+        labeleds = LRE.objects.filter(relation=self).order_by('segment_id')
+        empty_answers = labeleds.filter(label__isnull=True)
+        to_re_answer = labeleds.filter(label__in=LRE.NEED_RELABEL)
+        for qset in [empty_answers, never_considered, to_re_answer]:
+            try:
+                obj = qset[0]
+            except IndexError:
+                pass
+            else:
+                if isinstance(obj, TextSegment):
+                    return obj
+                else:
+                    return obj.segment
         return None
 
 
@@ -418,7 +457,7 @@ class LabeledRelationEvidence(BaseModel):
     label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP,
                              null=True, blank=False)
 
-    date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
     # The judge field is meant to be the username of the person that decides
     # the label of this evidence. It's not modelled as a foreign key to allow
     # easier interaction with non-django code.

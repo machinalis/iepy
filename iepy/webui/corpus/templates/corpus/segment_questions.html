@@ -15,8 +15,13 @@
 {% block inner_content %}
     <br />
     <div class="navigation">
-        <a href="#" class="history-back">Back</a> | 
-        <a href="#" class="history-forward">Forward</a>
+        Labeled segments:
+            (<a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'back' %}"
+               title="Previous labeled segment">Previous</a> |
+            <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forward' %}"
+               title="Next labeled segment">Following</a>)
+        -- <a href="{% url 'corpus:start_labeling_evidence' relation.pk %}"
+              title="Next segment with un-labeled evidences.">Next to label</a>
     </div>
     {% include "corpus/segment_render.html" %}
 
@@ -28,28 +33,37 @@
         {% csrf_token %}
         {{ formset.management_form }}
         {% for question_form in formset %}
+            {% with obj=question_form.instance %}
             <div class="question row">
                 <div class="large-4 columns">
-                    {% with left_eo=question_form.instance.left_entity_occurrence%}
+                    {% with left_eo=obj.left_entity_occurrence%}
                     <span class="entity-occurrence"
                           data-occurrence-id="{{ left_eo.id }}"> {{ left_eo.alias }}
                     </span>
                     {% endwith %}
                     {{ relation.name }}
 
-                    {% with right_eo=question_form.instance.right_entity_occurrence %}
+                    {% with right_eo=obj.right_entity_occurrence %}
                     <span class="entity-occurrence"
                           data-occurrence-id="{{ right_eo.id }}"> {{ right_eo.alias }}
                     </span>
                     {% endwith %}
                     ?
-
                 </div>
                 <div class="large-4 columns">
                     {{ question_form.as_p }}
                 </div>
-                <div class="large-2 columns"> </div>
+                <div class="large-4 columns">
+                    {% if obj.label %}
+                        <div class="previous-judgement">
+                        Labeled as <span class="value">{{obj.label}}</span>
+                        by <span class="judge">{{obj.judge|default:"unknown"}}</span>
+                        on <span class="date">{{obj.modification_date}}</span>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
+            {% endwith %}
         {% endfor %}
 
         <div class="row">

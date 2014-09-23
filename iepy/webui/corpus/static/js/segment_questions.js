@@ -6,21 +6,9 @@ $(document).ready(function () {
     $(".question .entity-occurrence")
         .mouseover(on_question_occurrence_hover)
         .mouseout(on_question_occurrence_hover);
-    $(".navigation a").click(navigate_segments);
 
     generate_occurrences_by_id();
 });
-
-
-function navigate_segments() {
-    var elem = $(this);
-    if (elem.hasClass('history-back')) {
-        history.back();
-    } else {
-        history.forward();
-    }
-    return false;
-}
 
 function generate_occurrences_by_id() {
     $(".segment .entity-occurrence").each(function () {

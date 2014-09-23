@@ -13,11 +13,15 @@ class EvidenceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)
+        restore_None = False
         if instance and instance.label is None:
             # When created, LabeledRelationEvidence get None as label.
             # For such cases, on forms, we'll suggest the model.default
             instance.label = DEFAULT_LABEL
+            restore_None = True
         super().__init__(*args, **kwargs)
+        if restore_None:
+            self.instance.label = None
         self.fields['label'].label = ''
 
     def has_changed(self, *args, **kwargs):
@@ -25,6 +29,6 @@ class EvidenceForm(forms.ModelForm):
         if not changed and self.instance.label == DEFAULT_LABEL:
             # On init we "hacked" the instance so the form was created showing our
             # desired default value. Because of that, we may not be seeing that change.
-            # The worst can happen by returning True is some unneeded save. Not bad.
-            return True
+            if LabeledRelationEvidence.objects.get(pk=self.instance.pk).label is None:
+                changed = True
         return changed
