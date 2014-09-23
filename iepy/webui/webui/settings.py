@@ -57,6 +57,7 @@ ROOT_URLCONF = 'webui.urls'
 
 WSGI_APPLICATION = 'webui.wsgi.application'
 
+LOGIN_URL = '/admin/login'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
