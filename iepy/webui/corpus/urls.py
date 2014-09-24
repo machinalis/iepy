@@ -3,9 +3,9 @@ from corpus import views
 
 urlpatterns = patterns(
     '',
-    url(r'^start_labeling_evidence/(?P<relation_id>\d+)/',
-        views.start_labeling_evidence,
-        name='start_labeling_evidence'),
+    url(r'^next_segment_to_label/(?P<relation_id>\d+)/',
+        views.next_segment_to_label,
+        name='next_segment_to_label'),
     url(r'^label_evidence_for_segment/(?P<relation_id>\d+)/(?P<segment_id>\d+)/',
         views.LabelEvidenceOnSegmentView.as_view(),
         name='label_evidence_for_segment'),
