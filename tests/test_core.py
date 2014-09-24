@@ -1,7 +1,4 @@
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 import unittest
 
 from sklearn.pipeline import Pipeline
@@ -10,6 +7,7 @@ from future.builtins import range
 from iepy.core import BootstrappedIEPipeline
 from iepy.data.knowledge import certainty, Knowledge
 from .factories import EntityFactory, EvidenceFactory, FactFactory
+from .manager_case import ManagerTestCase
 
 
 class TestCertainty(unittest.TestCase):
@@ -27,7 +25,7 @@ class TestCertainty(unittest.TestCase):
         self.assertEqual(certainty(None), 0.5)
 
 
-class TestFactExtractionInterface(unittest.TestCase):
+class TestFactExtractionInterface(ManagerTestCase):
 
     def setUp(self):
         super(TestFactExtractionInterface, self).setUp()
@@ -93,7 +91,7 @@ class TestFactExtractionInterface(unittest.TestCase):
         self.assertTrue(callable(predictor.predict_proba))
 
 
-class TestBootstrappedIEPipelineRelations(unittest.TestCase):
+class TestBootstrappedIEPipelineRelations(ManagerTestCase):
 
     def test_relations_are_infered_from_seeds(self):
         f1 = FactFactory(e1__kind=u'person', e2__kind=u'location',
@@ -121,7 +119,7 @@ class TestBootstrappedIEPipelineRelations(unittest.TestCase):
                           mock.MagicMock(), [f1, f2])
 
 
-class TestBootstrapAcceptingKnowledge(unittest.TestCase):
+class TestBootstrapAcceptingKnowledge(ManagerTestCase):
     """Step 6 of iepy takes the output of the classifier, and uses it for
     increasing the known things"""
 
