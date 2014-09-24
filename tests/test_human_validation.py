@@ -1,16 +1,14 @@
 from unittest import TestCase
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 import colorama
 
 from iepy.human_validation import TerminalInterviewer
 from .factories import EntityFactory, EvidenceFactory
+from .manager_case import ManagerTestCase
 
 
-class TextSegmentFormatting(TestCase):
+class TextSegmentFormatting(ManagerTestCase):
 
     def setUp(self):
         self.c1 = colorama.Fore.GREEN
@@ -62,7 +60,7 @@ class TextSegmentFormatting(TestCase):
                        self.c2, u'Peter Parker', self.reset, u'.']))
 
 
-class HumanValidationTests(TestCase):
+class HumanValidationTests(ManagerTestCase):
 
     def setUp(self):
         patcher = mock.patch.object(TerminalInterviewer, 'get_human_answer')
