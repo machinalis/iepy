@@ -1,0 +1,73 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+
+{% block content_title %}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+        $("html").attr("ng-app", "");
+    </script>
+    <script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+    <script type="text/javascript">
+        var eos = {{ eos_propperties|safe }};
+        var relations = {{ relations_list|safe }};
+        var forms = {{ forms_values|safe }};
+    </script>
+{% endblock %}
+
+
+{% block inner_content %}
+    <div class="wrapper" ng-controller="QuestionsController">
+        <br />
+        <div class="title"> Document: </div>
+
+        {% for segment in segments %}
+            <div class="segment">
+                {% for rich_token in segment %}
+                    {% if rich_token.eo_ids %}
+                        <span class="rich-token entity-occurrence"
+                            ng-click="eo_click({{ rich_token.eo_ids.0 }})"
+                            ng-class="{selectable: eos[{{ rich_token.eo_ids.0 }}].selectable, selected: eos[{{ rich_token.eo_ids.0 }}].selected}"
+                        >
+                    {% else %}
+                        <span class="rich-token">
+                    {% endif %}
+                        <span class="pos-tag"> {{ rich_token.pos }} </span>
+                        <span class="token"> {{ rich_token.token }} </span>
+                    </span>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <br /> <br />
+        <div class="title"> Complete: </div>
+        <div class="description">
+            Click on the entities to answer if the relation is present.
+            <br /> <br />
+            For the rest of the posible relations the answer will be:
+        </div>
+
+        <div class="row">
+            <div class="large-4 columns">
+                <select id="id_label" name="label">
+                    <option value="NO">No relation present</option>
+                    <option value="YE">Yes, relation is present</option>
+                    <option value="DK">Don't know if the relation is present</option>
+                    <option value="SK" selected="selected">Skipped labeling of this evidence</option>
+                    <option value="NS">Evidence is nonsense</option>
+                </select>
+            </div>
+        </div>
+
+        {% for form in formset %}
+            <!-- <input type="text" ng-value="form.value" /> -->
+            {{ form.as_p }}
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -25,11 +25,18 @@
 .entity-occurrence{
     font-weight: bold;
     border-bottom: 2px dashed #bbb;
+    border-radius: 5px;
     padding: 4px;
     cursor: help;
+    -webkit-transition: background .5s; /* For Safari 3.1 to 6.0 */
+    transition: background .5s;
 }
 
+.entity-occurrence.selected{
+    border-bottom: 4px solid #0f0 !important;
+}
 
+.entity-occurrence.selectable,
 .rich-token.entity-occurrence.hover{
     background: #FFEFC7;
 }
