@@ -20,7 +20,7 @@
                title="Previous labeled segment">Previous</a> |
             <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forward' %}"
                title="Next labeled segment">Following</a>)
-        -- <a href="{% url 'corpus:start_labeling_evidence' relation.pk %}"
+        -- <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
               title="Next segment with un-labeled evidences.">Next to label</a>
     </div>
     {% include "corpus/segment_render.html" %}

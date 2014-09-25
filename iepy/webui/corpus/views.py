@@ -10,13 +10,22 @@ from corpus.models import Relation, TextSegment, LabeledRelationEvidence
 from corpus.forms import EvidenceForm
 
 
-def start_labeling_evidence(request, relation_id):
+def next_segment_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)
     segment = relation.get_next_segment_to_label()
     if segment is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
     return redirect('corpus:label_evidence_for_segment', relation.pk, segment.pk)
+
+
+def next_document_to_label(request, relation_id):
+    relation = get_object_or_404(Relation, pk=relation_id)
+    doc = relation.get_next_document_to_label()
+    if doc is None:
+        return render_to_response('message.html',
+                                  {'msg': 'There are no more evidence to label'})
+    return redirect('corpus:label_evidence_for_document', relation.pk, doc.pk)
 
 
 def navigate_labeled_segments(request, relation_id, segment_id, direction):
@@ -85,7 +94,7 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
         )
 
     def get_success_url(self):
-        return reverse('corpus:start_labeling_evidence', args=[self.relation.pk])
+        return reverse('corpus:next_segment_to_label', args=[self.relation.pk])
 
     def formset_valid(self, formset):
         """

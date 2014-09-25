@@ -429,6 +429,13 @@ class Relation(BaseModel):
                     return obj.segment
         return None
 
+    def get_next_document_to_label(self):
+        next_segment = self.get_next_segment_to_label()
+        if next_segment is None:
+            return None
+        else:
+            return next_segment.document
+
 
 class LabeledRelationEvidence(BaseModel):
     NORELATION = "NO"

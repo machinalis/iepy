@@ -1,3 +1,4 @@
+from unittest import mock
 from iepy.data.models import LabeledRelationEvidence as LRE
 from .factories import (RelationFactory, EntityFactory, EntityKindFactory,
                         TextSegmentFactory,
@@ -15,6 +16,7 @@ class TestRelations(ManagerTestCase):
 
 
 class BaseTestReferenceBuilding(ManagerTestCase):
+    # Reference = a complete labeled Corpus
 
     def setUp(self):
         self.k_person = EntityKindFactory(name='person')
@@ -264,3 +266,25 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         expected = segments[-1].id
         self.assertEqual(expected, r.neighbor_labeled_segments(s.id, back=True))
         self.assertEqual(expected, r.neighbor_labeled_segments(s.id, back=False))
+
+
+class TestReferenceNextDocumentToLabel(BaseTestReferenceBuilding):
+
+    def setUp(self):
+        super().setUp()
+        self.relation = self.r_lives_in
+        self.eo1, self.eo2 = self.john, self.roma
+        patcher = mock.patch.object(self.relation, 'get_next_segment_to_label')
+        self.mock_next_segment = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.mock_next_segment.return_value = None
+
+    def test_if_no_segment_returned_then_no_document_returned(self):
+        self.assertEqual(self.relation.get_next_document_to_label(), None)
+        self.mock_next_segment.assert_called_once_with()
+
+    def test_if_segment_returned_then_its_document_is_returned(self):
+        s = self.segment_with_occurrences_factory([self.eo1, self.eo2])
+        self.mock_next_segment.return_value = s
+        self.assertEqual(self.relation.get_next_document_to_label(), s.document)
+        self.mock_next_segment.assert_called_once_with()
