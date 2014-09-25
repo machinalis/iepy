@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -6,7 +8,7 @@ from django.utils.decorators import method_decorator
 
 from extra_views import ModelFormSetView
 
-from corpus.models import Relation, TextSegment, LabeledRelationEvidence
+from corpus.models import Relation, TextSegment, LabeledRelationEvidence, IEDocument
 from corpus.forms import EvidenceForm
 
 
@@ -102,6 +104,100 @@ class LabelEvidenceOnSegmentView(ModelFormSetView):
         """
         messages.add_message(self.request, messages.INFO,
                              'Changes saved for segment {0}.'.format(self.segment.id))
+        for form in formset:
+            if form.has_changed():
+                form.instance.judge = str(self.request.user)
+        return super().formset_valid(formset)
+
+
+
+class LabelEvidenceOnDocumentView(ModelFormSetView):
+    template_name = 'corpus/document_questions.html'
+    form_class = EvidenceForm
+    model = LabeledRelationEvidence
+    extra = 0
+    max_num = None
+    can_order = False
+    can_delete = False
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LabelEvidenceOnDocumentView, self).get_context_data(**kwargs)
+        title = "Labeling Evidence for Relation {0}".format(self.relation)
+        subtitle = 'For Document "{0}"'.format(self.document.human_identifier)
+
+        segments_with_rich_tokens = []
+        for segment in self.document.get_text_segments():
+            segment.hydrate()
+            segments_with_rich_tokens.append(list(segment.get_enriched_tokens()))
+
+        forms_values = []
+        eos_propperties = {}
+        relations_list = []
+        for form_id, evidence in enumerate(self.evidences):
+            left_eo_id = evidence.left_entity_occurrence.pk
+            right_eo_id = evidence.right_entity_occurrence.pk
+            relations_list.append({
+                "relation": [left_eo_id, right_eo_id],
+                "form_id": form_id,
+            })
+
+            forms_values.append({
+                "value": False,
+            })
+
+            for eo_id in [left_eo_id, right_eo_id]:
+                if eo_id not in eos_propperties:
+                    eos_propperties[eo_id] = {
+                        'selectable': True,
+                        'selected': False,
+                    }
+
+
+        ctx.update({
+            'title': title,
+            'subtitle': subtitle,
+            'segments': segments_with_rich_tokens,
+            'relation': self.relation,
+            'eos_propperties': json.dumps(eos_propperties),
+            'relations_list': json.dumps(relations_list),
+            'forms_values': json.dumps(forms_values),
+        })
+        return ctx
+
+    def get_document_and_relation(self):
+        if hasattr(self, 'document') and hasattr(self, 'relation'):
+            return self.document, self.relation
+        self.document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
+        self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
+        self.evidences = []
+        for segment in self.document.get_text_segments():
+            self.evidences.extend(
+                list(segment.get_labeled_evidences(self.relation))
+            )
+        return self.document, self.relation
+
+    def get_queryset(self):
+        document, relation = self.get_document_and_relation()
+        document_segments = document.get_text_segments()
+        return super().get_queryset().filter(
+            segment__in=document_segments, relation=self.relation
+        )
+
+    #def get_success_url(self):
+    #    return reverse('corpus:start_labeling_evidence', args=[self.relation.pk])
+
+    def formset_valid(self, formset):
+        """
+        If the formset is valid redirect to the supplied URL
+        """
+        messages.add_message(
+            self.request, messages.INFO,
+            'Changes saved for document {0}.'.format(self.document.id)
+        )
         for form in formset:
             if form.has_changed():
                 form.instance.judge = str(self.request.user)
