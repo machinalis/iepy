@@ -119,13 +119,13 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     def construct_formset(self, *args, **kwargs):
         fs = super().construct_formset(*args, **kwargs)
         for idx, f in enumerate(fs):
-            f.setup_for_angular()
+            f.setup_for_angular({'ng-value': 'forms["%s"]' % f.prefix})
         return fs
 
     def get_text_segments(self, only_with_evidences=False):
         if only_with_evidences:
             return self.relation._matching_text_segments().filter(
-                document_id=self.document.id).order_by('offset')
+                document_id=self.document.id).order_by('offset').distinct()
         else:
             return self.document.get_text_segments()
 
@@ -159,13 +159,22 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 if eo_id not in eos_propperties:
                     eos_propperties[eo_id] = {
                         'selectable': True,
-                        'selected': False,
+                        'selected': bool(evidence.label),
                     }
+                else:
+                    # do something
+                    eo_prop = eos_propperties[eo_id]
+                    eo_prop['selected'] = eo_prop['selected'] or bool(evidence.label)
+        form_toolbox = self.form_class(prefix='toolbox')
+        form_toolbox.fields['label'].widget.attrs['ng-model'] = 'current_tool'
         ctx.update({
             'title': title,
             'subtitle': subtitle,
             'segments': segments_with_rich_tokens,
             'relation': self.relation,
+            'form_for_others': self.form_class(prefix='for_others'),
+            'form_toolbox': form_toolbox,
+            'initial_tool': LabeledRelationEvidence.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),
             'relations_list': json.dumps(relations_list),
             'forms_values': json.dumps(forms_values),

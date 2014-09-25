@@ -18,12 +18,23 @@
         var eos = {{ eos_propperties|safe }};
         var relations = {{ relations_list|safe }};
         var forms = {{ forms_values|safe }};
+        var initial_tool = "{{ initial_tool }}";
     </script>
 {% endblock %}
 
 
 {% block inner_content %}
+
+
     <div class="wrapper" ng-controller="QuestionsController">
+
+        <div class="row toolbox">
+            <div class="large-4 columns">
+                Toolbox:
+            {{form_toolbox}}
+            </div>
+        </div>
+
         <br />
         <div class="title"> Document: </div>
 
@@ -55,13 +66,7 @@
 
         <div class="row">
             <div class="large-4 columns">
-                <select id="id_label" name="label">
-                    <option value="NO">No relation present</option>
-                    <option value="YE">Yes, relation is present</option>
-                    <option value="DK">Don't know if the relation is present</option>
-                    <option value="SK" selected="selected">Skipped labeling of this evidence</option>
-                    <option value="NS">Evidence is nonsense</option>
-                </select>
+                {{form_for_others}}
             </div>
         </div>
 

@@ -33,7 +33,7 @@ class EvidenceForm(forms.ModelForm):
                 changed = True
         return changed
 
-    def setup_for_angular(self, hidden=True):
+    def setup_for_angular(self, attrs, hidden=True):
         self.fields['label'].widget = forms.TextInput()  # .HiddenInput()
         w = self.fields['label'].widget
-        w.attrs['ng-value'] = 'forms["%s"]' % self.prefix
+        w.attrs.update(attrs)
