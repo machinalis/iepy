@@ -12,14 +12,14 @@
 
 .rich-token .pos-tag{
     position: absolute;
-    color: #ddd;
+    color: #AFAFAF;
     font-size: 10px;
     top: -25px;
     left: 35%;
 }
 
 .rich-token:hover .pos-tag{
-    color: #666;
+    color: #656565;
 }
 
 .entity-occurrence{

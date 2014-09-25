@@ -36,10 +36,10 @@
         </div>
 
         <br />
-        <div class="title"> Document: </div>
+        <div class="title"> {{subtitle}} </div>
 
         {% for segment in segments %}
-            <div class="segment">
+            <div class="segment {% cycle 'odd' 'even' %}">
                 {% for rich_token in segment %}
                     {% if rich_token.eo_ids %}
                         <span class="rich-token entity-occurrence"

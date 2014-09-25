@@ -1,3 +1,11 @@
 .entity-occurrence{
     cursor: pointer !important;
 }
+
+.segment.odd{
+    padding: 10px;
+}
+.segment.even{
+    padding: 10px;
+    background-color: #eee;
+}
