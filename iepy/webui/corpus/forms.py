@@ -32,3 +32,8 @@ class EvidenceForm(forms.ModelForm):
             if LabeledRelationEvidence.objects.get(pk=self.instance.pk).label is None:
                 changed = True
         return changed
+
+    def setup_for_angular(self, hidden=True):
+        self.fields['label'].widget = forms.TextInput()  # .HiddenInput()
+        w = self.fields['label'].widget
+        w.attrs['ng-value'] = 'forms["%s"]' % self.prefix
