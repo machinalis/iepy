@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from extra_views import ModelFormSetView
 
 from corpus.models import Relation, TextSegment, LabeledRelationEvidence, IEDocument
-from corpus.forms import EvidenceForm
+from corpus.forms import EvidenceForm, EvidenceOnDocumentForm
 
 
 def next_segment_to_label(request, relation_id):
@@ -103,24 +103,20 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
 
     def formset_valid(self, formset):
         """
-        If the formset is valid redirect to the supplied URL
+        Add message to the user, and set who made this labeling (judge).
         """
-        messages.add_message(self.request, messages.INFO,
-                             'Changes saved for segment {0}.'.format(self.segment.id))
         for form in formset:
             if form.has_changed():
                 form.instance.judge = str(self.request.user)
-        return super().formset_valid(formset)
+        result = super().formset_valid(formset)
+        messages.add_message(self.request, messages.INFO,
+                             'Changes saved for segment {0}.'.format(self.segment.id))
+        return result
 
 
 class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     template_name = 'corpus/document_questions.html'
-
-    def construct_formset(self, *args, **kwargs):
-        fs = super().construct_formset(*args, **kwargs)
-        for idx, f in enumerate(fs):
-            f.setup_for_angular({'ng-value': 'forms["%s"]' % f.prefix})
-        return fs
+    form_class = EvidenceOnDocumentForm
 
     def get_text_segments(self, only_with_evidences=False):
         if only_with_evidences:
@@ -162,17 +158,16 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                         'selected': bool(evidence.label),
                     }
                 else:
-                    # do something
                     eo_prop = eos_propperties[eo_id]
                     eo_prop['selected'] = eo_prop['selected'] or bool(evidence.label)
-        form_toolbox = self.form_class(prefix='toolbox')
+        form_toolbox = EvidenceForm(prefix='toolbox')
         form_toolbox.fields['label'].widget.attrs['ng-model'] = 'current_tool'
         ctx.update({
             'title': title,
             'subtitle': subtitle,
             'segments': segments_with_rich_tokens,
             'relation': self.relation,
-            'form_for_others': self.form_class(prefix='for_others'),
+            'form_for_others': EvidenceForm(prefix='for_others'),
             'form_toolbox': form_toolbox,
             'initial_tool': LabeledRelationEvidence.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),
@@ -202,15 +197,23 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     def get_success_url(self):
         return reverse('corpus:next_document_to_label', args=[self.relation.pk])
 
+    def get_default_label_value(self):
+        return self.request.POST.get('for_others-label', None)
+
     def formset_valid(self, formset):
         """
-        If the formset is valid redirect to the supplied URL
+        Add message to the user, handle the "for the rest" case, and set
+        who made this labeling (judge).
         """
+        default_lbl = self.get_default_label_value()
+        for form in formset:
+            if form.instance.label is None:
+                form.instance.label = default_lbl
+            if form.has_changed():
+                form.instance.judge = str(self.request.user)
+        result = super().formset_valid(formset)
         messages.add_message(
             self.request, messages.INFO,
             'Changes saved for document {0}.'.format(self.document.id)
         )
-        for form in formset:
-            if form.has_changed():
-                form.instance.judge = str(self.request.user)
-        return super().formset_valid(formset)
+        return result

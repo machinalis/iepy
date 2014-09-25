@@ -64,15 +64,25 @@
             For the rest of the posible relations the answer will be:
         </div>
 
-        <div class="row">
-            <div class="large-4 columns">
-                {{form_for_others}}
-            </div>
-        </div>
+        <form action="." method="POST">
+            {% csrf_token %}
+            {{ formset.management_form }}
 
-        {% for form in formset %}
-            <!-- <input type="text" ng-value="form.value" /> -->
-            {{ form.as_p }}
-        {% endfor %}
+            <div class="row">
+                <div class="large-4 columns">
+                    {{form_for_others}}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-4 columns">
+                    <input type="submit" value="save" />
+                </div>
+            </div>
+
+            {% for form in formset %}
+                {{ form.as_p }}
+            {% endfor %}
+        </form>
     </div>
 {% endblock %}
