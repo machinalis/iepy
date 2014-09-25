@@ -66,10 +66,10 @@ function QuestionsController($scope) {
                 var eo_rel_index1 = rel.relation.indexOf(eo_id1);
                 var eo_rel_index2 = rel.relation.indexOf(eo_id2);
                 if (eo_rel_index1 >= 0 && eo_rel_index2 >= 0) {
-                    var form = $scope.forms[rel.form_id];
-                    var value = form.value ? false : true;
-                    form.value = value;
-                    if (!value) {
+                    var form_value = $scope.forms[rel.form_id];
+                    var new_value = form_value ? false : true;
+                    $scope.forms[rel.form_id] = new_value;
+                    if (!new_value) {
                         $scope.eos[eo_id1].selected = $scope.eos[eo_id1].selected - 2;
                         $scope.eos[eo_id2].selected = $scope.eos[eo_id2].selected - 2;
                     }
