@@ -33,7 +33,12 @@ class EvidenceForm(forms.ModelForm):
                 changed = True
         return changed
 
-    def setup_for_angular(self, attrs, hidden=True):
-        self.fields['label'].widget = forms.TextInput()  # .HiddenInput()
-        w = self.fields['label'].widget
-        w.attrs.update(attrs)
+
+class EvidenceOnDocumentForm(EvidenceForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        f_lbl = self.fields['label']
+        f_lbl.widget = forms.HiddenInput()
+        # "forms" is the name of some Angular context object on the frontend.
+        f_lbl.widget.attrs['ng-value'] = 'forms["%s"]' % self.prefix
+        f_lbl.required = False
