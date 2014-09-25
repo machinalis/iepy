@@ -15,7 +15,7 @@ urlpatterns = patterns(
     url(r'^navigate_labeled_segments/(?P<relation_id>\d+)/(?P<segment_id>\d+)/(?P<direction>\w+)',
         views.navigate_labeled_segments,
         name='navigate_labeled_segments'),
-    url(r'^label_evidence_for_document/(?P<relation_id>\d+)/(?P<document_id>\d+)',
+    url(r'^label_evidence_for_document/(?P<relation_id>\d+)/(?P<document_id>\d+)/',
         views.LabelEvidenceOnDocumentView.as_view(),
         name='label_evidence_for_document'),
 )
