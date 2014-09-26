@@ -10,10 +10,9 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script type="text/javascript">
-        $("html").attr("ng-app", "");
-    </script>
-    <script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
     <script type="text/javascript">
         var eos = {{ eos_propperties|safe }};
@@ -26,7 +25,7 @@
 
 {% block inner_content %}
 
-    <div class="wrapper" ng-controller="QuestionsController">
+    <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
             <div class="large-12 columns">
                 <div class="navigation">
