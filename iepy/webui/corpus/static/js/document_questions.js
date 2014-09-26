@@ -3,18 +3,22 @@ $(document).ready(function () {
 
     $(document).foundation();
 
-
-    $(".toolbox label input").each(function(){
+    $(".toolbox label input").each(function () {
         var $this = $(this);
         $this.parent().addClass("toolbox-option-{0}".format($this.val()));
     });
 
 });
 
-
-function QuestionsController($scope) {
+var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute']);
+app.factory('EntityOccurrence', ['$resource',
+        function ($resource) {
+            return $resource('corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
+        }]
+    );
+app.controller('QuestionsController', ['$scope', 'EntityOccurrence',
+function ($scope, EntityOccurrence) {
     "use strict";
-
     // ### Attributes ###
 
     $scope.eo_selected = undefined; // Id of the selected occurrence
@@ -286,6 +290,7 @@ function QuestionsController($scope) {
         }
     };
 }
+]);
 
 String.prototype.format = String.prototype.f = function() {
     var s = this;
