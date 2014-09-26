@@ -121,12 +121,20 @@ function ($scope, EntityOccurrence) {
     };
 
     $scope.manage_eo = function (values) {
-        console.log('Right click with value ' + values);
         for (var i = 0; i < values.length; i++) {
             EntityOccurrence.get({pk: values[i]}).$promise.then(function (eo_obj) {
-                console.log(eo_obj);
+                var $modal = $('#eoModal');
+                var $attrs = $modal.find('.attrs');
+                $attrs.empty();
+                for (var attr in eo_obj) {
+                    if(eo_obj.hasOwnProperty(attr)) {
+                        $attrs.append(
+                            "<p>" + attr + ": " + eo_obj[attr] + "</p>"
+                        );
+                    }
+                }
+                $modal.foundation('reveal', 'open');
             });
-            //console.log(eo_obj);s
         }
     };
 
