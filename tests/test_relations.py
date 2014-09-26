@@ -194,23 +194,23 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         return result
 
     def test_asking_neighbor_when_nothing_is_labeled_returns_None(self):
-        segm_id = 1  # just any
-        self.assertIsNone(self.r_lives_in.neighbor_labeled_segments(segm_id))
+        segm = TextSegmentFactory()
+        self.assertIsNone(self.r_lives_in.labeled_neighbor(segm))
 
     def test_labeled_evidences_for_other_relations_doesnt_affect(self):
-        segm_id = 1  # just any
+        segm = TextSegmentFactory()
         self.create_labeled_segments_for_relation(self.r_father_of, 5)
-        self.assertIsNone(self.r_lives_in.neighbor_labeled_segments(segm_id))
+        self.assertIsNone(self.r_lives_in.labeled_neighbor(segm))
 
     def test_asking_previous_returns_low_closest_segment_with_labeled_evidences(self):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        prev_id = r.neighbor_labeled_segments(reference.id, back=True)
+        prev_id = r.labeled_neighbor(reference, back=True)
         self.assertEqual(prev_id, segments[1].id)
         # But if that had no labeled evidences...
         segments[1].evidence_relations.all().delete()
-        prev_id = r.neighbor_labeled_segments(reference.id, back=True)
+        prev_id = r.labeled_neighbor(reference, back=True)
         self.assertEqual(prev_id, segments[0].id)
 
     def test_segments_with_all_empty_answers_are_excluded(self):
@@ -224,15 +224,15 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         seg_1_evidences[0].save()
         # some none, not all, still found
         self.assertEqual(segments[1].id,
-                         r.neighbor_labeled_segments(reference.id, back=True))
+                         r.labeled_neighbor(reference, back=True))
         for le in seg_1_evidences:
             le.label = None
             le.save()
         # all none, not found
         self.assertNotEqual(segments[1].id,
-                            r.neighbor_labeled_segments(reference.id, back=True))
+                            r.labeled_neighbor(reference, back=True))
         self.assertEqual(segments[0].id,
-                         r.neighbor_labeled_segments(reference.id, back=True))
+                         r.labeled_neighbor(reference, back=True))
 
     def test_all_labels_empty_for_this_relation_but_filled_for_other_still_omitted(self):
         r = self.r_lives_in
@@ -246,17 +246,17 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
             le.label = self.solid_label
             le.save()
         self.assertNotEqual(segments[1].id,
-                            r.neighbor_labeled_segments(reference.id, back=True))
+                            r.labeled_neighbor(reference, back=True))
 
     def test_asking_next_returns_high_closest_segment_with_labeled_evidences(self):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        next_id = r.neighbor_labeled_segments(reference.id, back=False)
+        next_id = r.labeled_neighbor(reference, back=False)
         self.assertEqual(next_id, segments[3].id)
         # But if that had no labeled evidences...
         segments[3].evidence_relations.all().delete()
-        next_id = r.neighbor_labeled_segments(reference.id, back=False)
+        next_id = r.labeled_neighbor(reference, back=False)
         self.assertEqual(next_id, segments[4].id)
 
     def test_asking_for_neighbor_of_unlabeled_segment_returns_last_available(self):
@@ -264,8 +264,8 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         segments = self.create_labeled_segments_for_relation(r, 5)
         s = self.segment_with_occurrences_factory()
         expected = segments[-1].id
-        self.assertEqual(expected, r.neighbor_labeled_segments(s.id, back=True))
-        self.assertEqual(expected, r.neighbor_labeled_segments(s.id, back=False))
+        self.assertEqual(expected, r.labeled_neighbor(s, back=True))
+        self.assertEqual(expected, r.labeled_neighbor(s, back=False))
 
 
 class TestReferenceNextDocumentToLabel(BaseTestReferenceBuilding):
