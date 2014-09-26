@@ -64,7 +64,7 @@ class DocumentManager(object):
         if step in PreProcessSteps:
             flag_field_name = "%s_done_at" % step.name
             query = {"%s__isnull" % flag_field_name: True}
-            return IEDocument.objects.filter(**query)
+            return IEDocument.objects.filter(**query).order_by('id')
         return IEDocument.objects.none()
 
 
