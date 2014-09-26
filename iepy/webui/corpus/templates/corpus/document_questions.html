@@ -103,6 +103,7 @@
                         {% for rich_token in segment %}
                             {% if rich_token.eo_ids %}
                                 <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                                    ng-right-click="manage_eo({{ rich_token.eo_ids }})"
                                     ng-click="eo_click({{ rich_token.eo_ids }})"
                                     ng-class="{
                                         selectable: {% for eo_id in rich_token.eo_ids %}

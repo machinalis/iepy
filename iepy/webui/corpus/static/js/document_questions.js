@@ -13,9 +13,20 @@ $(document).ready(function () {
 var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute']);
 app.factory('EntityOccurrence', ['$resource',
         function ($resource) {
-            return $resource('corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
+            return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
         }]
     );
+app.directive('ngRightClick', function ($parse) {
+    return function ($scope, element, attrs) {
+        var fn = $parse(attrs.ngRightClick);
+        element.bind('contextmenu', function (event) {
+            $scope.$apply(function () {
+                event.preventDefault();
+                fn($scope, {$event: event});
+            });
+        });
+    };
+});
 app.controller('QuestionsController', ['$scope', 'EntityOccurrence',
 function ($scope, EntityOccurrence) {
     "use strict";
@@ -106,6 +117,16 @@ function ($scope, EntityOccurrence) {
                     rel_obj.form_id
                 );
             }
+        }
+    };
+
+    $scope.manage_eo = function (values) {
+        console.log('Right click with value ' + values);
+        for (var i = 0; i < values.length; i++) {
+            EntityOccurrence.get({pk: values[i]}).$promise.then(function (eo_obj) {
+                console.log(eo_obj);
+            });
+            //console.log(eo_obj);s
         }
     };
 
