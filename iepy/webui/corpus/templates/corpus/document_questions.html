@@ -25,6 +25,18 @@
 
 {% block inner_content %}
 
+    <div class="navigation">
+        <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+              title="Next segment with un-labeled evidences.">Label by segments</a>
+        --
+        Labeled documents:
+            (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
+               title="Previous labeled document">Previous</a> |
+            <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
+               title="Next labeled document">Following</a>)
+        -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+              title="Next document with un-labeled evidences.">Next document to label</a>
+    </div>
 
     <div class="wrapper" ng-controller="QuestionsController">
 

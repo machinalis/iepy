@@ -15,10 +15,13 @@
 {% block inner_content %}
     <br />
     <div class="navigation">
+        <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+              title="Next document with un-labeled evidences.">Label by documents</a>
+        --
         Labeled segments:
             (<a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'back' %}"
                title="Previous labeled segment">Previous</a> |
-            <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forward' %}"
+            <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forth' %}"
                title="Next labeled segment">Following</a>)
         -- <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
               title="Next segment with un-labeled evidences.">Next to label</a>
