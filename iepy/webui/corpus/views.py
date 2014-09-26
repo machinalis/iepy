@@ -30,24 +30,42 @@ def next_document_to_label(request, relation_id):
     return redirect('corpus:label_evidence_for_document', relation.pk, doc.pk)
 
 
-def navigate_labeled_segments(request, relation_id, segment_id, direction):
+def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
+    # The parameter current_id indicates where the user is situated when asking
+    # to move back or forth
+    type_name = 'document' if type_ == IEDocument else 'segment'
+    url_name = 'corpus:label_evidence_for_%s' % type_name
+    print(repr(url_name))
     relation = get_object_or_404(Relation, pk=relation_id)
-    segment = get_object_or_404(TextSegment, pk=segment_id)
+    current = get_object_or_404(type_, pk=current_id)
+    current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    segm_id_to_show = relation.neighbor_labeled_segments(segment.id, going_back)
-    if segm_id_to_show is None:
-        # Internal logic couldn't decide what other segment to show. Better to
+    obj_id_to_show = relation.labeled_neighbor(current, going_back)
+    if obj_id_to_show is None:
+        # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
+        response = redirect(url_name, relation.pk, current_id)
         messages.add_message(request, messages.WARNING,
-                             'No other segment to show.')
-        return redirect('corpus:label_evidence_for_segment', relation.pk, segment_id)
+                             'No other %s to show.' % type_name)
+        return response
     else:
-        if segm_id_to_show == segment.id:
+        response = redirect(url_name, relation.pk, obj_id_to_show)
+        if obj_id_to_show == current_id:
             direction_str = "previous" if going_back else "next"
             messages.add_message(
                 request, messages.WARNING,
-                'No {0} segment to show.'.format(direction_str))
-        return redirect('corpus:label_evidence_for_segment', relation.pk, segm_id_to_show)
+                'No {0} {1} to show.'.format(direction_str, type_name))
+        return response
+
+
+def navigate_labeled_segments(request, relation_id, segment_id, direction):
+    return _navigate_labeled_items(request, relation_id, segment_id,
+                                   direction, TextSegment)
+
+
+def navigate_labeled_documents(request, relation_id, document_id, direction):
+    return _navigate_labeled_items(request, relation_id, document_id,
+                                   direction, IEDocument)
 
 
 class _BaseLabelEvidenceView(ModelFormSetView):
@@ -165,6 +183,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         ctx.update({
             'title': title,
             'subtitle': subtitle,
+            'document': self.document,
             'segments': segments_with_rich_tokens,
             'relation': self.relation,
             'form_for_others': EvidenceForm(prefix='for_others'),
