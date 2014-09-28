@@ -110,7 +110,7 @@ class IEDocument(BaseModel):
         """Sets the value to the correspondent storage format"""
         if not isinstance(value, list):
             raise ValueError("Tokenization expected result should be a list "
-                             "of tuples (token-string, token-offset on text (int)).")
+                             "of tuples (token-offset on text (int), token-string).")
         tkn_offsets, tokens = unzip(value, 2)
         self.tokens = list(tokens)
         self.offsets_to_text = list(tkn_offsets)
