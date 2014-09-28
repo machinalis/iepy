@@ -55,7 +55,7 @@ class IEDocument(BaseModel):
                                         unique=True)
     title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
     url = models.URLField()  # TODO: remove
-    text = models.TextField()  # TODO: remove
+    text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
@@ -66,8 +66,8 @@ class IEDocument(BaseModel):
     sentences = ListField()  # ints, it's a list of token-offsets
 
     # Reversed fields:
-    # entitiy_occurrences = Reversed ForeignKey of EntityOccurrence
-    # text_segments = Reversed ForeignKey of TextSegment
+    # entity_occurrences = Reversed ForeignKey of EntityOccurrence
+    # segments = Reversed ForeignKey of TextSegment
 
     # Metadata annotations that're computed while traveling the pre-process pipeline
     tokenization_done_at = models.DateTimeField(null=True, blank=True)
