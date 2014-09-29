@@ -206,7 +206,10 @@ def apply_coreferences(document, coreferences):
         canonical = entities[0]
 
     # Each missing coreference needs to be created into an occurrence now
-    for i, j, _ in missing:
+    for i, j, head in missing:
+        if j - i >= 5:  # If the entity is a long phrase then just keep one token
+            i = head
+            j = head + 1
         EntityOccurrence.objects.get_or_create(
             document=document,
             entity=canonical,
