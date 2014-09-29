@@ -73,19 +73,30 @@ function QuestionsController($scope) {
 
         if ($scope.eo_selected === undefined) {
             // Marking as selected
-            eo.selected = eo.selected + 1;
             $scope.eo_first_click(id);
         } else {
             $scope.eo_second_click(id);
         }
     };
 
+    $scope.highligh_eo_tokens = function (eo_id) {
+        var $this = $(this);
+        var eo_id = $this.data("eo-id");
+        $(".eo-{0}".format(eo_id)).each(function () {
+            var $this = $(this);
+            $this.toggleClass("highlight");
+        });
+
+    }
 
     $scope.eo_first_click = function (id) {
+        var eo = $scope.eos[id];
         $scope.eo_selected = id;
 
         $scope.set_selectables(false);
-        $scope.eos[id].selectable = true;
+        eo.selectable = true;
+        eo.selected = true;
+
         // Calculate wich ones must be selectable
         for (var i in $scope.relations) {
             var rel = $scope.relations[i];
@@ -100,9 +111,8 @@ function QuestionsController($scope) {
     $scope.eo_second_click = function (id) {
         if ($scope.eo_selected === id) {
             // You're de-selecting the one you've just selected
-            $scope.eos[id].selected = $scope.eos[id].selected - 1;
+            $scope.eos[id].selected = false;
         } else {
-            $scope.eos[id].selected = $scope.eos[id].selected + 1;
             var eo_id1 = $scope.eo_selected;
             var eo_id2 = id;
 
@@ -121,10 +131,8 @@ function QuestionsController($scope) {
                         rel.form_id
                     );
 
-                    if (!new_value) {
-                        $scope.eos[eo_id1].selected = $scope.eos[eo_id1].selected - 2;
-                        $scope.eos[eo_id2].selected = $scope.eos[eo_id2].selected - 2;
-                    }
+                    $scope.eos[eo_id1].selected = false;
+                    $scope.eos[eo_id2].selected = false;
 
                 }
             }
