@@ -32,3 +32,22 @@ class EvidenceForm(forms.ModelForm):
             if LabeledRelationEvidence.objects.get(pk=self.instance.pk).label is None:
                 changed = True
         return changed
+
+
+class EvidenceOnDocumentForm(EvidenceForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        f_lbl = self.fields['label']
+        f_lbl.widget = forms.HiddenInput()
+        # "forms" is the name of some Angular context object on the frontend.
+        f_lbl.widget.attrs['ng-value'] = 'forms["%s"]' % self.prefix
+        f_lbl.required = False
+
+
+class EvidenceToolboxForm(EvidenceForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        f_lbl = self.fields['label']
+        prev_widget = f_lbl
+        f_lbl.widget = forms.RadioSelect(choices=prev_widget.choices)
+        f_lbl.widget.attrs['ng-model'] = 'current_tool'

@@ -6,6 +6,11 @@
     line-height: 20px;
 }
 
+.description{
+    padding: 0;
+    font-size: 15px;
+}
+
 .button,
 .button:active{
     background: #008cba;

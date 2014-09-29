@@ -1,0 +1,114 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+
+{% block content_title %}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+        $("html").attr("ng-app", "");
+    </script>
+    <script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+    <script type="text/javascript">
+        var eos = {{ eos_propperties|safe }};
+        var relations = {{ relations_list|safe }};
+        var forms = {{ forms_values|safe }};
+        var initial_tool = "{{ initial_tool }}";
+    </script>
+{% endblock %}
+
+
+{% block inner_content %}
+
+    <div class="wrapper" ng-controller="QuestionsController">
+
+        <div class="navigation">
+            <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+                title="Next segment with un-labeled evidences.">Label by segments</a>
+            --
+            Labeled documents:
+            (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
+                title="Previous labeled document">Previous</a> |
+            <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
+                title="Next labeled document">Following</a>)
+            -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+                title="Next document with un-labeled evidences.">Next document to label</a>
+        </div>
+
+        <div class="toolbox">
+            Toolbox:
+            {{form_toolbox}}
+        </div>
+
+        <div class="title"> {{subtitle}} </div>
+
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                {% for i in question_options %}
+                    <marker id="arrow-point-{{ i }}" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                        <path d="M2,1 L2,10 L10,6 L2,2" class="arrow-point-{{ i }}"/>
+                    </marker>
+                {% endfor %}
+            </defs>
+        </svg>
+
+        <div class="segments">
+        {% for segment in segments %}
+            <div class="segment {% cycle 'odd' 'even' %}">
+                {% for rich_token in segment %}
+                    {% if rich_token.eo_ids %}
+                        {% with rich_token.eo_ids.0 as eo_id %}
+                        <span class="rich-token entity-occurrence eo-{{ eo_id }}"
+                            ng-click="eo_click({{ eo_id }})"
+                            ng-class="{
+                                selectable: eos[{{ eo_id }}].selectable,
+                                selected: eos[{{ eo_id }}].selected
+                            }"
+                        >
+                        {% endwith %}
+                    {% else %}
+                        <span class="rich-token">
+                    {% endif %}
+                        <span class="pos-tag"> {{ rich_token.pos }} </span>
+                        <span class="token"> {{ rich_token.token }} </span>
+                    </span>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        </div>
+
+        <br /> <br />
+        <div class="title"> Complete: </div>
+        <div class="description">
+            Click on the entities to answer if the relation is present.
+            <br /> <br />
+            For the rest of the posible relations the answer will be:
+        </div>
+
+        <form action="." method="POST">
+            {% csrf_token %}
+            {{ formset.management_form }}
+
+            <div class="row">
+                <div class="large-4 columns">
+                    {{form_for_others}}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-4 columns">
+                    <input type="submit" value="save & see next" />
+                </div>
+            </div>
+
+            {% for form in formset %}
+                {{ form.as_p }}
+            {% endfor %}
+        </form>
+    </div>
+{% endblock %}

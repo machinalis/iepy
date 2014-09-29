@@ -80,7 +80,7 @@ class IEDocument(BaseModel):
     metadata = jsonfield.JSONField(blank=True)
 
     class Meta(BaseModel.Meta):
-        pass
+        ordering = ['id', ]
 
     def __str__(self):
         return '<IEDocument {0}>'.format(self.human_identifier)
@@ -369,40 +369,49 @@ class Relation(BaseModel):
             )
         return matching_segms
 
-    def neighbor_labeled_segments(self, segment_id, back=False):
-        """Returns the id of closest segment (respect the one indicated by segment),
-        with labeled evidences for the given relation.
-        By "closest", it's mean the distance of the id numbers.
-        If back is True, it's picked the previous segment, otherwise, the next one.
+    def labeled_neighbor(self, obj, back=False):
+        """Returns the id of the "closest" labeled object to the one provided.
+        Notes:
+            - By "closest", it's mean the distance of the id numbers.
+            - Works both for TextSegment and for IEDocument
+            - If back is True, it's picked the previous item, otherwise, the next one.
+            - It's assumed that the obj provided HAS labeled evidence already. If not,
+              it's not possible to determine what is next. In such case, the id of the
+              last labeled object will be returned.
 
-        It's assumed that the given segment HAS labeled evidence already. If not,
-        the id of the last labeled segment will be returned.
-
-        If current segment is at the end of such direction, same id will be returned.
+            - If asking "next" and obj is currently the last, his id will be returned.
+            - If asking "prev" and obj is currently the first, his id will be returned.
         """
-        candidates = self._matching_text_segments()
-        candidates = candidates.filter(evidence_relations__relation=self).filter(
-            evidence_relations__label__isnull=False).distinct()
-        ids = list(candidates.values_list('id', flat=True).order_by('id'))
+        if isinstance(obj, TextSegment):
+            candidates = self._matching_text_segments()
+            candidates = candidates.filter(evidence_relations__relation=self).filter(
+                evidence_relations__label__isnull=False).distinct()
+            ids = list(candidates.values_list('id', flat=True).order_by('id'))
+        elif isinstance(obj, IEDocument):
+            lres = LabeledRelationEvidence.objects.filter(relation=self,
+                                                          label__isnull=False)
+            ids = sorted(set(lres.values_list('segment__document_id', flat=True)))
+        else:
+            ids = []
         if not ids:
             return None
         try:
-            base_idx = ids.index(segment_id)
+            base_idx = ids.index(obj.id)
         except ValueError:
-            # the base-segment provided is not in the list of labeled evidence
-            # Returning last labeled one
+            # the base-object provided is not listed... Returning the base-object
+            # Returning last in list
             return ids[-1]
         else:
             if back:
                 if base_idx == 0:
                     # there is no previous one. Returning same.
-                    return segment_id
+                    return obj.id
                 else:
                     return ids[base_idx - 1]
             else:
                 if base_idx == len(ids) - 1:
                     # there is no next one. Returning same.
-                    return segment_id
+                    return obj.id
                 else:
                     return ids[base_idx + 1]
 
