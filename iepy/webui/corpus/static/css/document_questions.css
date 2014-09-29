@@ -7,12 +7,12 @@
 }
 .segment.even{
     padding: 10px;
-    background-color: #eee;
+    background-color: rgba(0, 0, 0, .08);
 }
 
 svg{
     position: absolute;
-    z-index: 100;
+    z-index: -10;
 }
 
 
@@ -35,6 +35,14 @@ svg{
 
 .wrapper{
     margin-left: 75px;
+}
+
+.f-dropdown{
+    z-index: 250 !important;
+}
+
+.f-dropdown li{
+    list-style: none;
 }
 
 .arrow{

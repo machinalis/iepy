@@ -173,11 +173,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 if eo_id not in eos_propperties:
                     eos_propperties[eo_id] = {
                         'selectable': True,
-                        'selected': bool(evidence.label),
+                        'selected': False,
                     }
-                else:
-                    eo_prop = eos_propperties[eo_id]
-                    eo_prop['selected'] = eo_prop['selected'] or bool(evidence.label)
 
         form_toolbox = EvidenceToolboxForm(prefix='toolbox')
         question_options = [x[0] for x in form_toolbox.fields["label"].choices]

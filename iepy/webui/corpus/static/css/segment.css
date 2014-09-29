@@ -37,6 +37,10 @@
     border-bottom: 3px solid #666 !important;
 }
 
+.entity-occurrence.highlight{
+    color: #f00;
+}
+
 .rich-token.entity-occurrence.selectable,
 .rich-token.entity-occurrence:hover{
     background: rgba(255, 182, 0, 0.17);
