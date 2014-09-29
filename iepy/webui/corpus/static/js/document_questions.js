@@ -38,6 +38,8 @@ function QuestionsController($scope) {
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highligh_eo_tokens);
         $(".eo-submenu").mouseout($scope.highligh_eo_tokens);
+        $(".entity-occurrence").mouseover($scope.highligh_eo_tokens);
+        $(".entity-occurrence").mouseout($scope.highligh_eo_tokens);
     });
 
     // ### Methods ###
@@ -91,7 +93,7 @@ function QuestionsController($scope) {
         var eo = $scope.eos[id];
 
         // Not selectable
-        if (!eo.selectable) { return; }
+        if (!eo || !eo.selectable) { return; }
 
         if ($scope.eo_selected === undefined) {
             // Marking as selected

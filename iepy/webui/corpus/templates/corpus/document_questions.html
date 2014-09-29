@@ -75,6 +75,8 @@
                             }"
                             {% if rich_token.eo_ids|length > 1 %}
                                 data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                            {% else %}
+                                data-eo-id="{{ rich_token.eo_ids.0 }}"
                             {% endif %}
                         >
                     {% else %}
