@@ -29,6 +29,23 @@ function QuestionsController($scope) {
 
     $(document).ready(function(){
         $scope.svg = $("svg")[0];
+
+        $scope.update_relations_arrows();
+        $(window).resize($scope.update_relations_arrows);
+    });
+
+    // ### Methods ###
+
+
+    $scope.update_relations_arrows = function () {
+
+        for (var form_id in $scope.forms) {
+            var path = $scope.arrows[form_id];
+            if (path) {
+                $scope.svg.removeChild(path);
+            }
+        }
+
         for (var i in $scope.relations) {
             var rel_obj = $scope.relations[i];
             $scope.calculate_arrow_string(
