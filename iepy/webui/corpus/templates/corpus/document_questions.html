@@ -46,7 +46,6 @@
         </div>
 
         <div class="title"> {{subtitle}} </div>
-
         <svg xmlns="http://www.w3.org/2000/svg">
             <defs>
                 {% for i in question_options %}
@@ -62,21 +61,36 @@
             <div class="segment {% cycle 'odd' 'even' %}">
                 {% for rich_token in segment %}
                     {% if rich_token.eo_ids %}
-                        {% with rich_token.eo_ids.0 as eo_id %}
-                        <span class="rich-token entity-occurrence eo-{{ eo_id }}"
-                            ng-click="eo_click({{ eo_id }})"
+                    <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                            ng-click="eo_click({{ rich_token.eo_ids }})"
                             ng-class="{
-                                selectable: eos[{{ eo_id }}].selectable,
-                                selected: eos[{{ eo_id }}].selected
+                                selectable: {% for eo_id in rich_token.eo_ids %}
+                                    eos[{{ eo_id }}].selectable 
+                                        {% if not forloop.last %} && {% endif %}
+                                    {% endfor %},
+                                selected: {% for eo_id in rich_token.eo_ids %}
+                                    eos[{{ eo_id }}].selected 
+                                        {% if not forloop.last %} || {% endif %}
+                                    {% endfor %}
                             }"
+                            {% if rich_token.eo_ids|length > 1 %}
+                                data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                            {% endif %}
                         >
-                        {% endwith %}
                     {% else %}
                         <span class="rich-token">
                     {% endif %}
                         <span class="pos-tag"> {{ rich_token.pos }} </span>
                         <span class="token"> {{ rich_token.token }} </span>
                     </span>
+
+                    {% if rich_token.eo_ids|length > 1 %}
+                        <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
+                            {% for eo_id in rich_token.eo_ids %}
+                                <li><a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}">{{ eo_id }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% endfor %}

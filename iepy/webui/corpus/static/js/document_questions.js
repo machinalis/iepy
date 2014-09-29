@@ -1,6 +1,8 @@
 "use strict";
 
 $(document).ready(function () {
+    $(document).foundation();
+
     var $segments = $(".segments");
     var $svg = $("svg");
     $svg.attr("width", $segments.width());
@@ -32,6 +34,10 @@ function QuestionsController($scope) {
 
         $scope.update_relations_arrows();
         $(window).resize($scope.update_relations_arrows);
+
+        $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
+        $(".eo-submenu").mouseover($scope.highligh_eo_tokens);
+        $(".eo-submenu").mouseout($scope.highligh_eo_tokens);
     });
 
     // ### Methods ###
@@ -54,9 +60,7 @@ function QuestionsController($scope) {
                 rel_obj.form_id
             );
         }
-    });
-
-    // ### Methods ###
+    }
 
     // Sets the value for selectable on all entity occurrences
     $scope.set_selectables = function (value) {
@@ -65,7 +69,25 @@ function QuestionsController($scope) {
         }
     };
 
-    $scope.eo_click = function (id) {
+    $scope.eo_click = function (ids) {
+        // Handles only the case of 1 id, if it has
+        // more than one, it shows the menu
+        if (ids.length == 1) {
+            var id = ids[0];
+            $scope.handle_click_on_eo(id);
+        }
+    }
+
+    $scope.on_eo_submenu_click = function (event) {
+        event.preventDefault();
+
+        var $this = $(this);
+        var eo_id = $this.data("eo-id");
+        $scope.handle_click_on_eo(eo_id);
+        $scope.$apply();
+    }
+
+    $scope.handle_click_on_eo = function (id) {
         var eo = $scope.eos[id];
 
         // Not selectable
@@ -149,7 +171,7 @@ function QuestionsController($scope) {
             $scope.svg.removeChild(path);
         } else {
             // Curve configuration
-            var curve_distance = 20;
+            var curve_distance = 25;
             var y_offset = $($scope.svg).position().top;
             var x_offset = 60;
 
