@@ -9,3 +9,55 @@
     padding: 10px;
     background-color: #eee;
 }
+
+svg{
+    position: absolute;
+    z-index: 100;
+}
+
+
+.toolbox{
+    position: fixed;
+    left: 15px;
+    width: 245px;
+
+}
+.toolbox ul{
+    margin: 0;
+}
+
+.toolbox ul li{
+    list-style: none;
+}
+.toolbox ul li input{
+    margin: 0;
+}
+
+.wrapper{
+    margin-left: 75px;
+}
+
+.arrow{
+    stroke-width: 1.75px;
+    fill: none; 
+}
+
+.arrow_YE{ stroke: #0f0; }
+.arrow-point-YE{ fill: #0f0; }
+.toolbox-option-YE{ border-bottom: 2px solid #0f0; }
+
+.arrow_NO{ stroke: #f00; }
+.arrow-point-NO{ fill: #f00; }
+.toolbox-option-NO{ border-bottom: 2px solid #f00; }
+
+.arrow_DK{ stroke: #fa0; }
+.arrow-point-DK{ fill: #fa0; }
+.toolbox-option-DK{ border-bottom: 2px solid #fa0; }
+
+.arrow_SK{ stroke: #00f; }
+.arrow-point-SK{ fill: #00f; }
+.toolbox-option-SK{ border-bottom: 2px solid #00f; }
+
+.arrow_NS{ stroke: #f0f; }
+.arrow-point-NS{ fill: #f0f; }
+.toolbox-option-NS{ border-bottom: 2px solid #f0f; }

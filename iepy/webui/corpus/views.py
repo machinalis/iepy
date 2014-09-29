@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from extra_views import ModelFormSetView
 
 from corpus.models import Relation, TextSegment, LabeledRelationEvidence, IEDocument
-from corpus.forms import EvidenceForm, EvidenceOnDocumentForm
+from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 
 
 def next_segment_to_label(request, relation_id):
@@ -178,8 +178,10 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 else:
                     eo_prop = eos_propperties[eo_id]
                     eo_prop['selected'] = eo_prop['selected'] or bool(evidence.label)
-        form_toolbox = EvidenceForm(prefix='toolbox')
-        form_toolbox.fields['label'].widget.attrs['ng-model'] = 'current_tool'
+
+        form_toolbox = EvidenceToolboxForm(prefix='toolbox')
+        question_options = [x[0] for x in form_toolbox.fields["label"].choices]
+
         ctx.update({
             'title': title,
             'subtitle': subtitle,
@@ -192,6 +194,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'eos_propperties': json.dumps(eos_propperties),
             'relations_list': json.dumps(relations_list),
             'forms_values': json.dumps(forms_values),
+            'question_options': question_options,
         })
         return ctx
 

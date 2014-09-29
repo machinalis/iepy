@@ -25,39 +25,52 @@
 
 {% block inner_content %}
 
-    <div class="navigation">
-        <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
-              title="Next segment with un-labeled evidences.">Label by segments</a>
-        --
-        Labeled documents:
-            (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
-               title="Previous labeled document">Previous</a> |
-            <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
-               title="Next labeled document">Following</a>)
-        -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
-              title="Next document with un-labeled evidences.">Next document to label</a>
-    </div>
-
     <div class="wrapper" ng-controller="QuestionsController">
 
-        <div class="row toolbox">
-            <div class="large-4 columns">
-                Toolbox:
-            {{form_toolbox}}
-            </div>
+        <div class="navigation">
+            <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+                title="Next segment with un-labeled evidences.">Label by segments</a>
+            --
+            Labeled documents:
+            (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
+                title="Previous labeled document">Previous</a> |
+            <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
+                title="Next labeled document">Following</a>)
+            -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+                title="Next document with un-labeled evidences.">Next document to label</a>
         </div>
 
-        <br />
+        <div class="toolbox">
+            Toolbox:
+            {{form_toolbox}}
+        </div>
+
         <div class="title"> {{subtitle}} </div>
 
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                {% for i in question_options %}
+                    <marker id="arrow-point-{{ i }}" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                        <path d="M2,1 L2,10 L10,6 L2,2" class="arrow-point-{{ i }}"/>
+                    </marker>
+                {% endfor %}
+            </defs>
+        </svg>
+
+        <div class="segments">
         {% for segment in segments %}
             <div class="segment {% cycle 'odd' 'even' %}">
                 {% for rich_token in segment %}
                     {% if rich_token.eo_ids %}
-                        <span class="rich-token entity-occurrence"
-                            ng-click="eo_click({{ rich_token.eo_ids.0 }})"
-                            ng-class="{selectable: eos[{{ rich_token.eo_ids.0 }}].selectable, selected: eos[{{ rich_token.eo_ids.0 }}].selected}"
+                        {% with rich_token.eo_ids.0 as eo_id %}
+                        <span class="rich-token entity-occurrence eo-{{ eo_id }}"
+                            ng-click="eo_click({{ eo_id }})"
+                            ng-class="{
+                                selectable: eos[{{ eo_id }}].selectable,
+                                selected: eos[{{ eo_id }}].selected
+                            }"
                         >
+                        {% endwith %}
                     {% else %}
                         <span class="rich-token">
                     {% endif %}
@@ -67,6 +80,7 @@
                 {% endfor %}
             </div>
         {% endfor %}
+        </div>
 
         <br /> <br />
         <div class="title"> Complete: </div>

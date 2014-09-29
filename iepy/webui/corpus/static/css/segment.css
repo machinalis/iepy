@@ -12,31 +12,32 @@
 
 .rich-token .pos-tag{
     position: absolute;
-    color: #AFAFAF;
+    color: #BDBDBD;
     font-size: 10px;
     top: -25px;
     left: 35%;
 }
 
 .rich-token:hover .pos-tag{
-    color: #656565;
+    color: #666;
 }
 
 .entity-occurrence{
     font-weight: bold;
     border-bottom: 2px dashed #bbb;
-    border-radius: 5px;
     padding: 4px;
     cursor: help;
     -webkit-transition: background .5s; /* For Safari 3.1 to 6.0 */
     transition: background .5s;
+    z-index: 200;
+    border-radius: 10px;
 }
 
 .entity-occurrence.selected{
-    border-bottom: 4px solid #0f0 !important;
+    border-bottom: 3px solid #666 !important;
 }
 
-.entity-occurrence.selectable,
-.rich-token.entity-occurrence.hover{
-    background: #FFEFC7;
+.rich-token.entity-occurrence.selectable,
+.rich-token.entity-occurrence:hover{
+    background: rgba(255, 182, 0, 0.17);
 }
