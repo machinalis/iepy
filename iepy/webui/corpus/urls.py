@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from corpus import views
-from corpus.api import EOCRUDView
+from corpus import api
 
 urlpatterns = patterns(
     '',
@@ -30,5 +30,6 @@ urlpatterns = patterns(
         name='label_evidence_for_document'),
 
     # CRUD Angular EOs
-    url(r'^crud/entity_occurrence/?$', EOCRUDView.as_view(), name='eo_crud_view'),
+    url(r'^crud/entity_occurrence/?$', api.EOCRUDView.as_view(), name='eo_crud_view'),
+    url(r'^crud/text_segment/?$', api.SegmentCRUDView.as_view(), name='segm_crud_view'),
 )

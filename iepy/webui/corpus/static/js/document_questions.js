@@ -16,6 +16,11 @@ app.factory('EntityOccurrence', ['$resource',
             return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
         }]
     );
+app.factory('TextSegment', ['$resource',
+        function ($resource) {
+            return $resource('/corpus/crud/text_segment/', {'pk': '@pk'}, {});
+        }]
+    );
 app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
@@ -27,7 +32,7 @@ app.directive('ngRightClick', function ($parse) {
         });
     };
 });
-app.controller('QuestionsController', ['$scope', 'EntityOccurrence',
+app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'TextSegment',
 function ($scope, EntityOccurrence) {
     "use strict";
     // ### Attributes ###
