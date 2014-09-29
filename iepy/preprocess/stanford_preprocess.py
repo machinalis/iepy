@@ -5,7 +5,7 @@ import logging
 from iepy.preprocess.corenlp import get_analizer
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
-from iepy.data.models import EntityOccurrence
+from iepy.data.models import Entity, EntityOccurrence
 
 
 logger = logging.getLogger(__name__)
@@ -196,12 +196,14 @@ def apply_coreferences(document, coreferences):
     if len(set(e.kind for e in entities)) != 1:
         raise CoreferenceError("Cannot merge entities of different kinds {!r}".format(set(e.kind for e in entities)))
 
-    # Select canonical entity
-    canonical = entities[0]  # Every occurrence will point to this entity
     # Select canonical name for the entity
     i, j, _ = coreferences[0]
-    canonical.key = " ".join(document.tokens[i:j])
-    canonical.save()
+    name = " ".join(document.tokens[i:j])
+    # Select canonical entity, every occurrence will point to this entity
+    try:
+        canonical = Entity.objects.get(key=name)
+    except Entity.DoesNotExist:
+        canonical = entities[0]
 
     # Each missing coreference needs to be created into an occurrence now
     for i, j, _ in missing:
