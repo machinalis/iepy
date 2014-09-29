@@ -46,7 +46,7 @@ function ($scope, EntityOccurrence) {
     $scope.current_tool = window.initial_tool;
     $scope.arrows = {};
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $scope.$segments = $(".segments");
         $scope.$svg = $("svg");
         $scope.svg = $scope.$svg[0];
@@ -127,12 +127,12 @@ function ($scope, EntityOccurrence) {
 
     $scope.manage_eo = function (values) {
         for (var i = 0; i < values.length; i++) {
-            EntityOccurrence.get({pk: values[i]}).$promise.then(function (eo_obj) {
+            EntityOccurrence.get({pk: values[i]}).then(function (eo_obj) {
                 var $modal = $('#eoModal');
                 var $attrs = $modal.find('.attrs');
                 $attrs.empty();
                 for (var attr in eo_obj) {
-                    if(eo_obj.hasOwnProperty(attr)) {
+                    if (eo_obj.hasOwnProperty(attr)) {
                         $attrs.append(
                             "<p>" + attr + ": " + eo_obj[attr] + "</p>"
                         );
@@ -326,7 +326,7 @@ function ($scope, EntityOccurrence) {
 }
 ]);
 
-String.prototype.format = String.prototype.f = function() {
+String.prototype.format = String.prototype.f = function () {
     var s = this;
     var i = arguments.length;
 
