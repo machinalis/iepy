@@ -23,7 +23,7 @@ def get_analizer(*args, _singleton=[]):
 
 class StanfordCoreNLP:
     CORENLP_CMD = "-outputFormat xml -threads 4"
-    PROMPT = "\nNLP> "
+    PROMPT = b"\nNLP> "
 
     def __init__(self, tokenize_with_whitespace=False):
         cmd = self.CORENLP_CMD
@@ -38,11 +38,11 @@ class StanfordCoreNLP:
 
     def iter_output_segments(self):
         while True:
-            buf = ""
+            buf = b""
             while self.PROMPT not in buf:
-                buf += self.proc.stdout.read1(1024).decode("utf8")
+                buf += self.proc.stdout.read1(1024)
             segment, _, buf = buf.partition(self.PROMPT)
-            yield segment
+            yield segment.decode("utf8")
 
     def receive(self):
         return next(self.output)
