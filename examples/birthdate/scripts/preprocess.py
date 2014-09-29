@@ -16,6 +16,7 @@ from docopt import docopt
 from iepy.data.db import DocumentManager
 from iepy.preprocess.stanford_preprocess import StanfordPreprocess
 from iepy.preprocess.pipeline import PreProcessPipeline
+from iepy.preprocess.segmenter import SyntacticSegmenterRunner
 
 
 if __name__ == '__main__':
@@ -26,7 +27,8 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)
     docs = DocumentManager()
     pipeline = PreProcessPipeline([
-        StanfordPreprocess()
+        StanfordPreprocess(),
+        SyntacticSegmenterRunner(increment=True)
     ], docs
     )
     pipeline.process_everything()
