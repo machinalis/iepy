@@ -1,11 +1,15 @@
 from django.contrib import admin
 from django.core import urlresolvers
 
-from corpus.models import IEDocument, Entity, EntityKind, Relation
+from corpus.models import IEDocument, Entity, EntityKind, Relation, EntityOccurrence
 
 
 @admin.register(EntityKind)
 class EntityKindAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(EntityOccurrence)
+class EntityOccurrenceAdmin(admin.ModelAdmin):
     pass
 
 
