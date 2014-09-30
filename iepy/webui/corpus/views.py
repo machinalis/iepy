@@ -152,7 +152,10 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         segments_with_rich_tokens = []
         for segment in self.get_text_segments(only_with_evidences=True):
             segment.hydrate()
-            segments_with_rich_tokens.append(list(segment.get_enriched_tokens()))
+            segments_with_rich_tokens.append(
+                {'id': segment.id,
+                 'rich_tokens': list(segment.get_enriched_tokens())}
+            )
 
         forms_values = {}
         eos_propperties = {}
