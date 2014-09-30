@@ -1,6 +1,6 @@
-"use strict";
-
 $(document).ready(function () {
+    "use strict";
+
     $(document).foundation();
 
     var $segments = $(".segments");
@@ -17,6 +17,7 @@ $(document).ready(function () {
 
 
 function QuestionsController($scope) {
+    "use strict";
 
     // ### Attributes ###
 
@@ -36,15 +37,13 @@ function QuestionsController($scope) {
         $(window).resize($scope.update_relations_arrows);
 
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
-        $(".eo-submenu").mouseover($scope.highligh_eo_tokens);
-        $(".eo-submenu").mouseout($scope.highligh_eo_tokens);
-        $(".entity-occurrence").mouseover($scope.highligh_eo_tokens);
-        $(".entity-occurrence").mouseout($scope.highligh_eo_tokens);
+        $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
+        $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
+        $(".entity-occurrence").mouseover($scope.highlight_eo_tokens);
+        $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
     });
 
     // ### Methods ###
-
-
     $scope.update_relations_arrows = function () {
 
         for (var form_id in $scope.forms) {
@@ -62,7 +61,7 @@ function QuestionsController($scope) {
                 rel_obj.form_id
             );
         }
-    }
+    };
 
     // Sets the value for selectable on all entity occurrences
     $scope.set_selectables = function (value) {
@@ -78,7 +77,7 @@ function QuestionsController($scope) {
             var id = ids[0];
             $scope.handle_click_on_eo(id);
         }
-    }
+    };
 
     $scope.on_eo_submenu_click = function (event) {
         event.preventDefault();
@@ -87,7 +86,7 @@ function QuestionsController($scope) {
         var eo_id = $this.data("eo-id");
         $scope.handle_click_on_eo(eo_id);
         $scope.$apply();
-    }
+    };
 
     $scope.handle_click_on_eo = function (id) {
         var eo = $scope.eos[id];
@@ -103,15 +102,14 @@ function QuestionsController($scope) {
         }
     };
 
-    $scope.highligh_eo_tokens = function (eo_id) {
+    $scope.highlight_eo_tokens = function () {
         var $this = $(this);
         var eo_id = $this.data("eo-id");
         $(".eo-{0}".format(eo_id)).each(function () {
             var $this = $(this);
             $this.toggleClass("highlight");
         });
-
-    }
+    };
 
     $scope.eo_first_click = function (id) {
         var eo = $scope.eos[id];
