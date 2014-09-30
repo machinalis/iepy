@@ -54,6 +54,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+SERIALIZATION_MODULES = {
+    "hydrated_python": "corpus.serializer",
+}
+
+
 ROOT_URLCONF = 'webui.urls'
 
 WSGI_APPLICATION = 'webui.wsgi.application'
