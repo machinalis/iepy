@@ -101,7 +101,7 @@
                 <div class="segments">
                 <br />
                 {% for segment in segments %}
-                    <div class="segment {% cycle 'odd' 'even' %}">
+                    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
                         {% for rich_token in segment %}
                             {% if rich_token.eo_ids %}
                                 <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
