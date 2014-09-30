@@ -165,6 +165,8 @@ function QuestionsController($scope) {
     };
 
     $scope.calculate_arrow_string = function (eo_id1, eo_id2, form_id) {
+        var path;
+
         if (!$scope.forms[form_id]) {
             // Remove the arrow
             path = $scope.arrows[form_id];
@@ -203,7 +205,7 @@ function QuestionsController($scope) {
                 Math.round(eo2_pos_top - curve_distance)  // {5}
             );
 
-            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.innerHTML = 'createElementNS';
             path.setAttribute("class", 'arrow arrow_{0}'.format(form_value));
             path.setAttribute("style", 'marker-end: url(#arrow-point-{0});'.format(

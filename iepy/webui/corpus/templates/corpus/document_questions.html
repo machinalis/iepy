@@ -1,5 +1,6 @@
 {% extends "corpus/base.html" %}
 {% load static %}
+{% load iepy_tags %}
 
 {% block content_title %}{% endblock %}
 {% block extrastyle %}
@@ -61,7 +62,7 @@
             <div class="segment {% cycle 'odd' 'even' %}">
                 {% for rich_token in segment %}
                     {% if rich_token.eo_ids %}
-                    <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                        <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
                             ng-click="eo_click({{ rich_token.eo_ids }})"
                             ng-class="{
                                 selectable: {% for eo_id in rich_token.eo_ids %}
@@ -82,14 +83,22 @@
                     {% else %}
                         <span class="rich-token">
                     {% endif %}
+                        {% if rich_token.eo_ids|length > 1 %}
+                            <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
+                        {% endif %}
+
                         <span class="pos-tag"> {{ rich_token.pos }} </span>
                         <span class="token"> {{ rich_token.token }} </span>
                     </span>
 
                     {% if rich_token.eo_ids|length > 1 %}
                         <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
-                            {% for eo_id in rich_token.eo_ids %}
-                                <li><a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}">{{ eo_id }}</a></li>
+                            {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
+                                <li>
+                                    <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}">
+                                        #{{ forloop.counter }} - {{ eo_kind }}
+                                    </a>
+                                </li>
                             {% endfor %}
                         </ul>
                     {% endif %}

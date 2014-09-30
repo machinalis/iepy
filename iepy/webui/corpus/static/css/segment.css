@@ -22,6 +22,14 @@
     color: #666;
 }
 
+.rich-token .multiple-marker{
+    position: absolute;
+    top: -20px;
+    right: 3px;
+    font-size: 10px;
+    color: #691FD8;
+}
+
 .entity-occurrence{
     font-weight: bold;
     border-bottom: 2px dashed #bbb;

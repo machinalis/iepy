@@ -316,7 +316,7 @@ class TextSegment(BaseModel):
                 token=tkn,
                 pos=postag,
                 eo_ids=[eo.id for eo in tkn_eos],
-                eo_kinds=set(eo.entity.kind for eo in tkn_eos)
+                eo_kinds=[eo.entity.kind for eo in tkn_eos]
             )
 
 
