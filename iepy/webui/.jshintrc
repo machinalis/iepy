@@ -1,0 +1,15 @@
+{
+    "bitwise"   : true,
+    "browser"   : true,
+    "curly"     : true,
+    "eqeqeq"    : true,
+    "forin"     : true,
+    "jquery"    : true,
+    "maxlen"    : 90,
+    "newcap"    : true,
+    "nonew"     : true,
+    "trailing"  : true,
+    "undef"     : true,
+    "white"     : true,
+    "predef"    : ["require","define","describe","sinon","beforeEach","afterEach","it","expect"]
+}
