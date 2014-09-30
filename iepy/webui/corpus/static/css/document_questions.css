@@ -118,12 +118,36 @@ input, textarea, select, .form-row p{
     border: #CCC dashed 1px;
 }
 
-#eoModal .segment .marker{
-    cursor: pointer;
+#eoModal .segment .marker {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
     border: none;
-    background-color: #F76262;
+    width: 24px;
+    background-color: #BBB;
+}
+
+#eoModal .segment .marker .rotate {
+    display: inline-block;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+}
+
+#eoModal .segment .marker:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+#eoModal div.segment .between-markers {
+    background-color: rgba(255, 182, 0, 0.17);
 }
 
 #eoModal .controls {
-    float: right;
+    text-align: right;
+}
+
+#eoModal .cc-by-icons {
+    position: relative;
+    bottom: 10px;
 }

@@ -65,6 +65,12 @@ function ($scope, EntityOccurrence, TextSegment) {
         $(".prev-relations li").mouseover($scope.highlight_relation);
         $(".prev-relations li").mouseout($scope.highlight_relation);
         $scope.eo_modal.elem = $('#eoModal');
+        $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
+            $scope.eo_modal.elem.foundation('reveal', 'close');
+        });
+        $scope.eo_modal.elem.find('a.save').bind('click', function () {
+            $scope.eo_modal.submit();
+        });
     });
 
     // ### Methods ###
@@ -131,6 +137,8 @@ function ($scope, EntityOccurrence, TextSegment) {
         EntityOccurrence.get({pk: value}).$promise.then(
             function (eo_obj) {
                 var $modal = $scope.eo_modal.elem;
+                var marker_html = '<div class="marker"><span class="rotate">';
+                marker_html +=    '<i class="fi-arrows-expand"></span></div>';
                 $modal.find('.message').empty();
                 $modal.find('.segment').empty();
                 TextSegment.get({pk: segment_id}).$promise.then(
@@ -138,15 +146,16 @@ function ($scope, EntityOccurrence, TextSegment) {
                         var $segment = $modal.find('.segment');
                         for (var i = 0; i < segment.tokens.length; i++) {
                             if (segment.offset + i === eo_obj.offset) {
-                                $segment.append('<div class="marker">|</div>');
+                                $segment.append(marker_html);
                             }
                             if (segment.offset + i === eo_obj.offset_end) {
-                                $segment.append('<div class="marker">|</div>');
+                                $segment.append(marker_html);
                             }
                             $segment.append(
                                 '<div class="token">' + segment.tokens[i] + '</div>'
                             );
                         }
+                        $scope.eo_modal.update_selection();
                         $segment.sortable({
                             cancel: ".token",
                             update: $scope.eo_modal.update_selection
@@ -344,7 +353,28 @@ function ($scope, EntityOccurrence, TextSegment) {
     };
 
     $scope.eo_modal.update_selection = function (event) {
-        console.log('testing...' + event);
+        var paiting = false;
+        $scope.eo_modal.elem.find('.segment div').each(function (idx) {
+            var className = 'between-markers';
+            var $elem = $(this);
+            $elem.removeClass(className);
+            var is_marker = $elem.hasClass('marker');
+            if (paiting && is_marker) {
+                // stop paiting
+                paiting = false;
+            } else if (!paiting && is_marker) {
+                // start paiting
+                paiting = true;
+            }
+            // now, paint
+            if (paiting && !is_marker) {
+                $elem.addClass(className);
+            }
+        });
+    };
+
+    $scope.eo_modal.submit = function () {
+        alert('hello');
     };
 }
 ]);
