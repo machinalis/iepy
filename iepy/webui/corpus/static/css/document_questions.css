@@ -1,3 +1,7 @@
+#content .row:first-child{
+    max-width: none;
+}
+
 .entity-occurrence{
     cursor: pointer !important;
 }
@@ -15,11 +19,14 @@ svg{
     z-index: -10;
 }
 
+.button,
+.button:active{
+    background: #008cba !important;
+    color: #fff !important;
+    padding: 10px !important;
+}
 
 .toolbox{
-    position: fixed;
-    left: 15px;
-    width: 245px;
 
 }
 .toolbox ul{
@@ -34,7 +41,6 @@ svg{
 }
 
 .wrapper{
-    margin-left: 75px;
 }
 
 .f-dropdown{

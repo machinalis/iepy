@@ -184,7 +184,7 @@ function QuestionsController($scope) {
             // Curve configuration
             var curve_distance = 25;
             var y_offset = $($scope.svg).position().top;
-            var x_offset = 60;
+            var x_offset = -30;
 
             // Entity occurrences
             var $eo1 = $(".eo-" + eo_id1);
