@@ -10,10 +10,11 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script type="text/javascript">
-        $("html").attr("ng-app", "");
-    </script>
-    <script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/jquery-ui.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
     <script type="text/javascript">
         var eos = {{ eos_propperties|safe }};
@@ -26,7 +27,7 @@
 
 {% block inner_content %}
 
-    <div class="wrapper" ng-controller="QuestionsController">
+    <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
             <div class="large-12 columns">
                 <div class="navigation">
@@ -55,6 +56,7 @@
                 <form action="." method="POST">
                     {% csrf_token %}
                     {{ formset.management_form }}
+                    <input type="hidden" id="partial-save" name="partial_save" value="" />
 
                     <div class="row">
                         <div class="large-12 columns">
@@ -100,18 +102,19 @@
                 <div class="segments">
                 <br />
                 {% for segment in segments %}
-                    <div class="segment {% cycle 'odd' 'even' %}">
-                        {% for rich_token in segment %}
+                    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
+                        {% for rich_token in segment.rich_tokens %}
                             {% if rich_token.eo_ids %}
                                 <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                                    ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
                                     ng-click="eo_click({{ rich_token.eo_ids }})"
                                     ng-class="{
                                         selectable: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selectable 
+                                            eos[{{ eo_id }}].selectable
                                                 {% if not forloop.last %} && {% endif %}
                                             {% endfor %},
                                         selected: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selected 
+                                            eos[{{ eo_id }}].selected
                                                 {% if not forloop.last %} || {% endif %}
                                             {% endfor %}
                                     }"
@@ -149,5 +152,24 @@
                 </div>
             </div>
         </div>
+
+        <div id="eoModal" class="reveal-modal large" data-reveal>
+          <h2>Manage Entity Occurrence</h2>
+          <div class="message"></div>
+          <div class="delete">
+            Delete: <a class="remove_eo">&#215;</a>
+          </div>
+          <div class="offsets">
+            <p>Move occurrence limits?</p>
+            <div class="segment">
+            </div>
+          </div>
+          <a class="close-reveal-modal">&#215;</a>
+          <div class="controls">
+            <a class="button alert cancel">Cancel</a>
+            <a class="button save">Save</a>
+          </div>
+        </div>
+
     </div>
 {% endblock %}

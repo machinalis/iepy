@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djangular',
     'corpus',
 )
 
@@ -52,6 +53,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+SERIALIZATION_MODULES = {
+    "hydrated_python": "corpus.serializer",
+}
+
 
 ROOT_URLCONF = 'webui.urls'
 

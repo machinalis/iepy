@@ -3,18 +3,45 @@ $(document).ready(function () {
 
     $(document).foundation();
 
-
-    $(".toolbox label input").each(function(){
+    $(".toolbox label input").each(function () {
         var $this = $(this);
         $this.parent().addClass("toolbox-option-{0}".format($this.val()));
     });
 
 });
 
+var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute', 'ngCookies']).run(
+    function ($http, $cookies) {
+        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+        // Add the following two lines
+        $http.defaults.xsrfCookieName = 'csrftoken';
+        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+    });
 
-function QuestionsController($scope) {
+app.factory('EntityOccurrence', ['$resource',
+        function ($resource) {
+            return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
+        }]
+    );
+app.factory('TextSegment', ['$resource',
+        function ($resource) {
+            return $resource('/corpus/crud/text_segment/', {'pk': '@pk'}, {});
+        }]
+    );
+app.directive('ngRightClick', function ($parse) {
+    return function ($scope, element, attrs) {
+        var fn = $parse(attrs.ngRightClick);
+        element.bind('contextmenu', function (event) {
+            $scope.$apply(function () {
+                event.preventDefault();
+                fn($scope, {$event: event});
+            });
+        });
+    };
+});
+app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'TextSegment',
+function ($scope, EntityOccurrence, TextSegment) {
     "use strict";
-
     // ### Attributes ###
 
     $scope.eo_selected = undefined; // Id of the selected occurrence
@@ -25,8 +52,9 @@ function QuestionsController($scope) {
     $scope.forms = window.forms;
     $scope.current_tool = window.initial_tool;
     $scope.arrows = {};
+    $scope.eo_modal = {};
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $scope.$segments = $(".segments");
         $scope.$svg = $("svg");
         $scope.svg = $scope.$svg[0];
@@ -43,6 +71,13 @@ function QuestionsController($scope) {
         $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
         $(".prev-relations li").mouseover($scope.highlight_relation);
         $(".prev-relations li").mouseout($scope.highlight_relation);
+        $scope.eo_modal.elem = $('#eoModal');
+        $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
+            $scope.eo_modal.elem.foundation('reveal', 'close');
+        });
+        $scope.eo_modal.elem.find('a.save').bind('click', function () {
+            $scope.eo_modal.submit();
+        });
     });
 
     // ### Methods ###
@@ -285,9 +320,111 @@ function QuestionsController($scope) {
             $scope.arrows[form_id] = path;
         }
     };
-}
 
-String.prototype.format = String.prototype.f = function() {
+    // ###  Entity Occurrence Modification methods (and modal)  ###
+
+    $scope.manage_eo = function (value, segment_id) {
+        EntityOccurrence.get({pk: value}).$promise.then(
+            function (eo_obj) {
+                var $modal = $scope.eo_modal.elem;
+                var marker_html = '<div class="marker"><span class="rotate">';
+                marker_html +=    '<i class="fi-arrows-expand"></span></div>';
+                $modal.find('.message').empty();
+                $modal.find('.segment').empty();
+                TextSegment.get({pk: segment_id}).$promise.then(
+                    function (segment) {
+                        // store resources on the scope
+                        $scope.eo_modal.eo = eo_obj;
+                        $scope.eo_modal.segment = segment;
+                        var $segment = $modal.find('.segment');
+                        for (var i = 0; i < segment.tokens.length; i++) {
+                            if (segment.offset + i === eo_obj.offset) {
+                                $segment.append(marker_html);
+                            }
+                            if (segment.offset + i === eo_obj.offset_end) {
+                                $segment.append(marker_html);
+                            }
+                            $segment.append(
+                                '<div class="token">' + segment.tokens[i] + '</div>'
+                            );
+                        }
+                        $scope.eo_modal.update_selection();
+                        $segment.sortable({
+                            cancel: ".token",
+                            update: $scope.eo_modal.update_selection
+                        });
+                    },
+                    function (response) {
+                        $scope.eo_modal.add_msg("Server error " + response);
+                    }
+                );
+                $modal.foundation('reveal', 'open');
+            });
+    };
+
+    $scope.eo_modal.reset = function () {
+        var $elem = $scope.eo_modal.elem;
+        $elem.find('.message').empty();
+        $elem.find('.segment').empty();
+    };
+
+    $scope.eo_modal.add_msg = function (msg) {
+        $scope.eo_modal.elem.find('.message').empty().append('<p>' + msg + '</p>');
+    };
+
+    $scope.eo_modal.update_selection = function (event) {
+        var paiting = false;
+        var new_offsets = [];
+        $scope.eo_modal.elem.find('.segment div').each(function (idx) {
+            var className = 'between-markers';
+            var $elem = $(this);
+            $elem.removeClass(className);
+            var is_marker = $elem.hasClass('marker');
+            if (is_marker) {
+                new_offsets.push(idx);
+            }
+            if (paiting && is_marker) {
+                // stop paiting
+                paiting = false;
+            } else if (!paiting && is_marker) {
+                // start paiting
+                paiting = true;
+            }
+            // now, paint
+            if (paiting && !is_marker) {
+                $elem.addClass(className);
+            }
+        });
+        var base = $scope.eo_modal.segment.offset;
+        $scope.eo_modal.eo.new_offset = base + new_offsets[0];
+        $scope.eo_modal.eo.new_offset_end = base + new_offsets[1] - 1;
+    };
+
+    $scope.eo_modal.submit = function () {
+        var eo = $scope.eo_modal.eo;
+        if (eo.new_offset_end - eo.new_offset <= 0) {
+            $scope.eo_modal.add_msg("Invalid Entity Occurrence limits. Can't be empty.");
+        } else {
+            eo.offset = eo.new_offset;
+            eo.offset_end = eo.new_offset_end;
+            eo.$save().then(
+                $scope.eo_modal.save_success,
+                function (response) {
+                    $scope.eo_modal.add_msg("Not saved. " + response.statusText);
+                }
+            );
+        }
+    };
+
+    $scope.eo_modal.save_success = function () {
+        /* Here is handled not the segment on the modal, but on the actual underlying
+         * page */
+        $('#partial-save').val('enabled').parents('form').submit();
+    };
+}
+]);
+
+String.prototype.format = String.prototype.f = function () {
     var s = this;
     var i = arguments.length;
 
