@@ -3,10 +3,6 @@ $(document).ready(function () {
 
     $(document).foundation();
 
-    var $segments = $(".segments");
-    var $svg = $("svg");
-    $svg.attr("width", $segments.width());
-    $svg.attr("height", $segments.height());
 
     $(".toolbox label input").each(function(){
         var $this = $(this);
@@ -31,7 +27,9 @@ function QuestionsController($scope) {
     $scope.arrows = {};
 
     $(document).ready(function(){
-        $scope.svg = $("svg")[0];
+        $scope.$segments = $(".segments");
+        $scope.$svg = $("svg");
+        $scope.svg = $scope.$svg[0];
 
         $scope.update_relations_arrows();
         $(window).resize($scope.update_relations_arrows);
@@ -45,7 +43,11 @@ function QuestionsController($scope) {
 
     // ### Methods ###
     $scope.update_relations_arrows = function () {
+        // Update width and height of the svg element
+        $scope.$svg.attr("width", $scope.$segments.width());
+        $scope.$svg.attr("height", $scope.$segments.height());
 
+        // Remove all arrows before re-drawing
         for (var form_id in $scope.forms) {
             if ($scope.forms.hasOwnProperty(form_id)) {
                 var path = $scope.arrows[form_id];
@@ -55,6 +57,7 @@ function QuestionsController($scope) {
             }
         }
 
+        // Re-draw all the arrows
         for (var i in $scope.relations) {
             if ($scope.relations.hasOwnProperty(i)) {
                 var rel_obj = $scope.relations[i];
