@@ -143,6 +143,12 @@ input, textarea, select, .form-row p{
     background-color: rgba(255, 182, 0, 0.17);
 }
 
+#eoModal div.message p {
+    background-color: #cf2a0e;
+    padding: 5px;
+    color: white;
+}
+
 #eoModal .controls {
     text-align: right;
 }

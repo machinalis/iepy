@@ -140,47 +140,6 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
-    $scope.manage_eo = function (value, segment_id) {
-        EntityOccurrence.get({pk: value}).$promise.then(
-            function (eo_obj) {
-                var $modal = $scope.eo_modal.elem;
-                var marker_html = '<div class="marker"><span class="rotate">';
-                marker_html +=    '<i class="fi-arrows-expand"></span></div>';
-                $modal.find('.message').empty();
-                $modal.find('.segment').empty();
-                TextSegment.get({pk: segment_id}).$promise.then(
-                    function (segment) {
-                        // store resources on the scope
-                        $scope.eo_modal.eo = eo_obj;
-                        $scope.eo_modal.segment = segment;
-                        var $segment = $modal.find('.segment');
-                        for (var i = 0; i < segment.tokens.length; i++) {
-                            if (segment.offset + i === eo_obj.offset) {
-                                $segment.append(marker_html);
-                            }
-                            if (segment.offset + i === eo_obj.offset_end) {
-                                $segment.append(marker_html);
-                            }
-                            $segment.append(
-                                '<div class="token">' + segment.tokens[i] + '</div>'
-                            );
-                        }
-                        $scope.eo_modal.update_selection();
-                        $segment.sortable({
-                            cancel: ".token",
-                            update: $scope.eo_modal.update_selection
-                        });
-                    },
-                    function (response) {
-                        $modal.find('.message').append(
-                            "<p>Server error " + response + "</p>"
-                        );
-                    }
-                );
-                $modal.foundation('reveal', 'open');
-            });
-    };
-
     // Sets the value for selectable on all entity occurrences
     $scope.set_selectables = function (value) {
         for (var i in $scope.eos) {
@@ -362,6 +321,57 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
+    // ###  Entity Occurrence Modification methods (and modal)  ###
+
+    $scope.manage_eo = function (value, segment_id) {
+        EntityOccurrence.get({pk: value}).$promise.then(
+            function (eo_obj) {
+                var $modal = $scope.eo_modal.elem;
+                var marker_html = '<div class="marker"><span class="rotate">';
+                marker_html +=    '<i class="fi-arrows-expand"></span></div>';
+                $modal.find('.message').empty();
+                $modal.find('.segment').empty();
+                TextSegment.get({pk: segment_id}).$promise.then(
+                    function (segment) {
+                        // store resources on the scope
+                        $scope.eo_modal.eo = eo_obj;
+                        $scope.eo_modal.segment = segment;
+                        var $segment = $modal.find('.segment');
+                        for (var i = 0; i < segment.tokens.length; i++) {
+                            if (segment.offset + i === eo_obj.offset) {
+                                $segment.append(marker_html);
+                            }
+                            if (segment.offset + i === eo_obj.offset_end) {
+                                $segment.append(marker_html);
+                            }
+                            $segment.append(
+                                '<div class="token">' + segment.tokens[i] + '</div>'
+                            );
+                        }
+                        $scope.eo_modal.update_selection();
+                        $segment.sortable({
+                            cancel: ".token",
+                            update: $scope.eo_modal.update_selection
+                        });
+                    },
+                    function (response) {
+                        $scope.eo_modal.add_msg("Server error " + response);
+                    }
+                );
+                $modal.foundation('reveal', 'open');
+            });
+    };
+
+    $scope.eo_modal.reset = function () {
+        var $elem = $scope.eo_modal.elem;
+        $elem.find('.message').empty();
+        $elem.find('.segment').empty();
+    };
+
+    $scope.eo_modal.add_msg = function (msg) {
+        $scope.eo_modal.elem.find('.message').empty().append('<p>' + msg + '</p>');
+    };
+
     $scope.eo_modal.update_selection = function (event) {
         var paiting = false;
         var new_offsets = [];
@@ -393,14 +403,17 @@ function ($scope, EntityOccurrence, TextSegment) {
     $scope.eo_modal.submit = function () {
         var eo = $scope.eo_modal.eo;
         if (eo.new_offset_end - eo.new_offset <= 0) {
-            alert ("cant save this");
+            $scope.eo_modal.add_msg("Invalid Entity Occurrence limits. Can't be empty.");
         } else {
             eo.offset = eo.new_offset;
             eo.offset_end = eo.new_offset_end;
-            eo.$save(
-                function (a, b, c) {
-                    console.log(a, b, c)
-                    alert('saved')
+            eo.$save().then(
+                function () {
+                    // SUCCESS
+                    $scope.eo_modal.elem.foundation('reveal', 'close');
+                },
+                function (response) {
+                    $scope.eo_modal.add_msg("Not saved. " + response.statusText);
                 }
             );
         }
