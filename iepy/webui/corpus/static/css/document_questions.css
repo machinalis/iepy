@@ -54,6 +54,10 @@ input, textarea, select, .form-row p{
 .f-dropdown li{
     list-style: none;
 }
+
+.prev-relations-wrapper{
+    display: none;
+}
 .prev-relations {
     margin: 0;
 }

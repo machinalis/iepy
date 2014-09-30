@@ -86,6 +86,7 @@ function ($scope, EntityOccurrence, TextSegment) {
         // NOTE: update_relations_arrows must be run before
 
         var $holder = $(".prev-relations");
+        var $holder_wrapper = $(".prev-relations-wrapper");
 
         for(var i in $scope.relations) {
             if ($scope.relations.hasOwnProperty(i)) {
@@ -107,6 +108,8 @@ function ($scope, EntityOccurrence, TextSegment) {
                     $element.append($arrow);
                     $element.append($text);
                     $holder.append($element);
+
+                    $holder_wrapper.fadeIn();
                 }
             }
         }
