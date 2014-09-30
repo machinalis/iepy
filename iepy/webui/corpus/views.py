@@ -3,6 +3,7 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
 from django.utils import formats
@@ -226,25 +227,36 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         )
 
     def get_success_url(self):
+        if self.is_partial_save():
+            return self.request.META.get('HTTP_REFERER')
         return reverse('corpus:next_document_to_label', args=[self.relation.pk])
 
     def get_default_label_value(self):
         return self.request.POST.get('for_others-label', None)
+
+    def is_partial_save(self):
+        # "partial saves" is a hack to allow edition of the Preprocess while labeling
+        return self.request.POST.get('partial_save', '') == 'enabled'
 
     def formset_valid(self, formset):
         """
         Add message to the user, handle the "for the rest" case, and set
         who made this labeling (judge).
         """
-        default_lbl = self.get_default_label_value()
+        partial = self.is_partial_save()
+        if partial:
+            default_lbl = None
+        else:
+            default_lbl = self.get_default_label_value()
         for form in formset:
             if form.instance.label is None:
                 form.instance.label = default_lbl
             if form.has_changed():
                 form.instance.judge = str(self.request.user)
         result = super().formset_valid(formset)
-        messages.add_message(
-            self.request, messages.INFO,
-            'Changes saved for document {0}.'.format(self.document.id)
-        )
+        if not partial:
+            messages.add_message(
+                self.request, messages.INFO,
+                'Changes saved for document {0}.'.format(self.document.id)
+            )
         return result

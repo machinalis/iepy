@@ -419,21 +419,7 @@ function ($scope, EntityOccurrence, TextSegment) {
     $scope.eo_modal.save_success = function () {
         /* Here is handled not the segment on the modal, but on the actual underlying
          * page */
-        var eo = $scope.eo_modal.eo;
-        var seg = $scope.eo_modal.segment;
-        eo.segment_offset = eo.offset - seg.offset;
-        eo.segment_offset_end = eo.offset_end - seg.offset;
-        var $segment = $('.segment-id-' + $scope.eo_modal.segment.pk);
-        $segment.find('span.rich-token').each(function (index) {
-            var $token = $(this);
-            if (index >= eo.segment_offset && index < eo.segment_offset_end) {
-                $token.addClass('entity-occurrence');
-                $token.addClass('eo-' + eo.pk);
-            } else {
-                $token.removeClass('eo-' + eo.pk);
-            }
-        });
-        $scope.eo_modal.elem.foundation('reveal', 'close');
+        $('#partial-save').val('enabled').parents('form').submit();
     };
 }
 ]);

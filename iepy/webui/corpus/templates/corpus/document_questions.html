@@ -56,6 +56,7 @@
                 <form action="." method="POST">
                     {% csrf_token %}
                     {{ formset.management_form }}
+                    <input type="hidden" id="partial-save" name="partial_save" value="" />
 
                     <div class="row">
                         <div class="large-12 columns">
@@ -102,18 +103,18 @@
                 <br />
                 {% for segment in segments %}
                     <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
-                        {% for rich_token in segment %}
+                        {% for rich_token in segment.rich_tokens %}
                             {% if rich_token.eo_ids %}
                                 <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
                                     ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
                                     ng-click="eo_click({{ rich_token.eo_ids }})"
                                     ng-class="{
                                         selectable: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selectable 
+                                            eos[{{ eo_id }}].selectable
                                                 {% if not forloop.last %} && {% endif %}
                                             {% endfor %},
                                         selected: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selected 
+                                            eos[{{ eo_id }}].selected
                                                 {% if not forloop.last %} || {% endif %}
                                             {% endfor %}
                                     }"
