@@ -51,7 +51,6 @@
                     {{form_toolbox}}
                 </div>
                 <br />
-
                 For the rest of the posible relations the answer will be:
                 <form action="." method="POST">
                     {% csrf_token %}
@@ -74,9 +73,19 @@
                     </div>
                 </form>
 
+                {% if relations_list %}
+                    Previous relations:
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <ul class="prev-relations">
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+
             </div>
             <div class="large-9 columns">
-
                 <div class="title"> {{subtitle}} </div>
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <defs>

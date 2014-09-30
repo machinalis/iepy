@@ -31,17 +31,52 @@ function QuestionsController($scope) {
         $scope.$svg = $("svg");
         $scope.svg = $scope.$svg[0];
 
-        $scope.update_relations_arrows();
         $(window).resize($scope.update_relations_arrows);
+
+        $scope.update_relations_arrows();
+        $scope.create_relations_metadata();
 
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
         $(".entity-occurrence").mouseover($scope.highlight_eo_tokens);
         $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
+        $(".prev-relations li").mouseover($scope.highlight_relation);
+        $(".prev-relations li").mouseout($scope.highlight_relation);
     });
 
     // ### Methods ###
+
+    $scope.create_relations_metadata = function () {
+        // NOTE: update_relations_arrows must be run before
+
+        var $holder = $(".prev-relations");
+
+        for(var i in $scope.relations) {
+            if ($scope.relations.hasOwnProperty(i)) {
+                var relation = $scope.relations[i];
+                var info = relation.info;
+                var form_value = $scope.forms[relation.form_id];
+
+                if (form_value !== null && info !== undefined) {
+                    var $element = $("<li>");
+                    var $arrow = $("<i>");
+                    var $text = $("<span>");
+
+                    $arrow.addClass("fi-arrow-right");
+                    $arrow.addClass("prev-arrow prev-arrow-{0}".format(form_value));
+                    $text.text(info);
+
+                    $element.addClass("prev-relation-{0}".format(relation.form_id));
+                    $element.data("relation-id", relation.form_id);
+                    $element.append($arrow);
+                    $element.append($text);
+                    $holder.append($element);
+                }
+            }
+        }
+    };
+
     $scope.update_relations_arrows = function () {
         // Update width and height of the svg element
         $scope.$svg.attr("width", $scope.$segments.width());
@@ -120,6 +155,22 @@ function QuestionsController($scope) {
         });
     };
 
+    $scope.highlight_relation = function () {
+        var $this = $(this);
+        var toggle = $this.data("toggle");
+        var rel_id = $this.data("relation-id");
+        var arrow = $scope.arrows[rel_id];
+
+        if (toggle) {
+            $this.data("toggle", false);
+            arrow.style.strokeWidth = "";
+        } else {
+            $this.data("toggle", true);
+            arrow.style.strokeWidth = "4px";
+        }
+
+    };
+
     $scope.eo_first_click = function (id) {
         var eo = $scope.eos[id];
         $scope.eo_selected = id;
@@ -179,10 +230,16 @@ function QuestionsController($scope) {
     $scope.calculate_arrow_string = function (eo_id1, eo_id2, form_id) {
         var path;
 
-        if (!$scope.forms[form_id]) {
+        if ($scope.forms[form_id] === null || $scope.forms[form_id] === "") {
             // Remove the arrow
             path = $scope.arrows[form_id];
-            $scope.svg.removeChild(path);
+            var $prev_arrow = $(".prev-relation-{0}".format(form_id));
+            if ($prev_arrow.length > 0) {
+                $prev_arrow.remove();
+            }
+            if (path !== undefined) {
+                $scope.svg.removeChild(path);
+            }
         } else {
             // Curve configuration
             var curve_distance = 25;
@@ -218,7 +275,6 @@ function QuestionsController($scope) {
             );
 
             path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.innerHTML = 'createElementNS';
             path.setAttribute("class", 'arrow arrow_{0}'.format(form_value));
             path.setAttribute("style", 'marker-end: url(#arrow-point-{0});'.format(
                 form_value
