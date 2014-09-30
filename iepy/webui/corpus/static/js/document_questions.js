@@ -47,33 +47,39 @@ function QuestionsController($scope) {
     $scope.update_relations_arrows = function () {
 
         for (var form_id in $scope.forms) {
-            var path = $scope.arrows[form_id];
-            if (path) {
-                $scope.svg.removeChild(path);
+            if ($scope.forms.hasOwnProperty(form_id)) {
+                var path = $scope.arrows[form_id];
+                if (path) {
+                    $scope.svg.removeChild(path);
+                }
             }
         }
 
         for (var i in $scope.relations) {
-            var rel_obj = $scope.relations[i];
-            $scope.calculate_arrow_string(
-                rel_obj.relation[0],
-                rel_obj.relation[1],
-                rel_obj.form_id
-            );
+            if ($scope.relations.hasOwnProperty(i)) {
+                var rel_obj = $scope.relations[i];
+                $scope.calculate_arrow_string(
+                    rel_obj.relation[0],
+                    rel_obj.relation[1],
+                    rel_obj.form_id
+                );
+            }
         }
     };
 
     // Sets the value for selectable on all entity occurrences
     $scope.set_selectables = function (value) {
         for (var i in $scope.eos) {
-            $scope.eos[i].selectable = value;
+            if ($scope.eos.hasOwnProperty(i)) {
+                $scope.eos[i].selectable = value;
+            }
         }
     };
 
     $scope.eo_click = function (ids) {
         // Handles only the case of 1 id, if it has
         // more than one, it shows the menu
-        if (ids.length == 1) {
+        if (ids.length === 1) {
             var id = ids[0];
             $scope.handle_click_on_eo(id);
         }
@@ -121,11 +127,13 @@ function QuestionsController($scope) {
 
         // Calculate wich ones must be selectable
         for (var i in $scope.relations) {
-            var rel = $scope.relations[i];
-            var rel_index = rel.relation.indexOf(id);
-            if (rel_index >= 0) {
-                var eo_id = $scope.relations[i].relation[(rel_index + 1) % 2];
-                $scope.eos[eo_id].selectable = true;
+            if ($scope.relations.hasOwnProperty(i)) {
+                var rel = $scope.relations[i];
+                var rel_index = rel.relation.indexOf(id);
+                if (rel_index >= 0) {
+                    var eo_id = $scope.relations[i].relation[(rel_index + 1) % 2];
+                    $scope.eos[eo_id].selectable = true;
+                }
             }
         }
     };
@@ -139,23 +147,24 @@ function QuestionsController($scope) {
             var eo_id2 = id;
 
             for (var i in $scope.relations) {
-                var rel = $scope.relations[i];
-                var eo_rel_index1 = rel.relation.indexOf(eo_id1);
-                var eo_rel_index2 = rel.relation.indexOf(eo_id2);
-                if (eo_rel_index1 >= 0 && eo_rel_index2 >= 0) {
-                    var form_value = $scope.forms[rel.form_id];
-                    var new_value = form_value ? "": $scope.current_tool;
-                    $scope.forms[rel.form_id] = new_value;
+                if ($scope.relations.hasOwnProperty(i)) {
+                    var rel = $scope.relations[i];
+                    var eo_rel_index1 = rel.relation.indexOf(eo_id1);
+                    var eo_rel_index2 = rel.relation.indexOf(eo_id2);
+                    if (eo_rel_index1 >= 0 && eo_rel_index2 >= 0) {
+                        var form_value = $scope.forms[rel.form_id];
+                        var new_value = form_value ? "": $scope.current_tool;
+                        $scope.forms[rel.form_id] = new_value;
 
-                    $scope.calculate_arrow_string(
-                        rel.relation[0],
-                        rel.relation[1],
-                        rel.form_id
-                    );
+                        $scope.calculate_arrow_string(
+                            rel.relation[0],
+                            rel.relation[1],
+                            rel.form_id
+                        );
 
-                    $scope.eos[eo_id1].selected = false;
-                    $scope.eos[eo_id2].selected = false;
-
+                        $scope.eos[eo_id1].selected = false;
+                        $scope.eos[eo_id2].selected = false;
+                    }
                 }
             }
         }
@@ -165,6 +174,8 @@ function QuestionsController($scope) {
     };
 
     $scope.calculate_arrow_string = function (eo_id1, eo_id2, form_id) {
+        var path;
+
         if (!$scope.forms[form_id]) {
             // Remove the arrow
             path = $scope.arrows[form_id];
@@ -203,7 +214,7 @@ function QuestionsController($scope) {
                 Math.round(eo2_pos_top - curve_distance)  // {5}
             );
 
-            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.innerHTML = 'createElementNS';
             path.setAttribute("class", 'arrow arrow_{0}'.format(form_value));
             path.setAttribute("style", 'marker-end: url(#arrow-point-{0});'.format(
