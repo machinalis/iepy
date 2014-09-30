@@ -339,6 +339,7 @@ function ($scope, EntityOccurrence, TextSegment) {
                         // store resources on the scope
                         $scope.eo_modal.eo = eo_obj;
                         $scope.eo_modal.segment = segment;
+                        $modal.find('.entity_id span').text(eo_obj.entity);
                         var $segment = $modal.find('.segment');
                         for (var i = 0; i < segment.tokens.length; i++) {
                             if (segment.offset + i === eo_obj.offset) {
