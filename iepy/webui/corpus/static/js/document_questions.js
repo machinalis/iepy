@@ -10,7 +10,14 @@ $(document).ready(function () {
 
 });
 
-var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute']);
+var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute', 'ngCookies']).run(
+    function ($http, $cookies) {
+        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+        // Add the following two lines
+        $http.defaults.xsrfCookieName = 'csrftoken';
+        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+    });
+
 app.factory('EntityOccurrence', ['$resource',
         function ($resource) {
             return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
@@ -143,6 +150,9 @@ function ($scope, EntityOccurrence, TextSegment) {
                 $modal.find('.segment').empty();
                 TextSegment.get({pk: segment_id}).$promise.then(
                     function (segment) {
+                        // store resources on the scope
+                        $scope.eo_modal.eo = eo_obj;
+                        $scope.eo_modal.segment = segment;
                         var $segment = $modal.find('.segment');
                         for (var i = 0; i < segment.tokens.length; i++) {
                             if (segment.offset + i === eo_obj.offset) {
@@ -354,11 +364,15 @@ function ($scope, EntityOccurrence, TextSegment) {
 
     $scope.eo_modal.update_selection = function (event) {
         var paiting = false;
+        var new_offsets = [];
         $scope.eo_modal.elem.find('.segment div').each(function (idx) {
             var className = 'between-markers';
             var $elem = $(this);
             $elem.removeClass(className);
             var is_marker = $elem.hasClass('marker');
+            if (is_marker) {
+                new_offsets.push(idx);
+            }
             if (paiting && is_marker) {
                 // stop paiting
                 paiting = false;
@@ -371,10 +385,25 @@ function ($scope, EntityOccurrence, TextSegment) {
                 $elem.addClass(className);
             }
         });
+        var base = $scope.eo_modal.segment.offset;
+        $scope.eo_modal.eo.new_offset = base + new_offsets[0];
+        $scope.eo_modal.eo.new_offset_end = base + new_offsets[1] - 1;
     };
 
     $scope.eo_modal.submit = function () {
-        alert('hello');
+        var eo = $scope.eo_modal.eo;
+        if (eo.new_offset_end - eo.new_offset <= 0) {
+            alert ("cant save this");
+        } else {
+            eo.offset = eo.new_offset;
+            eo.offset_end = eo.new_offset_end;
+            eo.$save(
+                function (a, b, c) {
+                    console.log(a, b, c)
+                    alert('saved')
+                }
+            );
+        }
     };
 }
 ]);
