@@ -74,7 +74,7 @@ input, textarea, select, .form-row p{
 
 .arrow{
     stroke-width: 1.75px;
-    fill: none; 
+    fill: none;
 }
 
 .arrow.highlight{
@@ -105,3 +105,25 @@ input, textarea, select, .form-row p{
 .prev-arrow-NS{ color: #f0f; }
 .arrow-point-NS{ fill: #f0f; }
 .toolbox-option-NS{ border-bottom: 2px solid #f0f; }
+
+
+#eoModal .segment {
+    width: 90%;
+}
+#eoModal .segment .token,
+#eoModal .segment .marker{
+    display: inline-block;
+    padding: 0 5px;
+    margin: 3px;
+    border: #CCC dashed 1px;
+}
+
+#eoModal .segment .marker{
+    cursor: pointer;
+    border: none;
+    background-color: #F76262;
+}
+
+#eoModal .controls {
+    float: right;
+}

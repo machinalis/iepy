@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/vendor/jquery-ui.js"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
@@ -83,7 +84,6 @@
                 {% endif %}
 
 
-<<<<<<< HEAD
             </div>
             <div class="large-9 columns">
                 <div class="title"> {{subtitle}} </div>
@@ -104,7 +104,7 @@
                         {% for rich_token in segment %}
                             {% if rich_token.eo_ids %}
                                 <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
-                                    ng-right-click="manage_eo({{ rich_token.eo_ids }})"
+                                    ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
                                     ng-click="eo_click({{ rich_token.eo_ids }})"
                                     ng-class="{
                                         selectable: {% for eo_id in rich_token.eo_ids %}
@@ -153,14 +153,20 @@
 
         <div id="eoModal" class="reveal-modal large" data-reveal>
           <h2>Manage Entity Occurrence</h2>
+          <div class="message"></div>
           <div class="delete">
-            <a class="remove_eo">&#215;<a>
+            Delete: <a class="remove_eo">&#215;</a>
           </div>
           <div class="offsets">
             <p>Move occurrence limits?</p>
-            <div class="segment"/>
+            <div class="segment">
+            </div>
           </div>
           <a class="close-reveal-modal">&#215;</a>
+          <div class="controls">
+            <a class="button alert">Cancel</a>
+            <a class="button">Save</a>
+          </div>
         </div>
 
     </div>
