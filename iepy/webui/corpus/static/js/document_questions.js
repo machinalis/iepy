@@ -33,7 +33,7 @@ app.directive('ngRightClick', function ($parse) {
     };
 });
 app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'TextSegment',
-function ($scope, EntityOccurrence) {
+function ($scope, EntityOccurrence, TextSegment) {
     "use strict";
     // ### Attributes ###
 
@@ -45,6 +45,7 @@ function ($scope, EntityOccurrence) {
     $scope.forms = window.forms;
     $scope.current_tool = window.initial_tool;
     $scope.arrows = {};
+    $scope.eo_modal = {};
 
     $(document).ready(function () {
         $scope.$segments = $(".segments");
@@ -63,6 +64,7 @@ function ($scope, EntityOccurrence) {
         $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
         $(".prev-relations li").mouseover($scope.highlight_relation);
         $(".prev-relations li").mouseout($scope.highlight_relation);
+        $scope.eo_modal.elem = $('#eoModal');
     });
 
     // ### Methods ###
@@ -125,22 +127,39 @@ function ($scope, EntityOccurrence) {
         }
     };
 
-    $scope.manage_eo = function (values) {
-        for (var i = 0; i < values.length; i++) {
-            EntityOccurrence.get({pk: values[i]}).then(function (eo_obj) {
-                var $modal = $('#eoModal');
-                var $attrs = $modal.find('.attrs');
-                $attrs.empty();
-                for (var attr in eo_obj) {
-                    if (eo_obj.hasOwnProperty(attr)) {
-                        $attrs.append(
-                            "<p>" + attr + ": " + eo_obj[attr] + "</p>"
+    $scope.manage_eo = function (value, segment_id) {
+        EntityOccurrence.get({pk: value}).$promise.then(
+            function (eo_obj) {
+                var $modal = $scope.eo_modal.elem;
+                $modal.find('.message').empty();
+                $modal.find('.segment').empty();
+                TextSegment.get({pk: segment_id}).$promise.then(
+                    function (segment) {
+                        var $segment = $modal.find('.segment');
+                        for (var i = 0; i < segment.tokens.length; i++) {
+                            if (segment.offset + i === eo_obj.offset) {
+                                $segment.append('<div class="marker">|</div>');
+                            }
+                            if (segment.offset + i === eo_obj.offset_end) {
+                                $segment.append('<div class="marker">|</div>');
+                            }
+                            $segment.append(
+                                '<div class="token">' + segment.tokens[i] + '</div>'
+                            );
+                        }
+                        $segment.sortable({
+                            cancel: ".token",
+                            update: $scope.eo_modal.update_selection
+                        });
+                    },
+                    function (response) {
+                        $modal.find('.message').append(
+                            "<p>Server error " + response + "</p>"
                         );
                     }
-                }
+                );
                 $modal.foundation('reveal', 'open');
             });
-        }
     };
 
     // Sets the value for selectable on all entity occurrences
@@ -322,6 +341,10 @@ function ($scope, EntityOccurrence) {
             $scope.svg.appendChild(path);
             $scope.arrows[form_id] = path;
         }
+    };
+
+    $scope.eo_modal.update_selection = function (event) {
+        console.log('testing...' + event);
     };
 }
 ]);
