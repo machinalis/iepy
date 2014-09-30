@@ -1,3 +1,7 @@
+#content .row:first-child{
+    max-width: none;
+}
+
 .entity-occurrence{
     cursor: pointer !important;
 }
@@ -15,11 +19,18 @@ svg{
     z-index: -10;
 }
 
+input, textarea, select, .form-row p{
+    vertical-align: 0 !important;
+}
+
+.button,
+.button:active{
+    background: #008cba !important;
+    color: #fff !important;
+    padding: 10px !important;
+}
 
 .toolbox{
-    position: fixed;
-    left: 15px;
-    width: 245px;
 
 }
 .toolbox ul{
@@ -34,7 +45,6 @@ svg{
 }
 
 .wrapper{
-    margin-left: 75px;
 }
 
 .f-dropdown{
@@ -44,28 +54,54 @@ svg{
 .f-dropdown li{
     list-style: none;
 }
+.prev-relations {
+    margin: 0;
+}
+.prev-relations li{
+    list-style: none;
+    font-size: 16px;
+    margin-top: 1px;
+    padding: 2px;
+}
+.prev-relations li:hover{
+    background: #eee;
+}
+.prev-relations li span{
+    margin-left: 10px;
+}
+.prev-arrow{
+}
 
 .arrow{
     stroke-width: 1.75px;
     fill: none; 
 }
 
+.arrow.highlight{
+    fill: #f00 !important;
+}
+
 .arrow_YE{ stroke: #0f0; }
+.prev-arrow-YE{ color: #0f0; }
 .arrow-point-YE{ fill: #0f0; }
 .toolbox-option-YE{ border-bottom: 2px solid #0f0; }
 
 .arrow_NO{ stroke: #f00; }
+.prev-arrow-NO{ color: #f00; }
 .arrow-point-NO{ fill: #f00; }
 .toolbox-option-NO{ border-bottom: 2px solid #f00; }
 
 .arrow_DK{ stroke: #fa0; }
+.prev-arrow-DK{ color: #fa0; }
 .arrow-point-DK{ fill: #fa0; }
 .toolbox-option-DK{ border-bottom: 2px solid #fa0; }
 
 .arrow_SK{ stroke: #00f; }
+.prev-arrow-SK{ color: #00f; }
 .arrow-point-SK{ fill: #00f; }
 .toolbox-option-SK{ border-bottom: 2px solid #00f; }
 
 .arrow_NS{ stroke: #f0f; }
+.prev-arrow-NS{ color: #f0f; }
 .arrow-point-NS{ fill: #f0f; }
 .toolbox-option-NS{ border-bottom: 2px solid #f0f; }

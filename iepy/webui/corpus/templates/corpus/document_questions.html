@@ -27,113 +27,126 @@
 {% block inner_content %}
 
     <div class="wrapper" ng-controller="QuestionsController">
-
-        <div class="navigation">
-            <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
-                title="Next segment with un-labeled evidences.">Label by segments</a>
-            --
-            Labeled documents:
-            (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
-                title="Previous labeled document">Previous</a> |
-            <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
-                title="Next labeled document">Following</a>)
-            -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
-                title="Next document with un-labeled evidences.">Next document to label</a>
+        <div class="row">
+            <div class="large-12 columns">
+                <div class="navigation">
+                    <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+                        title="Next segment with un-labeled evidences.">Label by segments</a>
+                    --
+                    Labeled documents:
+                    (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
+                        title="Previous labeled document">Previous</a> |
+                    <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
+                        title="Next labeled document">Following</a>)
+                    -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+                        title="Next document with un-labeled evidences.">Next document to label</a>
+                </div>
+            </div>
         </div>
+        <br />
+        <div class="row">
+            <div class="large-3 columns">
+                <div class="toolbox">
+                    Tag using this answer:
+                    {{form_toolbox}}
+                </div>
+                <br />
+                For the rest of the posible relations the answer will be:
+                <form action="." method="POST">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
 
-        <div class="toolbox">
-            Toolbox:
-            {{form_toolbox}}
-        </div>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            {{form_for_others}}
+                        </div>
+                    </div>
 
-        <div class="title"> {{subtitle}} </div>
-        <svg xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                {% for i in question_options %}
-                    <marker id="arrow-point-{{ i }}" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
-                        <path d="M2,1 L2,10 L10,6 L2,2" class="arrow-point-{{ i }}"/>
-                    </marker>
-                {% endfor %}
-            </defs>
-        </svg>
+                    {% for form in formset %}
+                        {{ form.as_p }}
+                    {% endfor %}
 
-        <div class="segments">
-        {% for segment in segments %}
-            <div class="segment {% cycle 'odd' 'even' %}">
-                {% for rich_token in segment %}
-                    {% if rich_token.eo_ids %}
-                        <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
-                            ng-click="eo_click({{ rich_token.eo_ids }})"
-                            ng-class="{
-                                selectable: {% for eo_id in rich_token.eo_ids %}
-                                    eos[{{ eo_id }}].selectable 
-                                        {% if not forloop.last %} && {% endif %}
-                                    {% endfor %},
-                                selected: {% for eo_id in rich_token.eo_ids %}
-                                    eos[{{ eo_id }}].selected 
-                                        {% if not forloop.last %} || {% endif %}
-                                    {% endfor %}
-                            }"
-                            {% if rich_token.eo_ids|length > 1 %}
-                                data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                    <div class="row">
+                        <div class="large-6 columns">
+                            <input class="button" type="submit" value="Save and continue" />
+                        </div>
+                    </div>
+                </form>
+
+                {% if relations_list %}
+                    Previous relations:
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <ul class="prev-relations">
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+            </div>
+            <div class="large-9 columns">
+                <div class="title"> {{subtitle}} </div>
+                <svg xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        {% for i in question_options %}
+                            <marker id="arrow-point-{{ i }}" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                <path d="M2,1 L2,10 L10,6 L2,2" class="arrow-point-{{ i }}"/>
+                            </marker>
+                        {% endfor %}
+                    </defs>
+                </svg>
+
+                <div class="segments">
+                {% for segment in segments %}
+                    <div class="segment {% cycle 'odd' 'even' %}">
+                        {% for rich_token in segment %}
+                            {% if rich_token.eo_ids %}
+                                <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                                    ng-click="eo_click({{ rich_token.eo_ids }})"
+                                    ng-class="{
+                                        selectable: {% for eo_id in rich_token.eo_ids %}
+                                            eos[{{ eo_id }}].selectable 
+                                                {% if not forloop.last %} && {% endif %}
+                                            {% endfor %},
+                                        selected: {% for eo_id in rich_token.eo_ids %}
+                                            eos[{{ eo_id }}].selected 
+                                                {% if not forloop.last %} || {% endif %}
+                                            {% endfor %}
+                                    }"
+                                    {% if rich_token.eo_ids|length > 1 %}
+                                        data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                                    {% else %}
+                                        data-eo-id="{{ rich_token.eo_ids.0 }}"
+                                    {% endif %}
+                                >
                             {% else %}
-                                data-eo-id="{{ rich_token.eo_ids.0 }}"
+                                <span class="rich-token">
                             {% endif %}
-                        >
-                    {% else %}
-                        <span class="rich-token">
-                    {% endif %}
-                        {% if rich_token.eo_ids|length > 1 %}
-                            <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
-                        {% endif %}
+                                {% if rich_token.eo_ids|length > 1 %}
+                                    <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
+                                {% endif %}
 
-                        <span class="pos-tag"> {{ rich_token.pos }} </span>
-                        <span class="token"> {{ rich_token.token }} </span>
-                    </span>
+                                <span class="pos-tag"> {{ rich_token.pos }} </span>
+                                <span class="token"> {{ rich_token.token }} </span>
+                            </span>
 
-                    {% if rich_token.eo_ids|length > 1 %}
-                        <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
-                            {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
-                                <li>
-                                    <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}">
-                                        #{{ forloop.counter }} - {{ eo_kind }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                            {% if rich_token.eo_ids|length > 1 %}
+                                <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
+                                    {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
+                                        <li>
+                                            <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}">
+                                                #{{ forloop.counter }} - {{ eo_kind }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% endfor %}
-            </div>
-        {% endfor %}
-        </div>
-
-        <br /> <br />
-        <div class="title"> Complete: </div>
-        <div class="description">
-            Click on the entities to answer if the relation is present.
-            <br /> <br />
-            For the rest of the posible relations the answer will be:
-        </div>
-
-        <form action="." method="POST">
-            {% csrf_token %}
-            {{ formset.management_form }}
-
-            <div class="row">
-                <div class="large-4 columns">
-                    {{form_for_others}}
                 </div>
             </div>
-
-            <div class="row">
-                <div class="large-4 columns">
-                    <input type="submit" value="save & see next" />
-                </div>
-            </div>
-
-            {% for form in formset %}
-                {{ form.as_p }}
-            {% endfor %}
-        </form>
+        </div>
     </div>
 {% endblock %}

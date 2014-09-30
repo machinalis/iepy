@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
+from django.utils import formats
 
 from extra_views import ModelFormSetView
 
@@ -162,9 +163,17 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
             left_eo_id = evidence.left_entity_occurrence.pk
             right_eo_id = evidence.right_entity_occurrence.pk
+            info = "Labeled as {} by {} on {}".format(
+                evidence.label,
+                evidence.judge if evidence.judge else "unknown",
+                formats.date_format(
+                    evidence.modification_date, "SHORT_DATETIME_FORMAT"
+                )
+            )
             relations_list.append({
                 "relation": [left_eo_id, right_eo_id],
                 "form_id": form.prefix,
+                "info": info,
             })
 
             forms_values[form.prefix] = evidence.label;
