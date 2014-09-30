@@ -1,8 +1,8 @@
-"use strict"
-
 var occurrences_by_id = {};
 
 $(document).ready(function () {
+    "use strict";
+
     $(".question .entity-occurrence")
         .mouseover(on_question_occurrence_hover)
         .mouseout(on_question_occurrence_hover);
@@ -11,6 +11,8 @@ $(document).ready(function () {
 });
 
 function generate_occurrences_by_id() {
+    "use strict";
+
     $(".segment .entity-occurrence").each(function () {
         var $this = $(this);
         var ids = $this.data("occurrence-ids");
