@@ -153,6 +153,10 @@ class IEDocument(BaseModel):
             entity, created = Entity.objects.get_or_create(
                 key=key,
                 kind=kind)
+            if len(alias) > CHAR_MAX_LENGHT:
+                alias_ = alias[:CHAR_MAX_LENGHT]
+                print('Alias "%s" reduced to "%s"' % (alias, alias_))
+                alias = alias_
             EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
