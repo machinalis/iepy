@@ -267,3 +267,48 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'Changes saved for document {0}.'.format(self.document.id)
             )
         return result
+
+    def get_formset_kwargs(self):
+        """
+        If is a partial save, hackes the forms to match the queryset so it
+        matches the ones that actually has a LabeledRelationEvidence.
+        This is to handle the case where an entity occurrence was removed.
+        """
+
+        kwargs = super().get_formset_kwargs()
+        queryset = kwargs.get("queryset", [])
+        data = kwargs.get("data", {})
+        partial = data.get("partial_save")
+
+        if partial != "enabled":
+            return kwargs
+
+        new_data = data.copy()
+
+        initial_forms_key = "form-INITIAL_FORMS"
+        total_forms_key = "form-TOTAL_FORMS"
+        query_ids = [str(x.id) for x in queryset]
+        included_forms = []
+        for key, value in data.items():
+            if key.endswith("-id"):
+                form_id = key[:-3]
+                label_key = "{}-label".format(form_id)
+
+                if value in query_ids:
+                    label = data[label_key]
+                    included_forms.append((value, label))
+
+                new_data.pop(key)
+                new_data.pop(label_key)
+
+        for i, (form_id, label) in enumerate(included_forms):
+            form_id_key = "form-{}-id".format(i)
+            form_label_key = "form-{}-label".format(i)
+            new_data[form_id_key] = form_id
+            new_data[form_label_key] = label
+
+        new_data[total_forms_key] = str(len(included_forms))
+        new_data[initial_forms_key] = str(len(included_forms))
+
+        kwargs["data"] = new_data
+        return kwargs

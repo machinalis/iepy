@@ -16,18 +16,21 @@ var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute', 'ngCook
         // Add the following two lines
         $http.defaults.xsrfCookieName = 'csrftoken';
         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-    });
+    }
+);
 
 app.factory('EntityOccurrence', ['$resource',
-        function ($resource) {
-            return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
-        }]
-    );
+    function ($resource) {
+        return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
+    }
+]);
+
 app.factory('TextSegment', ['$resource',
-        function ($resource) {
-            return $resource('/corpus/crud/text_segment/', {'pk': '@pk'}, {});
-        }]
-    );
+    function ($resource) {
+        return $resource('/corpus/crud/text_segment/', {'pk': '@pk'}, {});
+    }
+]);
+
 app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
@@ -39,6 +42,7 @@ app.directive('ngRightClick', function ($parse) {
         });
     };
 });
+
 app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'TextSegment',
 function ($scope, EntityOccurrence, TextSegment) {
     "use strict";
@@ -78,6 +82,9 @@ function ($scope, EntityOccurrence, TextSegment) {
         $scope.eo_modal.elem.find('a.save').bind('click', function () {
             $scope.eo_modal.submit();
         });
+        $scope.eo_modal.elem.find('a.remove-eo-ask').bind('click', $scope.eo_modal.remove_eo_ask);
+        $scope.eo_modal.elem.find('a.remove-eo-confirm').bind('click', $scope.eo_modal.remove_eo_confirm);
+        $scope.eo_modal.elem.find('a.remove-eo-cancel').bind('click', $scope.eo_modal.remove_eo_cancel);
     });
 
     // ### Methods ###
@@ -143,8 +150,8 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
-    // Sets the value for selectable on all entity occurrences
     $scope.set_selectables = function (value) {
+        // Sets the value for selectable on all entity occurrences
         for (var i in $scope.eos) {
             if ($scope.eos.hasOwnProperty(i)) {
                 $scope.eos[i].selectable = value;
@@ -420,11 +427,38 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
+    $scope.run_partial_save = function () {
+        $('#partial-save').val('enabled').parents('form').submit();
+    }
+
     $scope.eo_modal.save_success = function () {
         /* Here is handled not the segment on the modal, but on the actual underlying
          * page */
-        $('#partial-save').val('enabled').parents('form').submit();
+        $scope.run_partial_save();
     };
+    $scope.eo_modal.remove_eo_ask = function (event) {
+        event.preventDefault();
+
+        $(".remove-eo-ask").fadeOut("fast", function () {
+            $(".remove-confirm-wrapper").fadeIn("fast");
+        });
+    };
+
+    $scope.eo_modal.remove_eo_cancel = function (event) {
+        $(".remove-confirm-wrapper").fadeOut("fast", function () {
+            $(".remove-eo-ask").fadeIn("fast");
+        });
+    };
+
+    $scope.eo_modal.remove_eo_confirm = function (event) {
+        event.preventDefault();
+
+        var eo = $scope.eo_modal.eo;
+        EntityOccurrence.delete({pk: eo.pk}).$promise.then(function () {
+            $scope.run_partial_save();
+        });
+    };
+
 }
 ]);
 
