@@ -58,6 +58,7 @@ function ($scope, EntityOccurrence, TextSegment) {
     $scope.relations = window.relations;
     $scope.forms = window.forms;
     $scope.current_tool = window.initial_tool;
+    $scope.question_options = window.question_options;
     $scope.arrows = {};
     $scope.eo_modal = {};
 
@@ -67,6 +68,14 @@ function ($scope, EntityOccurrence, TextSegment) {
         $scope.svg = $scope.$svg[0];
 
         $(window).resize($scope.update_relations_arrows);
+        $("body").keypress(function (event) {
+            var $toolbox_options = $(".toolbox li input");
+            var index = event.which - 49;
+            if (index >= 0 && index <= 5) {
+                $scope.current_tool = $scope.question_options[index];
+                $($toolbox_options[index]).prop("checked", "checked");
+            }
+        });
 
         $scope.update_relations_arrows();
         $scope.create_relations_metadata();
