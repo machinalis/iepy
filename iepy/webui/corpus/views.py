@@ -190,7 +190,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 "info": info,
             })
 
-            forms_values[form.prefix] = evidence.label;
+            forms_values[form.prefix] = evidence.label
 
             for eo_id in [left_eo_id, right_eo_id]:
                 if eo_id not in eos_propperties:
@@ -273,7 +273,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
     def get_formset_kwargs(self):
         """
-        If is a partial save, hackes the forms to match the queryset so it
+        If is a partial save, hacks the forms to match the queryset so it
         matches the ones that actually has a LabeledRelationEvidence.
         This is to handle the case where an entity occurrence was removed.
         """

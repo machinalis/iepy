@@ -10,7 +10,10 @@ $(document).ready(function () {
 
 });
 
-var app = window.angular.module('labelingApp', ['ngResource', 'ngRoute', 'ngCookies']).run(
+var app = window.angular.module(
+    'labelingApp',
+    ['ngResource', 'ngRoute', 'ngCookies']
+).run(
     function ($http, $cookies) {
         $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
         // Add the following two lines
@@ -75,6 +78,7 @@ function ($scope, EntityOccurrence, TextSegment) {
         $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
         $(".prev-relations li").mouseover($scope.highlight_relation);
         $(".prev-relations li").mouseout($scope.highlight_relation);
+
         $scope.eo_modal.elem = $('#eoModal');
         $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
             $scope.eo_modal.elem.foundation('reveal', 'close');
@@ -82,9 +86,15 @@ function ($scope, EntityOccurrence, TextSegment) {
         $scope.eo_modal.elem.find('a.save').bind('click', function () {
             $scope.eo_modal.submit();
         });
-        $scope.eo_modal.elem.find('a.remove-eo-ask').bind('click', $scope.eo_modal.remove_eo_ask);
-        $scope.eo_modal.elem.find('a.remove-eo-confirm').bind('click', $scope.eo_modal.remove_eo_confirm);
-        $scope.eo_modal.elem.find('a.remove-eo-cancel').bind('click', $scope.eo_modal.remove_eo_cancel);
+        $scope.eo_modal.elem.find('a.remove-eo-ask').bind(
+            'click', $scope.eo_modal.remove_eo_ask
+        );
+        $scope.eo_modal.elem.find('a.remove-eo-confirm').bind(
+            'click', $scope.eo_modal.remove_eo_confirm
+        );
+        $scope.eo_modal.elem.find('a.remove-eo-cancel').bind(
+            'click', $scope.eo_modal.remove_eo_cancel
+        );
     });
 
     // ### Methods ###
@@ -429,7 +439,7 @@ function ($scope, EntityOccurrence, TextSegment) {
 
     $scope.run_partial_save = function () {
         $('#partial-save').val('enabled').parents('form').submit();
-    }
+    };
 
     $scope.eo_modal.save_success = function () {
         /* Here is handled not the segment on the modal, but on the actual underlying
