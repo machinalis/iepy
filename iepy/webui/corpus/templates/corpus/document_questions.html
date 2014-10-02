@@ -42,38 +42,48 @@
                     -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
                         title="Next document with un-labeled evidences.">Next document to label</a>
                 </div>
+                {% if not segments %}
+                    <br />
+                    <div data-alert class="alert-box info radius">
+                        There are no more things to tag in this document, try skipping to the next one!
+                    </div>
+                {% endif %}
             </div>
         </div>
         <br />
         <div class="row">
             <div class="large-3 columns">
-                <div class="toolbox">
-                    Tag using this answer:
-                    {{form_toolbox}}
-                </div>
-                <br />
-                For the rest of the posible relations the answer will be:
-                <form action="." method="POST">
-                    {% csrf_token %}
-                    {{ formset.management_form }}
-                    <input type="hidden" id="partial-save" name="partial_save" value="" />
-
-                    <div class="row">
-                        <div class="large-12 columns">
-                            {{form_for_others}}
-                        </div>
+                {% if form_toolbox %}
+                    <div class="toolbox">
+                        Tag using this answer:
+                        {{ form_toolbox }}
                     </div>
+                {% endif %}
+                {% if formset %}
+                    <br />
+                    For the rest of the posible relations the answer will be:
+                    <form action="." method="POST">
+                        {% csrf_token %}
+                        {{ formset.management_form }}
+                        <input type="hidden" id="partial-save" name="partial_save" value="" />
 
-                    {% for form in formset %}
-                        {{ form.as_p }}
-                    {% endfor %}
-
-                    <div class="row">
-                        <div class="large-6 columns">
-                            <input class="button" type="submit" value="Save and continue" />
+                        <div class="row">
+                            <div class="large-12 columns">
+                                {{form_for_others}}
+                            </div>
                         </div>
-                    </div>
-                </form>
+
+                        {% for form in formset %}
+                            {{ form.as_p }}
+                        {% endfor %}
+
+                        <div class="row">
+                            <div class="large-6 columns">
+                                <input class="button" type="submit" value="Save and continue" />
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
 
                 <div class="prev-relations-wrapper">
                     Previous relations:
@@ -84,11 +94,9 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
             <div class="large-9 columns">
-                <div class="title"> {{subtitle}} </div>
+                {% if subtitle %} <div class="title"> {{subtitle}} </div> {% endif %}
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         {% for i in question_options %}
@@ -156,23 +164,33 @@
         </div>
 
         <div id="eoModal" class="reveal-modal large" data-reveal>
-          <h2>Manage Entity Occurrence</h2>
-          <div class="entity_id">Entity id: <span/></div>
-          <div class="message"></div>
-          <div class="delete">
-            Delete: <a class="remove_eo">&#215;</a>
-          </div>
-          <div class="offsets">
-            <p>Move occurrence limits?</p>
-            <div class="segment">
+            <h2>Manage Entity Occurrence</h2>
+            <div class="entity_id">Entity id: <span/></div>
+                <div class="message"></div>
+                <div class="delete">
+                    <a class="remove-eo-ask">Delete</a>
+                    <div class="remove-confirm-wrapper">
+                        Are you sure to delete the occurrence? 
+                        <small> This will have an impact on the possible relations </small>
+                        <br />
+                        <div class="remove-buttons">
+                            <a class="remove-eo-cancel">Cancel</a>
+                            <a class="remove-eo-confirm">Yes, i'm sure</a>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="offsets">
+                    <p>Move occurrence limits:</p>
+                    <div class="segment">
+                    </div>
+                </div>
+                <a class="close-reveal-modal">&#215;</a>
+                <div class="controls">
+                    <a class="button alert cancel">Cancel</a>
+                    <a class="button save">Save</a>
+                </div>
             </div>
-          </div>
-          <a class="close-reveal-modal">&#215;</a>
-          <div class="controls">
-            <a class="button alert cancel">Cancel</a>
-            <a class="button save">Save</a>
-          </div>
-        </div>
 
     </div>
 {% endblock %}
