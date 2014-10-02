@@ -3,7 +3,6 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
 from django.utils import formats
@@ -157,6 +156,14 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 {'id': segment.id,
                  'rich_tokens': list(segment.get_enriched_tokens())}
             )
+
+        if not segments_with_rich_tokens:
+            ctx = {
+                'title': title,
+                'document': self.document,
+                'relation': self.relation,
+            }
+            return ctx
 
         forms_values = {}
         eos_propperties = {}
