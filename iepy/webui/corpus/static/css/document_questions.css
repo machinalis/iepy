@@ -161,3 +161,21 @@ input, textarea, select, .form-row p{
     position: relative;
     bottom: 10px;
 }
+
+#eoModal .remove-confirm-wrapper{
+    display: none;
+}
+
+#eoModal .remove-buttons{
+    margin-top: 10px;
+}
+
+#eoModal .remove-buttons a{
+    padding: 5px;
+    background: #eee;
+}
+
+#eoModal .remove-confirm-wrapper small{
+    font-size: 15px;
+    color: #bbb;
+}
