@@ -497,3 +497,18 @@ class LabeledRelationEvidence(BaseModel):
                         self.right_entity_occurrence.alias,
                         self.judge, self.label)
         return u'({0} {1})'.format(self.offset, self.offset_end)
+
+
+# Models utils
+
+def remove_invalid_segments():
+    """
+    Removes all segments that doesn't have two entity occurences
+    because they are useless.
+    """
+
+    segments = list(TextSegment.objects.all())
+    for segment in segments:
+        eos = list(segment.get_entity_occurrences())
+        if len(eos) < 2:
+            segment.delete()
