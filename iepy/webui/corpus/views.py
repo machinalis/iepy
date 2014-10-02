@@ -162,6 +162,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'title': title,
                 'document': self.document,
                 'relation': self.relation,
+                'eos_propperties': {},
+                'relations_list': [],
+                'forms_values': [],
             }
             return ctx
 
