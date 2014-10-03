@@ -27,7 +27,9 @@ class RulesBasedIEPipeline(object):
     def start(self):
         logger.info('Starting rule based core')
         for evidence in self.evidences:
-            for matched_relation in self.match(evidence):
+            evidence.hydrate()
+            enriched_tokens = evidence.get_enriched_tokens()
+            for matched_relation in self.match(enriched_tokens):
                 self.learnt[matched_relation].append(evidence)
 
     def known_facts(self):
