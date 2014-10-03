@@ -54,7 +54,7 @@ from iepy.fact_extractor import FactExtractorFactory, MoreSamplesNeededException
 from iepy.utils import evaluate
 
 from iepy import defaults
-from iepy.data.knowledge import certainty, Evidence, Fact, Knowledge
+from iepy.data.knowledge import certainty, Fact, Knowledge
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +285,7 @@ class BootstrappedIEPipeline(object):
                 min_score = min(ps)
                 score_range = max_score - min_score
                 scale = lambda x: (x - min_score) * range_delta / score_range + range_min
-                ps = map(scale, ps)
+                ps = list(map(scale, ps))
         else:
             # There was no evidence to train this classifier
             ps = [0.5] * len(evidence_list)  # Maximum uncertainty
