@@ -110,8 +110,9 @@ class Knowledge(OrderedDict):
                                          row[u'entity b key'])
                 f = Fact(entity_a, row[u'relation name'], entity_b)
                 if row[u'document name']:
-                    s = db.get_segment(row[u'document name'],
-                                       int(row[u'segment offset']))
+                    s = db.TextSegmentManager.get_segment(
+                        row[u'document name'],
+                        int(row[u'segment offset']))
 
                     occurrences_dict = dict(
                         ((e_o.offset, e_o.kind), idx)
