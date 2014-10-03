@@ -54,7 +54,7 @@ class Knowledge(OrderedDict):
         """
         result = defaultdict(Knowledge)
         for e, s in self.items():
-            result[e.fact.relation][e] = s
+            result[e.relation][e] = s
         return result
 
     def save_to_csv(self, filepath):
@@ -264,48 +264,3 @@ class Evidence(BaseEvidence):
     """
     __slots__ = []
 
-    default_color_1 = Fore.RED
-    default_color_2 = Fore.GREEN
-
-    def colored_text(self, color_1=None, color_2=None):
-        """Will return a naive formated text with entities remarked.
-        Assumes that occurrences does not overlap.
-        """
-        color_1 = color_1 or self.default_color_1
-        color_2 = color_2 or self.default_color_2
-
-        occurr1 = self.segment.entities[self.o1]
-        occurr2 = self.segment.entities[self.o2]
-        tkns = self.segment.tokens[:]
-        if self.o1 < self.o2:
-            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr2.offset, color_2)
-            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr1.offset, color_1)
-        else:  # must be solved in the reverse order
-            tkns.insert(occurr1.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr1.offset, color_1)
-            tkns.insert(occurr2.offset_end, Style.RESET_ALL)
-            tkns.insert(occurr2.offset, color_2)
-        return u' '.join(tkns)
-
-    def colored_fact(self, color_1=None, color_2=None):
-        color_1 = color_1 or self.default_color_1
-        color_2 = color_2 or self.default_color_2
-
-        return u'(%s <%s>, %s, %s <%s>)' % (
-            color_1 + self.fact.e1.key + Style.RESET_ALL,
-            self.fact.e1.kind,
-            self.fact.relation,
-            color_2 + self.fact.e2.key + Style.RESET_ALL,
-            self.fact.e2.kind,
-        )
-
-    def colored_fact_and_text(self, color_1=None, color_2=None):
-        color_1 = color_1 or self.default_color_1
-        color_2 = color_2 or self.default_color_2
-
-        return (
-            self.colored_fact(color_1, color_2),
-            self.colored_text(color_1, color_2)
-        )

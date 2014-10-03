@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from colorama import init as colorama_init
+from colorama import Fore, Style, init as colorama_init
 from future.builtins import input, str
 
 from iepy.pycompatibility import PY2
@@ -66,6 +66,7 @@ class TerminalInterviewer(object):
         if set(self.base_options).intersection(self.extra_options.keys()):
             raise ValueError(u"Can't define extra answers with the builtin keys")
         self.keys = list(self.base_options.keys()) + list(self.extra_options.keys())
+        self.formatter = TerminalEvidenceFormatter()
 
     def explain(self):
         """Returns string that explains how to use the tool for the person
@@ -105,7 +106,7 @@ class TerminalInterviewer(object):
 
     def get_human_answer(self, evidence):
         keys = u'/'.join(self.keys)
-        c_fact, c_text = evidence.colored_fact_and_text()
+        c_fact, c_text = self.formatter.colored_fact_and_text(evidence)
         question = self.template % {
             'keys': keys, 'fact': c_fact,
             'text': c_text
@@ -128,3 +129,57 @@ def human_oracle(evidence, possible_answers):
     while answer not in possible_answers:
         answer = input(question)
     return answer
+
+
+class TerminalEvidenceFormatter(object):
+    default_color_1 = Fore.RED
+    default_color_2 = Fore.GREEN
+
+    def colored_text(self, ev, color_1=None, color_2=None):
+        """Will return a naive formated text with entities remarked.
+        Assumes that occurrences does not overlap.
+        """
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+
+        # right and left entity-occurrences. "Right" and "Left" are just ideas, but
+        # are not necessary their true position on the text
+        r_eo = ev.right_entity_occurrence
+        l_eo = ev.left_entity_occurrence
+        ev.segment.hydrate()
+        r_eo.hydrate_for_segment(ev.segment)
+        l_eo.hydrate_for_segment(ev.segment)
+        tkns = ev.segment.tokens[:]
+        if r_eo.segment_offset < l_eo.segment_offset:
+            tkns.insert(l_eo.segment_offset_end, Style.RESET_ALL)
+            tkns.insert(l_eo.segment_offset, color_2)
+            tkns.insert(r_eo.segment_offset_end, Style.RESET_ALL)
+            tkns.insert(r_eo.segment_offset, color_1)
+        else:  # must be solved in the reverse order
+            tkns.insert(r_eo.segment_offset_end, Style.RESET_ALL)
+            tkns.insert(r_eo.segment_offset, color_1)
+            tkns.insert(l_eo.segment_offset_end, Style.RESET_ALL)
+            tkns.insert(l_eo.segment_offset, color_2)
+        return u' '.join(tkns)
+
+    def colored_fact(self, ev, color_1=None, color_2=None):
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+        right_entity = ev.right_entity_occurrence.entity
+        left_entity = ev.left_entity_occurrence.entity
+        return u'(%s <%s>, %s, %s <%s>)' % (
+            color_1 + right_entity.key + Style.RESET_ALL,
+            right_entity.kind,
+            ev.relation.name,
+            color_2 + left_entity.key + Style.RESET_ALL,
+            left_entity.kind,
+        )
+
+    def colored_fact_and_text(self, ev, color_1=None, color_2=None):
+        color_1 = color_1 or self.default_color_1
+        color_2 = color_2 or self.default_color_2
+
+        return (
+            self.colored_fact(ev, color_1, color_2),
+            self.colored_text(ev, color_1, color_2)
+        )
