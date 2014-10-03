@@ -76,7 +76,7 @@ class BootstrappedIEPipeline(object):
         facts = p.get_facts()  # profit
     """
 
-    def __init__(self, db_connector, seed_facts, gold_standard=None,
+    def __init__(self, relations, gold_standard=None,
                  extractor_config=None, prediction_config=None,
                  evidence_threshold=defaults.evidence_threshold,
                  fact_threshold=defaults.fact_threshold,
@@ -85,8 +85,7 @@ class BootstrappedIEPipeline(object):
         """
         Not blocking.
         """
-        self.db_con = db_connector
-        self.knowledge = Knowledge({Evidence(f, None, None, None): 1 for f in seed_facts})
+        self.knowledge = Knowledge()
         self.evidence_threshold = evidence_threshold
         self.fact_threshold = fact_threshold
         self.questions = Knowledge()
@@ -109,23 +108,12 @@ class BootstrappedIEPipeline(object):
         ]
         self.step_iterator = itertools.cycle(self.steps)
 
-        # Build relation description: a map from relation labels to pairs of entity kinds
-        self.relations = {}
-        for e in self.knowledge:
-            t1 = e.fact.e1.kind
-            t2 = e.fact.e2.kind
-            if e.fact.relation in self.relations and (t1, t2) != self.relations[e.fact.relation]:
-                raise ValueError("Ambiguous kinds for relation %r" % e.fact.relation)
-            self.relations[e.fact.relation] = (t1, t2)
         # Precompute all the evidence that must be classified
+        self.relations = relations
         self.evidence = evidence = Knowledge()
-        for r, (lkind, rkind) in self.relations.items():
-            for segment in self.db_con.segments.segments_with_both_kinds(lkind, rkind):
-                for o1, o2 in segment.kind_occurrence_pairs(lkind, rkind):
-                    e1 = db.get_entity(segment.entities[o1].kind, segment.entities[o1].key)
-                    e2 = db.get_entity(segment.entities[o2].kind, segment.entities[o2].key)
-                    f = Fact(e1, r, e2)
-                    e = Evidence(f, segment, o1, o2)
+        for r in self.relations:
+            for segment in r._matching_text_segments():
+                for e in segment.get_labeled_evidences(r):
                     evidence[e] = 0.5
 
     def do_iteration(self, data):

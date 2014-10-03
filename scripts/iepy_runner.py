@@ -2,7 +2,7 @@
 Run IEPY core loop
 
 Usage:
-    iepy_runner.py <dbname> <seeds_file> <output_file> [--gold=<gold_standard>]
+    iepy_runner.py <dbname> <relation_ids> <output_file> [--gold=<gold_standard>]
     iepy_runner.py -h | --help | --version
 
 Options:
@@ -11,18 +11,36 @@ Options:
 """
 from docopt import docopt
 import logging
+from sys import exit
 
 from iepy.core import BootstrappedIEPipeline
-from iepy.data import db
+from iepy.data.db import RelationManager
 from iepy.data.knowledge import Knowledge
 from iepy.human_validation import TerminalInterviewer
-from iepy.utils import load_facts_from_csv
 
+
+def parse_relations(relation_ids_csv):
+    result = []
+    all_relations = RelationManager.dict_by_id()
+    for r_id in relation_ids_csv.split(','):
+        try:
+            r_id = int(r_id)
+        except:
+            pass
+        if r_id not in all_relations:
+            logging.error(
+                'All possible relations are: %s. "%s" is not a valid relation id' % (
+                    ', '.join(['%s (%s)' % (k, v.name) for k, v in all_relations.items()]),
+                    r_id
+                )
+            )
+            exit(1)
+        result.append(all_relations[r_id])
+    return result
 
 if __name__ == u'__main__':
     opts = docopt(__doc__, version=0.1)
-    connection = db.connect(opts[u'<dbname>'])
-    seed_facts = load_facts_from_csv(opts[u'<seeds_file>'])
+    relations = parse_relations(opts['<relation_ids>'])
     output_file = opts[u'<output_file>']
     gold_standard_file = opts[u'--gold']
     if gold_standard_file:
@@ -30,7 +48,7 @@ if __name__ == u'__main__':
     else:
         gold_standard = None
 
-    p = BootstrappedIEPipeline(connection, seed_facts, gold_standard)
+    p = BootstrappedIEPipeline(relations, gold_standard)
 
     logging.basicConfig(level=logging.DEBUG,
                         format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
