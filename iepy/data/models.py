@@ -261,6 +261,8 @@ class TextSegment(BaseModel):
     def hydrate(self):
         # Using the segment offsets, and the data on document itself, constructs
         # on-memory attributes for the segment
+        if getattr(self, '_hydrated', False):
+            return self
         doc = self.document
         self.tokens = doc.tokens[self.offset: self.offset_end]
         self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
@@ -275,6 +277,7 @@ class TextSegment(BaseModel):
             self.text = ""
         self.sentences = [i - self.offset for i in doc.sentences
                           if i >= self.offset and i < self.offset_end]
+        self._hydrated = True
         return self
 
     def get_entity_occurrences(self):
