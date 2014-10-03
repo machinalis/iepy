@@ -100,10 +100,9 @@ def get_sentence_boundaries(sentences):
     order. The list contains one extra element at the end containing the total
     number of tokens.
     """
-    xs = [len(x) for x in sentences]
     ys = [0]
-    for x in xs:
-        y = ys[-1] + x
+    for x in sentences:
+        y = ys[-1] + len(x)
         ys.append(y)
     return ys
 
@@ -114,15 +113,17 @@ def get_entity_occurrences(sentences):
     offset of an entity occurrence, `j` is the end offset and `kind` is the
     entity kind of the entity.
     """
-    words = enumerate(chain.from_iterable(sentences))
     found_entities = []
-    for kind, group in groupby(words, key=lambda x: x[1]["NER"]):
-        if kind == "O":
-            continue
-        ix = [i for i, token in group]
-        i = ix[0]
-        j = ix[-1] + 1
-        found_entities.append((i, j, kind))
+    offset = 0
+    for words in sentences:
+        for kind, group in groupby(enumerate(words), key=lambda x: x[1]["NER"]):
+            if kind == "O":
+                continue
+            ix = [i for i, word in group]
+            i = ix[0] + offset
+            j = ix[-1] + 1 + offset
+            found_entities.append((i, j, kind))
+        offset += len(words)
     return found_entities
 
 
