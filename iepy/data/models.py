@@ -498,6 +498,13 @@ class LabeledRelationEvidence(BaseModel):
                         self.judge, self.label)
         return u'({0} {1})'.format(self.offset, self.offset_end)
 
+    @property
+    def fact(self):
+        return (self.right_entity_occurrence.entity,
+                self.relation,
+                self.left_entity_occurrence.entity
+                )
+
 
 # Models utils
 
