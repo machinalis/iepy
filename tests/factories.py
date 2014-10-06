@@ -5,7 +5,7 @@ import sys
 import factory
 import nltk
 
-from iepy.core import Fact, Evidence
+from iepy.data.knowledge import Fact, Evidence
 from iepy.data.models import (IEDocument, EntityKind, Entity, EntityOccurrence,
                               TextSegment, Relation)
 

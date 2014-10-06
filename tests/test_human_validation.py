@@ -3,7 +3,7 @@ from unittest import mock
 
 import colorama
 
-from iepy.human_validation import TerminalInterviewer
+from iepy.extraction.human_validation import TerminalInterviewer
 from .factories import EntityFactory, EvidenceFactory
 from .manager_case import ManagerTestCase
 

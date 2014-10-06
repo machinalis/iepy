@@ -262,7 +262,7 @@ def entity_order(datapoint):
     Returns 1 if A occurs prior to B in the segment and 0 otherwise.
     """
     A, B = get_AB(datapoint)
-    if A.offset < B.offset:
+    if A.segment_offset < B.segment_offset:
         return 1
     return 0
 
@@ -284,8 +284,9 @@ def other_entities_in_between(datapoint):
     """
     n = 0
     i, j = in_between_offsets(datapoint)
-    for other in datapoint.segment.entities:
-        if other.offset >= i and other.offset < j:
+    for other in datapoint.segment.entity_occurrences.all():
+        other.hydrate_for_segment(datapoint.segment)
+        if other.segment_offset >= i and other.segment_offset < j:
             n += 1
     return n
 
@@ -295,7 +296,7 @@ def total_number_of_entities(datapoint):
     """
     Returns the number of entity in the text segment
     """
-    return len(datapoint.segment.entities)
+    return len(datapoint.segment.entity_occurrences.all())
 
 
 @output_schema(int, lambda x: x >= 0)
@@ -401,6 +402,7 @@ def number_of_tokens(datapoint):
 ###
 
 def words(datapoint):
+    datapoint.segment.hydrate()
     return [word.lower() for word in datapoint.segment.tokens]
 
 
@@ -421,15 +423,15 @@ def bigrams(xs):
 
 def in_between_offsets(datapoint):
     A, B = get_AB(datapoint)
-    if A.offset < B.offset:
-        return A.offset_end, B.offset
-    return B.offset_end, A.offset
+    if A.segment_offset < B.segment_offset:
+        return A.segment_offset_end, B.segment_offset
+    return B.segment_offset_end, A.segment_offset
 
 
 def get_AB(x):
-    if x.o1 >= len(x.segment.entities) or x.o2 >= len(x.segment.entities):
-        raise ValueError("Invalid entity occurrences")
-    return x.segment.entities[x.o1], x.segment.entities[x.o2]
+    a = x.right_entity_occurrence.hydrate_for_segment(x.segment)
+    b = x.left_entity_occurrence.hydrate_for_segment(x.segment)
+    return a, b
 
 
 class ColumnFilter(object):

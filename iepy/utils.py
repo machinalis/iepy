@@ -43,15 +43,15 @@ def load_facts_from_csv(filepath):
     Row with less column than stated, will be ignored.
     """
     from iepy.data.knowledge import Fact  # Done here to avoid circular dependency
-    from iepy.data import db
+    from iepy.data.db import EntityManager
 
     with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
         factsreader = reader(csvfile, delimiter=',')
         for row in factsreader:
             if len(row) < 5:
                 continue
-            entity_a = db.get_entity(row[0], row[1])
-            entity_b = db.get_entity(row[2], row[3])
+            entity_a = EntityManager.get_entity(row[0], row[1])
+            entity_b = EntityManager.get_entity(row[2], row[3])
             yield Fact(entity_a, row[4], entity_b)
 
 
