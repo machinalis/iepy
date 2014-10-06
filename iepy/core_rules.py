@@ -52,7 +52,7 @@ class RulesBasedIEPipeline(object):
             eo_ids = token.eo_ids
             eo_kinds = token.eo_kinds
             if eo_ids:
-                if left_id not in eo_ids or right_id not in eo_ids:
+                if left_id not in eo_ids and right_id not in eo_ids:
                     eo_ids.clear()
                     eo_kinds.clear()
 
