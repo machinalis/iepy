@@ -103,6 +103,8 @@ class IEDocument(BaseModel):
         """Returns the iterable of TextSegments, sorted by offset"""
         return self.segments.all().order_by('offset')
 
+    ### Methods used for preprocess ###
+
     def was_preprocess_step_done(self, step):
         return getattr(self, '%s_done_at' % step.name) is not None
 
@@ -326,6 +328,33 @@ class TextSegment(BaseModel):
                 eo_kinds=[eo.entity.kind for eo in tkn_eos]
             )
 
+    @classmethod
+    def filter_by_entity_occurrence_kind_pair(cls, kind_a, kind_b):
+        """Returns a queryset of TextSegments having at least one Entity
+        Occurrence of the left entity kind, and at least one Entity Occurrence
+        of the right entity kind. If left and rigth kinds are the same, at least
+        two occurrences expected."""
+        # This may be implemented as a Manager method, but for simplicity, will
+        # be put in here as a classmethod.
+        matching_segms = TextSegment.objects.filter(
+            entity_occurrences__entity__kind=kind_a)
+        if kind_a == kind_b:
+            # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
+            # after doing the first filter (before entering this if-branch) gave us
+            # <TextSegments> whose "entity_occurrences" are not all of them, but only
+            # those that match the criteria expressed above. Because of that, is that
+            # when annotating Count of such thing, we trust is counting EOccurrences of
+            # the kind we are interested in, and not the others.
+            matching_segms = matching_segms.annotate(
+                kind_count=models.Count('entity_occurrences__entity__kind')).filter(
+                    kind_count__gte=2
+                )
+        else:
+            matching_segms = matching_segms.filter(
+                entity_occurrences__entity__kind=kind_b,
+            )
+        return matching_segms
+
 
 class Relation(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGHT)
@@ -353,28 +382,8 @@ class Relation(BaseModel):
         return super(Relation, self).save(*args, **kwargs)
 
     def _matching_text_segments(self):
-        """Returns a queryset of TextSegments having at least one Entity
-        Occurrence of the left entity kind, and at least one Entity Occurrence
-        of the right entity kind. If left and rigth kinds are the same, at least
-        two occurrences expected."""
-        matching_segms = TextSegment.objects.filter(
-            entity_occurrences__entity__kind=self.left_entity_kind)
-        if self.left_entity_kind == self.right_entity_kind:
-            # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
-            # after doing the first filter (before entering this if-branch) gave us
-            # <TextSegments> whose "entity_occurrences" are not all of them, but only
-            # those that match the criteria expressed above. Because of that, is that
-            # when annotating Count of such thing, we trust is counting EOccurrences of
-            # the kind we are interested in, and not the others.
-            matching_segms = matching_segms.annotate(
-                kind_count=models.Count('entity_occurrences__entity__kind')).filter(
-                    kind_count__gte=2
-                )
-        else:
-            matching_segms = matching_segms.filter(
-                entity_occurrences__entity__kind=self.right_entity_kind,
-            )
-        return matching_segms
+        return TextSegment.filter_by_entity_occurrence_kind_pair(
+            self.right_entity_kind, self.left_entity_kind)
 
     def labeled_neighbor(self, obj, back=False):
         """Returns the id of the "closest" labeled object to the one provided.
