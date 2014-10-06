@@ -5,7 +5,7 @@ from .manager_case import ManagerTestCase
 
 from refo import Question, Star, Any, Plus
 from iepy.rules import BaseRule, Token, Kind
-from iepy.core_rules import RulesBasedIEPipeline
+from iepy.extraction.rules_core import RulesBasedIEPipeline
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,

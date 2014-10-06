@@ -15,7 +15,7 @@ from docopt import docopt
 from collections import defaultdict
 from importlib import import_module
 
-from iepy.core_rules import RulesBasedIEPipeline
+from iepy.extraction.rules_core import RulesBasedIEPipeline
 from iepy.data import models
 from iepy import rules
 
@@ -44,5 +44,3 @@ if __name__ == u'__main__':
     pipeline = RulesBasedIEPipeline(relation_rules)
     pipeline.start()
     facts = pipeline.known_facts()
-    print(facts)
-    #facts.save_to_csv(output_file)
