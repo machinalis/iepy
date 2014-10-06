@@ -13,12 +13,7 @@ class RulesBasedIEPipeline(object):
         }
         """
         self.relations_rules = relations_rules
-
-        self.evidences = []
-        for r in self.relations_rules.keys():
-            for segment in r._matching_text_segments():
-                self.evidences.extend(segment.get_labeled_evidences(r))
-        self.learnt = {r: [] for r in self.relations_rules}
+        self.learnt = {}
 
     ###
     ### IEPY User API
@@ -26,6 +21,13 @@ class RulesBasedIEPipeline(object):
 
     def start(self):
         logger.info('Starting rule based core')
+
+        self.evidences = []
+        for r in self.relations_rules.keys():
+            for segment in r._matching_text_segments():
+                self.evidences.extend(segment.get_labeled_evidences(r))
+        self.learnt = {r: [] for r in self.relations_rules}
+
         for evidence in self.evidences:
             evidence.hydrate()
             enriched_tokens = evidence.get_enriched_tokens()
