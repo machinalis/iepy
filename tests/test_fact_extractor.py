@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix
 from future.builtins import str
 
 from .factories import EvidenceFactory
-from iepy.fact_extractor import (FactExtractor,
+from iepy.extractor.fact_extractor import (FactExtractor,
                                  bag_of_words,
                                  bag_of_pos,
                                  bag_of_word_bigrams,
@@ -37,7 +37,7 @@ from iepy.fact_extractor import (FactExtractor,
                                  LemmaBetween,
                                  MoreSamplesNeededException
                                  )
-from iepy.fact_extractor import ColumnFilter
+from iepy.extraction.fact_extractor import ColumnFilter
 from iepy.utils import make_feature_list
 
 

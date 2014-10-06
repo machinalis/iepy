@@ -50,7 +50,7 @@ import itertools
 import logging
 
 from iepy.data import db
-from iepy.fact_extractor import FactExtractorFactory, MoreSamplesNeededException
+from iepy.extraction.fact_extractor import FactExtractorFactory, MoreSamplesNeededException
 from iepy.utils import evaluate
 
 from iepy import defaults

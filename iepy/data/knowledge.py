@@ -3,7 +3,7 @@ from collections import defaultdict, namedtuple, OrderedDict
 from colorama import Fore, Style
 
 from iepy.data import db
-from iepy.human_validation import Answers
+from iepy.extraction.human_validation import Answers
 from iepy.pycompatibility import py_compatible_csv
 
 

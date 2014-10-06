@@ -13,10 +13,10 @@ from docopt import docopt
 import logging
 from sys import exit
 
-from iepy.core import BootstrappedIEPipeline
+from iepy.extraction.active_learning_core import BootstrappedIEPipeline
 from iepy.data.db import RelationManager
 from iepy.data.knowledge import Knowledge
-from iepy.human_validation import TerminalInterviewer
+from iepy.extraction.human_validation import TerminalInterviewer
 
 
 def parse_relations(relation_ids_csv):

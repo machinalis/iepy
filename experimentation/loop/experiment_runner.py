@@ -14,7 +14,7 @@ from sklearn.metrics import log_loss
 from iepy.data.knowledge import Knowledge
 import iepy.data.db
 from iepy.pycompatibility import PY2
-from iepy.core import BootstrappedIEPipeline
+from iepy.extraction.active_learning_core import BootstrappedIEPipeline
 
 from average_precision import apk
 
