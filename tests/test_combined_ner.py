@@ -10,11 +10,6 @@ from iepy.preprocess.ner.combiner import (
 from iepy.preprocess.pipeline import PreProcessSteps
 
 
-# helper for defining side effects
-def set_result(doc, entities):
-    doc.get_preprocess_result.side_effect = lambda x: entities
-
-
 class BaseTestCombined(TestCase):
     def setUp(self):
         def ner_not_done(step):

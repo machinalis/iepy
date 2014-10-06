@@ -11,5 +11,5 @@
     "trailing"  : true,
     "undef"     : true,
     "white"     : true,
-    "predef"    : ["require","define","describe","sinon","beforeEach","afterEach","it","expect"]
+    "predef"    : ["angular"]
 }
