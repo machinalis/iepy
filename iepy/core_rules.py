@@ -29,9 +29,8 @@ class RulesBasedIEPipeline(object):
         self.learnt = {r: [] for r in self.relations_rules}
 
         for evidence in self.evidences:
-            evidence.hydrate()
-            enriched_tokens = evidence.get_enriched_tokens()
-            for matched_relation in self.match(enriched_tokens):
+            rich_tokens = self.get_rich_tokens_cleaned(evidence)
+            for matched_relation in self.match(rich_tokens):
                 self.learnt[matched_relation].append(evidence)
 
     def known_facts(self):
@@ -41,11 +40,30 @@ class RulesBasedIEPipeline(object):
     ### IEPY Internal Rules methods
     ###
 
+    def get_rich_tokens_cleaned(self, evidence):
+        segment = evidence.segment
+        segment.hydrate()
+        rich_tokens = list(segment.get_enriched_tokens())
+
+        # Clean tokens that are not in this evidence
+        left_id = evidence.left_entity_occurrence.entity.id
+        right_id = evidence.right_entity_occurrence.entity.id
+        for token in rich_tokens:
+            eo_ids = token.eo_ids
+            eo_kinds = token.eo_kinds
+            if eo_ids:
+                if left_id not in eo_ids or right_id not in eo_ids:
+                    eo_ids.clear()
+                    eo_kinds.clear()
+
+        return rich_tokens
+
     def match(self, evidence):
         result = []
         for rel, rules in self.relations_rules.items():
             for rule in rules:
-                if rule.match(evidence):
+                r = rule()
+                if r.match(evidence):
                     result.append(rel)
                     break
         return result

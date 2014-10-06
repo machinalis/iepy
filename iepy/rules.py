@@ -12,7 +12,10 @@ class BaseRule(object):
     def match(self, rich_tokens):
         match = False
         if self.regex:
-            match = refo.match(self.regex + [_EOL], rich_tokens + [_EOL])
+            match = refo.match(
+                self.regex + refo.Literal(_EOL),
+                rich_tokens + [_EOL]
+            )
         return match
 
 

@@ -39,7 +39,7 @@ if __name__ == u'__main__':
             if attr.relation:
                 relation = models.Relation.objects.get(name=attr.relation)
                 # TODO: handle object not found
-                relation_rules[attr.relation].append(attr)
+                relation_rules[relation].append(attr)
 
     pipeline = RulesBasedIEPipeline(relation_rules)
     pipeline.start()
