@@ -91,7 +91,7 @@ class TerminalInterviewer(object):
         """
         colorama_init()
         self.explain()
-        for evidence, score in self.questions[len(self.raw_answers):]:
+        for evidence in self.questions[len(self.raw_answers):]:
             answer = self.get_human_answer(evidence)
             if answer in self.extra_options:
                 # Will not be handled here but in the caller.
