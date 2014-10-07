@@ -3,9 +3,9 @@
 from unittest import mock
 from .manager_case import ManagerTestCase
 
-from refo import Question, Star, Any, Plus
-from iepy.rules import BaseRule, Token, Kind
-from iepy.extraction.rules_core import RulesBasedIEPipeline
+from refo.patterns import Pattern
+from refo import Question, Star, Any
+from iepy.extraction.rules_core import RulesBasedIEPipeline, Token
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,
@@ -59,70 +59,41 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
         return document
 
     def test_rule_that_matches(self):
-        class TestRule(BaseRule):
-            relation = "born in"
-            regex = Plus(Kind("person")) + Token("(") + Plus(Kind("date")) + \
-                Token("-") + Question(Star(Any()))
 
-        relation_rules = {self.person_date_relation: [TestRule]}
-        pipeline = RulesBasedIEPipeline(relation_rules)
+        def test_rule(Subject, Object):
+            anything = Question(Star(Any()))
+            return Subject + Token("(") + Object + Token("-") + anything
+
+        pipeline = RulesBasedIEPipeline(self.person_date_relation, [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
 
-        relations = facts.keys()
-        self.assertEqual(set(relations), set([self.person_date_relation]))
-        self.assertEqual(len(facts[self.person_date_relation]), 1)
-        evidence = facts[self.person_date_relation][0]
-        self.assertEqual(evidence.segment.pk, self.segment.pk)
+        self.assertEqual(len(facts), 1)
+        evidence = facts[0]
+        self.assertEqual(evidence.segment.id, self.segment.id)
 
     def test_rule_that_not_matches(self):
-        class TestRule(BaseRule):
-            relation = "born in"
-            regex = Token("something here")
 
-        relation_rules = {self.person_date_relation: [TestRule]}
-        pipeline = RulesBasedIEPipeline(relation_rules)
+        def test_rule(Subject, Object):
+            return Subject + Object + Token("something here")
+
+        pipeline = RulesBasedIEPipeline(self.person_date_relation, [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
-
-        relations = facts.keys()
-        self.assertEqual(set(relations), set([self.person_date_relation]))
-        self.assertEqual(len(facts[self.person_date_relation]), 0)
+        self.assertEqual(len(facts), 0)
 
     def test_empty_rules(self):
-        relation_rules = {}
-        pipeline = RulesBasedIEPipeline(relation_rules)
+        pipeline = RulesBasedIEPipeline(self.person_date_relation, [])
         pipeline.start()
         facts = pipeline.known_facts()
-
-        relations = facts.keys()
-        self.assertEqual(set(relations), set())
-
-    def test_get_rich_tokens_cleaned(self):
-        evidences = list(self.segment.get_labeled_evidences(
-            self.person_date_relation
-        ))
-        error_msg = "found none or more than one evidences for test segment"
-        assert len(evidences) == 1, error_msg
-        evidence = evidences[0]
-
-        relation_rules = {}
-        pipeline = RulesBasedIEPipeline(relation_rules)
-        tokens = pipeline.get_rich_tokens_cleaned(evidence)
-
-        lid = evidence.left_entity_occurrence.entity.id
-        rid = evidence.right_entity_occurrence.entity.id
-
-        for token in tokens:
-            if token.eo_ids:
-                self.assertTrue(lid in token.eo_ids or rid in token.eo_ids)
+        self.assertEqual(len(facts), 0)
 
     def test_match_run_on_every_rule(self):
-        mocked_rules = [mock.MagicMock()] * 10
-        relation_rules = {self.person_date_relation: mocked_rules}
-        pipeline = RulesBasedIEPipeline(relation_rules)
+        mocked_rules = [mock.MagicMock(return_value=Token("asd"))] * 10
+        pipeline = RulesBasedIEPipeline(self.person_date_relation, mocked_rules)
         pipeline.start()
 
         for mock_rule in mocked_rules:
-            rule_inst = mock_rule()
-            self.assertTrue(rule_inst.match.called)
+            self.assertTrue(mock_rule.called)
+            Subject, Object = mock_rule.call_args[0]
+            self.assertIsInstance(Subject, Pattern)
