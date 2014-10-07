@@ -5,7 +5,7 @@ from .manager_case import ManagerTestCase
 
 from refo.patterns import Pattern
 from refo import Question, Star, Any
-from iepy.extraction.rules_core import RulesBasedIEPipeline, Token
+from iepy.extraction.rules_core import rule, RulesBasedIEPipeline, Token
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,
@@ -60,6 +60,7 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
 
     def test_rule_that_matches(self):
 
+        @rule()
         def test_rule(Subject, Object):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
@@ -74,6 +75,7 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
 
     def test_rule_that_not_matches(self):
 
+        @rule()
         def test_rule(Subject, Object):
             return Subject + Object + Token("something here")
 
@@ -89,7 +91,9 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
         self.assertEqual(len(facts), 0)
 
     def test_match_run_on_every_rule(self):
-        mocked_rules = [mock.MagicMock(return_value=Token("asd"))] * 10
+        mocked_rules = [
+            rule()(mock.MagicMock(return_value=Token("asd")))
+        ] * 10
         pipeline = RulesBasedIEPipeline(self.person_date_relation, mocked_rules)
         pipeline.start()
 
@@ -97,3 +101,19 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
             self.assertTrue(mock_rule.called)
             Subject, Object = mock_rule.call_args[0]
             self.assertIsInstance(Subject, Pattern)
+
+    def test_rule_priority(self):
+
+        def rule_match(Subject, Object):
+            anything = Question(Star(Any()))
+            return Subject + Token("(") + Object + Token("-") + anything
+
+        rule_should_run = rule(priority=1)(mock.MagicMock(side_effect=rule_match))
+        rule_should_not_run = rule(priority=0)(mock.MagicMock(side_effect=rule_match))
+
+        pipeline = RulesBasedIEPipeline(
+            self.person_date_relation, [rule_should_not_run, rule_should_run]
+        )
+        pipeline.start()
+        self.assertTrue(rule_should_run.called)
+        self.assertFalse(rule_should_not_run.called)
