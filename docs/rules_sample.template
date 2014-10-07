@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+
+RELATION = "CAUSES"
+from refo import Question, Star, Any
+from iepy.extraction.rules_core import Token
+
+def rule_1(Subject, Object):
+    anything = Question(Star(Any()))
+    return anything + Subject + Token("causes") + Object + anything
+
