@@ -1,7 +1,0 @@
--r requirements-base.txt
-nltk==3.0.0
-
-numpy==1.8.0
-scipy==0.13.3
-scikit-learn==0.15.2
-django-angular==0.7.8

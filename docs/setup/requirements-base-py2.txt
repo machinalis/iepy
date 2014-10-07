@@ -1,8 +1,0 @@
--r requirements-base.txt
-nltk==2.0.4
-
-numpy==1.8.1
-scipy==0.13.3
-scikit-learn==0.14.1
-functools32==3.2.3-1
-unicodecsv==0.9.4
