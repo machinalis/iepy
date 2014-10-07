@@ -2,6 +2,7 @@
 
 import refo
 import logging
+from operator import attrgetter
 from collections import namedtuple
 
 logger = logging.getLogger(__name__)
@@ -9,10 +10,19 @@ logger = logging.getLogger(__name__)
 _EOL = None
 
 
+def rule(priority=0):
+    def inner(f):
+        f.priority = priority
+        f.is_rule = True
+        return f
+    return inner
+
+
 class RulesBasedIEPipeline(object):
     def __init__(self, relation, rules):
         self.relation = relation
-        self.rules = rules
+        self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)
+
         self.learnt = {}
 
     ###
