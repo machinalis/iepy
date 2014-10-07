@@ -37,10 +37,10 @@ if __name__ == u'__main__':
     # Load rules
     rules = []
     for attr_name in dir(rules_module):
-        if attr_name.startswith("rule_"):
-            rule = getattr(rules_module, attr_name)
-            if hasattr(rule, '__call__'):  # is callable
-                rules.append(rule)
+        attr = getattr(rules_module, attr_name)
+        if hasattr(attr, '__call__'):  # is callable
+            if hasattr(attr, "is_rule") and attr.is_rule:
+                rules.append(attr)
 
     # Run the pipeline
     pipeline = RulesBasedIEPipeline(relation, rules)
