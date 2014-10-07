@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+import mock
 from unittest import TestCase, skip
 
 from featureforge.validate import BaseFeatureFixture, EQ, RAISES
@@ -13,7 +10,7 @@ from scipy.sparse import csr_matrix
 from future.builtins import str
 
 from .factories import EvidenceFactory
-from iepy.extractor.fact_extractor import (FactExtractor,
+from iepy.extraction.fact_extractor import (FactExtractor,
                                  bag_of_words,
                                  bag_of_pos,
                                  bag_of_word_bigrams,
