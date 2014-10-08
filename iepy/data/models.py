@@ -539,6 +539,9 @@ class EvidenceLabel(BaseModel):
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
     labeled_by_machine = models.BooleanField(default=True)
 
+    class Meta(BaseModel.Meta):
+        unique_together = ['evidence_candidate', 'label', 'judge']
+
 
 # Models utils
 

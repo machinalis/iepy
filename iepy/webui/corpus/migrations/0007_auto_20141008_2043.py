@@ -14,23 +14,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EvidenceCandidate',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
                 ('left_entity_occurrence', models.ForeignKey(to='corpus.EntityOccurrence', related_name='left_evidence_relations')),
                 ('relation', models.ForeignKey(to='corpus.Relation', related_name='evidence_relations')),
                 ('right_entity_occurrence', models.ForeignKey(to='corpus.EntityOccurrence', related_name='right_evidence_relations')),
                 ('segment', models.ForeignKey(to='corpus.TextSegment', related_name='evidence_relations')),
             ],
             options={
-                'abstract': False,
                 'ordering': ['segment_id', 'relation_id', 'left_entity_occurrence', 'right_entity_occurrence'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EvidenceLabel',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
-                ('label', models.CharField(default='SK', null=True, max_length=2, choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')])),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('label', models.CharField(choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')], default='SK', null=True, max_length=2)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('judge', models.CharField(max_length=256)),
                 ('labeled_by_machine', models.BooleanField(default=True)),
@@ -63,6 +63,10 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(
             name='LabeledRelationEvidence',
+        ),
+        migrations.AlterUniqueTogether(
+            name='evidencelabel',
+            unique_together=set([('evidence_candidate', 'label', 'judge')]),
         ),
         migrations.AlterUniqueTogether(
             name='evidencecandidate',
