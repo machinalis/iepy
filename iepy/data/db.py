@@ -105,3 +105,11 @@ class RelationManager(object):
         return dict((r.pk, r) for r in Relation.objects.all())
 
 
+class CandidateEvidenceManager(object):
+
+    @classmethod
+    def hydrate(cls, ev):
+        ev.evidence = ev.segment.hydrate()
+        ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
+        ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
+        return ev

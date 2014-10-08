@@ -402,7 +402,6 @@ def number_of_tokens(datapoint):
 ###
 
 def words(datapoint):
-    datapoint.segment.hydrate()
     return [word.lower() for word in datapoint.segment.tokens]
 
 
@@ -428,9 +427,9 @@ def in_between_offsets(datapoint):
     return B.segment_offset_end, A.segment_offset
 
 
-def get_AB(x):
-    a = x.right_entity_occurrence.hydrate_for_segment(x.segment)
-    b = x.left_entity_occurrence.hydrate_for_segment(x.segment)
+def get_AB(datapoint):
+    a = datapoint.right_entity_occurrence
+    b = datapoint.left_entity_occurrence
     return a, b
 
 
