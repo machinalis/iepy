@@ -113,3 +113,17 @@ class CandidateEvidenceManager(object):
         ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
         ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
         return ev
+
+    @classmethod
+    def candidates_for_relation(cls, relation):
+        # Wraps the actual database lookup of evidence, hydrating them so
+        # in theory, no extra db access shall be done
+        evidences = []
+        hydrate = cls.hydrate
+        for segment in relation._matching_text_segments():
+            evidences.extend(
+                [hydrate(e) for e in segment.get_labeled_evidences(relation)]
+            )
+        return evidences
+
+
