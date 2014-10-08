@@ -5,8 +5,7 @@ import sys
 import factory
 import nltk
 
-from iepy.data.knowledge import Fact, Evidence
-from iepy.data.models import (IEDocument, EntityKind, Entity, EntityOccurrence,
+from iepy.data.models import (IEDocument, EntityOccurrence,
                               TextSegment, Relation, LabeledRelationEvidence)
 
 
@@ -92,14 +91,6 @@ def NamedTemporaryFile23(*args, **kwargs):
     if sys.version_info[0] == 2:  # Python 2
         kwargs.pop('encoding', None)
     return NamedTemporaryFile(*args, **kwargs)
-
-
-class FactFactory(factory.Factory):
-    # TODO: This shall be removed/replaced when finished relation-storage branch
-    FACTORY_FOR = Fact
-    e1 = factory.SubFactory(EntityFactory)
-    e2 = factory.SubFactory(EntityFactory)
-    relation = factory.Sequence(lambda n: 'relation:%i' % n)
 
 
 class EvidenceFactory(BaseFactory):

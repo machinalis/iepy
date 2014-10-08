@@ -2,7 +2,7 @@
 import mock
 from unittest import TestCase, skip
 
-from featureforge.validate import BaseFeatureFixture, EQ, RAISES
+from featureforge.validate import BaseFeatureFixture, EQ
 from featureforge.feature import make_feature
 import numpy
 from scipy.sparse import csr_matrix
@@ -13,7 +13,7 @@ from iepy.extraction.fact_extractor import (
     bag_of_wordpos_bigrams, bag_of_words_in_between, bag_of_pos_in_between,
     bag_of_word_bigrams_in_between, bag_of_wordpos_in_between,
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
-    other_entities_in_between, in_same_sentence, total_number_of_entities,
+    other_entities_in_between, total_number_of_entities,
     verbs_count_in_between, verbs_count, symbols_in_between, BagOfVerbStems,
     BagOfVerbLemmas, LemmaBetween, MoreSamplesNeededException)
 from iepy.extraction.fact_extractor import ColumnFilter
