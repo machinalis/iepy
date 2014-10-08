@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import refo
-import logging
-from operator import attrgetter
 from collections import namedtuple
+from operator import attrgetter
+import logging
+
+import refo
+
+from iepy.data.db import CandidateEvidenceManager
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +38,7 @@ class RulesBasedIEPipeline(object):
         self.learnt = []
         self.evidences = []
 
-        for segment in self.relation._matching_text_segments():
-            self.evidences.extend(segment.get_labeled_evidences(self.relation))
+        self.evidences = CandidateEvidenceManager.candidates_for_relation(self.relation)
 
         for evidence in self.evidences:
             if self.match(evidence):
@@ -70,7 +72,6 @@ class RulesBasedIEPipeline(object):
         r_eo_id = evidence.right_entity_occurrence.id
 
         segment = evidence.segment
-        segment.hydrate()
 
         TokenToMatch = namedtuple("TokenToMatch", "token pos kinds, is_subj is_obj")
         for rich_token in segment.get_enriched_tokens():
