@@ -288,7 +288,7 @@ class TextSegment(BaseModel):
                    self.entity_occurrences.all().order_by('offset')
                    )
 
-    def get_labeled_evidences(self, relation):
+    def get_evidences_for_relation(self, relation, judge):
         # Gets or creates Labeled Evidences (when creating, lable is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
@@ -299,6 +299,10 @@ class TextSegment(BaseModel):
                 relation=relation,
                 segment=self,
             )
+            if not created:
+                label_judges = [x.judge for x in obj.labels.all()]
+                if label_judges and judge not in label_judges:
+                    continue
             yield obj
 
     def entity_occurrence_pairs(self, e1, e2):
@@ -384,7 +388,7 @@ class Relation(BaseModel):
         return TextSegment.filter_by_entity_occurrence_kind_pair(
             self.right_entity_kind, self.left_entity_kind)
 
-    def labeled_neighbor(self, obj, back=False):
+    def labeled_neighbor(self, obj, judge, back=False):
         """Returns the id of the "closest" labeled object to the one provided.
         Notes:
             - By "closest", it's mean the distance of the id numbers.
@@ -502,6 +506,14 @@ class EvidenceCandidate(BaseModel):
             self.right_entity_occurrence.entity,
             self.relation, self.left_entity_occurrence.entity
         )
+
+    def set_label(self, label, judge):
+        evidence_label, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self,
+            judge=judge,
+        )
+        evidence_label.label = label
+        evidence_label.save()
 
 
 class EvidenceLabel(BaseModel):
