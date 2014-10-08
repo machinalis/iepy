@@ -1,7 +1,13 @@
+import random
+import logging
+
 from iepy import defaults
 from iepy.data.models import LabeledRelationEvidence
 from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction.fact_extractor import FactExtractorFactory
+
+
+logger = logging.getLogger(__name__)
 
 
 class ActiveLearningCore:
@@ -34,7 +40,7 @@ class ActiveLearningCore:
         Blocking.
         """
         self.load_all_evidence_from_database()
-        self.questions = self.candidate_evidence
+        self.questions = list(self.candidate_evidence)
 
     def add_answer(self, evidence, answer):
         """
@@ -43,10 +49,7 @@ class ActiveLearningCore:
         assert answer in (True, False)
         self.labeled_evidence[evidence] = answer
         for list_ in (self.questions, self.candidate_evidence):  # TODO: Check performance. Should use set?
-            try:
-                list_.remove(evidence)
-            except ValueError:
-                pass  # Was not in list, no problem, right?
+            list_.remove(evidence)
         # TODO: Save labeled evidence into database?
 
     def process(self):
@@ -82,6 +85,7 @@ class ActiveLearningCore:
     #
 
     def load_all_evidence_from_database(self):
+        logger.info("Loading candidate evidence from database...")
         self.all_evidence = []
         self.candidate_evidence = []
         self.labeled_evidence = {}
@@ -93,15 +97,24 @@ class ActiveLearningCore:
                 self.labeled_evidence[e] = True
             else:
                 self.candidate_evidence.append(e)  # TODO: Check what happens with nonsense and such
+        if not self.candidate_evidence:
+            raise ValueError("Cannot start core without candidate evidence")
+        logger.info("Loaded {} candidate evidence and {} labeled evidence".format(
+                    len(self.candidate_evidence), len(self.labeled_evidence)))
 
     def train_fact_extractor(self):
         self.fact_extractor = FactExtractorFactory(defaults.extractor_config,
                                                    self.labeled_evidence)
 
     def rank_candidate_evidence(self):
-        # TODO: Consider ranking only a smaller random sample of candidate_evidence for efficiency
-        ranks = self.fact_extractor.decision_function(self.candidate_evidence)
+        N = 100
+        logger.info("Ranking a sample of {} candidate evidence".format(N))
+        sample = random.sample(self.candidate_evidence, N)
+        ranks = self.fact_extractor.decision_function(sample)
         self.ranked_candidate_evidence = dict(zip(self.candidate_evidence, ranks))
+        ranks = [abs(x) for x in ranks]
+        logger.debug("Ranking completed, lowest absolute rank={}, "
+                     "highest absolute rank={}".format(min(ranks), max(ranks)))
 
     def choose_questions(self):
         # Criteria: Answer first candidates with decision function near 0

@@ -180,6 +180,18 @@ class TestReferenceNextSegmentToLabel(BaseTestReferenceBuilding):
         s2 = self.segment_with_occurrences_factory([self.peter, self.london])
         self.assertEqual(s2, self.r_lives_in.get_next_segment_to_label())
 
+    def test_matching_text_segments_no_duplicates_no_extra(self):
+        a = self.segment_with_occurrences_factory([self.john, self.peter, self.london, self.roma])
+        b = self.segment_with_occurrences_factory([self.john, self.peter, self.london])
+        c = self.segment_with_occurrences_factory([self.john, self.london])
+        self.segment_with_occurrences_factory([self.roma, self.london])
+
+        real = list(self.r_lives_in._matching_text_segments())
+        expected = set([a, b, c])
+
+        self.assertEqual(len(real), len(expected))
+        self.assertEqual(set(real), expected)
+
 
 class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
 

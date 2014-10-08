@@ -337,7 +337,7 @@ class TextSegment(BaseModel):
         # This may be implemented as a Manager method, but for simplicity, will
         # be put in here as a classmethod.
         matching_segms = TextSegment.objects.filter(
-            entity_occurrences__entity__kind=kind_a)
+            entity_occurrences__entity__kind=kind_a).distinct()
         if kind_a == kind_b:
             # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
             # after doing the first filter (before entering this if-branch) gave us
@@ -352,7 +352,7 @@ class TextSegment(BaseModel):
         else:
             matching_segms = matching_segms.filter(
                 entity_occurrences__entity__kind=kind_b,
-            )
+            ).distinct()
         return matching_segms
 
 

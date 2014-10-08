@@ -51,5 +51,5 @@ if __name__ == u'__main__':
         p.process()
     predictions = p.predict()
     print("Predictions:")
-    for prediction in predictions:
-        print("  {}".format(prediction))
+    for prediction, value in predictions.items():
+        print("({} -- {})".format(prediction, value))
