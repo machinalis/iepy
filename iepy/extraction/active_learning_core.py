@@ -1,5 +1,6 @@
 from iepy import defaults
 from iepy.data.models import LabeledRelationEvidence
+from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction.fact_extractor import FactExtractorFactory
 
 
@@ -84,15 +85,14 @@ class ActiveLearningCore:
         self.all_evidence = []
         self.candidate_evidence = []
         self.labeled_evidence = {}
-        for segment in self.relation._matching_text_segments():
-            for e in segment.get_labeled_evidences(self.relation):
-                self.all_evidence.append(e)
-                if e.label == LabeledRelationEvidence.NORELATION:
-                    self.labeled_evidence[e] = False
-                elif e.label == LabeledRelationEvidence.YESRELATION:
-                    self.labeled_evidence[e] = True
-                else:
-                    self.candidate_evidence.append(e)  # TODO: Check what happens with nonsense and such
+        for e in CandidateEvidenceManager.candidates_for_relation(self.relation):
+            self.all_evidence.append(e)
+            if e.label == LabeledRelationEvidence.NORELATION:
+                self.labeled_evidence[e] = False
+            elif e.label == LabeledRelationEvidence.YESRELATION:
+                self.labeled_evidence[e] = True
+            else:
+                self.candidate_evidence.append(e)  # TODO: Check what happens with nonsense and such
 
     def train_fact_extractor(self):
         self.fact_extractor = FactExtractorFactory(defaults.extractor_config,
