@@ -220,7 +220,7 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         for i in range(how_many):
             s = self.segment_with_occurrences_factory([self.john, self.london, self.roma])
             result.append(s)
-            for le in s.get_evidences_for_relation(relation, self.judge):
+            for le in s.get_evidences_for_relation(relation):
                 le.set_label(self.solid_label, self.judge)
         return result
 
@@ -357,8 +357,8 @@ class TestNavigateLabeledDocuments(BaseTestReferenceBuilding):
         self.assertEqual(prev_id, documents[0].id)
 
 
-
 class TestReferenceNextDocumentToLabel(BaseTestReferenceBuilding):
+    judge = 'someone'
 
     def setUp(self):
         super().setUp()
@@ -370,11 +370,11 @@ class TestReferenceNextDocumentToLabel(BaseTestReferenceBuilding):
         self.mock_next_segment.return_value = None
 
     def test_if_no_segment_returned_then_no_document_returned(self):
-        self.assertEqual(self.relation.get_next_document_to_label(), None)
-        self.mock_next_segment.assert_called_once_with()
+        self.assertEqual(self.relation.get_next_document_to_label(self.judge), None)
+        self.mock_next_segment.assert_called_once_with(self.judge)
 
     def test_if_segment_returned_then_its_document_is_returned(self):
         s = self.segment_with_occurrences_factory([self.eo1, self.eo2])
         self.mock_next_segment.return_value = s
-        self.assertEqual(self.relation.get_next_document_to_label(), s.document)
-        self.mock_next_segment.assert_called_once_with()
+        self.assertEqual(self.relation.get_next_document_to_label(self.judge), s.document)
+        self.mock_next_segment.assert_called_once_with(self.judge)

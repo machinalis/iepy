@@ -289,7 +289,7 @@ class TextSegment(BaseModel):
                    )
 
     def get_evidences_for_relation(self, relation):
-        # Gets or creates Labeled Evidences (when creating, lable is empty)
+        # Gets or creates Labeled Evidences (when creating, label is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
         for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
