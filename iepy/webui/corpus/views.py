@@ -1,5 +1,7 @@
 import json
+from collections import defaultdict
 
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -184,6 +186,18 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             }
             return ctx
 
+
+        other_judges_labels = defaultdict(list)
+        for formset in ctx["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            for label in evidence.labels.filter(~Q(id=instance.id)):
+                other_judges_labels[label.judge].append([
+                    evidence.left_entity_occurrence.id,
+                    evidence.right_entity_occurrence.id,
+                    label.label
+                ])
+
         forms_values = {}
         eos_propperties = {}
         relations_list = []
@@ -232,6 +246,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'relations_list': json.dumps(relations_list),
             'forms_values': json.dumps(forms_values),
             'question_options': question_options,
+            'other_judges_labels': json.dumps(other_judges_labels),
+            'other_judges': other_judges_labels.keys(),
         })
         return ctx
 
