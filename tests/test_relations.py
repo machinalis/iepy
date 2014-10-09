@@ -305,7 +305,7 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        seg_1_evidences = list(segments[1].get_evidences_for_relation(r, self.judge))
+        seg_1_evidences = list(segments[1].get_evidences_for_relation(r))
         assert len(seg_1_evidences) > 1
         label_obj = seg_1_evidences[0].labels.get(judge=self.judge)
         label_obj.delete()
