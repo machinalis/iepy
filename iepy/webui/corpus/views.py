@@ -9,7 +9,7 @@ from django.utils import formats
 
 from extra_views import ModelFormSetView
 
-from corpus.models import Relation, TextSegment, LabeledRelationEvidence, IEDocument
+from corpus.models import Relation, TextSegment, IEDocument, EvidenceLabel
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 
 
@@ -71,7 +71,7 @@ def navigate_labeled_documents(request, relation_id, document_id, direction):
 
 class _BaseLabelEvidenceView(ModelFormSetView):
     form_class = EvidenceForm
-    model = LabeledRelationEvidence
+    model = EvidenceLabel
     extra = 0
     max_num = None
     can_order = False
@@ -80,6 +80,10 @@ class _BaseLabelEvidenceView(ModelFormSetView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    @property
+    def judge(self):
+        return self.request.user.username
 
 
 class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
@@ -108,13 +112,19 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         self.segment = get_object_or_404(TextSegment, pk=self.kwargs['segment_id'])
         self.segment.hydrate()
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
-        self.evidences = list(self.segment.get_labeled_evidences(self.relation))
+        evidences = list(self.segment.get_evidences_for_relation(self.relation))
+        for ev in evidences:
+            EvidenceLabel.objects.get_or_create(evidence_candidate=ev,
+                                                judge=self.judge,
+                                                labeled_by_machine=False,
+                                                defaults={'label': None})
         return self.segment, self.relation
 
     def get_queryset(self):
         segment, relation = self.get_segment_and_relation()
         return super().get_queryset().filter(
-            segment=self.segment, relation=self.relation
+            judge=self.judge, evidence_candidate__segment=self.segment,
+            evidence_candidate__relation=self.relation
         )
 
     def get_success_url(self):
@@ -210,7 +220,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'relation': self.relation,
             'form_for_others': EvidenceForm(prefix='for_others'),
             'form_toolbox': form_toolbox,
-            'initial_tool': LabeledRelationEvidence.YESRELATION,
+            'initial_tool': EvidenceLabel.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),
             'relations_list': json.dumps(relations_list),
             'forms_values': json.dumps(forms_values),
@@ -274,7 +284,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     def get_formset_kwargs(self):
         """
         If is a partial save, hacks the forms to match the queryset so it
-        matches the ones that actually has a LabeledRelationEvidence.
+        matches the ones that actually has a CandidateEvidence.
         This is to handle the case where an entity occurrence was removed.
         """
 
