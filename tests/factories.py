@@ -8,7 +8,7 @@ import nltk
 from iepy.data.models import (
     IEDocument, EntityOccurrence,
     TextSegment, Relation,
-    EvidenceLabel, EvidenceCandidate,
+    EvidenceCandidate,
 )
 
 
@@ -94,6 +94,22 @@ def NamedTemporaryFile23(*args, **kwargs):
     if sys.version_info[0] == 2:  # Python 2
         kwargs.pop('encoding', None)
     return NamedTemporaryFile(*args, **kwargs)
+
+
+class EvidenceCandidateFactory(BaseFactory):
+    FACTORY_FOR = EvidenceCandidate
+    segment = factory.SubFactory(TextSegmentFactory)
+    relation = factory.SubFactory(RelationFactory)
+    left_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
+    right_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
 
 
 class EvidenceFactory(BaseFactory):
