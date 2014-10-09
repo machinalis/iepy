@@ -101,6 +101,11 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
             self.segment.document.human_identifier,
             self.segment.id)
 
+        for formset in ctx["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            instance.all_labels = evidence.labels.all()
+
         ctx.update({
             'title': title,
             'subtitle': subtitle,

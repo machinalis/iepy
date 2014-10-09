@@ -57,13 +57,15 @@
                     {{ question_form.as_p }}
                 </div>
                 <div class="large-4 columns">
-                    {% if obj.label %}
-                        <div class="previous-judgement">
-                        Labeled as <span class="value">{{obj.label}}</span>
-                        by <span class="judge">{{obj.judge|default:"unknown"}}</span>
-                        on <span class="date">{{obj.modification_date}}</span>
-                        </div>
-                    {% endif %}
+                    <div class="previous-judgements">
+                        {% for label in obj.all_labels %}
+                            <div class="previous-judgement">
+                                Labeled as <span class="value">{{label.label}}</span>
+                                by <span class="judge">{{label.judge|default:"unknown"}}</span>
+                                on <span class="date">{{labelobj.modification_date}}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             {% endwith %}
