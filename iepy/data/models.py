@@ -398,15 +398,25 @@ class Relation(BaseModel):
             - If asking "prev" and obj is currently the first, his id will be returned.
         """
         if isinstance(obj, TextSegment):
-            candidates = self._matching_text_segments()
-            candidates = candidates.filter(evidence_relations__relation=self).filter(
-                evidence_relations__label__isnull=False).distinct()
-            ids = list(candidates.values_list('id', flat=True).order_by('id'))
-        elif isinstance(obj, IEDocument):
-            lres = EvidenceCandidate.objects.filter(
-                relation=self, labels__isnull=False
+            segments = self._matching_text_segments()
+            segments = segments.filter(evidence_relations__relation=self)
+            judge_labels = EvidenceLabel.objects.filter(
+                judge=judge,
+                label__isnull=False,
+                evidence_candidate__segment__in=segments,
             )
-            ids = sorted(set(lres.values_list('segment__document_id', flat=True)))
+            candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
+            segments = segments.filter(id__in=candidates_with_label).distinct()
+            ids = list(segments.values_list('id', flat=True).order_by('id'))
+        elif isinstance(obj, IEDocument):
+            judge_labels = EvidenceLabel.objects.filter(
+                judge=judge,
+                label__isnull=False,
+                evidence_candidate__relation=self,
+            )
+            ids = sorted(set(judge_labels.values_list(
+                'evidence_candidate__segment__document_id', flat=True)
+            ))
         else:
             ids = []
         if not ids:
