@@ -5,8 +5,11 @@ import sys
 import factory
 import nltk
 
-from iepy.data.models import (IEDocument, EntityOccurrence,
-                              TextSegment, Relation, LabeledRelationEvidence)
+from iepy.data.models import (
+    IEDocument, EntityOccurrence,
+    TextSegment, Relation,
+    EvidenceLabel, EvidenceCandidate,
+)
 
 
 def naive_tkn(text):
@@ -107,7 +110,7 @@ class EvidenceFactory(BaseFactory):
     "The physicist {Albert Einstein|Person*} was born in {Germany|location} and
     died in the {United States|location**} ."
     """
-    FACTORY_FOR = LabeledRelationEvidence
+    FACTORY_FOR = EvidenceCandidate
     relation = factory.SubFactory(RelationFactory)
     segment = factory.SubFactory(TextSegmentFactory)
     right_entity_occurrence = factory.SubFactory(

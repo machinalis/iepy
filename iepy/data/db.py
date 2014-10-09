@@ -106,6 +106,7 @@ class RelationManager(object):
 
 
 class CandidateEvidenceManager(object):
+    judge = "iepy"
 
     @classmethod
     def hydrate(cls, ev):
@@ -122,7 +123,7 @@ class CandidateEvidenceManager(object):
         hydrate = cls.hydrate
         for segment in relation._matching_text_segments():
             evidences.extend(
-                [hydrate(e) for e in segment.get_labeled_evidences(relation)]
+                [hydrate(e) for e in segment.get_evidences_for_relation(relation, cls.judge)]
             )
         return evidences
 

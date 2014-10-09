@@ -1,5 +1,4 @@
 from .manager_case import ManagerTestCase
-from iepy.data.models import EntityOccurrence
 from .factories import (
     EntityFactory, EntityKindFactory,
     TextSegmentFactory, RelationFactory,
@@ -7,6 +6,8 @@ from .factories import (
 )
 
 class TestEntityOccurrences(ManagerTestCase):
+    judge = "iepy"
+
     def setUp(self):
         self.k_person = EntityKindFactory(name='person')
         self.k_location = EntityKindFactory(name='location')
@@ -37,20 +38,20 @@ class TestEntityOccurrences(ManagerTestCase):
 
     def test_delete_removes_one_evidences(self):
         segment, eos = self.create_segment_with_eos([self.e_john, self.e_argentina])
-        evidences_before = segment.get_labeled_evidences(self.person_location_relation)
+        evidences_before = segment.get_evidences_for_relation(self.person_location_relation, self.judge)
         self.assertEqual(len(list(evidences_before)), 1)
         eo = eos[0]
         eo.delete()
-        evidences_after = segment.get_labeled_evidences(self.person_location_relation)
+        evidences_after = segment.get_evidences_for_relation(self.person_location_relation, self.judge)
         self.assertEqual(len(list(evidences_after)), 0)
 
     def test_delete_removes_multiple_evidences(self):
         segment, eos = self.create_segment_with_eos([
             self.e_john, self.e_bob, self.e_argentina, self.e_germany
         ])
-        evidences_before = segment.get_labeled_evidences(self.person_location_relation)
+        evidences_before = segment.get_evidences_for_relation(self.person_location_relation, self.judge)
         self.assertEqual(len(list(evidences_before)), 4)  # each person with each location
         eo = eos[0]
         eo.delete()
-        evidences_after = segment.get_labeled_evidences(self.person_location_relation)
+        evidences_after = segment.get_evidences_for_relation(self.person_location_relation, self.judge)
         self.assertEqual(len(list(evidences_after)), 2)  # only bob with each location

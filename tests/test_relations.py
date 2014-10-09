@@ -1,5 +1,5 @@
 from unittest import mock
-from iepy.data.models import LabeledRelationEvidence as LRE
+from iepy.data.models import EvidenceLabel
 from .factories import (RelationFactory, EntityFactory, EntityKindFactory,
                         TextSegmentFactory,
                         EntityOccurrenceFactory)
@@ -35,8 +35,8 @@ class BaseTestReferenceBuilding(ManagerTestCase):
                                              right_entity_kind=self.k_location)
         self.r_father_of = RelationFactory(left_entity_kind=self.k_person,
                                            right_entity_kind=self.k_person)
-        self.weak_label = LRE.DONTKNOW  # means that will need to be re-labeled
-        self.solid_label = LRE.YESRELATION
+        self.weak_label = EvidenceLabel.DONTKNOW  # means that will need to be re-labeled
+        self.solid_label = EvidenceLabel.YESRELATION
 
     def create_occurrence(self, doc, e, offset, end):
         return EntityOccurrenceFactory(document=doc, entity=e,
@@ -56,6 +56,7 @@ class BaseTestReferenceBuilding(ManagerTestCase):
 
 
 class TestReferenceNextSegmentToLabel(BaseTestReferenceBuilding):
+    judge = "iepy"
 
     def test_if_no_segment_around_None_is_returned(self):
         self.assertIsNone(self.r_lives_in.get_next_segment_to_label())
@@ -107,73 +108,65 @@ class TestReferenceNextSegmentToLabel(BaseTestReferenceBuilding):
     def test_if_segment_has_all_questions_answered_is_omitted(self):
         s = self.segment_with_occurrences_factory([self.john, self.london])
         self.assertIsNotNone(self.r_lives_in.get_next_segment_to_label())
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = self.solid_label
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence.set_label(self.solid_label, self.judge)
         self.assertIsNone(self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_has_all_questions_answered_for_other_relation_is_NOT_omitted(self):
         s = self.segment_with_occurrences_factory([self.john, self.london])
         self.assertIsNotNone(self.r_lives_in.get_next_segment_to_label())
-        for evidence in s.get_labeled_evidences(self.r_was_born_in):
-            evidence.label = self.solid_label
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_was_born_in, self.judge):
+            evidence.set_label(self.solid_label, self.judge)
         self.assertEqual(s, self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_has_question_not_labeled_is_found(self):
         s = self.segment_with_occurrences_factory([self.john, self.london])
         self.assertIsNotNone(self.r_lives_in.get_next_segment_to_label())
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = None
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence_label = evidence.labels.filter(judge=self.judge)
+            evidence_label.delete()
         self.assertEqual(s, self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_has_question_labeled_with_dont_know_is_found(self):
         s = self.segment_with_occurrences_factory([self.john, self.london])
         self.assertIsNotNone(self.r_lives_in.get_next_segment_to_label())
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = self.weak_label
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence.set_label(self.weak_label, self.judge)
         self.assertEqual(s, self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_was_fully_labeled_but_some_empty_for_other_relation_is_omitted(self):
         # ie, LabeledE Evidences of a Segment with some other relation doesnt matter here.
         # This test is more for ensuring we are not coding an underised side-effect
         s = self.segment_with_occurrences_factory([self.john, self.london])
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = self.solid_label
-            evidence.save()
-        for evidence in s.get_labeled_evidences(self.r_was_born_in):
-            evidence.label = None
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence.set_label(self.solid_label, self.judge)
+        for evidence in s.get_evidences_for_relation(self.r_was_born_in, self.judge):
+            evidence_label = evidence.labels.filter(judge=self.judge)
+            evidence_label.delete()
         self.assertIsNone(self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_has_some_questions_answered_but_other_dont_know_is_found(self):
         s = self.segment_with_occurrences_factory([self.john, self.peter, self.london])
         self.assertIsNotNone(self.r_lives_in.get_next_segment_to_label())
-        for evidence, lbl in zip(s.get_labeled_evidences(self.r_lives_in),
+        for evidence, lbl in zip(s.get_evidences_for_relation(self.r_lives_in, self.judge),
                                  [self.weak_label, self.solid_label]):
-            evidence.label = lbl
-            evidence.save()
+            evidence.set_label(lbl, self.judge)
         self.assertEqual(s, self.r_lives_in.get_next_segment_to_label())
 
     def test_if_segment_was_fully_labeled_but_some_dunno_for_other_relation_is_omitted(self):
         # ie, LabeledE Evidences of a Segment with some other relation doesnt matter here.
         # This test is more for ensuring we are not coding an underised side-effect
         s = self.segment_with_occurrences_factory([self.john, self.london])
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = self.solid_label
-            evidence.save()
-        for evidence in s.get_labeled_evidences(self.r_was_born_in):
-            evidence.label = self.weak_label
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence.set_label(self.solid_label, self.judge)
+        for evidence in s.get_evidences_for_relation(self.r_was_born_in, self.judge):
+            evidence.set_label(self.weak_label, self.judge)
         self.assertIsNone(self.r_lives_in.get_next_segment_to_label())
 
     def test_segments_with_zero_evidence_labeled_are_prefered(self):
         s = self.segment_with_occurrences_factory([self.john, self.london])
-        for evidence in s.get_labeled_evidences(self.r_lives_in):
-            evidence.label = self.weak_label
-            evidence.save()
+        for evidence in s.get_evidences_for_relation(self.r_lives_in, self.judge):
+            evidence.set_label(self.weak_label, self.judge)
         # so, this segment is found when searching...
         self.assertEqual(s, self.r_lives_in.get_next_segment_to_label())
         # But if a new one appears, pristine, with no evidences, is preferred
@@ -194,15 +187,15 @@ class TestReferenceNextSegmentToLabel(BaseTestReferenceBuilding):
 
 
 class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
+    judge = "iepy"
 
     def create_labeled_segments_for_relation(self, relation, how_many):
         result = []
         for i in range(how_many):
             s = self.segment_with_occurrences_factory([self.john, self.london, self.roma])
             result.append(s)
-            for le in s.get_labeled_evidences(relation):
-                le.label = self.solid_label
-                le.save()
+            for le in s.get_evidences_for_relation(relation, self.judge):
+                le.set_label(self.solid_label, self.judge)
         return result
 
     def test_asking_neighbor_when_nothing_is_labeled_returns_None(self):
@@ -230,10 +223,10 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        seg_1_evidences = list(segments[1].get_labeled_evidences(r))
+        seg_1_evidences = list(segments[1].get_evidences_for_relation(r, self.judge))
         assert len(seg_1_evidences) > 1
-        seg_1_evidences[0].label = None
-        seg_1_evidences[0].save()
+        seg_1_label = seg_1_evidences[0].labels.get(judge=self.judge)
+        seg_1_label.delete()
         # some none, not all, still found
         self.assertEqual(segments[1].id,
                          r.labeled_neighbor(reference, back=True))
@@ -250,13 +243,12 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        for le in segments[1].get_labeled_evidences(r):
-            le.label = None
-            le.save()
+        for le in segments[1].get_evidences_for_relation(r, self.judge):
+            evidence_label = le.labels.filter(judge=self.judge)
+            evidence_label.delete()
         # all none for relation "r_lives_in", shall be not found
-        for le in segments[1].get_labeled_evidences(self.r_father_of):
-            le.label = self.solid_label
-            le.save()
+        for le in segments[1].get_evidences_for_relation(self.r_father_of, self.judge):
+            le.set_label(self.solid_label, self.judge)
         self.assertNotEqual(segments[1].id,
                             r.labeled_neighbor(reference, back=True))
 
