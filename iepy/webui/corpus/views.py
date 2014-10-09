@@ -13,9 +13,13 @@ from corpus.models import Relation, TextSegment, IEDocument, EvidenceLabel
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 
 
+def _judge(request):
+    return request.user.username
+
+
 def next_segment_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)
-    segment = relation.get_next_segment_to_label()
+    segment = relation.get_next_segment_to_label(_judge(request))
     if segment is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
@@ -24,7 +28,7 @@ def next_segment_to_label(request, relation_id):
 
 def next_document_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)
-    doc = relation.get_next_document_to_label()
+    doc = relation.get_next_document_to_label(_judge(request))
     if doc is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
@@ -41,7 +45,7 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    obj_id_to_show = relation.labeled_neighbor(current, request.user.username, going_back)
+    obj_id_to_show = relation.labeled_neighbor(current, _judge(request), going_back)
     if obj_id_to_show is None:
         # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
@@ -83,7 +87,7 @@ class _BaseLabelEvidenceView(ModelFormSetView):
 
     @property
     def judge(self):
-        return self.request.user.username
+        return _judge(self.request)
 
 
 class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
