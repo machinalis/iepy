@@ -41,7 +41,7 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    obj_id_to_show = relation.labeled_neighbor(current, going_back)
+    obj_id_to_show = relation.labeled_neighbor(current, request.user.username, going_back)
     if obj_id_to_show is None:
         # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
