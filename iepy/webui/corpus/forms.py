@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
-from corpus.models import LabeledRelationEvidence
+from corpus.models import EvidenceLabel
 
-DEFAULT_LABEL = LabeledRelationEvidence._meta.get_field('label').default
+DEFAULT_LABEL = EvidenceLabel._meta.get_field('label').default
 
 
 class EvidenceForm(forms.ModelForm):
     class Meta:
-        model = LabeledRelationEvidence
+        model = EvidenceLabel
         fields = ["label"]
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +29,7 @@ class EvidenceForm(forms.ModelForm):
         if not changed and self.instance.label == DEFAULT_LABEL:
             # On init we "hacked" the instance so the form was created showing our
             # desired default value. Because of that, we may not be seeing that change.
-            if LabeledRelationEvidence.objects.get(pk=self.instance.pk).label is None:
+            if EvidenceLabel.objects.get(pk=self.instance.pk).label is None:
                 changed = True
         return changed
 
