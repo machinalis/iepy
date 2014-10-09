@@ -441,7 +441,7 @@ class Relation(BaseModel):
                 else:
                     return ids[base_idx + 1]
 
-    def get_next_segment_to_label(self):
+    def get_next_segment_to_label(self, for_judge):
         candidates = self._matching_text_segments().order_by('id')
         # We'll pick first those Segments having already created questions with empty
         # answer (label=None). After finishing those, we'll look for
@@ -467,8 +467,8 @@ class Relation(BaseModel):
                     return obj.segment
         return None
 
-    def get_next_document_to_label(self):
-        next_segment = self.get_next_segment_to_label()
+    def get_next_document_to_label(self, for_judge):
+        next_segment = self.get_next_segment_to_label(for_judge)
         if next_segment is None:
             return None
         else:
