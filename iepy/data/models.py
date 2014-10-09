@@ -288,7 +288,7 @@ class TextSegment(BaseModel):
                    self.entity_occurrences.all().order_by('offset')
                    )
 
-    def get_evidences_for_relation(self, relation, judge):
+    def get_evidences_for_relation(self, relation):
         # Gets or creates Labeled Evidences (when creating, lable is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
@@ -299,10 +299,6 @@ class TextSegment(BaseModel):
                 relation=relation,
                 segment=self,
             )
-            if not created:
-                label_judges = [x.judge for x in obj.labels.all()]
-                if label_judges and judge not in label_judges:
-                    continue
             yield obj
 
     def entity_occurrence_pairs(self, e1, e2):
