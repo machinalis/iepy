@@ -513,6 +513,12 @@ class EvidenceCandidate(BaseModel):
             self.relation, self.left_entity_occurrence.entity
         )
 
+    def get_or_create_label_for_judge(self, judge):
+        obj, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self, judge=judge,
+            labeled_by_machine=False, defaults={'label': None})
+        return obj
+
     def set_label(self, label, judge):
         evidence_label, created = EvidenceLabel.objects.get_or_create(
             evidence_candidate=self,

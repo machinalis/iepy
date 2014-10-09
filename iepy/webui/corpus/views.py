@@ -114,10 +114,7 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
         evidences = list(self.segment.get_evidences_for_relation(self.relation))
         for ev in evidences:
-            EvidenceLabel.objects.get_or_create(evidence_candidate=ev,
-                                                judge=self.judge,
-                                                labeled_by_machine=False,
-                                                defaults={'label': None})
+            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
         return self.segment, self.relation
 
     def get_queryset(self):
@@ -183,15 +180,16 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         relations_list = []
         formset = ctx['formset']
         for form_idx, form in enumerate(formset):
-            evidence = form.instance
+            lbl_evidence = form.instance
+            evidence = lbl_evidence.evidence_candidate
 
             left_eo_id = evidence.left_entity_occurrence.pk
             right_eo_id = evidence.right_entity_occurrence.pk
             info = "Labeled as {} by {} on {}".format(
-                evidence.label,
-                evidence.judge if evidence.judge else "unknown",
+                lbl_evidence.label,
+                lbl_evidence.judge if lbl_evidence.judge else "unknown",
                 formats.date_format(
-                    evidence.modification_date, "SHORT_DATETIME_FORMAT"
+                    lbl_evidence.modification_date, "SHORT_DATETIME_FORMAT"
                 )
             )
             relations_list.append({
@@ -200,7 +198,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 "info": info,
             })
 
-            forms_values[form.prefix] = evidence.label
+            forms_values[form.prefix] = lbl_evidence.label
 
             for eo_id in [left_eo_id, right_eo_id]:
                 if eo_id not in eos_propperties:
@@ -233,17 +231,21 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             return self.document, self.relation
         self.document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
-        self.evidences = []
+        evidences = []
         for segment in self.document.get_text_segments():
-            self.evidences.extend(
-                list(segment.get_labeled_evidences(self.relation))
+            evidences.extend(
+                list(segment.get_evidences_for_relation(self.relation))
             )
+        for ev in evidences:
+            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+
         return self.document, self.relation
 
     def get_queryset(self):
         document, relation = self.get_document_and_relation()
         return super().get_queryset().filter(
-            segment__document_id=document.id, relation=self.relation
+            judge=self.judge, evidence_candidate__segment__document_id=document,
+            evidence_candidate__relation=relation
         )
 
     def get_success_url(self):
