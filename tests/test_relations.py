@@ -249,7 +249,7 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        seg_1_evidences = list(segments[1].get_evidences_for_relation(r, self.judge))
+        seg_1_evidences = list(segments[1].get_evidences_for_relation(r))
         assert len(seg_1_evidences) > 1
         seg_1_evidences[0].set_label(None, judge=self.judge)
         # some none, not all, still found
@@ -272,10 +272,10 @@ class TestNavigateLabeledSegments(BaseTestReferenceBuilding):
         r = self.r_lives_in
         segments = self.create_labeled_segments_for_relation(r, 5)
         reference = segments[2]  # the one in the middle
-        for le in segments[1].get_evidences_for_relation(r, self.judge):
+        for le in segments[1].get_evidences_for_relation(r):
             le.set_label(None, judge=self.judge)
         # all none for relation "r_lives_in", shall be not found
-        for le in segments[1].get_evidences_for_relation(self.r_father_of, self.judge):
+        for le in segments[1].get_evidences_for_relation(self.r_father_of):
             le.set_label(self.solid_label, self.judge)
         self.assertNotEqual(
             segments[1].id,
@@ -340,7 +340,7 @@ class TestNavigateLabeledDocuments(BaseTestReferenceBuilding):
                 document=IEDocFactory()
             )
             result.append(s)
-            for le in s.get_evidences_for_relation(relation, self.judge):
+            for le in s.get_evidences_for_relation(relation):
                 le.set_label(self.solid_label, self.judge)
         return list(set([x.document for x in result]))
 
