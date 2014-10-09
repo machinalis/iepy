@@ -441,21 +441,31 @@ class Relation(BaseModel):
                 else:
                     return ids[base_idx + 1]
 
-    def get_next_segment_to_label(self, for_judge):
-        candidates = self._matching_text_segments().order_by('id')
+    def get_next_segment_to_label(self, judge):
         # We'll pick first those Segments having already created questions with empty
         # answer (label=None). After finishing those, we'll look for
         # Segments never considered (ie, that doest have any question created).
         # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
-        never_considered = candidates.exclude(evidence_relations__relation=self)
-        labeleds = EvidenceCandidate.objects.filter(
+        segments = self._matching_text_segments().order_by('id')
+        never_considered_segm = segments.exclude(evidence_relations__relation=self)
+
+        evidences = EvidenceCandidate.objects.filter(
             relation=self
         ).order_by('segment_id')
-        empty_answers = labeleds.filter(labels__isnull=True)
-        to_re_answer = labeleds.filter(
-            labels__label__in=EvidenceLabel.NEED_RELABEL
-        )
-        for qset in [empty_answers, never_considered, to_re_answer]:
+        never_considered_ev = evidences.filter(labels__isnull=True)
+
+        existent_labels = EvidenceLabel.objects.filter(
+            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+        none_labels = existent_labels.filter(label__isnull=True)
+        own_none_labels = none_labels.filter(judge=judge)
+
+        # requires re answer if there's no Good answer at all (not just for this judge)
+        NOT_NEED_RELABEL = [k for k, name in EvidenceLabel.LABEL_CHOICES
+                            if k not in EvidenceLabel.NEED_RELABEL]
+        to_re_answer = evidences.exclude(labels__label__in=NOT_NEED_RELABEL)
+
+        for qset in [own_none_labels, never_considered_ev, never_considered_segm,
+                     to_re_answer, none_labels]:
             try:
                 obj = qset[0]
             except IndexError:
@@ -463,12 +473,16 @@ class Relation(BaseModel):
             else:
                 if isinstance(obj, TextSegment):
                     return obj
-                else:
+                elif isinstance(obj, EvidenceCandidate):
                     return obj.segment
+                elif isinstance(obj, EvidenceLabel):
+                    return obj.evidence_candidate.segment
+                else:
+                    raise ValueError
         return None
 
-    def get_next_document_to_label(self, for_judge):
-        next_segment = self.get_next_segment_to_label(for_judge)
+    def get_next_document_to_label(self, judge):
+        next_segment = self.get_next_segment_to_label(judge)
         if next_segment is None:
             return None
         else:
