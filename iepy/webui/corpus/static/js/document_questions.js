@@ -55,10 +55,11 @@ function ($scope, EntityOccurrence, TextSegment) {
 
     // Publish into the scope the variables defined globally
     $scope.eos = window.eos;
-    $scope.relations = window.relations;
     $scope.forms = window.forms;
+    $scope.relations = window.relations;
     $scope.current_tool = window.initial_tool;
     $scope.question_options = window.question_options;
+    $scope.other_judges_labels = window.other_judges_labels;
     $scope.arrows = {};
     $scope.eo_modal = {};
 
@@ -87,6 +88,8 @@ function ($scope, EntityOccurrence, TextSegment) {
         $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
         $(".prev-relations li").mouseover($scope.highlight_relation);
         $(".prev-relations li").mouseout($scope.highlight_relation);
+        $(".judge-answers-button").mouseover($scope.draw_judge_answers);
+        $(".judge-answers-button").mouseout($scope.update_relations_arrows);
 
         $scope.eo_modal.elem = $('#eoModal');
         $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
@@ -141,30 +144,35 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
+    $scope.clean_all_arrows = function () {
+        // Remove all arrows before re-drawing
+        $($scope.svg).find("path").each(function () {
+            var $elem = $(this);
+            if ($elem.parent("marker").length === 0) {
+                $scope.svg.removeChild($elem[0]);
+            }
+        });
+
+        $scope.arrows = {};
+    };
+
     $scope.update_relations_arrows = function () {
         // Update width and height of the svg element
         $scope.$svg.attr("width", $scope.$segments.width());
-        $scope.$svg.attr("height", $scope.$segments.height());
+        $scope.$svg.attr("height", $scope.$segments.height() + 100);
 
-        // Remove all arrows before re-drawing
-        for (var form_id in $scope.forms) {
-            if ($scope.forms.hasOwnProperty(form_id)) {
-                var path = $scope.arrows[form_id];
-                if (path) {
-                    $scope.svg.removeChild(path);
-                }
-            }
-        }
+        $scope.clean_all_arrows();
 
-        // Re-draw all the arrows
+        var data = [];
         for (var i in $scope.relations) {
             if ($scope.relations.hasOwnProperty(i)) {
                 var rel_obj = $scope.relations[i];
-                $scope.calculate_arrow_string(
+                var path = $scope.calculate_arrow_string(
                     rel_obj.relation[0],
                     rel_obj.relation[1],
-                    rel_obj.form_id
+                    $scope.forms[rel_obj.form_id]
                 );
+                $scope.arrows[rel_obj.form_id] = path;
             }
         }
     };
@@ -274,12 +282,10 @@ function ($scope, EntityOccurrence, TextSegment) {
                         var new_value = form_value ? "": $scope.current_tool;
                         $scope.forms[rel.form_id] = new_value;
 
-                        $scope.calculate_arrow_string(
-                            rel.relation[0],
-                            rel.relation[1],
-                            rel.form_id
+                        $scope.add_or_remove_arrow(
+                            eo_id1, eo_id2,
+                            new_value, rel.form_id
                         );
-
                         $scope.eos[eo_id1].selected = false;
                         $scope.eos[eo_id2].selected = false;
                     }
@@ -291,11 +297,10 @@ function ($scope, EntityOccurrence, TextSegment) {
         $scope.eo_selected = undefined;
     };
 
-    $scope.calculate_arrow_string = function (eo_id1, eo_id2, form_id) {
+    $scope.add_or_remove_arrow = function (eo_id1, eo_id2, value, form_id) {
         var path;
 
-        if ($scope.forms[form_id] === null || $scope.forms[form_id] === "") {
-            // Remove the arrow
+        if (value === null || value === "") {
             path = $scope.arrows[form_id];
             var $prev_arrow = $(".prev-relation-{0}".format(form_id));
             if ($prev_arrow.length > 0) {
@@ -305,49 +310,62 @@ function ($scope, EntityOccurrence, TextSegment) {
                 $scope.svg.removeChild(path);
             }
         } else {
-            // Curve configuration
-            var curve_distance = 25;
-            var y_offset = $($scope.svg).position().top;
-            var x_offset = -30;
-
-            // Entity occurrences
-            var $eo1 = $(".eo-" + eo_id1);
-            var $eo2 = $(".eo-" + eo_id2);
-
-            // Positions
-            var eo1_pos = $eo1.position();
-            var eo2_pos = $eo2.position();
-
-            // Corrected positions
-            var eo1_pos_left = eo1_pos.left - x_offset;
-            var eo1_pos_top = eo1_pos.top - y_offset - 5;
-            var eo2_pos_left = eo2_pos.left - x_offset;
-            var eo2_pos_top = eo2_pos.top - y_offset - 10;
-
-            // Form value
-            var form_value = $scope.forms[form_id];
-
-            // Format should be:
-            // M<x1>,<y1> C<x1>,<y1 + distance> <x2>,<y2 + distance> <x2>,<y2>
-            var curve_string = "M{0},{1} C{0},{4} {2},{5} {2},{3}".format(
-                Math.round(eo1_pos_left), // {0}
-                Math.round(eo1_pos_top),  // {1}
-                Math.round(eo2_pos_left), // {2}
-                Math.round(eo2_pos_top),  // {3}
-                Math.round(eo1_pos_top - curve_distance), // {4}
-                Math.round(eo2_pos_top - curve_distance)  // {5}
-            );
-
-            path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute("class", 'arrow arrow_{0}'.format(form_value));
-            path.setAttribute("style", 'marker-end: url(#arrow-point-{0});'.format(
-                form_value
-            ));
-            path.setAttribute("d", curve_string);
-
-            $scope.svg.appendChild(path);
+            path = $scope.calculate_arrow_string(eo_id1, eo_id2, value);
             $scope.arrows[form_id] = path;
         }
+    };
+
+    $scope.calculate_arrow_string = function (eo_id1, eo_id2, value, alternative) {
+        alternative = alternative || false;
+        var path;
+
+        // Curve configuration
+        var curve_distance = 25;
+        var y_offset = $($scope.svg).position().top;
+        var x_offset = -30;
+
+        if (alternative) {
+            curve_distance = curve_distance * -1;
+            y_offset -= 40;
+        }
+
+        // Entity occurrences
+        var $eo1 = $(".eo-" + eo_id1);
+        var $eo2 = $(".eo-" + eo_id2);
+
+        // Positions
+        var eo1_pos = $eo1.position();
+        var eo2_pos = $eo2.position();
+
+        // Corrected positions
+        var eo1_pos_left = eo1_pos.left - x_offset;
+        var eo1_pos_top = eo1_pos.top - y_offset - 5;
+        var eo2_pos_left = eo2_pos.left - x_offset;
+        var eo2_pos_top = eo2_pos.top - y_offset - 10;
+
+        // Format should be:
+        // M<x1>,<y1> C<x1>,<y1 + distance> <x2>,<y2 + distance> <x2>,<y2>
+        var curve_string = "M{0},{1} C{0},{4} {2},{5} {2},{3}".format(
+            Math.round(eo1_pos_left), // {0}
+            Math.round(eo1_pos_top),  // {1}
+            Math.round(eo2_pos_left), // {2}
+            Math.round(eo2_pos_top),  // {3}
+            Math.round(eo1_pos_top - curve_distance), // {4}
+            Math.round(eo2_pos_top - curve_distance)  // {5}
+        );
+
+        path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute("class", 'arrow arrow_{0}'.format(value));
+        path.setAttribute("style", 'marker-end: url(#arrow-point-{0});'.format(
+            value
+        ));
+        path.setAttribute("d", curve_string);
+        if (alternative) {
+            path.setAttribute("stroke-dasharray", "5,5");
+        }
+        $scope.svg.appendChild(path);
+
+        return path;
     };
 
     // ###  Entity Occurrence Modification methods (and modal)  ###
@@ -476,6 +494,22 @@ function ($scope, EntityOccurrence, TextSegment) {
         EntityOccurrence.delete({pk: eo.pk}).$promise.then(function () {
             $scope.run_partial_save();
         });
+    };
+
+    $scope.draw_judge_answers = function (event) {
+        event.preventDefault();
+
+        var $this = $(this);
+        var judge = $this.data("judge");
+        var data = $scope.other_judges_labels[judge];
+        //$scope.clean_all_arrows();
+        for (var i in data) {
+            if (data.hasOwnProperty(i)) {
+                var path = $scope.calculate_arrow_string(
+                    data[i][0], data[i][1], data[i][2], true
+                );
+            }
+        }
     };
 
 }
