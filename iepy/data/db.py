@@ -130,12 +130,12 @@ class CandidateEvidenceManager(object):
     @classmethod
     def labeled_candidates_for_relation(cls, relation, conflict_solver=None):
         logger.info("Loading candidate evidence from database...")
-        candidates = {e: None for e in cls.candidates_for_relation()}
+        candidates = {e: None for e in cls.candidates_for_relation(relation)}
 
-        labels = EvidenceLabel.object.filter(evidence_candidate__relation=relation,
-                                             label__in=[EvidenceLabel.NORELATION,
-                                                        EvidenceLabel.YESRELATION,
-                                                        EvidenceLabel.NONSENSE])
+        labels = EvidenceLabel.objects.filter(evidence_candidate__relation=relation,
+                                              label__in=[EvidenceLabel.NORELATION,
+                                                         EvidenceLabel.YESRELATION,
+                                                         EvidenceLabel.NONSENSE])
         for e in candidates:
             # This is CRYING for a preformance refactor. Will make a DB-query per
             # evidence, when could do only one query for all and handle it on memory.
@@ -157,12 +157,12 @@ class CandidateEvidenceManager(object):
             else:
                 continue
             # Ok, we have a choosen answer. Lets see if it's informative
-            if lbl.label == EvidenceLabel.NONSENSE:
+            if lbl == EvidenceLabel.NONSENSE:
                 # too bad, not informative
                 continue
-            elif lbl.label == EvidenceLabel.NORELATION:
+            elif lbl == EvidenceLabel.NORELATION:
                 candidates[e] = False
-            elif lbl.label == EvidenceLabel.YESRELATION:
+            elif lbl == EvidenceLabel.YESRELATION:
                 candidates[e] = True
         return candidates
 
