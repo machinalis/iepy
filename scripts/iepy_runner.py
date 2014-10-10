@@ -15,7 +15,7 @@ from sys import exit
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager
-from iepy.data.models import Relation
+from iepy.data.models import Relation, SegmentToTag, TextSegment
 from iepy.extraction.human_validation import TerminalInterviewer
 
 
@@ -44,18 +44,36 @@ if __name__ == u'__main__':
     labeled_evidences = CEM.labeled_candidates_for_relation(
         relation, CEM.conflict_resolution_newest_wins)
 
-    p = ActiveLearningCore(relation, labeled_evidences)
+    pipeline = ActiveLearningCore(relation, labeled_evidences)
+    pipeline.start()
 
     STOP = u'STOP'
+    term = TerminalAdministration((STOP, u'Stop execution ASAP'))
 
-    p.start()
-    while p.questions:
-        term = TerminalInterviewer(p.questions, p.add_answer, [(STOP, u'Stop execution ASAP')])
+    run_number = 0
+    while pipeline.questions:
+        segment_ids_to_add = []
+        for evidence_candidate in pipeline.questions:
+            segment = evidence_candidate.segment
+            if segment.id not in segment_ids_to_add:
+                segment_ids_to_add.append(evidence_candidate.segment.id)
+
+        for segment_id in segment_ids_to_add:
+            segment_to_tag = SegmentToTag(
+                segment=TextSegment.object.get(id=segment_id),
+                run_number=run_number,
+            )
+            segment_to_tag.save()
+
         result = term()
         if result == STOP:
             break
-        p.process()
-    predictions = p.predict()
+
+        # pipeline.add_answers(new_answers)
+        pipeline.process()
+        run_number += 1
+
+    predictions = pipeline.predict()
     print("Predictions:")
     for prediction, value in predictions.items():
         print("({} -- {})".format(prediction, value))
