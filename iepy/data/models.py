@@ -583,12 +583,13 @@ class EvidenceLabel(BaseModel):
 
 class SegmentToTag(BaseModel):
     segment = models.ForeignKey("TextSegment")
+    relation = models.ForeignKey("Relation")
     run_number = models.IntegerField()
     done = models.BooleanField(default=False)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta(BaseModel.Meta):
-        unique_together = ['segment', 'run_number']
+        unique_together = ['segment', 'relation', 'run_number']
 
 
 # Models utils

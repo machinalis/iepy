@@ -14,10 +14,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SegmentToTag',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('run_number', models.IntegerField()),
                 ('done', models.BooleanField(default=False)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
+                ('relation', models.ForeignKey(to='corpus.Relation')),
                 ('segment', models.ForeignKey(to='corpus.TextSegment')),
             ],
             options={
@@ -27,6 +28,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='segmenttotag',
-            unique_together=set([('segment', 'run_number')]),
+            unique_together=set([('segment', 'relation', 'run_number')]),
         ),
     ]
