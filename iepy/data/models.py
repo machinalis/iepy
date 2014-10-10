@@ -361,7 +361,7 @@ class Relation(BaseModel):
     right_entity_kind = models.ForeignKey('EntityKind', related_name='right_relations')
 
     # Reversed fields:
-    # evidence_relations = Reversed ForeignKey of LabeledRelationEvidence
+    # evidence_relations = Reversed ForeignKey of EvidenceCandidate
 
     class Meta(BaseModel.Meta):
         ordering = ['name', 'left_entity_kind', 'right_entity_kind']
