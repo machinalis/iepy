@@ -31,9 +31,10 @@ class ActiveLearningCore:
     # IEPY User API
     #
 
-    def __init__(self, relation):
+    def __init__(self, relation, labeled_evidences):
         self.relation = relation
         self.fact_extractor = None
+        self._setup_labeled_evidences(labeled_evidences)
 
     def start(self):
         """
@@ -84,19 +85,14 @@ class ActiveLearningCore:
     # "Private" methods
     #
 
-    def load_all_evidence_from_database(self):
-        logger.info("Loading candidate evidence from database...")
-        self.all_evidence = []
+    def _setup_labeled_evidences(self, labeled_evidences):
         self.candidate_evidence = []
         self.labeled_evidence = {}
-        for e in CandidateEvidenceManager.candidates_for_relation(self.relation):
-            self.all_evidence.append(e)
-            if e.label == LabeledRelationEvidence.NORELATION:
-                self.labeled_evidence[e] = False
-            elif e.label == LabeledRelationEvidence.YESRELATION:
-                self.labeled_evidence[e] = True
+        for e, lbl in labeled_evidences.items():
+            if lbl is None:
+                self.candidate_evidence.append(e)
             else:
-                self.candidate_evidence.append(e)  # TODO: Check what happens with nonsense and such
+                self.labeled_evidence[e] = lbl
         if not self.candidate_evidence:
             raise ValueError("Cannot start core without candidate evidence")
         logger.info("Loaded {} candidate evidence and {} labeled evidence".format(
