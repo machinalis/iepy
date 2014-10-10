@@ -4,7 +4,7 @@ import colorama
 
 from iepy.extraction.human_validation import (TerminalInterviewer,
                                               TerminalEvidenceFormatter)
-from .factories import EntityFactory, EvidenceFactory
+from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
 
 

@@ -6,8 +6,6 @@ import logging
 
 import refo
 
-from iepy.data.db import CandidateEvidenceManager
-
 logger = logging.getLogger(__name__)
 
 _EOL = None
@@ -22,9 +20,10 @@ def rule(priority=0):
 
 
 class RulesBasedIEPipeline(object):
-    def __init__(self, relation, rules):
+    def __init__(self, relation, evidences, rules):
         self.relation = relation
         self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)
+        self.evidences = evidences
 
         self.learnt = {}
 
@@ -36,10 +35,6 @@ class RulesBasedIEPipeline(object):
         logger.info('Starting rule based core')
 
         self.learnt = []
-        self.evidences = []
-
-        self.evidences = CandidateEvidenceManager.candidates_for_relation(self.relation)
-
         for evidence in self.evidences:
             if self.match(evidence):
                 self.learnt.append(evidence)

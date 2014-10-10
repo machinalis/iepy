@@ -15,6 +15,7 @@ from importlib import import_module
 
 from iepy.extraction.rules_core import RulesBasedIEPipeline
 from iepy.data import models
+from iepy.data.db import CandidateEvidenceManager
 
 
 if __name__ == u'__main__':
@@ -42,8 +43,11 @@ if __name__ == u'__main__':
             if hasattr(attr, "is_rule") and attr.is_rule:
                 rules.append(attr)
 
+    # Load evidences
+    evidences = CandidateEvidenceManager.candidates_for_relation(relation)
+
     # Run the pipeline
-    pipeline = RulesBasedIEPipeline(relation, rules)
+    pipeline = RulesBasedIEPipeline(relation, evidences, rules)
     pipeline.start()
     facts = pipeline.known_facts()
     print(facts)

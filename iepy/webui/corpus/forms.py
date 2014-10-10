@@ -15,7 +15,7 @@ class EvidenceForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         restore_None = False
         if instance and instance.label is None:
-            # When created, LabeledRelationEvidence get None as label.
+            # When created, EvidenceLabel get None as label.
             # For such cases, on forms, we'll suggest the model.default
             instance.label = DEFAULT_LABEL
             restore_None = True

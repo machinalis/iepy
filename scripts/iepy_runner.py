@@ -14,6 +14,7 @@ import logging
 from sys import exit
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
+from iepy.data.db import CandidateEvidenceManager
 from iepy.data.models import Relation
 from iepy.extraction.human_validation import TerminalInterviewer
 
@@ -38,7 +39,12 @@ if __name__ == u'__main__':
         print_all_relations()
         exit(1)
 
-    p = ActiveLearningCore(relation)
+    # Load evidences
+    CEM = CandidateEvidenceManager  # shorcut
+    labeled_evidences = CEM.labeled_candidates_for_relation(
+        relation, CEM.conflict_resolution_newest_wins)
+
+    p = ActiveLearningCore(relation, labeled_evidences)
 
     STOP = u'STOP'
 
