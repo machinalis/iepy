@@ -11,7 +11,9 @@
         {% else %}
             <span class="rich-token">
         {% endif %}
-            <span class="pos-tag"> {{ rich_token.pos }} </span>
+            {% if draw_postags %}
+                <span class="pos-tag"> {{ rich_token.pos }} </span>
+            {% endif %}
             <span class="token"> {{ rich_token.token }} </span>
         </span>
     {% endfor %}
