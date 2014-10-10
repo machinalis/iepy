@@ -11,8 +11,12 @@ from django.utils import formats
 
 from extra_views import ModelFormSetView
 
-from corpus.models import Relation, TextSegment, IEDocument, EvidenceLabel
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
+from corpus.models import (
+    Relation, TextSegment, IEDocument,
+    EvidenceLabel, SegmentToTag,
+)
+
 
 
 def _judge(request):
@@ -92,30 +96,25 @@ class _BaseLabelEvidenceView(ModelFormSetView):
         return _judge(self.request)
 
 
-class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
+class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
     template_name = 'corpus/segment_questions.html'
 
     def get_context_data(self, **kwargs):
-        ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         self.segment.hydrate()
         title = "Labeling Evidence for Relation {0}".format(self.relation)
         subtitle = 'For Document "{0}", Text Segment id {1}'.format(
             self.segment.document.human_identifier,
             self.segment.id)
 
-        for formset in ctx["formset"]:
-            instance = formset.instance
-            evidence = instance.evidence_candidate
-            instance.all_labels = evidence.labels.all()
-
-        ctx.update({
+        context.update({
             'title': title,
             'subtitle': subtitle,
             'segment': self.segment,
             'segment_rich_tokens': list(self.segment.get_enriched_tokens()),
             'relation': self.relation
         })
-        return ctx
+        return context
 
     def get_segment_and_relation(self):
         if hasattr(self, 'segment') and hasattr(self, 'relation'):
@@ -148,6 +147,67 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         result = super().formset_valid(formset)
         messages.add_message(self.request, messages.INFO,
                              'Changes saved for segment {0}.'.format(self.segment.id))
+        return result
+
+
+class LabelEvidenceOnSegmentView(LabelEvidenceOnSegmentBase):
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        for formset in context["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            instance.all_labels = evidence.labels.all()
+
+        context["draw_navigation"] = True
+        context["draw_postags"] = True
+
+        return context
+
+
+def human_in_the_loop(request, relation_id):
+    relation = get_object_or_404(Relation, pk=relation_id)
+
+    segments_to_tag = SegmentToTag.objects.filter(
+        relation=relation,
+        done=False,
+    ).order_by("-creation_date")
+
+    if not segments_to_tag:
+        return render_to_response(
+            'message.html',
+            {'msg': 'There are no more evidence to label'}
+        )
+
+    segment_to_tag = segments_to_tag[0]
+    return redirect(
+        'corpus:human_in_the_loop_segment',
+        relation.pk, segment_to_tag.segment.pk, segment_to_tag.run_number
+    )
+
+
+class HumanInTheLoopView(LabelEvidenceOnSegmentBase):
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        return context
+
+    def get_success_url(self):
+        return reverse('corpus:human_in_the_loop', args=[self.relation.pk])
+
+    def formset_valid(self, formset):
+        result = super().formset_valid(formset)
+
+        segment = get_object_or_404(TextSegment, pk=self.kwargs["segment_id"])
+        run_number = self.kwargs["run_number"]
+        segment_to_tag = SegmentToTag.objects.get(
+            segment=segment,
+            relation=self.relation,
+            run_number=run_number,
+        )
+        segment_to_tag.done = True
+        segment_to_tag.save()
         return result
 
 

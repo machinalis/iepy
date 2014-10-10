@@ -29,6 +29,14 @@ urlpatterns = patterns(
         views.LabelEvidenceOnDocumentView.as_view(),
         name='label_evidence_for_document'),
 
+    # Human in the loop
+    url(r'^human_in_the_loop/(?P<relation_id>\d+)/(?P<segment_id>\d+)/(?P<run_number>\d+)/',
+        views.HumanInTheLoopView.as_view(),
+        name='human_in_the_loop_segment'),
+    url(r'^human_in_the_loop/(?P<relation_id>\d+)/',
+        views.human_in_the_loop,
+        name='human_in_the_loop'),
+
     # CRUD Angular EOs
     url(r'^crud/entity_occurrence/?$', api.EOCRUDView.as_view(), name='eo_crud_view'),
     url(r'^crud/text_segment/?$', api.SegmentCRUDView.as_view(), name='segm_crud_view'),
