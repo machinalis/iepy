@@ -39,14 +39,14 @@
             {% with obj=question_form.instance %}
             <div class="question row">
                 <div class="large-4 columns">
-                    {% with left_eo=obj.left_entity_occurrence%}
+                    {% with left_eo=obj.evidence_candidate.left_entity_occurrence %}
                     <span class="entity-occurrence"
                           data-occurrence-id="{{ left_eo.id }}"> {{ left_eo.alias }}
                     </span>
                     {% endwith %}
                     {{ relation.name }}
 
-                    {% with right_eo=obj.right_entity_occurrence %}
+                    {% with right_eo=obj.evidence_candidate.right_entity_occurrence %}
                     <span class="entity-occurrence"
                           data-occurrence-id="{{ right_eo.id }}"> {{ right_eo.alias }}
                     </span>
@@ -57,13 +57,17 @@
                     {{ question_form.as_p }}
                 </div>
                 <div class="large-4 columns">
-                    {% if obj.label %}
-                        <div class="previous-judgement">
-                        Labeled as <span class="value">{{obj.label}}</span>
-                        by <span class="judge">{{obj.judge|default:"unknown"}}</span>
-                        on <span class="date">{{obj.modification_date}}</span>
-                        </div>
-                    {% endif %}
+                    <div class="previous-judgements">
+                        {% for label in obj.all_labels %}
+                            {% if label.label %}
+                                <div class="previous-judgement">
+                                    Labeled as <span class="value">{{label.label}}</span>
+                                    by <span class="judge">{{label.judge|default:"unknown"}}</span>
+                                    on <span class="date">{{labelobj.modification_date}}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             {% endwith %}

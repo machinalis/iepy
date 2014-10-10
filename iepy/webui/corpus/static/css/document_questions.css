@@ -179,3 +179,16 @@ input, textarea, select, .form-row p{
     font-size: 15px;
     color: #bbb;
 }
+
+.judge-answers-wrapper{
+    margin: 0 0 20px 0;
+}
+.judge-answers-button {
+    list-style: none;
+    font-size: 16px;
+    padding: 5px 0;
+}
+.judge-answers-button:hover{
+    background: #eee;
+    color: #000 !important;
+}

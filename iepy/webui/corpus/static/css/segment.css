@@ -50,6 +50,7 @@
 }
 
 .rich-token.entity-occurrence.selectable,
+.rich-token.entity-occurrence.hover,
 .rich-token.entity-occurrence:hover{
     background: rgba(255, 182, 0, 0.17);
 }

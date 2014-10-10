@@ -288,17 +288,16 @@ class TextSegment(BaseModel):
                    self.entity_occurrences.all().order_by('offset')
                    )
 
-    def get_labeled_evidences(self, relation):
-        # Gets or creates Labeled Evidences (when creating, lable is empty)
+    def get_evidences_for_relation(self, relation):
+        # Gets or creates Labeled Evidences (when creating, label is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
         for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
-            obj, created = LabeledRelationEvidence.objects.get_or_create(
+            obj, created = EvidenceCandidate.objects.get_or_create(
                 left_entity_occurrence=l_eo,
                 right_entity_occurrence=r_eo,
                 relation=relation,
                 segment=self,
-                defaults={'label': None}
             )
             yield obj
 
@@ -385,7 +384,7 @@ class Relation(BaseModel):
         return TextSegment.filter_by_entity_occurrence_kind_pair(
             self.right_entity_kind, self.left_entity_kind)
 
-    def labeled_neighbor(self, obj, back=False):
+    def labeled_neighbor(self, obj, judge, back=False):
         """Returns the id of the "closest" labeled object to the one provided.
         Notes:
             - By "closest", it's mean the distance of the id numbers.
@@ -399,14 +398,25 @@ class Relation(BaseModel):
             - If asking "prev" and obj is currently the first, his id will be returned.
         """
         if isinstance(obj, TextSegment):
-            candidates = self._matching_text_segments()
-            candidates = candidates.filter(evidence_relations__relation=self).filter(
-                evidence_relations__label__isnull=False).distinct()
-            ids = list(candidates.values_list('id', flat=True).order_by('id'))
+            segments = self._matching_text_segments()
+            segments = segments.filter(evidence_relations__relation=self)
+            judge_labels = EvidenceLabel.objects.filter(
+                judge=judge,
+                label__isnull=False,
+                evidence_candidate__segment__in=segments,
+            )
+            candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
+            segments = segments.filter(id__in=candidates_with_label).distinct()
+            ids = list(segments.values_list('id', flat=True).order_by('id'))
         elif isinstance(obj, IEDocument):
-            lres = LabeledRelationEvidence.objects.filter(relation=self,
-                                                          label__isnull=False)
-            ids = sorted(set(lres.values_list('segment__document_id', flat=True)))
+            judge_labels = EvidenceLabel.objects.filter(
+                judge=judge,
+                label__isnull=False,
+                evidence_candidate__relation=self,
+            )
+            ids = sorted(set(judge_labels.values_list(
+                'evidence_candidate__segment__document_id', flat=True)
+            ))
         else:
             ids = []
         if not ids:
@@ -431,18 +441,31 @@ class Relation(BaseModel):
                 else:
                     return ids[base_idx + 1]
 
-    def get_next_segment_to_label(self):
-        candidates = self._matching_text_segments().order_by('id')
+    def get_next_segment_to_label(self, judge):
         # We'll pick first those Segments having already created questions with empty
         # answer (label=None). After finishing those, we'll look for
         # Segments never considered (ie, that doest have any question created).
         # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
-        never_considered = candidates.exclude(evidence_relations__relation=self)
-        LRE = LabeledRelationEvidence
-        labeleds = LRE.objects.filter(relation=self).order_by('segment_id')
-        empty_answers = labeleds.filter(label__isnull=True)
-        to_re_answer = labeleds.filter(label__in=LRE.NEED_RELABEL)
-        for qset in [empty_answers, never_considered, to_re_answer]:
+        segments = self._matching_text_segments().order_by('id')
+        never_considered_segm = segments.exclude(evidence_relations__relation=self)
+
+        evidences = EvidenceCandidate.objects.filter(
+            relation=self
+        ).order_by('segment_id')
+        never_considered_ev = evidences.filter(labels__isnull=True)
+
+        existent_labels = EvidenceLabel.objects.filter(
+            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+        none_labels = existent_labels.filter(label__isnull=True)
+        own_none_labels = none_labels.filter(judge=judge)
+
+        # requires re answer if there's no Good answer at all (not just for this judge)
+        NOT_NEED_RELABEL = [k for k, name in EvidenceLabel.LABEL_CHOICES
+                            if k not in EvidenceLabel.NEED_RELABEL]
+        to_re_answer = evidences.exclude(labels__label__in=NOT_NEED_RELABEL)
+
+        for qset in [own_none_labels, never_considered_ev, never_considered_segm,
+                     to_re_answer, none_labels]:
             try:
                 obj = qset[0]
             except IndexError:
@@ -450,19 +473,76 @@ class Relation(BaseModel):
             else:
                 if isinstance(obj, TextSegment):
                     return obj
-                else:
+                elif isinstance(obj, EvidenceCandidate):
                     return obj.segment
+                elif isinstance(obj, EvidenceLabel):
+                    return obj.evidence_candidate.segment
+                else:
+                    raise ValueError
         return None
 
-    def get_next_document_to_label(self):
-        next_segment = self.get_next_segment_to_label()
+    def get_next_document_to_label(self, judge):
+        next_segment = self.get_next_segment_to_label(judge)
         if next_segment is None:
             return None
         else:
             return next_segment.document
 
 
-class LabeledRelationEvidence(BaseModel):
+class EvidenceCandidate(BaseModel):
+    left_entity_occurrence = models.ForeignKey(
+        'EntityOccurrence',
+        related_name='left_evidence_relations'
+    )
+    right_entity_occurrence = models.ForeignKey(
+        'EntityOccurrence',
+        related_name='right_evidence_relations'
+    )
+    relation = models.ForeignKey('Relation', related_name='evidence_relations')
+    segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
+
+    class Meta(BaseModel.Meta):
+        ordering = [
+            'segment_id', 'relation_id',
+            'left_entity_occurrence', 'right_entity_occurrence',
+        ]
+        unique_together = [
+            'left_entity_occurrence', 'right_entity_occurrence',
+            'relation', 'segment'
+        ]
+
+    def __str__(self):
+        s = "Candidate for the relation '{}({}, {})' in '{}'"
+        return s.format(
+            self.relation.name,
+            self.left_entity_occurrence.alias,
+            self.right_entity_occurrence.alias,
+            self.segment
+        )
+
+    @property
+    def fact(self):
+        return (
+            self.right_entity_occurrence.entity,
+            self.relation, self.left_entity_occurrence.entity
+        )
+
+    def get_or_create_label_for_judge(self, judge):
+        obj, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self, judge=judge,
+            labeled_by_machine=False, defaults={'label': None})
+        return obj
+
+    def set_label(self, label, judge):
+        evidence_label, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self,
+            judge=judge,
+        )
+        evidence_label.label = label
+        evidence_label.save()
+
+
+class EvidenceLabel(BaseModel):
     NORELATION = "NO"
     YESRELATION = "YE"
     DONTKNOW = "DK"
@@ -480,42 +560,25 @@ class LabeledRelationEvidence(BaseModel):
         DONTKNOW, SKIP
     )
 
-    left_entity_occurrence = models.ForeignKey('EntityOccurrence',
-                                               related_name='left_evidence_relations')
-    right_entity_occurrence = models.ForeignKey('EntityOccurrence',
-                                                related_name='right_evidence_relations')
-    relation = models.ForeignKey('Relation', related_name='evidence_relations')
-    segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
-    label = models.CharField(max_length=2, choices=LABEL_CHOICES, default=SKIP,
-                             null=True, blank=False)
+    evidence_candidate = models.ForeignKey(
+        'EvidenceCandidate',
+        related_name='labels'
+    )
+    label = models.CharField(
+        max_length=2, choices=LABEL_CHOICES,
+        default=SKIP, null=True, blank=False
+    )
 
     modification_date = models.DateTimeField(auto_now=True)
+
     # The judge field is meant to be the username of the person that decides
     # the label of this evidence. It's not modelled as a foreign key to allow
     # easier interaction with non-django code.
     judge = models.CharField(max_length=CHAR_MAX_LENGHT)
+    labeled_by_machine = models.BooleanField(default=True)
 
     class Meta(BaseModel.Meta):
-        ordering = ['segment_id', 'relation_id', 'left_entity_occurrence',
-                    'right_entity_occurrence',
-                    ]
-        unique_together = ['left_entity_occurrence', 'right_entity_occurrence', 'relation',
-                           'segment']
-
-    def __str__(self):
-        s = "In '{}' for the relation '{}({}, {})' the user {} answered: {}"
-        return s.format(self.segment, self.relation.name,
-                        self.left_entity_occurrence.alias,
-                        self.right_entity_occurrence.alias,
-                        self.judge, self.label)
-        return u'({0} {1})'.format(self.offset, self.offset_end)
-
-    @property
-    def fact(self):
-        return (self.right_entity_occurrence.entity,
-                self.relation,
-                self.left_entity_occurrence.entity
-                )
+        unique_together = ['evidence_candidate', 'label', 'judge']
 
 
 # Models utils

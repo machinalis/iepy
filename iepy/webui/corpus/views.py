@@ -1,5 +1,7 @@
 import json
+from collections import defaultdict
 
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -9,13 +11,17 @@ from django.utils import formats
 
 from extra_views import ModelFormSetView
 
-from corpus.models import Relation, TextSegment, LabeledRelationEvidence, IEDocument
+from corpus.models import Relation, TextSegment, IEDocument, EvidenceLabel
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
+
+
+def _judge(request):
+    return request.user.username
 
 
 def next_segment_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)
-    segment = relation.get_next_segment_to_label()
+    segment = relation.get_next_segment_to_label(_judge(request))
     if segment is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
@@ -24,7 +30,7 @@ def next_segment_to_label(request, relation_id):
 
 def next_document_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)
-    doc = relation.get_next_document_to_label()
+    doc = relation.get_next_document_to_label(_judge(request))
     if doc is None:
         return render_to_response('message.html',
                                   {'msg': 'There are no more evidence to label'})
@@ -41,7 +47,7 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    obj_id_to_show = relation.labeled_neighbor(current, going_back)
+    obj_id_to_show = relation.labeled_neighbor(current, _judge(request), going_back)
     if obj_id_to_show is None:
         # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
@@ -71,7 +77,7 @@ def navigate_labeled_documents(request, relation_id, document_id, direction):
 
 class _BaseLabelEvidenceView(ModelFormSetView):
     form_class = EvidenceForm
-    model = LabeledRelationEvidence
+    model = EvidenceLabel
     extra = 0
     max_num = None
     can_order = False
@@ -80,6 +86,10 @@ class _BaseLabelEvidenceView(ModelFormSetView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    @property
+    def judge(self):
+        return _judge(self.request)
 
 
 class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
@@ -92,6 +102,11 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         subtitle = 'For Document "{0}", Text Segment id {1}'.format(
             self.segment.document.human_identifier,
             self.segment.id)
+
+        for formset in ctx["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            instance.all_labels = evidence.labels.all()
 
         ctx.update({
             'title': title,
@@ -108,13 +123,16 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         self.segment = get_object_or_404(TextSegment, pk=self.kwargs['segment_id'])
         self.segment.hydrate()
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
-        self.evidences = list(self.segment.get_labeled_evidences(self.relation))
+        evidences = list(self.segment.get_evidences_for_relation(self.relation))
+        for ev in evidences:
+            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
         return self.segment, self.relation
 
     def get_queryset(self):
         segment, relation = self.get_segment_and_relation()
         return super().get_queryset().filter(
-            segment=self.segment, relation=self.relation
+            judge=self.judge, evidence_candidate__segment=self.segment,
+            evidence_candidate__relation=self.relation
         )
 
     def get_success_url(self):
@@ -168,20 +186,33 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             }
             return ctx
 
+
+        other_judges_labels = defaultdict(list)
+        for formset in ctx["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            for label in evidence.labels.filter(~Q(id=instance.id)):
+                other_judges_labels[label.judge].append([
+                    evidence.left_entity_occurrence.id,
+                    evidence.right_entity_occurrence.id,
+                    label.label
+                ])
+
         forms_values = {}
         eos_propperties = {}
         relations_list = []
         formset = ctx['formset']
         for form_idx, form in enumerate(formset):
-            evidence = form.instance
+            lbl_evidence = form.instance
+            evidence = lbl_evidence.evidence_candidate
 
             left_eo_id = evidence.left_entity_occurrence.pk
             right_eo_id = evidence.right_entity_occurrence.pk
             info = "Labeled as {} by {} on {}".format(
-                evidence.label,
-                evidence.judge if evidence.judge else "unknown",
+                lbl_evidence.label,
+                lbl_evidence.judge if lbl_evidence.judge else "unknown",
                 formats.date_format(
-                    evidence.modification_date, "SHORT_DATETIME_FORMAT"
+                    lbl_evidence.modification_date, "SHORT_DATETIME_FORMAT"
                 )
             )
             relations_list.append({
@@ -190,7 +221,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 "info": info,
             })
 
-            forms_values[form.prefix] = evidence.label
+            forms_values[form.prefix] = lbl_evidence.label
 
             for eo_id in [left_eo_id, right_eo_id]:
                 if eo_id not in eos_propperties:
@@ -210,11 +241,13 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'relation': self.relation,
             'form_for_others': EvidenceForm(prefix='for_others'),
             'form_toolbox': form_toolbox,
-            'initial_tool': LabeledRelationEvidence.YESRELATION,
+            'initial_tool': EvidenceLabel.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),
             'relations_list': json.dumps(relations_list),
             'forms_values': json.dumps(forms_values),
             'question_options': question_options,
+            'other_judges_labels': json.dumps(other_judges_labels),
+            'other_judges': other_judges_labels.keys(),
         })
         return ctx
 
@@ -223,17 +256,21 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             return self.document, self.relation
         self.document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
-        self.evidences = []
+        evidences = []
         for segment in self.document.get_text_segments():
-            self.evidences.extend(
-                list(segment.get_labeled_evidences(self.relation))
+            evidences.extend(
+                list(segment.get_evidences_for_relation(self.relation))
             )
+        for ev in evidences:
+            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+
         return self.document, self.relation
 
     def get_queryset(self):
         document, relation = self.get_document_and_relation()
         return super().get_queryset().filter(
-            segment__document_id=document.id, relation=self.relation
+            judge=self.judge, evidence_candidate__segment__document_id=document,
+            evidence_candidate__relation=relation
         )
 
     def get_success_url(self):
@@ -274,7 +311,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     def get_formset_kwargs(self):
         """
         If is a partial save, hacks the forms to match the queryset so it
-        matches the ones that actually has a LabeledRelationEvidence.
+        matches the ones that actually has a CandidateEvidence.
         This is to handle the case where an entity occurrence was removed.
         """
 
