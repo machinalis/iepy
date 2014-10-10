@@ -76,56 +76,56 @@ class HumanValidationTests(ManagerTestCase):
         self.assertEqual(self.mock_get_answer.call_count, 2)
         self.assertEqual(
             self.mock_get_answer.call_args_list,
-            [mock.call(q1[0]), mock.call(q2[0])])
+            [mock.call(q1), mock.call(q2)])
 
-    #def test_YES_NO_answers_are_passed_with_callback_and_proceeds(self):
-    #    q1 = self.create_question(u'Tom', u'Pizza', 'Tom eats Pizza happily .')
-    #    q2 = self.create_question(u'Tom', u'Cheese', 'Tom eats Cheese happily .')
-    #    callback = mock.MagicMock()
-    #    self.term = TerminalInterviewer([q1, q2], callback)
-    #    self.mock_get_answer.side_effect = [self.term.YES, self.term.NO]
-    #    result = self.term()
-    #    self.assertIsNone(result)
-    #    self.assertEqual(callback.call_count, 2)
-    #    self.assertEqual(
-    #        callback.call_args_list,
-    #        [mock.call(q1[0], True), mock.call(q2[0], False)])
-    #
-    #def test_user_can_say_he_is_tired_and_no_more_questions_are_shown(self):
-    #    q1 = self.create_question(u'Tom', u'Pizza', 'Tom eats Pizza happily .')
-    #    q2 = self.create_question(u'Tom', u'Cheese', 'Tom eats Cheese happily .')
-    #    self.term = TerminalInterviewer([q1, q2], mock.MagicMock())
-    #    self.mock_get_answer.side_effect = [self.term.RUN, self.term.YES]
-    #    result = self.term()
-    #    # after user says is tired, no more questions
-    #    self.assertEqual(self.mock_get_answer.call_count, 1)
-    #    self.assertIsNone(result)
-    #
-    #def test_user_is_confused_then_callback_is_not_invoken_but_next_question_goes(self):
-    #    q1 = self.create_question(u'Tom', u'Cheese', 'Tom Cheese happily eats.')
-    #    q2 = self.create_question(u'Tom', u'Pizza', 'Tom eats Pizza happily .')
-    #    q3 = self.create_question(u'Tom', u'Cheese', 'Tom eats Cheese happily .')
-    #    callback = mock.MagicMock()
-    #    self.term = TerminalInterviewer([q1, q2, q3], callback)
-    #    self.mock_get_answer.side_effect = [self.term.DONT_KNOW, self.term.YES,
-    #                                        self.term.YES]
-    #    result = self.term()
-    #    self.assertEqual(callback.call_count, 2)
-    #    self.assertEqual(
-    #        callback.call_args_list,
-    #        [mock.call(q2[0], True), mock.call(q3[0], True)])
-    #    self.assertEqual(self.mock_get_answer.call_count, 3)
-    #    self.assertIsNone(result)
-    #
-    #def test_custom_options_stop_execution_and_are_returned(self):
-    #    CUSTOM = u'custom'
-    #    q1 = self.create_question(u'Tom', u'Pizza', 'Tom eats Pizza happily .')
-    #    q2 = self.create_question(u'Tom', u'Cheese', 'Tom eats Cheese happily .')
-    #    self.term = TerminalInterviewer(
-    #        [q1, q2], mock.MagicMock(),
-    #        extra_options=[(CUSTOM, u'some explanation')])
-    #    self.mock_get_answer.side_effect = [CUSTOM, self.term.YES]
-    #    result = self.term()
-    #    # after user picks custom option, no more questions, and returned option
-    #    self.assertEqual(self.mock_get_answer.call_count, 1)
-    #    self.assertEqual(result, CUSTOM)
+    def test_YES_NO_answers_are_passed_with_callback_and_proceeds(self):
+        q1 = EvidenceFactory(markup='{Tom|Person*} eats {Pizza|Food**} happily .')
+        q2 = EvidenceFactory(markup='{Tom|Person*} eats {Cheese|Food**} happily .')
+        callback = mock.MagicMock()
+        self.term = TerminalInterviewer([q1, q2], callback)
+        self.mock_get_answer.side_effect = [self.term.YES, self.term.NO]
+        result = self.term()
+        self.assertIsNone(result)
+        self.assertEqual(callback.call_count, 2)
+        self.assertEqual(
+            callback.call_args_list,
+            [mock.call(q1, True), mock.call(q2, False)])
+
+    def test_user_can_say_he_is_tired_and_no_more_questions_are_shown(self):
+        q1 = EvidenceFactory(markup='{Tom|Person*} eats {Pizza|Food**} happily .')
+        q2 = EvidenceFactory(markup='{Tom|Person*} eats {Cheese|Food**} happily .')
+        self.term = TerminalInterviewer([q1, q2], mock.MagicMock())
+        self.mock_get_answer.side_effect = [self.term.RUN, self.term.YES]
+        result = self.term()
+        # after user says is tired, no more questions
+        self.assertEqual(self.mock_get_answer.call_count, 1)
+        self.assertIsNone(result)
+
+    def test_user_is_confused_then_callback_is_not_invoken_but_next_question_goes(self):
+        q1 = EvidenceFactory(markup='{Tom|Person*} {Cheese|Food**} happily eats.')
+        q2 = EvidenceFactory(markup='{Tom|Person*} eats {Pizza|Food**} happily .')
+        q3 = EvidenceFactory(markup='{Tom|Person*} eats {Cheese|Food**} happily .')
+        callback = mock.MagicMock()
+        self.term = TerminalInterviewer([q1, q2, q3], callback)
+        self.mock_get_answer.side_effect = [self.term.DONT_KNOW, self.term.YES,
+                                            self.term.YES]
+        result = self.term()
+        self.assertEqual(callback.call_count, 2)
+        self.assertEqual(
+            callback.call_args_list,
+            [mock.call(q2, True), mock.call(q3, True)])
+        self.assertEqual(self.mock_get_answer.call_count, 3)
+        self.assertIsNone(result)
+
+    def test_custom_options_stop_execution_and_are_returned(self):
+        CUSTOM = u'custom'
+        q1 = EvidenceFactory(markup='{Tom|Person*} eats {Pizza|Food**} happily .')
+        q2 = EvidenceFactory(markup='{Tom|Person*} eats {Cheese|Food**} happily .')
+        self.term = TerminalInterviewer(
+            [q1, q2], mock.MagicMock(),
+            extra_options=[(CUSTOM, u'some explanation')])
+        self.mock_get_answer.side_effect = [CUSTOM, self.term.YES]
+        result = self.term()
+        # after user picks custom option, no more questions, and returned option
+        self.assertEqual(self.mock_get_answer.call_count, 1)
+        self.assertEqual(result, CUSTOM)

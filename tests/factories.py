@@ -139,7 +139,6 @@ class EvidenceFactory(BaseFactory):
         entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
-    label = None
 
     @classmethod
     def create(cls, **kwargs):
