@@ -581,6 +581,16 @@ class EvidenceLabel(BaseModel):
         unique_together = ['evidence_candidate', 'label', 'judge']
 
 
+class SegmentToTag(BaseModel):
+    segment = models.ForeignKey("TextSegment")
+    run_number = models.IntegerField()
+    done = models.BooleanField(default=False)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta(BaseModel.Meta):
+        unique_together = ['segment', 'run_number']
+
+
 # Models utils
 
 def remove_invalid_segments():
