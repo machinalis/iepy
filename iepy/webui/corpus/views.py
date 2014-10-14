@@ -187,7 +187,7 @@ def human_in_the_loop(request, relation_id):
     segment_to_tag = segments_to_tag[0]
     return redirect(
         'corpus:human_in_the_loop_segment',
-        relation.pk, segment_to_tag.segment.pk, segment_to_tag.run_number
+        relation.pk, segment_to_tag.segment.pk
     )
 
 
@@ -205,11 +205,9 @@ class HumanInTheLoopView(LabelEvidenceOnSegmentBase):
         result = super().formset_valid(formset)
 
         segment = get_object_or_404(TextSegment, pk=self.kwargs["segment_id"])
-        run_number = self.kwargs["run_number"]
         segment_to_tag = SegmentToTag.objects.get(
             segment=segment,
             relation=self.relation,
-            run_number=run_number,
         )
         segment_to_tag.done = True
         segment_to_tag.save()

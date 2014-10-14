@@ -1,10 +1,14 @@
 from collections import OrderedDict
+import logging
 
 from colorama import Fore, Style, init as colorama_init
 from future.builtins import input, str
 
 from iepy.data.db import CandidateEvidenceManager
 from iepy.data.models import SegmentToTag
+
+
+logger = logging.getLogger(__name__)
 
 
 class Answers(object):
@@ -205,6 +209,7 @@ class TerminalAdministration(object):
         # Will let the UI know which are the segments that have evidence to label.
         # Needs to respect the provided ordering, so the created SegmentToTag objects
         # when sorted by date respect the evidence_candidates provided.
+        logger.info('Creating segments to tag')
         segment_ids_to_add = []
         for ev_c in evidence_candidates:
             if ev_c.segment_id not in segment_ids_to_add:
@@ -214,9 +219,9 @@ class TerminalAdministration(object):
             segment_to_tag, created = SegmentToTag.objects.get_or_create(
                 segment=segment,
                 relation=self.relation,
-                run_number=1,  # Hack... remove me.
             )
             segment_to_tag.save()  # always saving, so modification_date is updated
+        logger.info('Done creating segments to tag')
 
     def explain(self):
         """Returns string that explains how to use the tool for the person

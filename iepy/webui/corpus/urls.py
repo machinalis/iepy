@@ -38,7 +38,7 @@ urlpatterns = patterns(
         name='label_evidence_for_document'),
 
     # Human in the loop
-    url(r'^human_in_the_loop/(?P<relation_id>\d+)/(?P<segment_id>\d+)/(?P<run_number>\d+)/',
+    url(r'^human_in_the_loop/(?P<relation_id>\d+)/(?P<segment_id>\d+)/',
         views.HumanInTheLoopView.as_view(),
         name='human_in_the_loop_segment'),
     url(r'^human_in_the_loop/(?P<relation_id>\d+)/',
