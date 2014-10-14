@@ -101,7 +101,7 @@ class ActiveLearningCore:
                                                    self.labeled_evidence)
 
     def rank_candidate_evidence(self):
-        N = 100
+        N = min(100, len(self.candidate_evidence))
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
         ranks = self.fact_extractor.decision_function(sample)

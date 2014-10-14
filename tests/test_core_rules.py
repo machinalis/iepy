@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
 from unittest import mock
-from .manager_case import ManagerTestCase
 
 from refo.patterns import Pattern
 from refo import Question, Star, Any
-from iepy.extraction.rules_core import rule, RulesBasedIEPipeline, Token
+
+from iepy.data.db import CandidateEvidenceManager
+from iepy.extraction.rules_core import rule, RulesBasedCore, Token
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,
 )
+from .manager_case import ManagerTestCase
 
 
-class TestRulesBasedIEPipeline(ManagerTestCase):
+class TestRulesBasedCore(ManagerTestCase):
 
     def setUp(self):
-        super(TestRulesBasedIEPipeline, self).setUp()
+        super(TestRulesBasedCore, self).setUp()
 
         kind_person = EntityKindFactory(name="person")
         kind_date = EntityKindFactory(name="date")
@@ -47,6 +49,10 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
             alias="1990-08-15",
         )
         eo2.segments.add(segment)
+        self._candidates = self.get_candidates(self.person_date_relation)
+
+    def get_candidates(self, relation):
+        return CandidateEvidenceManager.candidates_for_relation(relation)
 
     def _create_simple_document(self, text):
         tokens = tuple(text.split())
@@ -65,7 +71,8 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
 
-        pipeline = RulesBasedIEPipeline(self.person_date_relation, [test_rule])
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
 
@@ -79,13 +86,15 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
         def test_rule(Subject, Object):
             return Subject + Object + Token("something here")
 
-        pipeline = RulesBasedIEPipeline(self.person_date_relation, [test_rule])
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
         self.assertEqual(len(facts), 0)
 
     def test_empty_rules(self):
-        pipeline = RulesBasedIEPipeline(self.person_date_relation, [])
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  [])
         pipeline.start()
         facts = pipeline.known_facts()
         self.assertEqual(len(facts), 0)
@@ -94,7 +103,8 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
         mocked_rules = [
             rule()(mock.MagicMock(return_value=Token("asd")))
         ] * 10
-        pipeline = RulesBasedIEPipeline(self.person_date_relation, mocked_rules)
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  mocked_rules)
         pipeline.start()
 
         for mock_rule in mocked_rules:
@@ -111,9 +121,8 @@ class TestRulesBasedIEPipeline(ManagerTestCase):
         rule_should_run = rule(priority=1)(mock.MagicMock(side_effect=rule_match))
         rule_should_not_run = rule(priority=0)(mock.MagicMock(side_effect=rule_match))
 
-        pipeline = RulesBasedIEPipeline(
-            self.person_date_relation, [rule_should_not_run, rule_should_run]
-        )
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  [rule_should_not_run, rule_should_run])
         pipeline.start()
         self.assertTrue(rule_should_run.called)
         self.assertFalse(rule_should_not_run.called)

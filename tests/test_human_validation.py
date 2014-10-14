@@ -2,8 +2,7 @@ from unittest import mock
 
 import colorama
 
-from iepy.extraction.human_validation import (TerminalInterviewer,
-                                              TerminalEvidenceFormatter)
+from iepy.extraction.terminal import TerminalInterviewer, TerminalEvidenceFormatter
 from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
 

@@ -19,7 +19,7 @@ def rule(priority=0):
     return inner
 
 
-class RulesBasedIEPipeline(object):
+class RulesBasedCore(object):
     def __init__(self, relation, evidences, rules):
         self.relation = relation
         self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)

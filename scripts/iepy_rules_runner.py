@@ -13,7 +13,7 @@ import logging
 from docopt import docopt
 from importlib import import_module
 
-from iepy.extraction.rules_core import RulesBasedIEPipeline
+from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data import models
 from iepy.data.db import CandidateEvidenceManager
 
@@ -47,7 +47,7 @@ if __name__ == u'__main__':
     evidences = CandidateEvidenceManager.candidates_for_relation(relation)
 
     # Run the pipeline
-    pipeline = RulesBasedIEPipeline(relation, evidences, rules)
-    pipeline.start()
-    facts = pipeline.known_facts()
+    iextractor = RulesBasedCore(relation, evidences, rules)
+    iextractor.start()
+    facts = iextractor.known_facts()
     print(facts)

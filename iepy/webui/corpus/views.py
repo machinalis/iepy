@@ -11,8 +11,11 @@ from django.utils import formats
 
 from extra_views import ModelFormSetView
 
-from corpus.models import Relation, TextSegment, IEDocument, EvidenceLabel
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
+from corpus.models import (
+    Relation, TextSegment, IEDocument,
+    EvidenceLabel, SegmentToTag,
+)
 
 
 def _judge(request):
@@ -37,7 +40,7 @@ def next_document_to_label(request, relation_id):
     return redirect('corpus:label_evidence_for_document', relation.pk, doc.pk)
 
 
-def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
+def _navigate_labeled_items(request, relation_id, current_id, direction, type_, judgeless):
     # The parameter current_id indicates where the user is situated when asking
     # to move back or forth
     type_name = 'document' if type_ == IEDocument else 'segment'
@@ -47,7 +50,9 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    obj_id_to_show = relation.labeled_neighbor(current, _judge(request), going_back)
+    judge = _judge(request) if not judgeless else None
+
+    obj_id_to_show = relation.labeled_neighbor(current, judge, going_back)
     if obj_id_to_show is None:
         # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
@@ -65,14 +70,16 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
         return response
 
 
-def navigate_labeled_segments(request, relation_id, segment_id, direction):
-    return _navigate_labeled_items(request, relation_id, segment_id,
-                                   direction, TextSegment)
+def navigate_labeled_segments(request, relation_id, segment_id, direction, judgeless=False):
+    return _navigate_labeled_items(
+        request, relation_id, segment_id, direction, TextSegment, judgeless
+    )
 
 
-def navigate_labeled_documents(request, relation_id, document_id, direction):
-    return _navigate_labeled_items(request, relation_id, document_id,
-                                   direction, IEDocument)
+def navigate_labeled_documents(request, relation_id, document_id, direction, judgeless=False):
+    return _navigate_labeled_items(
+        request, relation_id, document_id, direction, IEDocument, judgeless
+    )
 
 
 class _BaseLabelEvidenceView(ModelFormSetView):
@@ -92,30 +99,26 @@ class _BaseLabelEvidenceView(ModelFormSetView):
         return _judge(self.request)
 
 
-class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
+class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
     template_name = 'corpus/segment_questions.html'
 
     def get_context_data(self, **kwargs):
-        ctx = super(LabelEvidenceOnSegmentView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         self.segment.hydrate()
         title = "Labeling Evidence for Relation {0}".format(self.relation)
         subtitle = 'For Document "{0}", Text Segment id {1}'.format(
             self.segment.document.human_identifier,
             self.segment.id)
 
-        for formset in ctx["formset"]:
-            instance = formset.instance
-            evidence = instance.evidence_candidate
-            instance.all_labels = evidence.labels.all()
-
-        ctx.update({
+        context.update({
             'title': title,
             'subtitle': subtitle,
             'segment': self.segment,
             'segment_rich_tokens': list(self.segment.get_enriched_tokens()),
-            'relation': self.relation
+            'relation': self.relation,
+            'draw_navigation': True,
         })
-        return ctx
+        return context
 
     def get_segment_and_relation(self):
         if hasattr(self, 'segment') and hasattr(self, 'relation'):
@@ -151,6 +154,66 @@ class LabelEvidenceOnSegmentView(_BaseLabelEvidenceView):
         return result
 
 
+class LabelEvidenceOnSegmentView(LabelEvidenceOnSegmentBase):
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        for formset in context["formset"]:
+            instance = formset.instance
+            evidence = instance.evidence_candidate
+            instance.all_labels = evidence.labels.all()
+
+        context["draw_navigation"] = True
+        context["draw_postags"] = True
+
+        return context
+
+
+def human_in_the_loop(request, relation_id):
+    relation = get_object_or_404(Relation, pk=relation_id)
+
+    segments_to_tag = SegmentToTag.objects.filter(
+        relation=relation,
+        done=False,
+    ).order_by("-modification_date")
+
+    if not segments_to_tag:
+        return render_to_response(
+            'message.html',
+            {'msg': 'There are no more evidence to label'}
+        )
+
+    segment_to_tag = segments_to_tag[0]
+    return redirect(
+        'corpus:human_in_the_loop_segment',
+        relation.pk, segment_to_tag.segment.pk
+    )
+
+
+class HumanInTheLoopView(LabelEvidenceOnSegmentBase):
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["draw_navigation"] = False
+        return context
+
+    def get_success_url(self):
+        return reverse('corpus:human_in_the_loop', args=[self.relation.pk])
+
+    def formset_valid(self, formset):
+        result = super().formset_valid(formset)
+
+        segment = get_object_or_404(TextSegment, pk=self.kwargs["segment_id"])
+        segment_to_tag = SegmentToTag.objects.get(
+            segment=segment,
+            relation=self.relation,
+        )
+        segment_to_tag.done = True
+        segment_to_tag.save()
+        return result
+
+
 class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
     template_name = 'corpus/document_questions.html'
     form_class = EvidenceOnDocumentForm
@@ -183,6 +246,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'eos_propperties': {},
                 'relations_list': [],
                 'forms_values': [],
+                'draw_navigation': True,
             }
             return ctx
 
@@ -247,7 +311,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'forms_values': json.dumps(forms_values),
             'question_options': question_options,
             'other_judges_labels': json.dumps(other_judges_labels),
-            'other_judges': other_judges_labels.keys(),
+            'other_judges': list(other_judges_labels.keys()),
+            "draw_navigation": True,
         })
         return ctx
 

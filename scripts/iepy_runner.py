@@ -16,7 +16,7 @@ from sys import exit
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager
 from iepy.data.models import Relation
-from iepy.extraction.human_validation import TerminalInterviewer
+from iepy.extraction.terminal import TerminalAdministration
 
 
 def print_all_relations():
@@ -24,6 +24,10 @@ def print_all_relations():
     for relation in Relation.objects.all():
         print("  {}".format(relation))
 
+
+def load_labeled_evidences(relation, evidences):
+    CEM = CandidateEvidenceManager  # shorcut
+    return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
 
 if __name__ == u'__main__':
     opts = docopt(__doc__, version=0.1)
@@ -39,23 +43,31 @@ if __name__ == u'__main__':
         print_all_relations()
         exit(1)
 
-    # Load evidences
-    CEM = CandidateEvidenceManager  # shorcut
-    labeled_evidences = CEM.labeled_candidates_for_relation(
-        relation, CEM.conflict_resolution_newest_wins)
-
-    p = ActiveLearningCore(relation, labeled_evidences)
+    candidates = CandidateEvidenceManager.candidates_for_relation(relation)
+    labeled_evidences = load_labeled_evidences(relation, candidates)
+    iextractor = ActiveLearningCore(relation, labeled_evidences)
+    iextractor.start()
 
     STOP = u'STOP'
+    term = TerminalAdministration(relation,
+                                  extra_options=[(STOP, u'Stop execution ASAP')])
 
-    p.start()
-    while p.questions:
-        term = TerminalInterviewer(p.questions, p.add_answer, [(STOP, u'Stop execution ASAP')])
+    while iextractor.questions:
+        questions = list(iextractor.questions)  # copying the list
+        term.update_candidate_evidences_to_label(questions)
         result = term()
         if result == STOP:
             break
-        p.process()
-    predictions = p.predict()
+
+        i = 0
+        for c, label_value in load_labeled_evidences(relation, questions).items():
+            if label_value is not None:
+                iextractor.add_answer(c, label_value)
+                i += 1
+        print ('Added %s new human labels to the extractor core' % i)
+        iextractor.process()
+
+    predictions = iextractor.predict()
     print("Predictions:")
     for prediction, value in predictions.items():
         print("({} -- {})".format(prediction, value))

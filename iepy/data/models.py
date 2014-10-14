@@ -260,12 +260,17 @@ class TextSegment(BaseModel):
         # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
         return u'({0} {1})'.format(self.offset, self.offset_end)
 
-    def hydrate(self):
+    def hydrate(self, document_on_ram=None):
         # Using the segment offsets, and the data on document itself, constructs
         # on-memory attributes for the segment
+        # If "document_on_ram" provided, is used instead of querying DB.
         if getattr(self, '_hydrated', False):
             return self
-        doc = self.document
+        if document_on_ram is not None:
+            assert document_on_ram.pk == self.document_id
+            doc = document_on_ram
+        else:
+            doc = self.document
         self.tokens = doc.tokens[self.offset: self.offset_end]
         self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
         self.postags = doc.postags[self.offset: self.offset_end]
@@ -288,11 +293,24 @@ class TextSegment(BaseModel):
                    self.entity_occurrences.all().order_by('offset')
                    )
 
-    def get_evidences_for_relation(self, relation):
+    def get_evidences_for_relation(self, relation, existent=None):
         # Gets or creates Labeled Evidences (when creating, label is empty)
         lkind = relation.left_entity_kind
         rkind = relation.right_entity_kind
+        # For performance sake, first grabs all existent, and if later some missing, they
+        # are created
+        if existent is None:
+            existent = EvidenceCandidate.objects.filter(segment=self, relation=relation)
+            existent = existent.select_related(
+                'left_entity_occurrence', 'right_entity_occurrence')
+        existent = {
+            (ec.left_entity_occurrence_id, ec.right_entity_occurrence.id): ec
+            for ec in existent
+        }  # dict of existent evidence-candidates, indexed by left and right EO ids
         for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
+            if (l_eo.pk, r_eo.pk) in existent:
+                yield existent[(l_eo.pk, r_eo.pk)]
+                continue
             obj, created = EvidenceCandidate.objects.get_or_create(
                 left_entity_occurrence=l_eo,
                 right_entity_occurrence=r_eo,
@@ -400,20 +418,27 @@ class Relation(BaseModel):
         if isinstance(obj, TextSegment):
             segments = self._matching_text_segments()
             segments = segments.filter(evidence_relations__relation=self)
-            judge_labels = EvidenceLabel.objects.filter(
-                judge=judge,
+
+            filters = dict(
+                judge__isnull=False,
                 label__isnull=False,
                 evidence_candidate__segment__in=segments,
             )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
             candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
             segments = segments.filter(id__in=candidates_with_label).distinct()
             ids = list(segments.values_list('id', flat=True).order_by('id'))
         elif isinstance(obj, IEDocument):
-            judge_labels = EvidenceLabel.objects.filter(
-                judge=judge,
+            filters = dict(
+                judge__isnull=False,
                 label__isnull=False,
                 evidence_candidate__relation=self,
             )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
             ids = sorted(set(judge_labels.values_list(
                 'evidence_candidate__segment__document_id', flat=True)
             ))
@@ -579,6 +604,16 @@ class EvidenceLabel(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['evidence_candidate', 'label', 'judge']
+
+
+class SegmentToTag(BaseModel):
+    segment = models.ForeignKey("TextSegment")
+    relation = models.ForeignKey("Relation")
+    done = models.BooleanField(default=False)
+    modification_date = models.DateTimeField(auto_now=True)
+
+    class Meta(BaseModel.Meta):
+        unique_together = ['segment', 'relation']
 
 
 # Models utils

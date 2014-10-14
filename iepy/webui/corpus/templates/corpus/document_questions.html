@@ -26,24 +26,33 @@
     </script>
 {% endblock %}
 
+{% block label_mode_switch %}
+    <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+       title="Next segment with un-labeled evidences.">Label by segments</a>
+{% endblock %}
+
+{% block navigation %} <div class="right">
+        <a href="{% url 'corpus:navigate_labeled_documents_judgeless' relation.pk document.pk 'back' %}"
+           title="Previous labeled document">Previous document labeled</a>
+        &rsaquo;
+        <a href="{% url 'corpus:navigate_labeled_documents_judgeless' relation.pk document.pk 'forth' %}"
+           title="Next labeled document">Next document labeled</a>
+    </div>
+
+    <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
+        title="Previous labeled document">Last document labeled by you</a>
+    &rsaquo;
+    <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
+       title="Next labeled document">Next document you labeled</a>
+    &raquo;
+    <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+       title="Next document with un-labeled evidences.">Next document to label</a>
+{% endblock %}
 
 {% block inner_content %}
-
     <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
             <div class="large-12 columns">
-                <div class="navigation">
-                    <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
-                        title="Next segment with un-labeled evidences.">Label by segments</a>
-                    --
-                    Labeled documents:
-                    (<a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'back' %}"
-                        title="Previous labeled document">Previous</a> |
-                    <a href="{% url 'corpus:navigate_labeled_documents' relation.pk document.pk 'forth' %}"
-                        title="Next labeled document">Following</a>)
-                    -- <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
-                        title="Next document with un-labeled evidences.">Next document to label</a>
-                </div>
                 {% if not segments %}
                     <br />
                     <div data-alert class="alert-box info radius">
@@ -87,27 +96,31 @@
                     </form>
                 {% endif %}
 
-                <div class="prev-relations-wrapper">
-                    Previous relations:
-                    <ul class="judge-answers-wrapper">
-                        {% for judge in other_judges %}
-                            <li class="judge-answers-button has-tip" data-judge="{{ judge }}"
-                                data-tooltip title="Labels done by '{{ judge }}' are displayed using dashed lines"
-                            >
-                                view <strong>{{ judge }}'s</strong> relations
-                            </li>
-                        {% endfor %}
-                    </ul>
+                {% if segments %}
+                    <div class="prev-relations-wrapper">
+                        Previous relations:
+                        <ul class="judge-answers-wrapper">
+                            {% for judge in other_judges %}
+                                <li class="judge-answers-button has-tip" data-judge="{{ judge }}"
+                                    data-tooltip title="Labels done by '{{ judge }}' are displayed using dashed lines"
+                                >
+                                    view <strong>{{ judge }}'s</strong> relations
+                                </li>
+                            {% endfor %}
+                        </ul>
 
-                    by <strong> you: </strong>
-                    <div class="row">
-                        <div class="large-12 columns">
-                            <ul class="prev-relations">
-                            </ul>
+                        by <strong> you: </strong>
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <ul class="prev-relations">
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
+
+
             <div class="large-9 columns">
                 {% if subtitle %} <div class="title"> {{subtitle}} </div> {% endif %}
                 <svg xmlns="http://www.w3.org/2000/svg">
