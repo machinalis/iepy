@@ -400,20 +400,27 @@ class Relation(BaseModel):
         if isinstance(obj, TextSegment):
             segments = self._matching_text_segments()
             segments = segments.filter(evidence_relations__relation=self)
-            judge_labels = EvidenceLabel.objects.filter(
-                judge=judge,
+
+            filters = dict(
+                judge__isnull=False,
                 label__isnull=False,
                 evidence_candidate__segment__in=segments,
             )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
             candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
             segments = segments.filter(id__in=candidates_with_label).distinct()
             ids = list(segments.values_list('id', flat=True).order_by('id'))
         elif isinstance(obj, IEDocument):
-            judge_labels = EvidenceLabel.objects.filter(
-                judge=judge,
+            filters = dict(
+                judge__isnull=False,
                 label__isnull=False,
                 evidence_candidate__relation=self,
             )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
             ids = sorted(set(judge_labels.values_list(
                 'evidence_candidate__segment__document_id', flat=True)
             ))
