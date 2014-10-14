@@ -609,12 +609,11 @@ class EvidenceLabel(BaseModel):
 class SegmentToTag(BaseModel):
     segment = models.ForeignKey("TextSegment")
     relation = models.ForeignKey("Relation")
-    run_number = models.IntegerField()  # identifier of the extraction run
     done = models.BooleanField(default=False)
     modification_date = models.DateTimeField(auto_now=True)
 
     class Meta(BaseModel.Meta):
-        unique_together = ['segment', 'relation', 'run_number']
+        unique_together = ['segment', 'relation']
 
 
 # Models utils
