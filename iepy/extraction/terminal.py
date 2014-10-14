@@ -3,7 +3,8 @@ from collections import OrderedDict
 from colorama import Fore, Style, init as colorama_init
 from future.builtins import input, str
 
-from iepy.pycompatibility import PY2
+from iepy.data.db import CandidateEvidenceManager
+from iepy.data.models import SegmentToTag
 
 
 class Answers(object):
@@ -111,8 +112,6 @@ class TerminalInterviewer(object):
             'keys': keys, 'fact': c_fact,
             'text': c_text
         }
-        if PY2:
-            question = question.encode('utf-8')
         answer = input(question)
         while answer not in self.keys:
             answer = input('Invalid answer. (%s): ' % keys)
@@ -183,3 +182,70 @@ class TerminalEvidenceFormatter(object):
             self.colored_fact(ev, color_1, color_2),
             self.colored_text(ev, color_1, color_2)
         )
+
+
+class TerminalAdministration(object):
+    """Terminal/Console interface for administrating the run of a iepy extraction.
+    """
+    REFRESH = u'refresh'
+    RUN = u'run'
+    base_options = OrderedDict(
+        [(REFRESH, u'Refresh - check how many new labels were created.'),
+         (RUN, u'Run Process - run the process again with the info obtained'),
+         ])
+
+    def __init__(self, relation, extra_options):
+        self.relation = relation
+        self.extra_options = OrderedDict(extra_options or [])
+        if set(self.base_options).intersection(self.extra_options.keys()):
+            raise ValueError(u"Can't define extra options with the builtin keys")
+        self.keys = list(self.base_options.keys()) + list(self.extra_options.keys())
+
+    def update_candidate_evidences_to_label(self, evidence_candidates):
+        # Will let the UI know which are the segments that have evidence to label.
+        # Needs to respect the provided ordering, so the created SegmentToTag objects
+        # when sorted by date respect the evidence_candidates provided.
+        segment_ids_to_add = []
+        for ev_c in evidence_candidates:
+            if ev_c.segment_id not in segment_ids_to_add:
+                segment_ids_to_add.append(ev_c.segment)
+
+        for segment in segment_ids_to_add:
+            segment_to_tag, created = SegmentToTag.objects.get_or_create(
+                segment=segment,
+                relation=self.relation,
+                run_number=1,  # Hack... remove me.
+            )
+            segment_to_tag.save()  # always saving, so modification_date is updated
+
+    def explain(self):
+        """Returns string that explains how to use the tool for the person
+        administering the extraction.
+        """
+        r = "Waiting for candidate evidences to be labeled. \n"
+        r += "Available commands are:\n"
+        options = list(self.base_options.items()) + list(self.extra_options.items())
+        r += u'\n'.join('   %s: %s' % (key, explanation) for key, explanation in options)
+        print(r)
+
+    def __call__(self):
+        self.explain()
+        while True:
+            # Forever loop until the administrator decides to stop it
+            cmd = self.get_command()
+            if cmd in self.extra_options or cmd == self.RUN:
+                return cmd
+            if cmd == self.REFRESH:
+                self.refresh_info()
+
+    def refresh_info(self):
+        c = CandidateEvidenceManager.value_labeled_candidates_count_for_relation(
+            self.relation)
+        print ('There are %s labels with yes/no answers' % c)
+
+    def get_command(self):
+        keys = u'/'.join(self.keys)
+        answer = input('Waiting... ')
+        while answer not in self.keys:
+            answer = input('"%s" is an invalid answer. (%s): ' % keys)
+        return answer
