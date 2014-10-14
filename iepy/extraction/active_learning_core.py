@@ -2,8 +2,6 @@ import random
 import logging
 
 from iepy import defaults
-from iepy.data.models import LabeledRelationEvidence
-from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction.fact_extractor import FactExtractorFactory
 
 
@@ -35,13 +33,13 @@ class ActiveLearningCore:
         self.relation = relation
         self.fact_extractor = None
         self._setup_labeled_evidences(labeled_evidences)
+        self.questions = list(self.candidate_evidence)
 
     def start(self):
         """
         Blocking.
         """
-        self.load_all_evidence_from_database()
-        self.questions = list(self.candidate_evidence)
+        pass
 
     def add_answer(self, evidence, answer):
         """
