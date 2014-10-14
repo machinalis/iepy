@@ -116,7 +116,8 @@ class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
             'subtitle': subtitle,
             'segment': self.segment,
             'segment_rich_tokens': list(self.segment.get_enriched_tokens()),
-            'relation': self.relation
+            'relation': self.relation,
+            'draw_navigation': True,
         })
         return context
 
@@ -195,6 +196,7 @@ class HumanInTheLoopView(LabelEvidenceOnSegmentBase):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context["draw_navigation"] = False
         return context
 
     def get_success_url(self):
@@ -311,7 +313,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'forms_values': json.dumps(forms_values),
             'question_options': question_options,
             'other_judges_labels': json.dumps(other_judges_labels),
-            'other_judges': other_judges_labels.keys(),
+            'other_judges': list(other_judges_labels.keys()),
+            "draw_navigation": True,
         })
         return ctx
 

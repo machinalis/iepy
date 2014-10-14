@@ -55,9 +55,6 @@ input, textarea, select, .form-row p{
     list-style: none;
 }
 
-.prev-relations-wrapper{
-    display: none;
-}
 .prev-relations {
     margin: 0;
 }

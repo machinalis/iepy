@@ -11,29 +11,36 @@
     <script type="text/javascript" src="{% static 'js/segment_questions.js' %}"></script>
 {% endblock %}
 
+{% block label_mode_switch %}
+    <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+       title="Next document with un-labeled evidences.">Label by documents</a>
+{% endblock %}
+
+{% block navigation %}
+    <div class="right">
+        <a href="{% url 'corpus:navigate_labeled_segments_judgeless' relation.pk segment.pk 'back' %}"
+           title="Previous labeled document">Previous segment labeled</a>
+        &rsaquo;
+        <a href="{% url 'corpus:navigate_labeled_segments_judgeless' relation.pk segment.pk 'forth' %}"
+           title="Next labeled document">Next segment labeled</a>
+    </div>
+
+    <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'back' %}"
+       title="Previous labeled segment">Last segment labeled by you</a>
+    &rsaquo;
+    <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forth' %}"
+       title="Next labeled segment">Next segment you labeled</a>
+    &raquo;
+    <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+       title="Next segment with un-labeled evidences.">Next segment to label</a>
+{% endblock %}
+
 
 {% block inner_content %}
     <br />
-    {% if draw_navigation %}
-        <div class="navigation">
-            <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
-                  title="Next document with un-labeled evidences.">Label by documents</a>
-            --
-            Labeled segments:
-                (<a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'back' %}"
-                   title="Previous labeled segment">Previous</a> |
-                <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forth' %}"
-                   title="Next labeled segment">Following</a>)
-            -- <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
-                  title="Next segment with un-labeled evidences.">Next to label</a>
-        </div>
-    {% endif %}
     {% include "corpus/segment_render.html" %}
-
     <br /> <br />
-
     <div class="title"> Complete: </div>
-
     <form action="." method="POST">
         {% csrf_token %}
         {{ formset.management_form }}

@@ -19,6 +19,22 @@
     {% block extra_js %}{% endblock %}
 {% endblock %}
 
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Home</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+
+        <div class="label-mode-switch">
+            {% block label_mode_switch %}{% endblock %}
+        </div>
+    </div>
+    {% if draw_navigation %}
+        <div class="navigation large-12 columns">
+            {% block navigation %} {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="large-12 columns">
