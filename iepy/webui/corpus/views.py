@@ -18,7 +18,6 @@ from corpus.models import (
 )
 
 
-
 def _judge(request):
     return request.user.username
 
@@ -177,7 +176,7 @@ def human_in_the_loop(request, relation_id):
     segments_to_tag = SegmentToTag.objects.filter(
         relation=relation,
         done=False,
-    ).order_by("-creation_date")
+    ).order_by("-modification_date")
 
     if not segments_to_tag:
         return render_to_response(
