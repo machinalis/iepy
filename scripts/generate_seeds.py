@@ -13,7 +13,7 @@ from docopt import docopt
 
 from iepy.data.db import connect
 from iepy.data.knowledge import Knowledge
-from iepy.extraction.human_validation import human_oracle
+from iepy.extraction.terminal import human_oracle
 from iepy.utils import save_facts_to_csv
 
 

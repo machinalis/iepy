@@ -16,7 +16,7 @@ from sys import exit
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager
 from iepy.data.models import Relation, SegmentToTag, TextSegment
-from iepy.extraction.human_validation import TerminalInterviewer
+from iepy.extraction.terminal import TerminalInterviewer
 
 
 def print_all_relations():
