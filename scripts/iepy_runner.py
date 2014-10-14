@@ -44,16 +44,16 @@ if __name__ == u'__main__':
     labeled_evidences = CEM.labeled_candidates_for_relation(
         relation, CEM.conflict_resolution_newest_wins)
 
-    pipeline = ActiveLearningCore(relation, labeled_evidences)
-    pipeline.start()
+    iextractor = ActiveLearningCore(relation, labeled_evidences)
+    iextractor.start()
 
     STOP = u'STOP'
     term = TerminalAdministration((STOP, u'Stop execution ASAP'))
 
     run_number = 0
-    while pipeline.questions:
+    while iextractor.questions:
         segment_ids_to_add = []
-        for evidence_candidate in pipeline.questions:
+        for evidence_candidate in iextractor.questions:
             segment = evidence_candidate.segment
             if segment.id not in segment_ids_to_add:
                 segment_ids_to_add.append(evidence_candidate.segment.id)
@@ -69,11 +69,11 @@ if __name__ == u'__main__':
         if result == STOP:
             break
 
-        # pipeline.add_answers(new_answers)
-        pipeline.process()
+        # iextractor.add_answers(new_answers)
+        iextractor.process()
         run_number += 1
 
-    predictions = pipeline.predict()
+    predictions = iextractor.predict()
     print("Predictions:")
     for prediction, value in predictions.items():
         print("({} -- {})".format(prediction, value))
