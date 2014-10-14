@@ -247,5 +247,5 @@ class TerminalAdministration(object):
         keys = u'/'.join(self.keys)
         answer = input('Waiting... ')
         while answer not in self.keys:
-            answer = input('"%s" is an invalid answer. (%s): ' % keys)
+            answer = input('"%s" is an invalid answer. (%s): ' % (answer, keys))
         return answer
