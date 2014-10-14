@@ -41,7 +41,7 @@ def next_document_to_label(request, relation_id):
     return redirect('corpus:label_evidence_for_document', relation.pk, doc.pk)
 
 
-def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
+def _navigate_labeled_items(request, relation_id, current_id, direction, type_, judgeless):
     # The parameter current_id indicates where the user is situated when asking
     # to move back or forth
     type_name = 'document' if type_ == IEDocument else 'segment'
@@ -51,7 +51,9 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
     going_back = direction.lower() == 'back'
-    obj_id_to_show = relation.labeled_neighbor(current, _judge(request), going_back)
+    judge = _judge(request) if not judgeless else None
+
+    obj_id_to_show = relation.labeled_neighbor(current, judge, going_back)
     if obj_id_to_show is None:
         # Internal logic couldn't decide what other obj to show. Better to
         # forward to the one already shown
@@ -69,14 +71,16 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_):
         return response
 
 
-def navigate_labeled_segments(request, relation_id, segment_id, direction):
-    return _navigate_labeled_items(request, relation_id, segment_id,
-                                   direction, TextSegment)
+def navigate_labeled_segments(request, relation_id, segment_id, direction, judgeless=False):
+    return _navigate_labeled_items(
+        request, relation_id, segment_id, direction, TextSegment, judgeless
+    )
 
 
-def navigate_labeled_documents(request, relation_id, document_id, direction):
-    return _navigate_labeled_items(request, relation_id, document_id,
-                                   direction, IEDocument)
+def navigate_labeled_documents(request, relation_id, document_id, direction, judgeless=False):
+    return _navigate_labeled_items(
+        request, relation_id, document_id, direction, IEDocument, judgeless
+    )
 
 
 class _BaseLabelEvidenceView(ModelFormSetView):

@@ -14,6 +14,14 @@ urlpatterns = patterns(
         name='next_document_to_label'),
 
     # Navigate labeled items
+    url(r'^navigate_labeled_segments/(?P<relation_id>\d+)/(?P<segment_id>\d+)/(?P<direction>\w+)/judgeless',
+        views.navigate_labeled_segments,
+        kwargs={"judgeless": True},
+        name='navigate_labeled_segments_judgeless'),
+    url(r'^navigate_labeled_documents/(?P<relation_id>\d+)/(?P<document_id>\d+)/(?P<direction>\w+)/judgeless',
+        views.navigate_labeled_documents,
+        kwargs={"judgeless": True},
+        name='navigate_labeled_documents_judgeless'),
     url(r'^navigate_labeled_segments/(?P<relation_id>\d+)/(?P<segment_id>\d+)/(?P<direction>\w+)/',
         views.navigate_labeled_segments,
         name='navigate_labeled_segments'),
