@@ -13,7 +13,8 @@ import iepy
 iepy.setup()
 
 from iepy.data.models import (
-    IEDocument, TextSegment, Entity, EntityKind, Relation, EvidenceLabel)
+    IEDocument, TextSegment, Entity, EntityKind, Relation, EvidenceLabel,
+    EvidenceCandidate)
 from iepy.preprocess.pipeline import PreProcessSteps
 
 
@@ -109,8 +110,8 @@ class RelationManager(object):
 class CandidateEvidenceManager(object):
 
     @classmethod
-    def hydrate(cls, ev):
-        ev.evidence = ev.segment.hydrate()
+    def hydrate(cls, ev, document=None):
+        ev.evidence = ev.segment.hydrate(document)
         ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
         ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
         return ev
@@ -119,13 +120,30 @@ class CandidateEvidenceManager(object):
     def candidates_for_relation(cls, relation):
         # Wraps the actual database lookup of evidence, hydrating them so
         # in theory, no extra db access shall be done
+        # The idea here is simple, but with some tricks for improving performance
         logger.info("Loading candidate evidence from database...")
-        evidences = []
         hydrate = cls.hydrate
-        for segment in relation._matching_text_segments():
-            evidences.extend(
-                [hydrate(e) for e in segment.get_evidences_for_relation(relation)]
-            )
+        segments_per_document = defaultdict(list)
+        raw_segments = {s.id: s for s in relation._matching_text_segments()}
+        for s in raw_segments.values():
+            segments_per_document[s.document_id].append(s)
+        doc_ids = segments_per_document.keys()
+        existent_ec = EvidenceCandidate.objects.filter(
+            relation=relation, segment__in=raw_segments.keys()
+        ).select_related(
+            'left_entity_occurrence', 'right_entity_occurrence', 'segment'
+        )
+        existent_ec_per_segment = defaultdict(list)
+        for ec in existent_ec:
+            existent_ec_per_segment[ec.segment_id].append(ec)
+        evidences = []
+        for document in IEDocument.objects.filter(pk__in=doc_ids):
+            for segment in segments_per_document[document.id]:
+                seg_ecs = segment.get_evidences_for_relation(
+                    relation, existent_ec_per_segment[segment.pk])
+                evidences.extend(
+                    [hydrate(e, document) for e in seg_ecs]
+                )
         return evidences
 
     @classmethod
