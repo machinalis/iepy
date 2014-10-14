@@ -96,26 +96,28 @@
                     </form>
                 {% endif %}
 
-                <div class="prev-relations-wrapper">
-                    Previous relations:
-                    <ul class="judge-answers-wrapper">
-                        {% for judge in other_judges %}
-                            <li class="judge-answers-button has-tip" data-judge="{{ judge }}"
-                                data-tooltip title="Labels done by '{{ judge }}' are displayed using dashed lines"
-                            >
-                                view <strong>{{ judge }}'s</strong> relations
-                            </li>
-                        {% endfor %}
-                    </ul>
+                {% if segments %}
+                    <div class="prev-relations-wrapper">
+                        Previous relations:
+                        <ul class="judge-answers-wrapper">
+                            {% for judge in other_judges %}
+                                <li class="judge-answers-button has-tip" data-judge="{{ judge }}"
+                                    data-tooltip title="Labels done by '{{ judge }}' are displayed using dashed lines"
+                                >
+                                    view <strong>{{ judge }}'s</strong> relations
+                                </li>
+                            {% endfor %}
+                        </ul>
 
-                    by <strong> you: </strong>
-                    <div class="row">
-                        <div class="large-12 columns">
-                            <ul class="prev-relations">
-                            </ul>
+                        by <strong> you: </strong>
+                        <div class="row">
+                            <div class="large-12 columns">
+                                <ul class="prev-relations">
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
 
 

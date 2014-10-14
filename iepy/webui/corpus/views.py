@@ -249,6 +249,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'eos_propperties': {},
                 'relations_list': [],
                 'forms_values': [],
+                'draw_navigation': True,
             }
             return ctx
 
