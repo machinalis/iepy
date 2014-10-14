@@ -210,17 +210,23 @@ class TerminalAdministration(object):
         # Needs to respect the provided ordering, so the created SegmentToTag objects
         # when sorted by date respect the evidence_candidates provided.
         logger.info('Creating segments to tag')
-        segment_ids_to_add = []
+        segments_to_tag = []
         for ev_c in evidence_candidates:
-            if ev_c.segment_id not in segment_ids_to_add:
-                segment_ids_to_add.append(ev_c.segment)
+            if ev_c.segment not in segments_to_tag:
+                segments_to_tag.append(ev_c.segment)
 
-        for segment in segment_ids_to_add:
-            segment_to_tag, created = SegmentToTag.objects.get_or_create(
-                segment=segment,
-                relation=self.relation,
-            )
-            segment_to_tag.save()  # always saving, so modification_date is updated
+        existent_stt = {stt.segment_id: stt for stt in SegmentToTag.objects.filter(
+            relation=self.relation, segment__in=segments_to_tag)}
+        for segment in segments_to_tag:
+            if segment.pk in existent_stt:
+                stt = existent_stt[segment.pk]
+            else:
+                stt, created = SegmentToTag.objects.get_or_create(
+                    segment=segment,
+                    relation=self.relation,
+                )
+            if not stt.done:
+                stt.save()  # always saving, so modification_date is updated
         logger.info('Done creating segments to tag')
 
     def explain(self):
