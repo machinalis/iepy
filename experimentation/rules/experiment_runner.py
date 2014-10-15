@@ -6,7 +6,7 @@ import time
 
 from featureforge.experimentation import runner
 
-from iepy.extraction.rules_core import RulesBasedIEPipeline
+from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
 
@@ -45,9 +45,11 @@ class Runner(object):
             self.relname = config["relation"]
             self.relation = iepy.data.models.Relation.objects.get(name=config["relation"])
 
-            self.data = CEM.labeled_candidates_for_relation(
+            candidates = CEM.candidates_for_relation(self.relation)
+            self.data = CEM.labels_for(
                 self.relation,
-                CEM.conflict_resolution_newest_wins()
+                candidates,
+                CEM.conflict_resolution_newest_wins
             )
             self.evidences = []
             self.labels = []
@@ -72,7 +74,7 @@ class Runner(object):
                  if rule_name in config["rules"]]
 
         # Run the rule based pipeline
-        pipeline = RulesBasedIEPipeline(self.relation, self.evidences, rules)
+        pipeline = RulesBasedCore(self.relation, self.evidences, rules)
         pipeline.start()
         matched = pipeline.known_facts()
 
@@ -89,7 +91,7 @@ class Runner(object):
                 tn += 1
             else:
                 incorrect.append(evidence.id)
-                if label == self.positive_label:
+                if label:
                     fp += 1
                 else:
                     fn += 1
