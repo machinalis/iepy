@@ -35,6 +35,7 @@ class Runner(object):
             self.data = CEM.labels_for(relation, c_evidences,
                 CEM.conflict_resolution_newest_wins)
             self.data = [(x, label) for x, label in self.data.items() if label is not None]
+            self.relname = config["relation"]
         data = self.data
         if not data:
             raise NotEnoughLabeledData("There is no labeled data for training!")
