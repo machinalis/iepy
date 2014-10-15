@@ -49,17 +49,13 @@ class RulesBasedCore(object):
     def match(self, evidence):
         subject_kind = evidence.left_entity_occurrence.entity.kind.name
         object_kind = evidence.right_entity_occurrence.entity.kind.name
+        Subject = refo.Plus(ConditionPredicate(is_subj=True, kinds__has=subject_kind))
+        Object = refo.Plus(ConditionPredicate(is_obj=True, kinds__has=object_kind))
+        tokens_to_match = list(self.generate_tokens_to_match(evidence)) + [_EOL]
 
         for rule in self.rules:
-            Subject = refo.Plus(ConditionPredicate(is_subj=True, kinds__has=subject_kind))
-            Object = refo.Plus(ConditionPredicate(is_obj=True, kinds__has=object_kind))
-            regex = rule(Subject, Object)
-            tokens_to_match = list(self.generate_tokens_to_match(evidence))
-            match = refo.match(
-                regex + refo.Literal(_EOL),
-                tokens_to_match + [_EOL]
-            )
-            if match:
+            regex = rule(Subject, Object) + refo.Literal(_EOL)
+            if refo.match(regex, tokens_to_match):
                 return True
 
     def generate_tokens_to_match(self, evidence):
