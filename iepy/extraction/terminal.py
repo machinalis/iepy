@@ -256,7 +256,7 @@ class TerminalAdministration(object):
 
     def get_command(self):
         keys = u'/'.join(self.keys)
-        answer = input('Waiting... ')
+        answer = input('Waiting... what to do: ')
         while answer not in self.keys:
             answer = input('"%s" is an invalid answer. (%s): ' % (answer, keys))
         return answer
