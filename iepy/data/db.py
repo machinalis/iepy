@@ -213,8 +213,6 @@ class CandidateEvidenceManager(object):
         return solver
 
     @classmethod
-    def conflict_resolution_newest_wins(cls):
-        def solver(ev_labels):
-            # expects to be called only when len(ev_labels) > 1
-            return sorted(ev_labels[:], key=lambda el: el.modification_date)[0]
-        return solver
+    def conflict_resolution_newest_wins(cls, ev_labels):
+        # expects to be called only when len(ev_labels) > 1
+        return sorted(ev_labels[:], key=lambda el: el.modification_date)[0]
