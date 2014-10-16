@@ -66,7 +66,7 @@ class TestRulesBasedCore(ManagerTestCase):
 
     def test_rule_that_matches(self):
 
-        @rule()
+        @rule(True)
         def test_rule(Subject, Object):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
@@ -75,14 +75,12 @@ class TestRulesBasedCore(ManagerTestCase):
                                   [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
-
-        self.assertEqual(len(facts), 1)
-        evidence = facts[0]
-        self.assertEqual(evidence.segment.id, self.segment.id)
+        candidate = self._candidates[0]
+        self.assertTrue(facts[candidate])
 
     def test_rule_that_not_matches(self):
 
-        @rule()
+        @rule(True)
         def test_rule(Subject, Object):
             return Subject + Object + Token("something here")
 
@@ -90,7 +88,8 @@ class TestRulesBasedCore(ManagerTestCase):
                                   [test_rule])
         pipeline.start()
         facts = pipeline.known_facts()
-        self.assertEqual(len(facts), 0)
+        candidate = self._candidates[0]
+        self.assertFalse(facts[candidate])
 
     def test_empty_rules(self):
         pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
@@ -101,7 +100,7 @@ class TestRulesBasedCore(ManagerTestCase):
 
     def test_match_run_on_every_rule(self):
         mocked_rules = [
-            rule()(mock.MagicMock(return_value=Token("asd")))
+            rule(True)(mock.MagicMock(return_value=Token("asd")))
         ] * 10
         pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
                                   mocked_rules)
@@ -118,11 +117,31 @@ class TestRulesBasedCore(ManagerTestCase):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
 
-        rule_should_run = rule(priority=1)(mock.MagicMock(side_effect=rule_match))
-        rule_should_not_run = rule(priority=0)(mock.MagicMock(side_effect=rule_match))
+        rule_should_run = rule(True, priority=1)(mock.MagicMock(side_effect=rule_match))
+        rule_should_not_run = rule(True, priority=0)(mock.MagicMock(side_effect=rule_match))
 
         pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
                                   [rule_should_not_run, rule_should_run])
         pipeline.start()
         self.assertTrue(rule_should_run.called)
         self.assertFalse(rule_should_not_run.called)
+
+    def test_rule_incorrect_answer(self):
+        with self.assertRaises(ValueError):
+            @rule("YE")
+            def rule_match(Subject, Object):
+                anything = Question(Star(Any()))
+                return Subject + Token("(") + Object + Token("-") + anything
+
+    def test_rule_with_negative_answer(self):
+        @rule(False)
+        def test_rule(Subject, Object):
+            anything = Question(Star(Any()))
+            return Subject + Token("(") + Object + Token("-") + anything
+
+        pipeline = RulesBasedCore(self.person_date_relation, self._candidates,
+                                  [test_rule])
+        pipeline.start()
+        facts = pipeline.known_facts()
+        candidate = self._candidates[0]
+        self.assertFalse(facts[candidate])
