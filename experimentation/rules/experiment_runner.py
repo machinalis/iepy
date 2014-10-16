@@ -83,15 +83,14 @@ class Runner(object):
         incorrect = []
         tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
         for evidence, label in zip(self.evidences, self.labels):
-            if evidence in matched and label:
-                correct.append(evidence.id)
-                tp += 1
-            elif evidence not in matched and not label:
-                correct.append(evidence.id)
-                tn += 1
+            if matched[evidence] == label:
+                if label:
+                    tp += 1
+                else:
+                    tn += 1
             else:
                 incorrect.append(evidence.id)
-                if label:
+                if matched[evidence]:
                     fp += 1
                 else:
                     fn += 1
