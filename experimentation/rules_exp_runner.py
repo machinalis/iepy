@@ -9,7 +9,7 @@ from featureforge.experimentation import runner
 from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
-
+from experimentation_utils import result_dict_from_predictions
 import experimentation_rules
 
 
@@ -77,51 +77,12 @@ class Runner(object):
         pipeline = RulesBasedCore(self.relation, self.evidences, rules)
         pipeline.start()
         matched = pipeline.known_facts()
+        predicted_labels = [e in matched for e in self.evidences]
 
         # Evaluate prediction
-        correct = []
-        incorrect = []
-        tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
-        for evidence, label in zip(self.evidences, self.labels):
-            if evidence in matched and label:
-                correct.append(evidence.id)
-                tp += 1
-            elif evidence not in matched and not label:
-                correct.append(evidence.id)
-                tn += 1
-            else:
-                incorrect.append(evidence.id)
-                if label:
-                    fp += 1
-                else:
-                    fn += 1
+        result.update(result_dict_from_predictions(
+            self.evidences, self.labels, predicted_labels))
 
-        # Make stats
-        try:
-            precision = tp / (tp + fp)
-        except ZeroDivisionError:
-            precision = 1.0
-        try:
-            recall = tp / (tp + fn)
-        except ZeroDivisionError:
-            recall = 1.0
-        try:
-            f1 = 2 * (precision * recall) / (precision + recall)
-        except ZeroDivisionError:
-            f1 = 0.0
-        result.update({
-            "true_positives": tp,
-            "false_positives": fp,
-            "true_negatives": tn,
-            "false_negatives": fn,
-            "accuracy": (tp + tn) / len(self.data),
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-            "correctly_predicted": correct,
-            "incorrectly_predicted": incorrect,
-            "end_time": time.time()
-        })
         return result
 
 

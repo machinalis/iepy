@@ -10,6 +10,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 from iepy.extraction.fact_extractor import FactExtractorFactory
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
+from experimentation_utils import result_dict_from_predictions
 
 
 class NotEnoughLabeledData(Exception):
@@ -35,6 +36,7 @@ class Runner(object):
             self.data = CEM.labels_for(relation, c_evidences,
                 CEM.conflict_resolution_newest_wins)
             self.data = [(x, label) for x, label in self.data.items() if label is not None]
+            self.relname = config["relation"]
         data = self.data
         if not data:
             raise NotEnoughLabeledData("There is no labeled data for training!")
@@ -53,56 +55,18 @@ class Runner(object):
         extractor = FactExtractorFactory(config, train)
 
         # Evaluate prediction
-        correct = []
-        incorrect = []
-        tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
         predicted_labels = extractor.predict(test_evidences)
-        for evidence, real, predicted in zip(test_evidences, test_labels, predicted_labels):
-            if real == predicted:
-                correct.append(evidence.id)
-                if real:
-                    tp += 1
-                else:
-                    tn += 1
-            else:
-                incorrect.append(evidence.id)
-                if predicted:
-                    fp += 1
-                else:
-                    fn += 1
+        result.update(result_dict_from_predictions(
+            test_evidences, test_labels, predicted_labels))
 
         # Evaluate ranking
         predicted_scores = extractor.decision_function(test_evidences)
         auroc = roc_auc_score(test_labels, predicted_scores)
         avgprec = average_precision_score(test_labels, predicted_scores)
 
-        # Make stats
-        try:
-            precision = tp / (tp + fp)
-        except ZeroDivisionError:
-            precision = 1.0
-        try:
-            recall = tp / (tp + fn)
-        except ZeroDivisionError:
-            recall = 1.0
-        try:
-            f1 = 2 * (precision * recall) / (precision + recall)
-        except ZeroDivisionError:
-            f1 = 0.0
         result.update({
-            "true_positives": tp,
-            "false_positives": fp,
-            "true_negatives": tn,
-            "false_negatives": fn,
-            "accuracy": (tp + tn) / len(data),
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
             "auROC": auroc,
             "average_precision": avgprec,
-            "correctly_predicted": correct,
-            "incorrectly_predicted": incorrect,
-            "end_time": time.time()
         })
         return result
 

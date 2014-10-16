@@ -29,11 +29,14 @@ class ActiveLearningCore:
     # IEPY User API
     #
 
-    def __init__(self, relation, labeled_evidences):
+    def __init__(self, relation, labeled_evidences, extractor_config=None):
         self.relation = relation
         self.fact_extractor = None
         self._setup_labeled_evidences(labeled_evidences)
         self.questions = list(self.candidate_evidence)
+        if extractor_config is None:
+            extractor_config = defaults.extractor_config
+        self.extractor_config = extractor_config
 
     def start(self):
         """
@@ -97,7 +100,7 @@ class ActiveLearningCore:
                     len(self.candidate_evidence), len(self.labeled_evidence)))
 
     def train_fact_extractor(self):
-        self.fact_extractor = FactExtractorFactory(defaults.extractor_config,
+        self.fact_extractor = FactExtractorFactory(self.extractor_config,
                                                    self.labeled_evidence)
 
     def rank_candidate_evidence(self):
