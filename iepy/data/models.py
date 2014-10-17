@@ -329,17 +329,19 @@ class TextSegment(BaseModel):
         eos = list(self.get_entity_occurrences())
         left = [o for o in eos if o.entity.kind == lkind]
         right = [o for o in eos if o.entity.kind == rkind]
+        print(left, right)
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
     def get_enriched_tokens(self):
-        # TODO: implement real method
+        translation_dict = {'-LRB-': '(',
+                            '-RRB-': ')'}
         eos = list(self.get_entity_occurrences())
         RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds")
         for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
             tkn_eos = [eo for eo in eos
                        if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
             yield RichToken(
-                token=tkn,
+                token=translation_dict.get(tkn, tkn),
                 pos=postag,
                 eo_ids=[eo.id for eo in tkn_eos],
                 eo_kinds=[eo.entity.kind for eo in tkn_eos]
@@ -604,6 +606,14 @@ class EvidenceLabel(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['evidence_candidate', 'label', 'judge']
+
+    def __str__(self):
+        s = "'{}' by '{}' in '{}'"
+        return s.format(
+            self.modification_date,
+            self.judge,
+            self.evidence_candidate.id,
+        )
 
 
 class SegmentToTag(BaseModel):
