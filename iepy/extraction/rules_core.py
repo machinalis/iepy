@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from operator import attrgetter
 import logging
 
@@ -11,10 +11,15 @@ logger = logging.getLogger(__name__)
 _EOL = None
 
 
-def rule(priority=0):
+def rule(answer, priority=0):
+    if answer not in [False, True]:
+        message = "Rule has invalid answer, it has to be either False or True"
+        raise ValueError(message)
+
     def inner(f):
         f.priority = priority
         f.is_rule = True
+        f.answer = answer
         return f
     return inner
 
@@ -34,10 +39,11 @@ class RulesBasedCore(object):
     def start(self):
         logger.info('Starting rule based core')
 
-        self.learnt = []
+        self.learnt = defaultdict(bool)
         for evidence in self.evidences:
-            if self.match(evidence):
-                self.learnt.append(evidence)
+            match = self.match(evidence)
+            if match is not None:
+                self.learnt[evidence] = match
 
     def known_facts(self):
         return self.learnt
@@ -55,8 +61,10 @@ class RulesBasedCore(object):
 
         for rule in self.rules:
             regex = rule(Subject, Object) + refo.Literal(_EOL)
-            if refo.match(regex, tokens_to_match):
-                return True
+
+            match = refo.match(regex, tokens_to_match)
+            if match:
+                return rule.answer
 
     def generate_tokens_to_match(self, evidence):
         l_eo_id = evidence.left_entity_occurrence.id

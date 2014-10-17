@@ -67,11 +67,14 @@ class Runner(object):
         }
 
         # Load rules in the config
-        for rule_name in config["rules"]:
-            if rule_name not in self.rules.keys():
-                raise RuleNotFound(rule_name)
-        rules = [rule for rule_name, rule in self.rules.items()
-                 if rule_name in config["rules"]]
+        if config["rules"] == "<all>":
+            rules = self.rules.values()
+        else:
+            for rule_name in config["rules"]:
+                if rule_name not in self.rules.keys():
+                    raise RuleNotFound(rule_name)
+            rules = [rule for rule_name, rule in self.rules.items()
+                     if rule_name in config["rules"]]
 
         # Run the rule based pipeline
         pipeline = RulesBasedCore(self.relation, self.evidences, rules)
@@ -83,15 +86,15 @@ class Runner(object):
         incorrect = []
         tp, fp, tn, fn = 0.0, 0.0, 0.0, 0.0
         for evidence, label in zip(self.evidences, self.labels):
-            if evidence in matched and label:
-                correct.append(evidence.id)
-                tp += 1
-            elif evidence not in matched and not label:
-                correct.append(evidence.id)
-                tn += 1
+            predicted = matched[evidence]
+            if predicted == label:
+                if label:
+                    tp += 1
+                else:
+                    tn += 1
             else:
                 incorrect.append(evidence.id)
-                if label:
+                if predicted:
                     fp += 1
                 else:
                     fn += 1
@@ -109,6 +112,7 @@ class Runner(object):
             f1 = 2 * (precision * recall) / (precision + recall)
         except ZeroDivisionError:
             f1 = 0.0
+
         result.update({
             "true_positives": tp,
             "false_positives": fp,
