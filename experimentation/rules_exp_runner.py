@@ -67,11 +67,14 @@ class Runner(object):
         }
 
         # Load rules in the config
-        for rule_name in config["rules"]:
-            if rule_name not in self.rules.keys():
-                raise RuleNotFound(rule_name)
-        rules = [rule for rule_name, rule in self.rules.items()
-                 if rule_name in config["rules"]]
+        if config["rules"] == "<all>":
+            rules = self.rules.values()
+        else:
+            for rule_name in config["rules"]:
+                if rule_name not in self.rules.keys():
+                    raise RuleNotFound(rule_name)
+            rules = [rule for rule_name, rule in self.rules.items()
+                     if rule_name in config["rules"]]
 
         # Run the rule based pipeline
         pipeline = RulesBasedCore(self.relation, self.evidences, rules)
