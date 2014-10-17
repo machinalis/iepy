@@ -31,7 +31,8 @@
        title="Next segment with un-labeled evidences.">Label by segments</a>
 {% endblock %}
 
-{% block navigation %} <div class="right">
+{% block navigation %} 
+    <div class="right">
         <a href="{% url 'corpus:navigate_labeled_documents_judgeless' relation.pk document.pk 'back' %}"
            title="Previous labeled document">Previous document labeled</a>
         &rsaquo;

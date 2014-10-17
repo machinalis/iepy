@@ -1,0 +1,11 @@
+.title{
+    font-size: 30px;
+    width: 100%;
+    border-bottom: 4px solid #E1EBF0;
+    margin-bottom: 25px;
+    line-height: 20px;
+}
+
+.section .title{
+    font-size: 20px;
+}

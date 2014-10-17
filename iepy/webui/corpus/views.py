@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
 from django.utils import formats
+from django.views.generic.base import TemplateView
 
 from extra_views import ModelFormSetView
 
@@ -20,6 +21,10 @@ from corpus.models import (
 
 def _judge(request):
     return request.user.username
+
+
+class Home(TemplateView):
+    template_name = 'corpus/home.html'
 
 
 def next_segment_to_label(request, relation_id):
