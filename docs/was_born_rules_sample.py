@@ -65,7 +65,7 @@ def was_born_explicit_mention(Subject, Object):
 @rule(True)
 def is_born_in(Subject, Object):
     """
-    Ex: Xu is born in 1902 or 1903 in a family of farmers in Hubei LRB-- China RRB-- .
+    Ex: Xu is born in 1902 or 1903 in a family of farmers in Hubei (China RRB)
     """
     anything = Star(Any())
     return Subject + Token("is born in") + Object + anything
@@ -114,7 +114,7 @@ def just_born(Subject, Object):
 @rule(False, priority=1)
 def incorrect_labeling_of_place_as_person(Subject, Object):
     """
-    Ex:  Sophie Christiane of Wolfstein (24 October 24, 1667 -- 23 August 1737)
+    Ex:  Sophie Christiane of Wolfstein (24 October 24, 1667 - 23 August 1737)
     Wolfstein is a *place*, not a *person*
     """
     anything = Star(Any())
