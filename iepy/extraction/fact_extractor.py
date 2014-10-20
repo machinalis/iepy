@@ -423,9 +423,13 @@ def bigrams(xs):
 
 def in_between_offsets(datapoint):
     A, B = get_AB(datapoint)
-    if A.segment_offset < B.segment_offset:
+    if A.segment_offset_end < B.segment_offset:
         return A.segment_offset_end, B.segment_offset
-    return B.segment_offset_end, A.segment_offset
+    elif B.segment_offset_end < A.segment_offset:
+        return B.segment_offset_end, A.segment_offset
+    elif A.segment_offset_end < B.segment_offset_end:
+        return A.segment_offset_end, A.segment_offset_end
+    return B.segment_offset_end, B.segment_offset_end
 
 
 def get_AB(datapoint):
