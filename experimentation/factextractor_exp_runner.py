@@ -76,7 +76,9 @@ def get_train_test_indexes(config, N):
     r.seed(config[u"data_shuffle_seed"])
     indexes = list(range(N))
     r.shuffle(indexes)
-    n = int(config[u"train_percentage"] * N)
+    n = int(config[u"train_size"])
+    if n < 2 or n > N * 0.9:
+        raise ValueError("Too little training or too little test with train_size={} and corpus size={}".format(n, N))
     return indexes[:n], indexes[n:]
 
 
@@ -97,4 +99,4 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    runner.main(Runner(), extender, booking_duration=1)
+    runner.main(Runner(), extender, booking_duration=60 * 60)
