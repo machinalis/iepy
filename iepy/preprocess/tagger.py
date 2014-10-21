@@ -5,8 +5,7 @@ import logging
 from nltk.tag.stanford import POSTagger
 import wget
 
-from iepy.data.models import PreProcessSteps
-from iepy.preprocess.pipeline import BasePreProcessStepRunner
+from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.utils import DIRS, unzip_file
 
 
@@ -17,6 +16,7 @@ download_url_base = 'http://nlp.stanford.edu/software/'
 
 class TaggerRunner(BasePreProcessStepRunner):
     """Wrapper to insert a generic callable sentence POS tagger into the pipeline.
+    In order to run, require documents with sentence splitting already done.
     """
     step = PreProcessSteps.tagging
 
@@ -27,9 +27,10 @@ class TaggerRunner(BasePreProcessStepRunner):
         self.override = override
 
     def __call__(self, doc):
-        if not doc.was_preprocess_done(PreProcessSteps.sentencer):
+        if not doc.was_preprocess_step_done(PreProcessSteps.sentencer):
+            # cannot proceed if the document wasn't split in senteces
             return
-        if not self.override and doc.was_preprocess_done(PreProcessSteps.tagging):
+        if not self.override and doc.was_preprocess_step_done(PreProcessSteps.tagging):
             return
 
         tagged_doc = []
@@ -38,7 +39,7 @@ class TaggerRunner(BasePreProcessStepRunner):
 
         assert len(tagged_doc) == len(doc.tokens)
 
-        doc.set_preprocess_result(PreProcessSteps.tagging, tagged_doc)
+        doc.set_tagging_result(tagged_doc)
         doc.save()
         logger.debug("POS tagged a document")
 
@@ -55,7 +56,7 @@ class StanfordTaggerRunner(TaggerRunner):
             os.path.join(tagger_path, 'models', 'english-bidirectional-distsim.tagger'),
             os.path.join(tagger_path, 'stanford-postagger.jar'),
             encoding='utf8')
-        super(StanfordTaggerRunner, self).__init__(postagger.batch_tag, override)
+        super(StanfordTaggerRunner, self).__init__(postagger.tag_sents, override)
 
 
 def download():

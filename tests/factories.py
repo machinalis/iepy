@@ -5,10 +5,11 @@ import sys
 import factory
 import nltk
 
-from iepy.core import Fact, Evidence
 from iepy.data.models import (
-    IEDocument, Entity, PreProcessSteps, EntityInSegment,
-    TextSegment)
+    IEDocument, EntityOccurrence,
+    TextSegment, Relation,
+    EvidenceCandidate,
+)
 
 
 def naive_tkn(text):
@@ -22,64 +23,45 @@ def naive_tkn(text):
 # of Factory-Boy itself
 logging.getLogger("factory").setLevel(logging.WARN)
 
+# declared like this to "facilitate" changing the ORM
+BaseFactory = factory.django.DjangoModelFactory
 
-class EntityFactory(factory.Factory):
-    FACTORY_FOR = Entity
+
+class EntityKindFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.EntityKind'
+        django_get_or_create = ('name', )
+    name = factory.Sequence(lambda n: 'kind_%i' % n)
+
+
+class EntityFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.Entity'
+        django_get_or_create = ('key', 'kind', )
     key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
+    kind = factory.SubFactory(EntityKindFactory)
 
 
-class EntityInSegmentFactory(factory.Factory):
-    FACTORY_FOR = EntityInSegment
-    key = factory.Sequence(lambda n: 'id:%i' % n)
-    canonical_form = factory.Sequence(lambda n: 'Entity #%i' % n)
-    kind = 'person'
-    offset = 0
-    offset_end = 1
-
-
-class EntityOccurrenceFake(object):
-    # Since EntityOccurrence is an EmbeddedDocument it cant be saved, and
-    # because of that, fails when attempting comparisons
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def __str__(self):
-        return u'<EntityOccurrence %s (%s, %s)>' % (
-            self.entity.kind, self.offset, self.offset_end)
-
-    def __repr__(self):
-        return str(self)
-
-    def __lt__(self, other):  # python2 & python3 way of defining sorting
-        return self.offset < other.offset
-
-
-class EntityOccurrenceFactory(factory.Factory):
-    FACTORY_FOR = EntityOccurrenceFake
+class EntityOccurrenceFactory(BaseFactory):
+    FACTORY_FOR = EntityOccurrence
     entity = factory.SubFactory(EntityFactory)
     offset = 0
     offset_end = 1
+    alias = ''
 
 
-class IEDocFactory(factory.Factory):
+class IEDocFactory(BaseFactory):
     FACTORY_FOR = IEDocument
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
     title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
-class TextSegmentFactory(factory.Factory):
+class TextSegmentFactory(BaseFactory):
     FACTORY_FOR = TextSegment
     document = factory.SubFactory(IEDocFactory)
-    text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
     offset = factory.Sequence(lambda n: n * 3)
     offset_end = factory.Sequence(lambda n: n * 3 + 1)
-    tokens = ['lorem', 'ipsum', 'dolor']
-    postags = ['NN', 'NN', 'V']
-    entities = []
 
 
 class SentencedIEDocFactory(IEDocFactory):
@@ -95,8 +77,15 @@ class SentencedIEDocFactory(IEDocFactory):
             tokens.extend(list(enumerate(sent_tokens)))
             sentences.append(sentences[-1] + len(sent_tokens))
 
-        self.set_preprocess_result(PreProcessSteps.tokenization, tokens)
-        self.set_preprocess_result(PreProcessSteps.sentencer, sentences)
+        self.set_tokenization_result(tokens)
+        self.set_sentencer_result(sentences)
+
+
+class RelationFactory(BaseFactory):
+    FACTORY_FOR = Relation
+    name = factory.Sequence(lambda n: 'relation:%i' % n)
+    left_entity_kind = factory.SubFactory(EntityKindFactory)
+    right_entity_kind = factory.SubFactory(EntityKindFactory)
 
 
 def NamedTemporaryFile23(*args, **kwargs):
@@ -107,87 +96,123 @@ def NamedTemporaryFile23(*args, **kwargs):
     return NamedTemporaryFile(*args, **kwargs)
 
 
-class FactFactory(factory.Factory):
-    FACTORY_FOR = Fact
-    e1 = factory.SubFactory(EntityFactory)
-    e2 = factory.SubFactory(EntityFactory)
-    relation = factory.Sequence(lambda n: 'relation:%i' % n)
+class EvidenceCandidateFactory(BaseFactory):
+    FACTORY_FOR = EvidenceCandidate
+    segment = factory.SubFactory(TextSegmentFactory)
+    relation = factory.SubFactory(RelationFactory)
+    left_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
+    right_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
 
 
-class EvidenceFactory(factory.Factory):
+class EvidenceFactory(BaseFactory):
     """Factory for Evidence instances()
 
     In addition to the usual Factory Boy behavior, this factory also accepts a
     'markup' argument. The markup is a string with the tokens of the text
     segment separated by entities. You can flag entities by entering them as
-    {token token token|kind}. You can also use kind* to flag the first
-    occurrence used for the fact, and kind** to flag the second.
+    {token token token|kind}. You can also use kind* to flag the first/right
+    occurrence used for the fact, and kind** to flag the second/left.
 
     For example, the following is valid markup:
 
     "The physicist {Albert Einstein|Person*} was born in {Germany|location} and
     died in the {United States|location**} ."
     """
-
-    FACTORY_FOR = Evidence
-    fact = factory.SubFactory(FactFactory)
+    FACTORY_FOR = EvidenceCandidate
+    relation = factory.SubFactory(RelationFactory)
     segment = factory.SubFactory(TextSegmentFactory)
-    o1 = 0
-    o2 = 1
+    right_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
+    left_entity_occurrence = factory.SubFactory(
+        EntityOccurrenceFactory,
+        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
+        document=factory.SelfAttribute('..segment.document')
+    )
 
     @classmethod
     def create(cls, **kwargs):
+        def eo_args(tokens, eotokens, kind):
+            txt = ' '.join(eotokens)
+            return {
+                'entity__key': txt,
+                'entity__kind__name': kind,
+                'alias': txt,
+                'offset': len(tokens),
+                'offset_end': len(tokens) + len(eotokens)
+            }
         args = {}
         markup = kwargs.pop('markup', None)
         if markup is not None:
+            # will consider the document as having exactly the same than this segment
             tokens = []
-            entities = []
+            e_occurrences = []
             while markup:
                 if markup.startswith("{"):
                     closer = markup.index("}")
                     entity = markup[1:closer]
                     markup = markup[closer+1:].lstrip()
-                    etokens, ekind = entity.split('|')
-                    etokens = etokens.split()
-                    if ekind.endswith("**"):
-                        args["o2"] = len(entities)
-                        ekind = ekind[:-2]
-                        args["fact__e2__key"] = ' '.join(etokens)
-                        args["fact__e2__kind"] = ekind
-                    elif ekind.endswith("*"):
-                        args["o1"] = len(entities)
-                        ekind = ekind[:-1]
-                        args["fact__e1__key"] = ' '.join(etokens)
-                        args["fact__e1__kind"] = ekind
-                    entities.append((etokens, len(tokens), ekind))
-                    tokens += etokens
+                    eotokens, eokind = entity.split('|')
+                    eotokens = eotokens.split()
+                    eo_flags = eokind.count('*')
+                    eokind = eokind.strip('*')
+                    eo_args_ = eo_args(tokens, eotokens, eokind)
+
+                    if eo_flags == 2:
+                        args.update(
+                            {'left_entity_occurrence__%s' % k: v
+                             for k, v in eo_args_.items()}
+                        )
+                        args["relation__left_entity_kind__name"] = eokind
+                    elif eo_flags == 1:
+                        args.update(
+                            {'right_entity_occurrence__%s' % k: v
+                             for k, v in eo_args_.items()}
+                        )
+                        args["relation__right_entity_kind__name"] = eokind
+                    else:
+                        e_occurrences.append((eotokens, len(tokens), eokind))
+                    tokens += eotokens
                 elif ' ' in markup:
                     token, markup = markup.split(' ', 1)
                     tokens.append(token)
                 else:
                     tokens.append(markup)
                     markup = ''
-            args["segment__text"] = " ".join(tokens)
-            args["segment__tokens"] = tokens
-            args["segment__entities"] = [
-                EntityInSegmentFactory(key=" ".join(ts), kind=k, offset=o, offset_end=o + len(ts))
-                for ts, o, k in entities
-            ]
+            args["segment__document__text"] = " ".join(tokens)
+            args["segment__document__tokens"] = tokens
+            args["segment__offset"] = 0
+            args["segment__offset_end"] = len(tokens)
+            args["e_occurrences"] = e_occurrences
 
         args.update(kwargs)
         return super(EvidenceFactory, cls).create(**args)
 
     @factory.post_generation
-    def occurrences(self, create, extracted, **kwargs):
-        raw_ocurrences = kwargs.pop('data', None)
-        if raw_ocurrences is None:
-            return
-        for entity, offset, offset_end in raw_ocurrences:
-            self.segment.entities.append(
-                EntityInSegmentFactory(
-                    key=entity.key,
-                    canonical_form=entity.key,
-                    kind=entity.kind,
-                    offset=offset,
-                    offset_end=offset_end
-                ))
+    def e_occurrences(self, create, extracted, **kwargs):
+        doc = self.segment.document
+        for eotokens, offset, kind_name in extracted:
+            alias = ' '.join(eotokens)
+            EntityOccurrenceFactory(
+                entity__kind__name=kind_name,
+                entity__key=alias,
+                alias=alias,
+                document=doc,
+                offset=offset,
+                offset_end=offset + len(eotokens),
+            )
+        # Now that all were created, check which shall be included for segment
+        self.segment.entity_occurrences = doc.entity_occurrences.filter(
+            offset__gte=self.segment.offset,
+            offset_end__lte=self.segment.offset_end
+        )

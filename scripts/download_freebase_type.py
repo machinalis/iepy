@@ -13,7 +13,7 @@ Options:
 """
 from docopt import docopt
 
-from iepy.preprocess.literal_ner import download_freebase_type, to_lower_normalizer
+from iepy.preprocess.ner.literal import download_freebase_type, to_lower_normalizer
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version=0.1)

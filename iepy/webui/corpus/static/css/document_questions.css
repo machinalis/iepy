@@ -1,0 +1,191 @@
+#content .row:first-child{
+    max-width: none;
+}
+
+.entity-occurrence{
+    cursor: pointer !important;
+}
+
+.segment.odd{
+    padding: 10px;
+}
+.segment.even{
+    padding: 10px;
+    background-color: rgba(0, 0, 0, .08);
+}
+
+svg{
+    position: absolute;
+    z-index: -10;
+}
+
+input, textarea, select, .form-row p{
+    vertical-align: 0 !important;
+}
+
+.button,
+.button:active{
+    background: #008cba !important;
+    color: #fff !important;
+    padding: 10px !important;
+}
+
+.toolbox{
+
+}
+.toolbox ul{
+    margin: 0;
+}
+
+.toolbox ul li{
+    list-style: none;
+}
+.toolbox ul li input{
+    margin: 0;
+}
+
+.wrapper{
+}
+
+.f-dropdown{
+    z-index: 250 !important;
+}
+
+.f-dropdown li{
+    list-style: none;
+}
+
+.prev-relations {
+    margin: 0;
+}
+.prev-relations li{
+    list-style: none;
+    font-size: 16px;
+    margin-top: 1px;
+    padding: 2px;
+}
+.prev-relations li:hover{
+    background: #eee;
+}
+.prev-relations li span{
+    margin-left: 10px;
+}
+.prev-arrow{
+}
+
+.arrow{
+    stroke-width: 1.75px;
+    fill: none;
+}
+
+.arrow.highlight{
+    fill: #f00 !important;
+}
+
+.arrow_YE{ stroke: #0f0; }
+.prev-arrow-YE{ color: #0f0; }
+.arrow-point-YE{ fill: #0f0; }
+.toolbox-option-YE{ border-bottom: 2px solid #0f0; }
+
+.arrow_NO{ stroke: #f00; }
+.prev-arrow-NO{ color: #f00; }
+.arrow-point-NO{ fill: #f00; }
+.toolbox-option-NO{ border-bottom: 2px solid #f00; }
+
+.arrow_DK{ stroke: #fa0; }
+.prev-arrow-DK{ color: #fa0; }
+.arrow-point-DK{ fill: #fa0; }
+.toolbox-option-DK{ border-bottom: 2px solid #fa0; }
+
+.arrow_SK{ stroke: #00f; }
+.prev-arrow-SK{ color: #00f; }
+.arrow-point-SK{ fill: #00f; }
+.toolbox-option-SK{ border-bottom: 2px solid #00f; }
+
+.arrow_NS{ stroke: #f0f; }
+.prev-arrow-NS{ color: #f0f; }
+.arrow-point-NS{ fill: #f0f; }
+.toolbox-option-NS{ border-bottom: 2px solid #f0f; }
+
+
+#eoModal .segment {
+    width: 90%;
+}
+#eoModal .segment .token,
+#eoModal .segment .marker{
+    display: inline-block;
+    padding: 0 5px;
+    margin: 3px;
+    border: #CCC dashed 1px;
+}
+
+#eoModal .segment .marker {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    border: none;
+    width: 24px;
+    background-color: #BBB;
+}
+
+#eoModal .segment .marker .rotate {
+    display: inline-block;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+}
+
+#eoModal .segment .marker:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+#eoModal div.segment .between-markers {
+    background-color: rgba(255, 182, 0, 0.17);
+}
+
+#eoModal div.message p {
+    background-color: #cf2a0e;
+    padding: 5px;
+    color: white;
+}
+
+#eoModal .controls {
+    text-align: right;
+}
+
+#eoModal .cc-by-icons {
+    position: relative;
+    bottom: 10px;
+}
+
+#eoModal .remove-confirm-wrapper{
+    display: none;
+}
+
+#eoModal .remove-buttons{
+    margin-top: 10px;
+}
+
+#eoModal .remove-buttons a{
+    padding: 5px;
+    background: #eee;
+}
+
+#eoModal .remove-confirm-wrapper small{
+    font-size: 15px;
+    color: #bbb;
+}
+
+.judge-answers-wrapper{
+    margin: 0 0 20px 0;
+}
+.judge-answers-button {
+    list-style: none;
+    font-size: 16px;
+    padding: 5px 0;
+}
+.judge-answers-button:hover{
+    background: #eee;
+    color: #000 !important;
+}

@@ -1,0 +1,92 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+
+{% block content_title %}{{subtitle}}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/segment_questions.js' %}"></script>
+{% endblock %}
+
+{% block label_mode_switch %}
+    <a href="{% url 'corpus:next_document_to_label' relation.pk %}"
+       title="Next document with un-labeled evidences.">Label by documents</a>
+{% endblock %}
+
+{% block navigation %}
+    <div class="right">
+        <a href="{% url 'corpus:navigate_labeled_segments_judgeless' relation.pk segment.pk 'back' %}"
+           title="Previous labeled document">Previous segment labeled</a>
+        &rsaquo;
+        <a href="{% url 'corpus:navigate_labeled_segments_judgeless' relation.pk segment.pk 'forth' %}"
+           title="Next labeled document">Next segment labeled</a>
+    </div>
+
+    <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'back' %}"
+       title="Previous labeled segment">Last segment labeled by you</a>
+    &rsaquo;
+    <a href="{% url 'corpus:navigate_labeled_segments' relation.pk segment.pk 'forth' %}"
+       title="Next labeled segment">Next segment you labeled</a>
+    &raquo;
+    <a href="{% url 'corpus:next_segment_to_label' relation.pk %}"
+       title="Next segment with un-labeled evidences.">Next segment to label</a>
+{% endblock %}
+
+
+{% block inner_content %}
+    <br />
+    {% include "corpus/segment_render.html" %}
+    <br /> <br />
+    <div class="title"> Complete: </div>
+    <form action="." method="POST">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for question_form in formset %}
+            {% with obj=question_form.instance %}
+            <div class="question row">
+                <div class="large-4 columns">
+                    {% with left_eo=obj.evidence_candidate.left_entity_occurrence %}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ left_eo.id }}"> {{ left_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    {{ relation.name }}
+
+                    {% with right_eo=obj.evidence_candidate.right_entity_occurrence %}
+                    <span class="entity-occurrence"
+                          data-occurrence-id="{{ right_eo.id }}"> {{ right_eo.alias }}
+                    </span>
+                    {% endwith %}
+                    ?
+                </div>
+                <div class="large-4 columns">
+                    {{ question_form.as_p }}
+                </div>
+                <div class="large-4 columns">
+                    <div class="previous-judgements">
+                        {% for label in obj.all_labels %}
+                            {% if label.label %}
+                                <div class="previous-judgement">
+                                    Labeled as <span class="value">{{label.label}}</span>
+                                    by <span class="judge">{{label.judge|default:"unknown"}}</span>
+                                    on <span class="date">{{labelobj.modification_date}}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+
+        <div class="row">
+            <div class="large-4 large-offset-4 columns">
+                <input type="submit" value="save & see next" />
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

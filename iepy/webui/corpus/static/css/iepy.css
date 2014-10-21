@@ -1,0 +1,20 @@
+.breadcrumbs a{
+    float: none;
+}
+
+.label-mode-switch{
+    float: right;
+    line-height: 25px;
+}
+
+.label-mode-switch:before{
+    display: none !important;
+}
+
+.navigation{
+    margin-top: -1px;
+    margin-bottom: 0;
+    font-size: 11px;
+    padding: 2px 8px 3px 8px;
+    float: none;
+}

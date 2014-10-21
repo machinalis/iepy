@@ -1,12 +1,14 @@
-import codecs
-from csv import reader, writer
 from getpass import getuser
+import os
 import zipfile
 
 from appdirs import AppDirs
 
 
 DIRS = AppDirs('iepy', getuser())
+if not os.path.exists(DIRS.user_data_dir):
+    # making sure that user_data_dir exists
+    os.mkdir(DIRS.user_data_dir)
 
 
 def unzip(zipped_list, n):
@@ -28,42 +30,6 @@ def unzip(zipped_list, n):
 def unzip_file(zip_path, extraction_base_path):
     zfile = zipfile.ZipFile(zip_path)
     zfile.extractall(extraction_base_path)
-
-
-def load_facts_from_csv(filepath):
-    """Returns an iterable of facts from a CSV file encoded in UTF-8.
-    It's assumend that first 4 columns are
-        entity a kind, entity a key, entity b kind, entity b key
-    and that the 5th column is the relation name.
-    Everything else in the file will be ignored.
-    Row with less column than stated, will be ignored.
-    """
-    from iepy.data.knowledge import Fact  # Done here to avoid circular dependency
-    from iepy.data import db
-
-    with codecs.open(filepath, mode='r', encoding='utf-8') as csvfile:
-        factsreader = reader(csvfile, delimiter=',')
-        for row in factsreader:
-            if len(row) < 5:
-                continue
-            entity_a = db.get_entity(row[0], row[1])
-            entity_b = db.get_entity(row[2], row[3])
-            yield Fact(entity_a, row[4], entity_b)
-
-
-def save_facts_to_csv(facts, filepath):
-    """Writes an iterable of facts to a CSV file encoded in UTF-8.
-    Each fact in the input facts iterable is a Fact instance
-    The entities can be Entity or EntityInSegment instances. The relation name
-    is a string.
-    For the CSV file format refer to load_facts_from_csv().
-    """
-    with codecs.open(filepath, mode='w', encoding='utf-8') as csvfile:
-        facts_writer = writer(csvfile, delimiter=',')
-        for (entity_a, relation, entity_b) in facts:
-            row = [entity_a.kind, entity_a.key, entity_b.kind, entity_b.key,
-                   relation]
-            facts_writer.writerow(row)
 
 
 def make_feature_list(text):

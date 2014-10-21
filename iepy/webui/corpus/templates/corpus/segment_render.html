@@ -1,0 +1,20 @@
+{% comment %}
+    Given a TextSegment object in the context, with the name of segment
+    this will render the html of its text with all the metadata
+{% endcomment %}
+
+
+<div class="segment">
+    {% for rich_token in segment_rich_tokens %}
+        {% if rich_token.eo_ids %}
+            <span class="rich-token entity-occurrence" data-occurrence-ids="{{ rich_token.eo_ids }}">
+        {% else %}
+            <span class="rich-token">
+        {% endif %}
+            {% if draw_postags %}
+                <span class="pos-tag"> {{ rich_token.pos }} </span>
+            {% endif %}
+            <span class="token"> {{ rich_token.token }} </span>
+        </span>
+    {% endfor %}
+</div>

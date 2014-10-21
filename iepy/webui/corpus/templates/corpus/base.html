@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/foundation.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/foundation-icons.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/iepy.css' %}" />
+
+    <!-- Javascript -->
+    <script src="{% static 'js/vendor/modernizr.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery.js' %}"></script>
+    <script src="{% static 'js/foundation.min.js' %}"></script>
+    <script src="{% static 'js/foundation/foundation.dropdown.js' %}"></script>
+    <script src="{% static 'js/foundation/foundation.reveal.js' %}"></script>
+    <script>
+        $(document).foundation();
+    </script>
+    {% block extra_js %}{% endblock %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Home</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+
+        <div class="label-mode-switch">
+            {% block label_mode_switch %}{% endblock %}
+        </div>
+    </div>
+    {% if draw_navigation %}
+        <div class="navigation large-12 columns">
+            {% block navigation %} {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="large-12 columns">
+            {% block inner_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

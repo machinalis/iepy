@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+    <li>
+        <a href="{% url 'corpus:next_segment_to_label' original.pk %}"
+           class="label-evidence">
+            Label evidence
+        </a>
+    </li>
+{% endblock %}

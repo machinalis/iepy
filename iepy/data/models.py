@@ -1,361 +1,89 @@
+# This module is the nexus/connection between the UI definitions (django models)
+# and the IEPY models. Modifications of this file should be done with the
+# awareness of this dual-impact.
 from datetime import datetime
 import itertools
-from os import environ
+import logging
+from operator import attrgetter
+from collections import namedtuple
 
-from enum import Enum
-from mongoengine import DynamicDocument, EmbeddedDocument, fields
+from django.db import models
 
-from iepy.pycompatibility import PY2
 from iepy.utils import unzip
+from corpus.fields import ListField
+import jsonfield
+
+CHAR_MAX_LENGHT = 256
+
+logger = logging.getLogger(__name__)
 
 
-class PreProcessSteps(Enum):
-    tokenization = 1
-    sentencer = 2
-    tagging = 3
-    ner = 4
-    segmentation = 5
+class BaseModel(models.Model):
+    class Meta:
+        abstract = True
+        app_label = 'corpus'  # Name of the django app.
 
 
-class InvalidPreprocessSteps(Exception):
-    pass
+class EntityKind(BaseModel):
+    # There's a fixture declaring an initial set of Entity Kinds, containing
+    # PERSON, LOCATION, AND ORGANIZATION
+    name = models.CharField(max_length=CHAR_MAX_LENGHT, unique=True)
+
+    class Meta(BaseModel.Meta):
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
-_KINDS_ENV = 'CUSTOM_ENTITY_KINDS'
-BASE_ENTITY_KINDS = [
-    ('person', u'Person'),
-    ('location', u'Location'),
-    ('organization', u'Organization'),
-]
+class Entity(BaseModel):
+    # the "key" IS the "canonical-form". Alieses are stored on
+    # Entity Occurrences
+    key = models.CharField(max_length=CHAR_MAX_LENGHT)
+    kind = models.ForeignKey(EntityKind)
 
-ENTITY_KINDS = BASE_ENTITY_KINDS[:]
+    class Meta(BaseModel.Meta):
+        ordering = ['kind', 'key']
+        unique_together = (('key', 'kind'), )
 
-if PY2:
-    class SortableDocumentMixin(object):
-
-        def __cmp__(self, other):
-            return cmp(self.id, other.id)
-else:  # Python 3
-    # Mongoengine is not providing __lt__ method on their base class,
-    # needed for py3 comparisons.
-    class SortableDocumentMixin(object):
-
-        def __lt__(self, other):
-            return self.id < other.id
+    def __str__(self):
+        return '%s (%s)' % (self.key, self.kind.name)
 
 
-def _get_custom_entity_kinds():
-    raw_custom = environ.get(_KINDS_ENV, '').strip()
-    if not raw_custom:
-        return []
-    return map(lambda x: tuple(x.split(':')), raw_custom.split(','))
-
-
-def _merge_base_and_custom_kinds():
-    # clean and re fill the list, taking care that's the same list object
-    while ENTITY_KINDS:
-        ENTITY_KINDS.pop()
-    for k in BASE_ENTITY_KINDS:
-        ENTITY_KINDS.append(k)
-    for k in _get_custom_entity_kinds():
-        ENTITY_KINDS.append(k)
-
-
-def set_custom_entity_kinds(custom_entity_kinds):
-    """Receives a list of tuples (kind_id, kind_label) and adds them to the
-    available Entity kinds.
-
-    Be aware that:
-        - each time is called, old custom entity-kinds are lost
-        - which means that calling with empty list resets kinds to default only
-        - if some entity was already created with a custom kind and you later
-          remove that kind, no warning nor error will be visible until you try
-          to save such entities.
-    """
-    marshalled = []
-    for kind_id, kind_label in custom_entity_kinds:
-        marshalled.append('%s:%s' % (kind_id, kind_label))
-    environ[_KINDS_ENV] = ','.join(marshalled)
-    _merge_base_and_custom_kinds()
-
-_merge_base_and_custom_kinds()
-
-
-def _interval_offsets(a, xl, xr, lo=0, hi=None, key=None):
-    """
-    Given a sorted list/tuple/array a, returns a pair (l,r) that satisfies:
-
-    all(v < xl for v in a[lo:l])
-    all(xl <= v < xr for v in a[l:r])
-    all(xr <= v for v in a[r:hi])
-
-    key(v) is used if key is provided
-    default value for hi is len(a)
-    """
-    # Default key: identity
-    if key is None:
-        key = lambda x: x
-    if hi is None:
-        hi = len(a)
-    if lo < 0:
-        raise ValueError("lo must not be negative")
-    if xl > xr:
-        raise ValueError("This function requires xl <= xr ")
-    # Special case: empty range:
-    if lo == hi:
-        return lo, hi
-    # Reduce range for both left and right endpoints
-    while lo < hi:
-        mid = (lo + hi) // 2
-        v = key(a[mid])
-        if xl <= v and xr <= v:
-            hi = mid
-        elif v < xl and v < xr:
-            lo = mid + 1
-        else:
-            # xl <= v < xr; now we need to split left and right intervals
-            break
-    llo, lhi = lo, mid
-    rlo, rhi = mid, hi
-    # Find left bisection point
-    while llo < lhi:
-        mid = (llo + lhi) // 2
-        if key(a[mid]) < xl:
-            llo = mid + 1
-        else:
-            lhi = mid
-    # Find right bisection point
-    while rlo < rhi:
-        mid = (rlo + rhi) // 2
-        if xr <= key(a[mid]):
-            rhi = mid
-        else:
-            rlo = mid + 1
-    # A couple of sanity checks: left and right intervals are outside the range
-    assert lo == llo or key(a[llo - 1]) < xl
-    assert hi == rlo or key(a[rlo]) >= xr
-    return (llo, rlo)
-
-
-class Entity(DynamicDocument, SortableDocumentMixin):
-    key = fields.StringField(required=True, unique_with='kind')
-    canonical_form = fields.StringField(required=True)
-    kind = fields.StringField(choices=ENTITY_KINDS)
-
-    def __unicode__(self):
-        return u'%s (%s)' % (self.key, self.kind)
-
-
-class EntityOccurrence(EmbeddedDocument):
-    """Models the occurrence of a particular Entity on a Document"""
-    entity = fields.ReferenceField('Entity', required=True)
-    offset = fields.IntField(required=True)  # Offset in tokens wrt to document
-    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to document
-    alias = fields.StringField()  # Text of the occurrence, if different than canonical_form
-
-    def __unicode__(self):
-        return u'{0} ({1}, {2})'.format(self.entity, self.offset, self.offset_end)
-
-    @classmethod
-    def build(cls, key, kind, alias, offset, offset_end):
-        entity, created = Entity.objects.get_or_create(
-            key=key,
-            kind=kind,
-            defaults={'canonical_form': alias})
-        self = cls(
-            entity=entity,
-            offset=offset,
-            offset_end=offset_end,
-            alias=alias)
-        return self
-
-
-class EntityInSegment(EmbeddedDocument):
-    """Models occurrence of a particular entity on a TextSegment"""
-    key = fields.StringField(required=True)
-    canonical_form = fields.StringField(required=True)
-    kind = fields.StringField(choices=ENTITY_KINDS, required=True)
-    offset = fields.IntField(required=True)  # Offset in tokens wrt to segment
-    offset_end = fields.IntField(required=True)  # Offset in tokens wrt to segment
-    alias = fields.StringField()  # Representation of the entity actually used in the text
-
-    def is_entity(self, e):
-        return self.key == e.key and self.kind == e.kind
-
-    def __unicode__(self):
-        return u'{0} ({1}) ({2}, {3})'.format(self.key, self.kind, self.offset, self.offset_end)
-
-
-class TextSegment(DynamicDocument, SortableDocumentMixin):
-    document = fields.ReferenceField('IEDocument', required=True)
-    text = fields.StringField(required=True)
-    offset = fields.IntField()  # Offset in tokens wrt document
-
-    # The following lists have the same length, correspond 1-to-1
-    tokens = fields.ListField(fields.StringField())
-    postags = fields.ListField(fields.StringField())
-
-    entities = fields.ListField(fields.EmbeddedDocumentField(EntityInSegment))
-
-    # offsets of sentence starts in this segment; relative to start of segment
-    sentences = fields.ListField(fields.IntField())
-
-    def __unicode__(self):
-        return u'{0}'.format(' '.join(self.tokens))
-
-    @classmethod
-    def build(cls, document, token_offset, token_offset_end):
-        """
-        Build a segment based in the given documents, using the tokens in the
-        range [token_offset:token_offset_end] (note that this has the usual
-        python-range semantics)
-
-        use the given text as reference (it should be a human readable
-        representation of the segment
-        """
-        self = cls()
-        self.document = document
-        self.offset = token_offset
-        self.tokens = document.tokens[token_offset:token_offset_end]
-        self.postags = document.postags[token_offset:token_offset_end]
-        if token_offset < len(document.offsets):
-            text_start = document.offsets[token_offset]
-        else:
-            text_start = len(document.text)
-        if token_offset_end < len(document.offsets):
-            text_end = document.offsets[token_offset_end]
-        else:
-            text_end = len(document.text)
-        self.text = document.text[text_start:text_end]
-        # Find entities
-        l, r = _interval_offsets(
-            document.entities,
-            token_offset, token_offset_end,
-            key=lambda occ: occ.offset)
-        entities = []
-        for o in document.entities[l:r]:
-            assert token_offset <= o.offset < token_offset_end  # This is ensured by _interval_offsets
-            entities.append(EntityInSegment(
-                key=o.entity.key,
-                canonical_form=o.entity.canonical_form,
-                kind=o.entity.kind,
-                offset=o.offset - token_offset,
-                offset_end=o.offset_end - token_offset,
-                alias=o.alias,
-            ))
-        self.entities = entities
-        # Find sentences
-        l, r = _interval_offsets(document.sentences, token_offset, token_offset_end)
-        self.sentences = [o - token_offset for o in document.sentences[l:r]]
-        return self
-
-    def entity_occurrence_pairs(self, e1, e2):
-        left = [i for i, o in enumerate(self.entities) if o.is_entity(e1)]
-        right = [i for i, o in enumerate(self.entities) if o.is_entity(e2)]
-        return [(l, r) for l, r in itertools.product(left, right) if l != r]
-
-    def kind_occurrence_pairs(self, lkind, rkind):
-        left = [i for i, o in enumerate(self.entities) if o.kind == lkind]
-        right = [i for i, o in enumerate(self.entities) if o.kind == rkind]
-        return [(l, r) for l, r in itertools.product(left, right) if l != r]
-
-
-class IEDocument(DynamicDocument, SortableDocumentMixin):
-    human_identifier = fields.StringField(required=True, unique=True)
-    title = fields.StringField()
-    url = fields.URLField()
-    text = fields.StringField()
-    creation_date = fields.DateTimeField(default=datetime.now)
-    # anything else you want to storein here that can be useful
-    metadata = fields.DictField()
-
-    # Fields and stuff that is computed while traveling the pre-process pipeline
-    preprocess_metadata = fields.DictField()
+class IEDocument(BaseModel):
+    human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
+                                        unique=True)
+    title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
+    url = models.URLField()  # TODO: remove
+    text = models.TextField()
+    creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
-    tokens = fields.ListField(fields.StringField())
-    offsets = fields.ListField(fields.IntField())  # character offset for tokens
-    postags = fields.ListField(fields.StringField())
+    tokens = ListField()  # strings
+    offsets_to_text = ListField()  # ints, character offset for tokens
+    postags = ListField()  # strings
 
-    sentences = fields.ListField(fields.IntField())  # it's a list of token-offsets
-    # Occurrences of entites, sorted by offset
-    entities = fields.ListField(fields.EmbeddedDocumentField(EntityOccurrence))
-    meta = {'collection': 'iedocuments'}
+    sentences = ListField()  # ints, it's a list of token-offsets
 
-    # Mapping of preprocess steps and fields where the result is stored.
-    preprocess_fields_mapping = {
-        PreProcessSteps.tokenization: ('offsets', 'tokens'),
-        PreProcessSteps.sentencer: 'sentences',
-        PreProcessSteps.tagging: 'postags',
-        PreProcessSteps.ner: 'entities',
-    }
+    # Reversed fields:
+    # entity_occurrences = Reversed ForeignKey of EntityOccurrence
+    # segments = Reversed ForeignKey of TextSegment
 
-    def flag_preprocess_done(self, step):
-        """Adds an internal mark for knowing that the given step was done.
-        Explicit "save" shall be called after this call.
-        Returns "self" so it's easily chainable with a .save() if desired
-        """
-        self.preprocess_metadata[step.name] = {
-            'done_at': datetime.now(),
-        }
-        return self
+    # Metadata annotations that're computed while traveling the pre-process pipeline
+    tokenization_done_at = models.DateTimeField(null=True, blank=True)
+    sentencer_done_at = models.DateTimeField(null=True, blank=True)
+    tagging_done_at = models.DateTimeField(null=True, blank=True)
+    ner_done_at = models.DateTimeField(null=True, blank=True)
+    segmentation_done_at = models.DateTimeField(null=True, blank=True)
 
-    def was_preprocess_done(self, step):
-        return step.name in self.preprocess_metadata.keys()
+    # anything else you want to store in here that can be useful
+    metadata = jsonfield.JSONField(blank=True)
 
-    def set_preprocess_result(self, step, result):
-        """Set the result in the internal representation.
-        Explicit save must be triggered after this call.
-        Returns "self" so it's easily chainable with a .save() if desired
-        """
-        if not isinstance(step, PreProcessSteps):
-            raise InvalidPreprocessSteps
-        if step == PreProcessSteps.sentencer:
-            if not all(isinstance(x, int) for x in result):
-                raise ValueError('Sentencer result shall only contain ints: %r' % result)
-            if sorted(result) != result:
-                raise ValueError('Sentencer result shall be ordered.')
-            if len(set(result)) < len(result):
-                raise ValueError(
-                    'Sentencer result shall not contain duplicates.')
-            if result[0] != 0:
-                raise ValueError(
-                    'Sentencer result must start with 0. Actual=%r' % result[0])
-            if result[-1] != len(self.tokens):
-                raise ValueError(
-                    'Sentencer result must end with token count=%d. Actual=%r' % (len(self.tokens), result[-1]))
-        elif step == PreProcessSteps.tagging:
-            if len(result) != len(self.tokens):
-                raise ValueError(
-                    'Tagging result must have same cardinality than tokens')
+    class Meta(BaseModel.Meta):
+        ordering = ['id', ]
 
-        field_name = self.preprocess_fields_mapping[step]
-        if isinstance(field_name, tuple):
-            # Some steps are stored on several fields
-            names = field_name
-            results = unzip(result, len(names))
-            for field_name, result in zip(names, results):
-                setattr(self, field_name, result)
-        else:
-            setattr(self, field_name, result)
-        return self.flag_preprocess_done(step)
-
-    def get_preprocess_result(self, step):
-        """Returns the stored result for the asked preprocess step.
-        If such result was never set, None will be returned instead"""
-        if not self.was_preprocess_done(step):
-            return None
-        else:
-            field_name = self.preprocess_fields_mapping[step]
-        if isinstance(field_name, tuple):
-            # Some steps are stored on several fields
-            names = field_name
-            results = []
-            for field_name in names:
-                results.append(getattr(self, field_name))
-            return list(zip(*results))
-        else:
-            return getattr(self, field_name)
+    def __str__(self):
+        return '<IEDocument {0}>'.format(self.human_identifier)
 
     def get_sentences(self):
         """Iterator over the sentences, each sentence being a list of tokens.
@@ -367,81 +95,546 @@ class IEDocument(DynamicDocument, SortableDocumentMixin):
             yield tokens[start:end]
             start = end
 
-    def clear_segments(self):
-        """Remove all existing segments"""
-        TextSegment.objects.filter(document=self).delete()
+    def get_entity_occurrences(self):
+        """Returns an iterable of EntityOccurrences, sorted by offset"""
+        return self.entity_occurrences.all().order_by('offset')
 
-    def build_syntactic_segments(self):
-        entity = 0
-        L = len(self.sentences)
-        for i, start in enumerate(self.sentences):
-            end = self.sentences[i + 1] if i + 1 < L else len(self.tokens)
-            # At this point, tokens[start:end] has a sentence
-            # We need to check that it has at least 2 entities before
-            # building a segment
-            n = 0
-            for entity in range(entity, len(self.entities)):
-                # Skip entities before start of sentence
-                # If sentences are contiguous, and start at token 0,
-                # this loop should never advance. But we don't know what the
-                # sentencer does, so it's ebtter to be careful
-                if self.entities[entity].offset >= start:
-                    break
-            for entity in range(entity, len(self.entities)):
-                # Count entities inside the sentence
-                if self.entities[entity].offset >= end:
-                    break
-                n += 1
-            if n >= 2:
-                s = TextSegment.build(self, start, end)
-                s.save()
+    def get_text_segments(self):
+        """Returns the iterable of TextSegments, sorted by offset"""
+        return self.segments.all().order_by('offset')
 
-    def build_contextual_segments(self, d):
-        """
-        Build all contextual text segments in a contextual way. A context is a
-        contiguous piece of the document with at least 2 tokens separated by
-        a distance of no more than 'd'.
+    ### Methods used for preprocess ###
 
-        - A candidate segment should be built around each entity,
-        with k tokens ahead and behind.
-        - If an nearby entity is found, extend another k tokens (only once, do
-        not iterate this step).
-        - If no entities are found around the "center" entity, ignore this segment
-        - multi-token entities should always be captured together
-        - if two segments overlap, keep the larger one
-        """
-        L = len(self.entities)
-        i = 0
-        lstart, lend = -1, -1
-        while i + 1 < L:
-            # Find 2 entities that are "close"
-            left, middle = self.entities[i:i + 2]
-            while middle.offset - left.offset_end >= d:
-                i += 1
-                if i + 1 == L:
-                    # we're done!
-                    return
-                left, middle = self.entities[i:i + 2]
-            # Find the rightmost in the segment
-            if i + 2 < L and self.entities[i + 2].offset - middle.offset_end < d:
-                right = self.entities[i + 2]
+    def was_preprocess_step_done(self, step):
+        return getattr(self, '%s_done_at' % step.name) is not None
+
+    def set_tokenization_result(self, value):
+        """Sets the value to the correspondent storage format"""
+        if not isinstance(value, list):
+            raise ValueError("Tokenization expected result should be a list "
+                             "of tuples (token-offset on text (int), token-string).")
+        tkn_offsets, tokens = unzip(value, 2)
+        self.tokens = list(tokens)
+        self.offsets_to_text = list(tkn_offsets)
+        self.tokenization_done_at = datetime.now()
+        return self
+
+    def set_sentencer_result(self, value):
+        if not isinstance(value, list):
+            raise ValueError("Sentencer expected result should be a list.")
+        if not all(isinstance(x, int) for x in value):
+            raise ValueError('Sentencer result shall only contain ints: %r' % value)
+        if sorted(value) != value:
+            raise ValueError('Sentencer result shall be ordered.')
+        if len(set(value)) < len(value):
+            raise ValueError(
+                'Sentencer result shall not contain duplicates.')
+        if value[0] != 0:
+            raise ValueError(
+                'Sentencer result must start with 0. Actual=%r' % value[0])
+        if value[-1] != len(self.tokens):
+            raise ValueError(
+                'Sentencer result must end with token count=%d. Actual=%r' % (
+                    len(self.tokens), value[-1]))
+        self.sentences = value
+        self.sentencer_done_at = datetime.now()
+        return self
+
+    def set_tagging_result(self, value):
+        if len(value) != len(self.tokens):
+            raise ValueError(
+                'Tagging result must have same cardinality than tokens')
+        self.postags = value
+        self.tagging_done_at = datetime.now()
+        return self
+
+    def set_ner_result(self, value):
+        for found_entity in value:
+            key, kind_name, alias, offset, offset_end = found_entity
+            kind, _ = EntityKind.objects.get_or_create(name=kind_name)
+            entity, created = Entity.objects.get_or_create(
+                key=key,
+                kind=kind)
+            if len(alias) > CHAR_MAX_LENGHT:
+                alias_ = alias[:CHAR_MAX_LENGHT]
+                print('Alias "%s" reduced to "%s"' % (alias, alias_))
+                alias = alias_
+            EntityOccurrence.objects.get_or_create(
+                document=self,
+                entity=entity,
+                offset=offset,
+                offset_end=offset_end,
+                alias=alias
+            )
+        self.ner_done_at = datetime.now()
+        return self
+
+    def set_segmentation_result(self, value, increment=True, override=False):
+        if override:
+            self.segments.all().delete()
+            logger.info('Previous segments removed')
+        get_offsets = attrgetter('offset', 'offset_end')
+        value = sorted(value, key=get_offsets)
+        logger.info('About to set %s segments for current doc', len(value))
+        doc_ent_occurrences = list(self.entity_occurrences.all())
+        currents = set(self.segments.all().values_list('offset', 'offset_end'))
+        new_segs = []
+        for i, raw_segment in enumerate(value):
+            if (raw_segment.offset, raw_segment.offset_end) in currents:
+                continue
+            _segm = TextSegment(
+                document=self, offset=raw_segment.offset,
+                offset_end=raw_segment.offset_end)
+            new_segs.append((_segm, raw_segment))
+        if new_segs:
+            TextSegment.objects.bulk_create(list(zip(*new_segs))[0])
+            logger.info('New %s segments created', len(new_segs))
+        # And now, taking care of setting Entity Occurrences
+
+        doc_segments = dict((get_offsets(s), s) for s in self.segments.all())
+        for _segm, raw_segment in new_segs:
+            segm = doc_segments[get_offsets(_segm)]
+            if raw_segment.entity_occurrences is None:
+                # Entity Ocurrences not provided, need to compute them
+                segm.entity_occurrences = [
+                    eo for eo in doc_ent_occurrences
+                    if eo.offset >= segm.offset
+                    and eo.offset_end <= segm.offset_end
+                ]
             else:
-                right = middle
-            # Calculate the starting/ending offsets
-            start = max(0, left.offset - d)
-            end = min(right.offset_end + d, len(self.tokens))
-            # Make sure that this doesn't split a token:
-            j = i
-            while j >= 0 and self.entities[j].offset_end > start:
-                start = min(start, self.entities[j].offset)
-                j -= 1
-            j = i
-            while j < L and self.entities[j].offset < end:
-                end = max(end, self.entities[j].offset_end)
-                j += 1
-            if not (end == lend and start >= lstart):
-                # Not a repeat
-                s = TextSegment.build(self, start, end)
-                s.save()
-            lstart, lend = start, end
-            i += 1
+                segm.entity_occurrences = raw_segment.entity_occurrences
+
+        self.segmentation_done_at = datetime.now()
+        return self
+
+
+class EntityOccurrence(BaseModel):
+    """Models the occurrence of a particular Entity on a Document"""
+    entity = models.ForeignKey('Entity')
+    document = models.ForeignKey('IEDocument', related_name='entity_occurrences')
+    segments = models.ManyToManyField('TextSegment', related_name='entity_occurrences')
+
+    # Offset in tokens wrt to document
+    offset = models.IntegerField()  # offset of the 1st token included on the occurrence
+    offset_end = models.IntegerField()  # offset of the 1st token NOT included
+
+    # Hydrated fields: same than "offsets", but wrt segment
+    # segment_offset = IntegerField
+    # segment_offset_end = IntegerField
+
+    # Text of the occurrence, so if it's different than canonical_form, it's easy to see
+    alias = models.CharField(max_length=CHAR_MAX_LENGHT)
+
+    class Meta(BaseModel.Meta):
+        ordering = ['document', 'offset', 'offset_end']
+        unique_together = ['entity', 'document', 'offset', 'offset_end']
+
+    def __str__(self):
+        return '{0} ({1}, {2})'.format(self.entity.key, self.offset, self.offset_end)
+
+    def hydrate_for_segment(self, segment):
+        # creates some on-memory attributes with respect to the segment
+        self.segment_offset = self.offset - segment.offset
+        self.segment_offset_end = self.offset_end - segment.offset
+        return self
+
+
+class TextSegment(BaseModel):
+    document = models.ForeignKey('IEDocument', related_name='segments', db_index=True)
+
+    # Offset in tokens wrt to document
+    #     They represent:
+    #      - offset: index of the first token included on the segment
+    #      - offset_end: index of the first token NOT included on the segment
+    offset = models.IntegerField(db_index=True)
+    offset_end = models.IntegerField(db_index=True)
+
+    # Reversed fields:
+    # entity_occurrences = Reversed ManyToManyField of EntityOccurrence
+
+    class Meta(BaseModel.Meta):
+        ordering = ['document', 'offset', 'offset_end']
+        unique_together = ['document', 'offset', 'offset_end']
+
+    def __str__(self):
+        # return u'{0}'.format(' '.join(self.tokens))  # TODO: no tokens
+        return u'({0} {1})'.format(self.offset, self.offset_end)
+
+    def hydrate(self, document_on_ram=None):
+        # Using the segment offsets, and the data on document itself, constructs
+        # on-memory attributes for the segment
+        # If "document_on_ram" provided, is used instead of querying DB.
+        if getattr(self, '_hydrated', False):
+            return self
+        if document_on_ram is not None:
+            assert document_on_ram.pk == self.document_id
+            doc = document_on_ram
+        else:
+            doc = self.document
+        self.tokens = doc.tokens[self.offset: self.offset_end]
+        self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
+        self.postags = doc.postags[self.offset: self.offset_end]
+        if self.offsets_to_text:
+            # grab the text except the last token
+            self.text = doc.text[self.offsets_to_text[0]:
+                                 doc.offsets_to_text[self.offset_end - 1]]
+            # and now append the "pure" last token.
+            self.text += self.tokens[-1]
+        else:
+            self.text = ""
+        self.sentences = [i - self.offset for i in doc.sentences
+                          if i >= self.offset and i < self.offset_end]
+        self._hydrated = True
+        return self
+
+    def get_entity_occurrences(self):
+        """Returns an iterable of EntityOccurrences, sorted by offset"""
+        return map(lambda eo: eo.hydrate_for_segment(self),
+                   self.entity_occurrences.all().order_by('offset')
+                   )
+
+    def get_evidences_for_relation(self, relation, existent=None):
+        # Gets or creates Labeled Evidences (when creating, label is empty)
+        lkind = relation.left_entity_kind
+        rkind = relation.right_entity_kind
+        # For performance sake, first grabs all existent, and if later some missing, they
+        # are created
+        if existent is None:
+            existent = EvidenceCandidate.objects.filter(segment=self, relation=relation)
+            existent = existent.select_related(
+                'left_entity_occurrence', 'right_entity_occurrence')
+        existent = {
+            (ec.left_entity_occurrence_id, ec.right_entity_occurrence.id): ec
+            for ec in existent
+        }  # dict of existent evidence-candidates, indexed by left and right EO ids
+        for l_eo, r_eo in self.kind_occurrence_pairs(lkind, rkind):
+            if (l_eo.pk, r_eo.pk) in existent:
+                yield existent[(l_eo.pk, r_eo.pk)]
+                continue
+            obj, created = EvidenceCandidate.objects.get_or_create(
+                left_entity_occurrence=l_eo,
+                right_entity_occurrence=r_eo,
+                relation=relation,
+                segment=self,
+            )
+            yield obj
+
+    def entity_occurrence_pairs(self, e1, e2):
+        eos = list(self.get_entity_occurrences())
+        left = [eo for eo in eos if eo.entity == e1]
+        right = [eo for eo in eos if eo.entity == e2]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
+
+    def kind_occurrence_pairs(self, lkind, rkind):
+        eos = list(self.get_entity_occurrences())
+        left = [o for o in eos if o.entity.kind == lkind]
+        right = [o for o in eos if o.entity.kind == rkind]
+        return [(l, r) for l, r in itertools.product(left, right) if l != r]
+
+    def get_enriched_tokens(self):
+        translation_dict = {'-LRB-': '(',
+                            '-RRB-': ')'}
+        eos = list(self.get_entity_occurrences())
+        RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds")
+        for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
+            tkn_eos = [eo for eo in eos
+                       if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
+            yield RichToken(
+                token=translation_dict.get(tkn, tkn),
+                pos=postag,
+                eo_ids=[eo.id for eo in tkn_eos],
+                eo_kinds=[eo.entity.kind for eo in tkn_eos]
+            )
+
+    @classmethod
+    def filter_by_entity_occurrence_kind_pair(cls, kind_a, kind_b):
+        """Returns a queryset of TextSegments having at least one Entity
+        Occurrence of the left entity kind, and at least one Entity Occurrence
+        of the right entity kind. If left and rigth kinds are the same, at least
+        two occurrences expected."""
+        # This may be implemented as a Manager method, but for simplicity, will
+        # be put in here as a classmethod.
+        matching_segms = TextSegment.objects.filter(
+            entity_occurrences__entity__kind=kind_a).distinct()
+        if kind_a == kind_b:
+            # BECAREFUL!!! There is a very subtle detail in here. The Django ORM,
+            # after doing the first filter (before entering this if-branch) gave us
+            # <TextSegments> whose "entity_occurrences" are not all of them, but only
+            # those that match the criteria expressed above. Because of that, is that
+            # when annotating Count of such thing, we trust is counting EOccurrences of
+            # the kind we are interested in, and not the others.
+            matching_segms = matching_segms.annotate(
+                kind_count=models.Count('entity_occurrences__entity__kind')).filter(
+                    kind_count__gte=2
+                )
+        else:
+            matching_segms = matching_segms.filter(
+                entity_occurrences__entity__kind=kind_b,
+            ).distinct()
+        return matching_segms
+
+
+class Relation(BaseModel):
+    name = models.CharField(max_length=CHAR_MAX_LENGHT)
+    left_entity_kind = models.ForeignKey('EntityKind', related_name='left_relations')
+    right_entity_kind = models.ForeignKey('EntityKind', related_name='right_relations')
+
+    # Reversed fields:
+    # evidence_relations = Reversed ForeignKey of EvidenceCandidate
+
+    class Meta(BaseModel.Meta):
+        ordering = ['name', 'left_entity_kind', 'right_entity_kind']
+        unique_together = ['name', 'left_entity_kind', 'right_entity_kind']
+
+    def __str__(self):
+        return '{}({}, {})'.format(self.name, self.left_entity_kind,
+                                   self.right_entity_kind)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            # Object already exists, this is a modification
+            original_obj = Relation.objects.get(pk=self.pk)
+            for fname in ['left_entity_kind', 'right_entity_kind']:
+                if getattr(original_obj, fname) != getattr(self, fname):
+                    raise ValueError("Relation kinds can't be modified after creation")
+        return super(Relation, self).save(*args, **kwargs)
+
+    def _matching_text_segments(self):
+        return TextSegment.filter_by_entity_occurrence_kind_pair(
+            self.right_entity_kind, self.left_entity_kind)
+
+    def labeled_neighbor(self, obj, judge, back=False):
+        """Returns the id of the "closest" labeled object to the one provided.
+        Notes:
+            - By "closest", it's mean the distance of the id numbers.
+            - Works both for TextSegment and for IEDocument
+            - If back is True, it's picked the previous item, otherwise, the next one.
+            - It's assumed that the obj provided HAS labeled evidence already. If not,
+              it's not possible to determine what is next. In such case, the id of the
+              last labeled object will be returned.
+
+            - If asking "next" and obj is currently the last, his id will be returned.
+            - If asking "prev" and obj is currently the first, his id will be returned.
+        """
+        if isinstance(obj, TextSegment):
+            segments = self._matching_text_segments()
+            segments = segments.filter(evidence_relations__relation=self)
+
+            filters = dict(
+                judge__isnull=False,
+                label__isnull=False,
+                evidence_candidate__segment__in=segments,
+            )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
+            candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
+            segments = segments.filter(id__in=candidates_with_label).distinct()
+            ids = list(segments.values_list('id', flat=True).order_by('id'))
+        elif isinstance(obj, IEDocument):
+            filters = dict(
+                judge__isnull=False,
+                label__isnull=False,
+                evidence_candidate__relation=self,
+            )
+            if judge is not None:
+                filters["judge"] = judge
+            judge_labels = EvidenceLabel.objects.filter(**filters)
+            ids = sorted(set(judge_labels.values_list(
+                'evidence_candidate__segment__document_id', flat=True)
+            ))
+        else:
+            ids = []
+        if not ids:
+            return None
+        try:
+            base_idx = ids.index(obj.id)
+        except ValueError:
+            # the base-object provided is not listed... Returning the base-object
+            # Returning last in list
+            return ids[-1]
+        else:
+            if back:
+                if base_idx == 0:
+                    # there is no previous one. Returning same.
+                    return obj.id
+                else:
+                    return ids[base_idx - 1]
+            else:
+                if base_idx == len(ids) - 1:
+                    # there is no next one. Returning same.
+                    return obj.id
+                else:
+                    return ids[base_idx + 1]
+
+    def get_next_segment_to_label(self, judge):
+        # We'll pick first those Segments having already created questions with empty
+        # answer (label=None). After finishing those, we'll look for
+        # Segments never considered (ie, that doest have any question created).
+        # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
+        segments = self._matching_text_segments().order_by('id')
+        never_considered_segm = segments.exclude(evidence_relations__relation=self)
+
+        evidences = EvidenceCandidate.objects.filter(
+            relation=self
+        ).order_by('segment_id')
+        never_considered_ev = evidences.filter(labels__isnull=True)
+
+        existent_labels = EvidenceLabel.objects.filter(
+            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+        none_labels = existent_labels.filter(label__isnull=True)
+        own_none_labels = none_labels.filter(judge=judge)
+
+        # requires re answer if there's no Good answer at all (not just for this judge)
+        NOT_NEED_RELABEL = [k for k, name in EvidenceLabel.LABEL_CHOICES
+                            if k not in EvidenceLabel.NEED_RELABEL]
+        to_re_answer = evidences.exclude(labels__label__in=NOT_NEED_RELABEL)
+
+        for qset in [own_none_labels, never_considered_ev, never_considered_segm,
+                     to_re_answer, none_labels]:
+            try:
+                obj = qset[0]
+            except IndexError:
+                pass
+            else:
+                if isinstance(obj, TextSegment):
+                    return obj
+                elif isinstance(obj, EvidenceCandidate):
+                    return obj.segment
+                elif isinstance(obj, EvidenceLabel):
+                    return obj.evidence_candidate.segment
+                else:
+                    raise ValueError
+        return None
+
+    def get_next_document_to_label(self, judge):
+        next_segment = self.get_next_segment_to_label(judge)
+        if next_segment is None:
+            return None
+        else:
+            return next_segment.document
+
+
+class EvidenceCandidate(BaseModel):
+    left_entity_occurrence = models.ForeignKey(
+        'EntityOccurrence',
+        related_name='left_evidence_relations'
+    )
+    right_entity_occurrence = models.ForeignKey(
+        'EntityOccurrence',
+        related_name='right_evidence_relations'
+    )
+    relation = models.ForeignKey('Relation', related_name='evidence_relations')
+    segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
+
+    class Meta(BaseModel.Meta):
+        ordering = [
+            'segment_id', 'relation_id',
+            'left_entity_occurrence', 'right_entity_occurrence',
+        ]
+        unique_together = [
+            'left_entity_occurrence', 'right_entity_occurrence',
+            'relation', 'segment'
+        ]
+
+    def __str__(self):
+        s = "Candidate for the relation '{}({}, {})' in '{}'"
+        return s.format(
+            self.relation.name,
+            self.left_entity_occurrence.alias,
+            self.right_entity_occurrence.alias,
+            self.segment
+        )
+
+    @property
+    def fact(self):
+        return (
+            self.right_entity_occurrence.entity,
+            self.relation, self.left_entity_occurrence.entity
+        )
+
+    def get_or_create_label_for_judge(self, judge):
+        obj, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self, judge=judge,
+            labeled_by_machine=False, defaults={'label': None})
+        return obj
+
+    def set_label(self, label, judge):
+        evidence_label, created = EvidenceLabel.objects.get_or_create(
+            evidence_candidate=self,
+            judge=judge,
+        )
+        evidence_label.label = label
+        evidence_label.save()
+
+
+class EvidenceLabel(BaseModel):
+    NORELATION = "NO"
+    YESRELATION = "YE"
+    DONTKNOW = "DK"
+    SKIP = "SK"
+    NONSENSE = "NS"
+    LABEL_CHOICES = (
+        (NORELATION, "No relation present"),
+        (YESRELATION, "Yes, relation is present"),
+        (DONTKNOW, "Don't know if the relation is present"),
+        (SKIP, "Skipped labeling of this evidence"),
+        (NONSENSE, "Evidence is nonsense")
+    )
+    NEED_RELABEL = (
+        # list of evidence labels that means it would be good to ask again
+        DONTKNOW, SKIP
+    )
+
+    evidence_candidate = models.ForeignKey(
+        'EvidenceCandidate',
+        related_name='labels'
+    )
+    label = models.CharField(
+        max_length=2, choices=LABEL_CHOICES,
+        default=SKIP, null=True, blank=False
+    )
+
+    modification_date = models.DateTimeField(auto_now=True)
+
+    # The judge field is meant to be the username of the person that decides
+    # the label of this evidence. It's not modelled as a foreign key to allow
+    # easier interaction with non-django code.
+    judge = models.CharField(max_length=CHAR_MAX_LENGHT)
+    labeled_by_machine = models.BooleanField(default=True)
+
+    class Meta(BaseModel.Meta):
+        unique_together = ['evidence_candidate', 'label', 'judge']
+
+    def __str__(self):
+        s = "'{}' by '{}' in '{}'"
+        return s.format(
+            self.modification_date,
+            self.judge,
+            self.evidence_candidate.id,
+        )
+
+
+class SegmentToTag(BaseModel):
+    segment = models.ForeignKey("TextSegment")
+    relation = models.ForeignKey("Relation")
+    done = models.BooleanField(default=False)
+    modification_date = models.DateTimeField(auto_now=True)
+
+    class Meta(BaseModel.Meta):
+        unique_together = ['segment', 'relation']
+
+
+# Models utils
+
+def remove_invalid_segments():
+    """
+    Removes all segments that doesn't have two entity occurences
+    because they are useless.
+    """
+
+    segments = list(TextSegment.objects.all())
+    for segment in segments:
+        eos = list(segment.get_entity_occurrences())
+        if len(eos) < 2:
+            segment.delete()

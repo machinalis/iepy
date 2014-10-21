@@ -3,7 +3,7 @@ from itertools import product
 import datetime
 import logging
 
-from iepy.fact_extractor import FactExtractor
+from iepy.extraction.fact_extractor import FactExtractor
 
 
 logger = logging.getLogger('experimentation.utils')

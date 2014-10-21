@@ -39,6 +39,7 @@ Contents:
 
    installation
    tutorial
+   rules_tutorial
    reference
 
 

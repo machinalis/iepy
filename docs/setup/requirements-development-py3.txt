@@ -1,5 +1,0 @@
--r requirements-base-py3.txt
-nose==1.3.0
-factory-boy==2.3.1
-Sphinx==1.2.2
-pygal==1.4.6
