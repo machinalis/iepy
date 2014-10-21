@@ -40,6 +40,7 @@ Contents:
    installation
    tutorial
    rules_tutorial
+   corpus_labeling
    reference
 
 
