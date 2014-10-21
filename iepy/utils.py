@@ -1,5 +1,7 @@
 from getpass import getuser
 import os
+import csv
+import gzip
 import zipfile
 
 from appdirs import AppDirs
@@ -64,3 +66,27 @@ def evaluate(predicted_knowledge, gold_knowledge):
         result['f1'] = 0.0
 
     return result
+
+
+def csv_to_iepy(filepath):
+    from iepy.data.db import DocumentManager
+
+    if filepath.endswith(".gz"):
+        fin = gzip.open(filepath, "rt")
+    else:
+        fin = open(filepath, "rt")
+    reader = csv.DictReader(fin)
+    name = os.path.basename(filepath)
+
+    docdb = DocumentManager()
+    seen = set()
+    for i, d in enumerate(reader):
+        mid = d["freebase_mid"]
+        if mid in seen:
+            continue
+        seen.add(mid)
+        docdb.create_document(
+            identifier=mid,
+            text=d["description"],
+            metadata={"input_filename": name}
+        )
