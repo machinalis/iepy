@@ -329,7 +329,6 @@ class TextSegment(BaseModel):
         eos = list(self.get_entity_occurrences())
         left = [o for o in eos if o.entity.kind == lkind]
         right = [o for o in eos if o.entity.kind == rkind]
-        print(left, right)
         return [(l, r) for l, r in itertools.product(left, right) if l != r]
 
     def get_enriched_tokens(self):

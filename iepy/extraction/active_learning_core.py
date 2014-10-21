@@ -72,7 +72,7 @@ class ActiveLearningCore:
         Blocking (ie, not fast).
         """
         if not self.fact_extractor:
-            return []
+            return {}
         labels = self.fact_extractor.predict(self.candidate_evidence)
         prediction = dict(zip(self.candidate_evidence, labels))
         prediction.update(self.labeled_evidence)
