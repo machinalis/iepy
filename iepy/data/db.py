@@ -157,6 +157,7 @@ class CandidateEvidenceManager(object):
 
     @classmethod
     def labels_for(cls, relation, evidences, conflict_solver=None):
+        """Returns a dict with the form evidence->[True|False|None]"""
         # Given a relation and a sequence of candidate-evidences, compute its
         # labels
         candidates = {e: None for e in evidences}
