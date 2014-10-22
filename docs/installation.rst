@@ -2,127 +2,75 @@
 IEPY installation
 ==================
 
+IEPY runs on *python 3*, and it's fully tested with version *3.4*.
+This installation notes assume that you have a fresh just installed *ubuntu 14.04*.
+If you are running this installation on a different platform, some details
+or software versions may be slightly different.
 
-This installation notes assume that you have a just installed *ubuntu 13.10
-server*. If instead of that you have a *desktop* installation, or another
-version, some details or software versions may be slightly different.
-Given that IEPY can be installed both in python2.7 and python3.3 [1]_ or higher,
-pay attention to the warning notes here and there explaining the small
-differences.
-
-.. [1] For python 3 IEPY is using an alpha release of NLTK.
-
-Because of it's dependencies, installation it's not a single pip install, and requires a bit of extra work, but it's actually not that hard.
+Because of some of it's dependencies, IEPY installation it's not a single
+pip install, but it's actually not that hard.
 
 Outline:
     - install some system packages
-    - install python libraries
-    - (optional) install development tools
-    - (optional) install example application
+    - install iepy itself
+    - download 3rd party binaries
 
 
 System software needed
-======================
+----------------------
 
 You need to install the following packages:
 
- - git (for getting the code from github)
+.. code-block:: bash
 
-Because of the need of aggregation, mongodb 2.2 or higher is required
+    sudo apt-get install python3-dev liblapack-dev libatlas-dev gfortran openjdk-7-jre
 
- - mongodb-server
- - mongodb-clients
-
-For scipy & numpy installation, you will also need:
-
- - liblapack-dev
- - libatlas-dev
- - gfortran
- - openjdk-7-jre
-
-If you plan to install IEPY for python 2, please also install
-
- - python-dev
- - python-virtualenv (for creating your virtualenv)
-
-But for python 3, install:
-
- - python3-dev
+They are needed for python scipy & numpy installation, and for running some java processes.
 
 
-Python libraries installation
------------------------------
+Install IEPY package
+--------------------
 
-1. `Virtualenv creation and initial setup`_
+1. `Virtualenv creation`_
 
-2. Get IEPY code
+2. Install IEPY itself
 
 .. code-block:: bash
 
-    git clone https://github.com/machinalis/iepy.git
+    pip install iepy
 
-3. Install IEPY and all the needed python libraries.
-
-.. code-block:: bash
-
-    cd <path-to-gitrepo>
-    pip install .
-
-**Warning**, if you are using pip 1.5 (will probably be the case on python3) you will have to use the extra argument *--process-dependency-links* as shown below, otherwise some packages (like nltk for python3) wont be available
-
-.. code-block:: bash
-
-    cd <path-to-gitrepo>
-    pip install . --process-dependency-links
-
-
-4. Configure Java home
+3. Configure Java home
 
 This step is only required for python 3 installations.
     Make sure of having defined the environment variable JAVAHOME=/usr/bin/java (or the path where java was installed)
     Make sure of making somehow persistent this configuration.
 
-5. Download the third party data and tools
+Download the third party data and tools
+---------------------------------------
+
+You should have now a command named "*iepy*"
 
 .. code-block:: bash
 
-    cd <path-to-gitrepo>
-    python scripts/download_third_party_data.py
+    iepy --download-third-party-data
 
 
-Installing Development tools:
-=============================
+Virtualenv creation
+-------------------
 
-If you want to contribute, or do some modifications or customizations, you will need to install some extra python packages.
-So, with your virtualenv activated, please run the following (replacing *<NUMBER>* with 2 or 3, depending if you are installing IEPY for python 2.x or 3.x)
+For organization sake, its strongly recommended to make all the IEPY
+installation inside a virtual python environment.
 
-.. code-block:: bash
-
-    cd <path-to-gitrepo>
-    pip install -r docs/setup/requirements-development-py<NUMBER>.txt
-
-
-Installing Example TV Series application
-========================================
-
-There's an example application, named "TV Series", located on the *examples* folder of the IEPY repository. It has it's own install document that you can find at here:
-
-<path-to-gitrepo>/examples/tvseries/docs/setup/INSTALL.txt
-
-Follow those instructions with your virtualenv activated.
-
-
-Virtualenv creation and initial setup
-=====================================
-
-We shouldn't be explaining this, so we wont.
+We shouldn't be explaining how to create it here, so we wont.
 There is way better documentation
-`here <http://virtualenv.readthedocs.org/en/latest/virtualenv.html>`_
-for python 2.7 or `here <https://docs.python.org/3.3/library/venv.html>`_
-for python 3.3, or `here <https://docs.python.org/3.4/library/venv.html>`_
+`here <https://docs.python.org/3.4/library/venv.html>`_
 for python 3.4.
 
-Just make sure of have it created and activated while following the IEPY installation instructions.
+Just make sure of have it created and activated while following the
+IEPY installation instructions.
 Some small notes before leading you to the good documentation:
 
- - If you are working with python3.3, be warn that you will need to install *pip* by hand, as explained `here <http://pip.readthedocs.org/en/latest/installing.html#install-pip>`_
+ - If you are working with python3.3 (or 3.4 but with the buggy ubuntu/debian release),
+   be warn that you will need to install *pip* by hand,
+   as explained `here <http://pip.readthedocs.org/en/latest/installing.html#install-pip>`_
+ - Alternatively, create your virtualenv with `virtualenvwrapper <http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation>`_
