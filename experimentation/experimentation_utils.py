@@ -45,8 +45,6 @@ def result_dict_from_predictions(evidences, real_labels, predictions):
             "precision": precision,
             "recall": recall,
             "f1": f1,
-            "correctly_predicted": correct,
-            "incorrectly_predicted": incorrect,
             "end_time": time.time()
         }
         return result
