@@ -53,6 +53,7 @@ def execute_from_command_line(argv=None):
     rules_filepath = os.path.join(folder_name, "rules.py")
     with open(rules_filepath, "w") as filehandler:
         filehandler.write("# Write here your rules\n")
+        filehandler.write("# RELATION = 'your relation here'\n")
 
     # Create extractor config
     extractor_config_filepath = os.path.join(folder_name, "extractor_config.json")
