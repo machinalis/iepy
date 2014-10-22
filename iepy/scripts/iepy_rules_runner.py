@@ -1,10 +1,15 @@
+import os
+import sys
 import logging
 
 from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data import models
 from iepy.data.db import CandidateEvidenceManager
 
-import rules  # The instances must be in the PYTHONPATH
+# add the iepy instance folder to the path
+here = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(here))
+import rules
 
 
 if __name__ == u'__main__':
