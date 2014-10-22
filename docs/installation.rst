@@ -2,23 +2,19 @@
 IEPY installation
 ==================
 
+IEPY runs on *python 3*, and it's fully tested with version *3.4*.
+This installation notes assume that you have a just installed *ubuntu 14.04
+desktop version*. Some details or software versions may be slightly different
+if you are running from a different platform.
 
-This installation notes assume that you have a just installed *ubuntu 13.10
-server*. If instead of that you have a *desktop* installation, or another
-version, some details or software versions may be slightly different.
-Given that IEPY can be installed both in python2.7 and python3.3 [1]_ or higher,
-pay attention to the warning notes here and there explaining the small
-differences.
-
-.. [1] For python 3 IEPY is using an alpha release of NLTK.
-
-Because of it's dependencies, installation it's not a single pip install, and requires a bit of extra work, but it's actually not that hard.
+Because of it's dependencies, installation it's not a single pip install,
+and requires a bit of extra work, but it's actually not that hard.
 
 Outline:
     - install some system packages
-    - install python libraries
+    - install iepy itself
+    - download 3rd party binaries
     - (optional) install development tools
-    - (optional) install example application
 
 
 System software needed
@@ -26,28 +22,11 @@ System software needed
 
 You need to install the following packages:
 
- - git (for getting the code from github)
+.. code-block:: bash
 
-Because of the need of aggregation, mongodb 2.2 or higher is required
+    sudo apt-get install python3-dev liblapack-dev libatlas-dev gfortran openjdk-7-jre
 
- - mongodb-server
- - mongodb-clients
-
-For scipy & numpy installation, you will also need:
-
- - liblapack-dev
- - libatlas-dev
- - gfortran
- - openjdk-7-jre
-
-If you plan to install IEPY for python 2, please also install
-
- - python-dev
- - python-virtualenv (for creating your virtualenv)
-
-But for python 3, install:
-
- - python3-dev
+They are needed for python scipy & numpy installation, and for running some java processes.
 
 
 Python libraries installation
