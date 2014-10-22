@@ -52,8 +52,6 @@ if __name__ == u'__main__':
         with open(extractor_config) as filehandler:
             extractor_config = json.load(filehandler)
 
-    import ipdb; ipdb.set_trace()
-
     candidates = CandidateEvidenceManager.candidates_for_relation(relation)
     labeled_evidences = load_labeled_evidences(relation, candidates)
     iextractor = ActiveLearningCore(relation, labeled_evidences, extractor_config)
