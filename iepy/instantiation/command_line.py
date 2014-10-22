@@ -4,25 +4,37 @@
 IEPY instance creator.
 
 Usage:
+    iepy --download-third-party-data
     iepy <folder_name>
 
 Options:
-  -h --help             Show this screen
+  --download-third-party-data       Downloads the necesary data from third party software
+  -h --help                         Show this screen
 """
 
 import os
 import sys
 import json
+import errno
 import shutil
 
+import nltk.data
 from docopt import docopt
 
 from iepy import defaults
+from iepy.utils import DIRS
+from iepy.preprocess.tagger import download as download_tagger
+from iepy.preprocess.corenlp import download as download_corenlp
+from iepy.preprocess.ner.stanford import download as download_ner
 
 
 def execute_from_command_line(argv=None):
     opts = docopt(__doc__, argv=argv, version=0.1)
     folder_name = opts["<folder_name>"]
+
+    if opts["--download-third-party-data"]:
+        download_third_party_data()
+        return
 
     if os.path.exists(folder_name):
         print("Folder already exists")
@@ -59,6 +71,24 @@ def execute_from_command_line(argv=None):
     extractor_config_filepath = os.path.join(folder_name, "extractor_config.json")
     with open(extractor_config_filepath, "w") as filehandler:
         json.dump(defaults.extractor_config, filehandler, indent=4)
+
+
+def download_third_party_data():
+    print("Making sure configuration folder exists")
+    try:
+        os.makedirs(DIRS.user_data_dir)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(DIRS.user_data_dir):
+            pass
+        else:
+            raise
+    print("Downloading punkt tokenizer")
+    nltk.download("punkt")
+    print("Downloading wordnet")
+    nltk.download("wordnet")
+    download_tagger()
+    download_ner()
+    download_corenlp()
 
 
 if __name__ == "__main__":
