@@ -20,20 +20,20 @@ from docopt import docopt
 from iepy import defaults
 
 
-if __name__ == "__main__":
-    opts = docopt(__doc__, version=0.1)
+def execute_from_command_line(argv=None):
+    opts = docopt(__doc__, argv=argv, version=0.1)
     folder_name = opts["<folder_name>"]
 
     if os.path.exists(folder_name):
         print("Folder already exists")
         sys.exit(1)
 
-    iepy_bin_path = os.path.dirname(os.path.abspath(__file__))
-    iepy_scripts_path = os.path.join(os.path.dirname(iepy_bin_path), "scripts")
+    iepy_base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    iepy_scripts_path = os.path.join(iepy_base_path, "scripts")
 
     files_to_copy = [
-        os.path.join(iepy_bin_path, "csv_to_iepy.py"),
-        os.path.join(iepy_bin_path, "preprocess.py"),
+        os.path.join(iepy_scripts_path, "csv_to_iepy.py"),
+        os.path.join(iepy_scripts_path, "preprocess.py"),
         os.path.join(iepy_scripts_path, "iepy_runner.py"),
         os.path.join(iepy_scripts_path, "iepy_rules_runner.py"),
     ]
@@ -59,3 +59,6 @@ if __name__ == "__main__":
     with open(extractor_config_filepath, "w") as filehandler:
         json.dump(defaults.extractor_config, filehandler, indent=4)
 
+
+if __name__ == "__main__":
+    execute_from_command_line()
