@@ -118,9 +118,10 @@ Note that the parameters of the rule decorator are **False** and **priority=1**
 Where do I place the rules
 ==========================
 
-All the rules defined to match a function should be placed on the same file. 
+On your project's instance folder, there should be a *rules.py* file. All rules should be place
+there along with a  **RELATION** variable that sets which relation is going to be used.
 
-This file also needs to have a **RELATION** variable that sets which relation is going to be used.
+This is the file that will be loaded when you run the *iepy_rules_runner*.
 
 
 Example

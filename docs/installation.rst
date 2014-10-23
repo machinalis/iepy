@@ -78,3 +78,50 @@ Some small notes before leading you to the good documentation:
    be warn that you will need to install *pip* by hand,
    as explained `here <http://pip.readthedocs.org/en/latest/installing.html#install-pip>`_
  - Alternatively, create your virtualenv with `virtualenvwrapper <http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation>`_
+
+
+Creating an instance of IEPY
+----------------------------
+
+Once you're done with the installation, to actually make use of iepy you'll have to create an *instance*.
+This is going to be where the configuration, database and some binary files are stored.
+
+To create a new instance you have to run:
+
+.. code-block:: bash
+
+    iepy <project_name>
+
+Where *<project_name>* is something that you choose.
+This command will ask you a phew things such as database name, username and password for that database.
+When that's done, you'll have a folder with the name that you choose and the following structure:
+
+.. code-block:: bash
+
+    yourproject
+    ├── yourproject_settings.py
+    ├── yourproject.sqlite
+    ├── bin
+    │   ├── csv_to_iepy.py
+    │   ├── iepy_rules_runner.py
+    │   ├── iepy_runner.py
+    │   ├── manage.py
+    │   └── preprocess.py
+    ├── extractor_config.json
+    └── rules.py
+
+Note that instead of *yourproject* you'll have your own project name there.
+Lets see why each one of this files is there:
+
+    * **yourproject_settings.py** is a configuration file where you can change the database
+      settings and all the web interface related settings. This file has a `django settings <https://docs.djangoproject.com/en/1.7/ref/settings/>`_
+      file format. If you desire to change your database, this is the place where you need to edit.
+    * **yourproject.sqlite** is the database in an sqlite format.
+    * **extractor_config.json** has all the configuration of the active learning core in a *json* format.
+    * **rules.py** is the place where you'll write the rules if you want to use the rule based system.
+    * **bin**
+        * **csv_to_iepy.py** is a tool to import data from a csv file into the database.
+        * **iepy_rules_runner.py** will run the core using the rule based system.
+        * **iepy_runner.py** will run the core using the active learning core.
+        * **manage.py** is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_ to control the web user interface.
+        * **preprocess** will preprocess the data loaded in your database.
