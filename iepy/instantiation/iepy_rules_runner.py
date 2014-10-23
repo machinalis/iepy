@@ -3,7 +3,7 @@ import logging
 import iepy
 iepy.setup(__file__)
 
-from iepy.extraction.rules_core import RulesBasedCore
+from iepy.extraction.rules_core import RuleBasedCore
 from iepy.data import models
 from iepy.data.db import CandidateEvidenceManager
 
@@ -30,7 +30,7 @@ if __name__ == u'__main__':
     evidences = CandidateEvidenceManager.candidates_for_relation(relation)
 
     # Run the pipeline
-    iextractor = RulesBasedCore(relation, evidences, rules)
+    iextractor = RuleBasedCore(relation, evidences, rules)
     iextractor.start()
     facts = iextractor.known_facts()
     print(facts)
