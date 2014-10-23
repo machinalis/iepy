@@ -8,6 +8,10 @@ HERE = path.abspath(path.dirname(__file__))
 with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
+    iepy_version = f.read().strip()
+
+print(repr(iepy_version))
 
 requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
 install_reqs = list(parse_requirements(requirements_path))
@@ -26,7 +30,7 @@ for ir in install_reqs:
 
 setup(
     name='iepy',
-    version='1.2.0',
+    version=iepy_version,
     zip_safe=False,
     description='',
     long_description=long_description,

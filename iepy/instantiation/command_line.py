@@ -25,6 +25,7 @@ from django.utils.crypto import get_random_string
 from django.core.management import execute_from_command_line as django_command_line
 
 import iepy
+from iepy import version
 from iepy import defaults
 from iepy.utils import DIRS
 from iepy.preprocess.tagger import download as download_tagger
@@ -134,7 +135,7 @@ def get_settings_string(database_path):
     secret_key = get_random_string(50, chars)
     settings_data = settings_data.replace("{SECRET_KEY}", secret_key)
     settings_data = settings_data.replace("{DATABASE_PATH}", database_path)
-    settings_data = settings_data.replace("{IEPY_VERSION}", "TODO")
+    settings_data = settings_data.replace("{IEPY_VERSION}", version.__version__)
 
     return settings_data
 
