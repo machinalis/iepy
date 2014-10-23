@@ -5,6 +5,10 @@ from django.conf import settings
 
 
 def setup(fuzzy_path=None, settings_prefix=None):
+    # Prevent nosetests messing up with this
+    if not isinstance(fuzzy_path, (type(None), str)):
+        # nosetests is grabing this function because its named "setup"... .
+        return
     if not settings.configured:
         if fuzzy_path is None:
             if not os.getenv('DJANGO_SETTINGS_MODULE'):
@@ -22,6 +26,7 @@ def _actual_path(fuzzy_path):
     """
     Given the fuzzy_path path, walks-up until it finds a folder containing a
     iepy-instance, and that folder path is returned"""
+
     def is_iepy_instance(folder_path):
         folder_name = os.path.basename(folder_path)
         expected_file = os.path.join(
@@ -41,4 +46,3 @@ def _actual_path(fuzzy_path):
                 raise ValueError(
                     "There's no IEPY instance on the provided path {}".format(original))
             fuzzy_path = parent
-
