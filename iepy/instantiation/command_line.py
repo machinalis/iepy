@@ -20,8 +20,11 @@ import shutil
 
 import nltk.data
 from docopt import docopt
-from django.utils.crypto import get_random_string
 
+from django.utils.crypto import get_random_string
+from django.core.management import execute_from_command_line as django_command_line
+
+import iepy
 from iepy import defaults
 from iepy.utils import DIRS
 from iepy.preprocess.tagger import download as download_tagger
@@ -48,6 +51,7 @@ def execute_from_command_line(argv=None):
         os.path.join(THIS_FOLDER, "preprocess.py"),
         os.path.join(THIS_FOLDER, "iepy_runner.py"),
         os.path.join(THIS_FOLDER, "iepy_rules_runner.py"),
+        os.path.join(THIS_FOLDER, "manage.py"),
     ]
 
     # Create folders
@@ -73,15 +77,28 @@ def execute_from_command_line(argv=None):
         json.dump(defaults.extractor_config, filehandler, indent=4)
 
     # Create the settings file
-    print("An sqlite database will be created for you to work with.")
+    print("Initializing database")
     folder_name = folder_path.rsplit(os.sep, 1)[1]
     database_name = input("Database name [{}]: ".format(folder_name))
     if not database_name:
         database_name = folder_name
-    settings_filepath = os.path.join(folder_path, "settings.py")
+    new_settings_filepath = "{}_settings.py".format(folder_name)
+    settings_filepath = os.path.join(folder_path, new_settings_filepath)
     settings_data = get_settings_string(database_name)
     with open(settings_filepath, "w") as filehandler:
         filehandler.write(settings_data)
+
+    # Setup IEPY with the new instance
+    abs_folder_path = os.path.abspath(folder_path)
+    os.chdir(abs_folder_path)
+    iepy.setup(abs_folder_path)
+    django_command_line(["", "migrate"])
+
+    # Setup the database user
+    print("\nCreating database user")
+    django_command_line(["", "createsuperuser"])
+
+    print("\n IEPY instance ready to use at '{}'".format(abs_folder_path))
 
 
 def download_third_party_data():
