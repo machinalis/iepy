@@ -78,7 +78,8 @@ def execute_from_command_line(argv=None):
 
     # Create the settings file
     print("Initializing database")
-    folder_name = folder_path.rsplit(os.sep, 1)[1]
+    folder_name = folder_path.rsplit(os.sep, 1)
+    folder_name = folder_name[1] if len(folder_name) > 1 else folder_name[0]
     database_name = input("Database name [{}]: ".format(folder_name))
     if not database_name:
         database_name = folder_name
