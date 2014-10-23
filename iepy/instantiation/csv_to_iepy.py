@@ -16,6 +16,8 @@ import logging
 
 from docopt import docopt
 
+import iepy
+iepy.setup(__file__)
 from iepy.utils import csv_to_iepy
 
 if __name__ == "__main__":

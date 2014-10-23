@@ -1,10 +1,7 @@
-import os
 import logging
 
 import iepy
-here = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(here)
-iepy.setup(parent_dir)
+iepy.setup(__file__)
 
 from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data import models

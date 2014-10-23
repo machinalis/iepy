@@ -13,6 +13,8 @@ import logging
 
 from docopt import docopt
 
+import iepy
+iepy.setup(__file__)
 from iepy.data.db import DocumentManager
 from iepy.preprocess.stanford_preprocess import StanfordPreprocess
 from iepy.preprocess.pipeline import PreProcessPipeline

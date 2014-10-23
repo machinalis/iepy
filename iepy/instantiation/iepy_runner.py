@@ -18,9 +18,7 @@ from docopt import docopt
 from sys import exit
 
 import iepy
-here = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(here)
-iepy.setup(parent_dir)
+iepy.setup(__file__)
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager
