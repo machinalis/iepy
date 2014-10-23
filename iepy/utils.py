@@ -1,9 +1,14 @@
 from getpass import getuser
+import csv
+import gzip
+import logging
 import os
 import zipfile
 
 from appdirs import AppDirs
 
+
+logger = logging.getLogger(__name__)
 
 DIRS = AppDirs('iepy', getuser())
 if not os.path.exists(DIRS.user_data_dir):
@@ -64,3 +69,29 @@ def evaluate(predicted_knowledge, gold_knowledge):
         result['f1'] = 0.0
 
     return result
+
+
+def csv_to_iepy(filepath):
+    logger.info('Importing Documents to IEPY from {}'.format(filepath))
+    from iepy.data.db import DocumentManager
+
+    if filepath.endswith(".gz"):
+        fin = gzip.open(filepath, "rt")
+    else:
+        fin = open(filepath, "rt")
+    reader = csv.DictReader(fin)
+    name = os.path.basename(filepath)
+
+    docdb = DocumentManager()
+    seen = set()
+    for i, d in enumerate(reader):
+        mid = d["freebase_mid"]
+        if mid in seen:
+            continue
+        seen.add(mid)
+        docdb.create_document(
+            identifier=mid,
+            text=d["description"],
+            metadata={"input_filename": name}
+        )
+        logger.info('Added {} documents'.format(i+1))

@@ -2,16 +2,22 @@
 Run IEPY core loop
 
 Usage:
-    iepy_runner.py <relation_name>
+    iepy_runner.py [options] <relation_name>
     iepy_runner.py -h | --help | --version
 
 Options:
-  -h --help             Show this screen
-  --version             Version number
+  -h --help                            Show this screen
+  --extractor-config=<config.json>     Sets the extractor config
+  --version                            Version number
 """
-from docopt import docopt
+
+import json
 import logging
+from docopt import docopt
 from sys import exit
+
+import iepy
+iepy.setup(__file__)
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager
@@ -43,9 +49,14 @@ if __name__ == u'__main__':
         print_all_relations()
         exit(1)
 
+    extractor_config = opts.get("--extractor-config")
+    if extractor_config:
+        with open(extractor_config) as filehandler:
+            extractor_config = json.load(filehandler)
+
     candidates = CandidateEvidenceManager.candidates_for_relation(relation)
     labeled_evidences = load_labeled_evidences(relation, candidates)
-    iextractor = ActiveLearningCore(relation, labeled_evidences)
+    iextractor = ActiveLearningCore(relation, labeled_evidences, extractor_config)
     iextractor.start()
 
     STOP = u'STOP'

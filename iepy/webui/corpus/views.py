@@ -45,7 +45,6 @@ def _navigate_labeled_items(request, relation_id, current_id, direction, type_, 
     # to move back or forth
     type_name = 'document' if type_ == IEDocument else 'segment'
     url_name = 'corpus:label_evidence_for_%s' % type_name
-    print(repr(url_name))
     relation = get_object_or_404(Relation, pk=relation_id)
     current = get_object_or_404(type_, pk=current_id)
     current_id = int(current_id)
