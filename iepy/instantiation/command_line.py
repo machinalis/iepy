@@ -80,12 +80,14 @@ def execute_from_command_line(argv=None):
     print("Initializing database")
     folder_name = folder_path.rsplit(os.sep, 1)
     folder_name = folder_name[1] if len(folder_name) > 1 else folder_name[0]
+
     database_name = input("Database name [{}]: ".format(folder_name))
     if not database_name:
         database_name = folder_name
+    database_path = os.path.join(folder_path, database_name)
     new_settings_filepath = "{}_settings.py".format(folder_name)
     settings_filepath = os.path.join(folder_path, new_settings_filepath)
-    settings_data = get_settings_string(database_name)
+    settings_data = get_settings_string(database_path)
     with open(settings_filepath, "w") as filehandler:
         filehandler.write(settings_data)
 
@@ -120,18 +122,19 @@ def download_third_party_data():
     download_corenlp()
 
 
-def get_settings_string(database_name):
+def get_settings_string(database_path):
     template_settings_filepath = os.path.join(THIS_FOLDER, "settings.py.template")
     with open(template_settings_filepath) as filehandler:
         settings_data = filehandler.read()
 
-    if not database_name.endswith(".sqlite"):
-        database_name += ".sqlite"
+    if not database_path.endswith(".sqlite"):
+        database_path += ".sqlite"
 
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     secret_key = get_random_string(50, chars)
     settings_data = settings_data.replace("{SECRET_KEY}", secret_key)
-    settings_data = settings_data.replace("{DATABASE_NAME}", database_name)
+    settings_data = settings_data.replace("{DATABASE_PATH}", database_path)
+    settings_data = settings_data.replace("{IEPY_VERSION}", "TODO")
 
     return settings_data
 
