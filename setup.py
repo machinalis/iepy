@@ -1,16 +1,17 @@
-from setuptools import setup, find_packages # Always prefer setuptools over distutils
+from setuptools import setup, find_packages  # Always prefer setuptools over distutils
 from pip.req import parse_requirements
 from os import path
 
-here = path.abspath(path.dirname(__file__))
+HERE = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-requirements_path = path.join(here, "docs", "setup", "requirements-base.txt")
+
+requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
 install_reqs = list(parse_requirements(requirements_path))
-dev_requirements_path = path.join(here, "docs", "setup", "requirements-development.txt")
+dev_requirements_path = path.join(HERE, "docs", "setup", "requirements-development.txt")
 dev_reqs = [str(x.req) for x in parse_requirements(requirements_path)]
 base_reqs = []
 deps = [u'%s#egg=%s' % (ir.url, ir.url_name) for ir in install_reqs if ir.url]
@@ -26,6 +27,7 @@ for ir in install_reqs:
 setup(
     name='iepy',
     version='1.2.0',
+    zip_safe=False,
     description='',
     long_description=long_description,
     url='https://github.com/machinalis/iepy',
@@ -33,7 +35,7 @@ setup(
     # Author details
     author=(
         "Rafael Carrascosa, Franco M. Luque, Laura Alonso, "
-        "Javier Mansilla, Daniel Moisset"
+        "Javier Mansilla, Daniel Moisset, Gonzalo García",
     ),
 
     # Choose your license
@@ -68,7 +70,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['docs', 'tests*', 'scripts']),
-
+    include_package_data=True,
 
     # List run-time dependencies here.  These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's

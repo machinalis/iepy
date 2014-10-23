@@ -1,0 +1,10 @@
+include README.rst
+include AUTHORS
+include LICENSE
+include MANIFEST.in
+recursive-include iepy/webui/corpus/static *
+recursive-include iepy/webui/corpus/templates *
+recursive-include docs/setup requirements*.txt
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
