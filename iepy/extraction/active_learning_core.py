@@ -58,7 +58,7 @@ class ActiveLearningCore:
         """
         Blocking.
         After calling this method the values returned by `questions_available`
-        and `known_facts` will change.
+        and `predict` will change.
         """
         yesno = set(self.labeled_evidence.values())
         assert len(yesno) <= 2, "Evidence is not binary!"

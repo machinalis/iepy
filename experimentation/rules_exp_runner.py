@@ -6,7 +6,7 @@ import time
 
 from featureforge.experimentation import runner
 
-from iepy.extraction.rules_core import RulesBasedCore
+from iepy.extraction.rules_core import RuleBasedCore
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
 from experimentation_utils import result_dict_from_predictions
@@ -77,7 +77,7 @@ class Runner(object):
                      if rule_name in config["rules"]]
 
         # Run the rule based pipeline
-        pipeline = RulesBasedCore(self.relation, self.evidences, rules)
+        pipeline = RuleBasedCore(self.relation, self.evidences, rules)
         pipeline.start()
         matched = pipeline.known_facts()
         predicted_labels = [e in matched for e in self.evidences]
