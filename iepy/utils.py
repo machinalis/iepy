@@ -1,11 +1,14 @@
 from getpass import getuser
-import os
 import csv
 import gzip
+import logging
+import os
 import zipfile
 
 from appdirs import AppDirs
 
+
+logger = logging.getLogger(__name__)
 
 DIRS = AppDirs('iepy', getuser())
 if not os.path.exists(DIRS.user_data_dir):
@@ -69,6 +72,7 @@ def evaluate(predicted_knowledge, gold_knowledge):
 
 
 def csv_to_iepy(filepath):
+    logger.info('Importing Documents to IEPY from {}'.format(filepath))
     from iepy.data.db import DocumentManager
 
     if filepath.endswith(".gz"):
@@ -90,3 +94,4 @@ def csv_to_iepy(filepath):
             text=d["description"],
             metadata={"input_filename": name}
         )
+        logger.info('Added {} documents'.format(i+1))
