@@ -11,7 +11,6 @@ Options:
   --version                            Version number
 """
 
-import os
 import json
 import logging
 from docopt import docopt
@@ -49,7 +48,6 @@ if __name__ == u'__main__':
         print("Relation {!r} non existent".format(relation))
         print_all_relations()
         exit(1)
-
 
     extractor_config = opts.get("--extractor-config")
     if extractor_config:
