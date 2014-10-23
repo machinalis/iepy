@@ -11,22 +11,10 @@ with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
 with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
-print(repr(iepy_version))
-
 requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
-install_reqs = list(parse_requirements(requirements_path))
+base_reqs = list(parse_requirements(requirements_path))
 dev_requirements_path = path.join(HERE, "docs", "setup", "requirements-development.txt")
 dev_reqs = [str(x.req) for x in parse_requirements(requirements_path)]
-base_reqs = []
-deps = [u'%s#egg=%s' % (ir.url, ir.url_name) for ir in install_reqs if ir.url]
-
-for ir in install_reqs:
-    if ir.name.startswith(u'nltk-'):
-        # For nltk on py3 we are declaring nltk just as an URL
-        base_reqs.insert(0, ir.name.replace(u'-', u'==', 1))
-        # install it first, so if nltk tarball is not working you not waste time
-    else:
-        base_reqs.append(str(ir.req))
 
 setup(
     name='iepy',
