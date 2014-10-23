@@ -43,7 +43,7 @@ def execute_from_command_line(argv=None):
         return
 
     if os.path.exists(folder_path):
-        print("Folder already exists")
+        print("Error: folder already exists")
         sys.exit(1)
 
     files_to_copy = [
