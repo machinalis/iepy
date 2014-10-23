@@ -5,7 +5,7 @@ IEPY instance creator.
 
 Usage:
     iepy --download-third-party-data
-    iepy <folder_name>
+    iepy <folder_path>
 
 Options:
   --download-third-party-data       Downloads the necesary data from third party software
@@ -33,13 +33,13 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 def execute_from_command_line(argv=None):
     opts = docopt(__doc__, argv=argv, version=0.1)
-    folder_name = opts["<folder_name>"]
+    folder_path = opts["<folder_path>"]
 
     if opts["--download-third-party-data"]:
         download_third_party_data()
         return
 
-    if os.path.exists(folder_name):
+    if os.path.exists(folder_path):
         print("Folder already exists")
         sys.exit(1)
 
@@ -51,9 +51,9 @@ def execute_from_command_line(argv=None):
     ]
 
     # Create folders
-    bin_folder = os.path.join(folder_name, "bin")
+    bin_folder = os.path.join(folder_path, "bin")
 
-    os.mkdir(folder_name)
+    os.mkdir(folder_path)
     os.mkdir(bin_folder)
 
     for filepath in files_to_copy:
@@ -62,20 +62,23 @@ def execute_from_command_line(argv=None):
         shutil.copyfile(filepath, destination)
 
     # Create empty rules file
-    rules_filepath = os.path.join(folder_name, "rules.py")
+    rules_filepath = os.path.join(folder_path, "rules.py")
     with open(rules_filepath, "w") as filehandler:
         filehandler.write("# Write here your rules\n")
         filehandler.write("# RELATION = 'your relation here'\n")
 
     # Create extractor config
-    extractor_config_filepath = os.path.join(folder_name, "extractor_config.json")
+    extractor_config_filepath = os.path.join(folder_path, "extractor_config.json")
     with open(extractor_config_filepath, "w") as filehandler:
         json.dump(defaults.extractor_config, filehandler, indent=4)
 
     # Create the settings file
     print("An sqlite database will be created for you to work with.")
-    database_name = input("Database name: ")
-    settings_filepath = os.path.join(folder_name, "settings.py")
+    folder_name = folder_path.rsplit(os.sep, 1)[1]
+    database_name = input("Database name [{}]: ".format(folder_name))
+    if not database_name:
+        database_name = folder_name
+    settings_filepath = os.path.join(folder_path, "settings.py")
     settings_data = get_settings_string(database_name)
     with open(settings_filepath, "w") as filehandler:
         filehandler.write(settings_data)
