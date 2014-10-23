@@ -38,6 +38,7 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 def execute_from_command_line(argv=None):
     opts = docopt(__doc__, argv=argv, version=0.1)
     folder_path = opts["<folder_path>"]
+    abs_folder_path = os.path.abspath(folder_path)
 
     if opts["--download-third-party-data"]:
         download_third_party_data()
@@ -85,7 +86,7 @@ def execute_from_command_line(argv=None):
     database_name = input("Database name [{}]: ".format(folder_name))
     if not database_name:
         database_name = folder_name
-    database_path = os.path.join(folder_path, database_name)
+    database_path = os.path.join(abs_folder_path, database_name)
     new_settings_filepath = "{}_settings.py".format(folder_name)
     settings_filepath = os.path.join(folder_path, new_settings_filepath)
     settings_data = get_settings_string(database_path)
@@ -93,7 +94,6 @@ def execute_from_command_line(argv=None):
         filehandler.write(settings_data)
 
     # Setup IEPY with the new instance
-    abs_folder_path = os.path.abspath(folder_path)
     os.chdir(abs_folder_path)
     iepy.setup(abs_folder_path)
     django_command_line(["", "migrate"])
