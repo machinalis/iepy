@@ -11,6 +11,7 @@ wget==2.0
 colorama==0.2.7
 featureforge==0.1.5
 Django==1.7
+six==1.5.2
 django-extra-views==0.6.5
 jsonfield==1.0.0
 django-angular==0.7.8
