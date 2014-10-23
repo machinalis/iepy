@@ -11,10 +11,16 @@ Options:
   --version                            Version number
 """
 
-from docopt import docopt
+import os
 import json
 import logging
+from docopt import docopt
 from sys import exit
+
+import iepy
+here = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(here)
+iepy.setup(parent_dir)
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager

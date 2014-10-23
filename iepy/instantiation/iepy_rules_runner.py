@@ -1,14 +1,15 @@
 import os
-import sys
 import logging
+
+import iepy
+here = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(here)
+iepy.setup(parent_dir)
 
 from iepy.extraction.rules_core import RulesBasedCore
 from iepy.data import models
 from iepy.data.db import CandidateEvidenceManager
 
-# add the iepy instance folder to the path
-here = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(here))
 import rules
 
 
