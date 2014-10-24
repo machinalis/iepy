@@ -2,6 +2,7 @@ import subprocess
 import xmltodict
 import os
 import logging
+import stat
 
 import wget
 
@@ -77,3 +78,13 @@ def download():
     finally:
         if zipfile:
             os.remove(zipfile)
+
+    for directory in os.listdir(DIRS.user_data_dir):
+        if directory.startswith("stanford-corenlp-full"):
+            stanford_directory = os.path.join(DIRS.user_data_dir, directory)
+            if os.path.isdir(stanford_directory):
+                corenlp = os.path.join(stanford_directory, "corenlp.sh")
+                st = os.stat(corenlp)
+                os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
+                break
+
