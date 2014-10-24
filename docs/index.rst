@@ -41,6 +41,7 @@ Contents:
    tutorial
    rules_tutorial
    corpus_labeling
+   how_to_hack
    reference
 
 
