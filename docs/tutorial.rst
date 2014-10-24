@@ -19,38 +19,8 @@ To create a new instance you have to run:
 
 Where *<project_name>* is something that you choose.
 This command will ask you a phew things such as database name, its username and its password.
-When that's done, you'll have a folder with the name that you choose and the following structure:
-
-.. code-block:: bash
-
-    yourproject
-    ├── yourproject_settings.py
-    ├── yourproject.sqlite
-    ├── bin
-    │   ├── csv_to_iepy.py
-    │   ├── iepy_rules_runner.py
-    │   ├── iepy_runner.py
-    │   ├── manage.py
-    │   └── preprocess.py
-    ├── extractor_config.json
-    └── rules.py
-
-Note that instead of *yourproject* you'll have your own project name there.
-
-Lets see why each one of this files is there:
-
-    * **yourproject_settings.py** is a configuration file where you can change the database
-      settings and all the web interface related settings. This file has a `django settings <https://docs.djangoproject.com/en/1.7/ref/settings/>`_
-      file format.
-    * **yourproject.sqlite** is the default database in an sqlite format. This has no data yet, you'll have to fill it with your own data.
-    * **extractor_config.json** has all the configuration of the active learning core in a *json* format.
-    * **rules.py** is the place where you'll write the rules if you want to use the rule based system.
-    * **bin**
-        * **csv_to_iepy.py** is a tool to import data from a csv file into the database.
-        * **iepy_rules_runner.py** will run the core using the rule based system.
-        * **iepy_runner.py** will run the core using the active learning core.
-        * **manage.py** is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_ to control the web user interface.
-        * **preprocess** will preprocess the data loaded in your database.
+When that's done, you'll have an instance in a folder with the name that you choose
+Read more about the instantiation :doc:`here <instantiation>`.
 
 
 1 - Loading the database
@@ -95,10 +65,6 @@ You can run it by doing:
 
 This *will* take a while, specially if you have a lot of data.
 
-.. note::
-
-    To customize this process, take a look at the :doc:`how to hack <how_to_hack>` documentation.
-
 
 3 - Open the web interface
 --------------------------
@@ -117,26 +83,11 @@ that you need on your instance folder and it's as simple as running:
 And done! Leave that running and open up a browser at `http://127.0.0.1:8000 <http://127.0.0.1:8000>`_ to get
 the user interface home page.
 
-There you can use the interface to create a relation definition.
+Now it's time for you to *create a relation definition*. Use the web interface to create the relation that you
+are going to be using.
 
-4 - Run the core
-----------------
+IEPY
+----
 
-Alright, you're ready to run either the *active learning* core or the *rule based core*.
-The rule based core requires some more work so if you're planning to use it take a look
-at that on the :doc:`rules tutorial <rules_tutorial>`.
-
-The active learning core can be run doing:
-
-.. code-blocK:: bash
-
-    python bin/iepy_runner.py <relation_name>
-
-This will run until it needs you to label some of the evidences. At this point, what you
-need to do is go to the web interface that you ran on the previous step, and there you
-can label some evidences.
-
-When you consider that is enough, go to the prompt that the iepy runner presented you,
-and continue the execution by typing **run**.
-
-That will cycle again and repeat the process.
+Alright, you're ready to run either the :doc:`active learning core <active_learning_tutorial>`
+or the :doc:`rule based core <rules_tutorial>`.
