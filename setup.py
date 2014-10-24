@@ -12,9 +12,9 @@ with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
 requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
-base_reqs = list(parse_requirements(requirements_path))
+base_reqs = [str(x.req) for x in parse_requirements(requirements_path)]
 dev_requirements_path = path.join(HERE, "docs", "setup", "requirements-development.txt")
-dev_reqs = [str(x.req) for x in parse_requirements(requirements_path)]
+dev_reqs = [str(x.req) for x in parse_requirements(dev_requirements_path)]
 
 setup(
     name='iepy',
