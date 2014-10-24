@@ -2,7 +2,7 @@ import random
 import logging
 
 from iepy import defaults
-from iepy.extraction.fact_extractor import FactExtractorFactory
+from iepy.extraction.relation_extraction_classifier import RelationExtractionClassifier
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class ActiveLearningCore:
 
     def __init__(self, relation, labeled_evidences, extractor_config=None):
         self.relation = relation
-        self.fact_extractor = None
+        self.relation_classifier = None
         self._setup_labeled_evidences(labeled_evidences)
         self.questions = list(self.candidate_evidence)
         if extractor_config is None:
@@ -63,7 +63,7 @@ class ActiveLearningCore:
         yesno = set(self.labeled_evidence.values())
         assert len(yesno) <= 2, "Evidence is not binary!"
         if len(yesno) == 2:
-            self.train_fact_extractor()
+            self.train_relation_classifier()
             self.rank_candidate_evidence()
             self.choose_questions()
 
@@ -71,9 +71,9 @@ class ActiveLearningCore:
         """
         Blocking (ie, not fast).
         """
-        if not self.fact_extractor:
+        if not self.relation_classifier:
             return {}
-        labels = self.fact_extractor.predict(self.candidate_evidence)
+        labels = self.relation_classifier.predict(self.candidate_evidence)
         prediction = dict(zip(self.candidate_evidence, labels))
         prediction.update(self.labeled_evidence)
         return prediction
@@ -99,15 +99,21 @@ class ActiveLearningCore:
         logger.info("Loaded {} candidate evidence and {} labeled evidence".format(
                     len(self.candidate_evidence), len(self.labeled_evidence)))
 
-    def train_fact_extractor(self):
-        self.fact_extractor = FactExtractorFactory(self.extractor_config,
-                                                   self.labeled_evidence)
+    def train_relation_classifier(self):
+        X = []
+        y = []
+        for evidence, score in self.labeled_evidence.items():
+            X.append(evidence)
+            y.append(int(score))
+            assert y[-1] in (True, False)
+        self.relation_classifier = RelationExtractionClassifier(**self.extractor_config)
+        self.relation_classifier.fit(X, y)
 
     def rank_candidate_evidence(self):
         N = min(10 * len(self.labeled_evidence), len(self.candidate_evidence))
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
-        ranks = self.fact_extractor.decision_function(sample)
+        ranks = self.relation_classifier.decision_function(sample)
         self.ranked_candidate_evidence = dict(zip(self.candidate_evidence, ranks))
         ranks = [abs(x) for x in ranks]
         logger.debug("Ranking completed, lowest absolute rank={}, "
