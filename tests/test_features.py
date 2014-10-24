@@ -1,23 +1,17 @@
 # -*- coding: utf-8 -*-
-import mock
-from unittest import TestCase, skip
+from unittest import skip
 
 from featureforge.validate import BaseFeatureFixture, EQ
 from featureforge.feature import make_feature
-import numpy
-from scipy.sparse import csr_matrix
 
 from iepy.data.db import CandidateEvidenceManager
-from iepy.extraction.fact_extractor import (
-    FactExtractor, bag_of_words, bag_of_pos, bag_of_word_bigrams, bag_of_wordpos,
+from iepy.extraction.features import (
+    bag_of_words, bag_of_pos, bag_of_word_bigrams, bag_of_wordpos,
     bag_of_wordpos_bigrams, bag_of_words_in_between, bag_of_pos_in_between,
     bag_of_word_bigrams_in_between, bag_of_wordpos_in_between,
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
     other_entities_in_between, total_number_of_entities,
-    verbs_count_in_between, verbs_count, symbols_in_between, BagOfVerbStems,
-    BagOfVerbLemmas, LemmaBetween, MoreSamplesNeededException)
-from iepy.extraction.fact_extractor import ColumnFilter
-from iepy.utils import make_feature_list
+    verbs_count_in_between, verbs_count, symbols_in_between, LemmaBetween)
 
 from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
@@ -31,66 +25,6 @@ def _e(markup, **kwargs):
     pos = (base_pos * n)[:n]
     evidence.segment.postags = pos
     return evidence
-
-
-class TestFactExtractor(ManagerTestCase):
-    def setUp(self):
-        self.config = {
-            "classifier": "dtree",
-            "classifier_args": dict(),
-            "dimensionality_reduction": None,
-            "dimensionality_reduction_dimension": None,
-            "feature_selection": None,
-            "feature_selection_dimension": None,
-            "scaler": False,
-            "sparse": True,
-            "features": make_feature_list("""
-                    bag_of_words
-                    bag_of_pos
-                    bag_of_word_bigrams
-                    bag_of_wordpos
-                    bag_of_wordpos_bigrams
-                    bag_of_words_in_between
-                    bag_of_pos_in_between
-                    bag_of_word_bigrams_in_between
-                    bag_of_wordpos_in_between
-                    bag_of_wordpos_bigrams_in_between
-                    entity_order
-                    entity_distance
-                    other_entities_in_between
-                    in_same_sentence
-                    verbs_count_in_between
-                    verbs_count
-                    total_number_of_entities
-                    symbols_in_between
-                    number_of_tokens
-            """),
-        }
-
-    def test_simple_ok_configuration(self):
-        FactExtractor(self.config)
-
-    @mock.patch("iepy.extraction.fact_extractor.BagOfVerbStems", spec=True)
-    def test_configuration_with_arguments(self, mocked_feature):
-        patch = make_feature_list("""
-            BagOfVerbStems True
-            BagOfVerbLemmas True
-            BagOfVerbLemmas False
-        """)
-        self.config["features"] = self.config["features"] + patch
-        FactExtractor(self.config)
-        self.assertEqual(mocked_feature.call_count, 1)
-        self.assertEqual(mocked_feature.call_args, ((True, ), ))
-
-    def test_error_missing_configuration(self):
-        del self.config["dimensionality_reduction_dimension"]
-        with self.assertRaises(ValueError):
-            FactExtractor(self.config)
-
-    def test_error_nonexistent_feature(self):
-        self.config["features"].append("the_yeah_yeah_feature")
-        with self.assertRaises(KeyError):
-            FactExtractor(self.config)
 
 
 class FeatureEvidenceBaseCase(BaseFeatureFixture):
@@ -368,71 +302,6 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
     )
 
 
-class TestBagStemVerbInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
-    feature = BagOfVerbStems(in_between=True)
-    fixtures = dict(
-        test_none=(
-            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
-                       base_pos=["JJ"]),
-            EQ, set()),
-        test_all=(
-            lambda: _e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
-                       base_pos=["VB", u"VBD"]),
-            EQ, {u'mak', u'you', u'go', u'to', u'the'}),
-    )
-
-
-class TestBagStemVerb(ManagerTestCase, FeatureEvidenceBaseCase):
-    feature = BagOfVerbStems(in_between=False)
-    fixtures = dict(
-        test_none=(
-            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
-                       base_pos=["JJ"]),
-            EQ, set()),
-        test_all=(
-            lambda: _e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
-                       base_pos=["VB", u"VBD"]),
-            EQ, {u'drink', u'argentin', u'mat', u'mak', u'you',
-                 u'go', u'to', u'the', u'toilet'}),
-        test_empty=(u"", EQ, set()),
-        test_no_entity=(lambda: _e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
-                        EQ, {u'drink', u'mat', u'yeah'}),
-    )
-
-
-class TestBagLemmaVerbInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
-    feature = BagOfVerbLemmas(in_between=True)
-    fixtures = dict(
-        test_none=(
-            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
-                       base_pos=["JJ"]),
-            EQ, set()),
-        test_all=(
-            lambda: _e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
-                       base_pos=["VB", u"VBD"]),
-            EQ, {u'make', u'you', u'go', u'to', u'the'}),
-    )
-
-
-class TestBagLemmaVerb(ManagerTestCase, FeatureEvidenceBaseCase):
-    feature = BagOfVerbLemmas(in_between=False)
-    fixtures = dict(
-        test_none=(
-            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
-                       base_pos=["JJ"]),
-            EQ, set()),
-        test_all=(
-            lambda: _e(u"Drinking {Argentinean Mate|thing**} makes you go to the {toilet|thing*}",
-                       base_pos=["VB", u"VBD"]),
-            EQ, {u'drink', u'argentinean', u'mate', u'make', u'you',
-                 u'go', u'to', u'the', u'toilet'}),
-        test_empty=(u"", EQ, set()),
-        test_no_entity=(
-            lambda: _e(u"Drinking mate yeah", base_pos=["VB", u"VBD"]),
-            EQ, {u'drink', u'mate', u'yeah'}),
-    )
-
-
 class TestLemmaBetween(ManagerTestCase, FeatureEvidenceBaseCase):
     feature = LemmaBetween('makes')
     fixtures = dict(
@@ -447,83 +316,3 @@ class TestLemmaBetween(ManagerTestCase, FeatureEvidenceBaseCase):
         test_after=(u"Drinking {Mate|thing**} in the {toilet|thing*} makes fun",
                     EQ, 0),
     )
-
-
-class TestDenseColumnFilter(TestCase):
-    def setUp(self):
-        self.X = numpy.array([
-                [0, 1, 0, 0, 5],
-                [0, 0, 0, 0, 0],
-                [1, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 1, 0, 0, 0],
-        ])
-        self.N, self.M = self.X.shape
-
-    def test_zero(self):
-        cf = ColumnFilter(0)
-        cf.fit(self.X)
-        Y = cf.transform(self.X)
-        self.assertTrue((self.X == Y).all())
-        # the column mapping is the identity:
-        mapping_ok = [cf.column_map(i) == i for i in range(Y.shape[1])]
-        self.assertTrue(all(mapping_ok))
-
-    def test_one(self):
-        cf = ColumnFilter(1)
-        cf.fit(self.X)
-        Y = cf.transform(self.X)
-        self.assertEqual(Y.shape, (self.N, self.M - 1))
-        mask = numpy.array([True, True, True, False, True])
-        self.assertTrue((Y == self.X[:, mask]).all())
-        mapping = [cf.column_map(i) for i in range(Y.shape[1])]
-        self.assertEqual(mapping, [i for i in range(self.M) if mask[i]])
-
-    def test_all(self):
-        cf = ColumnFilter(6)
-        with self.assertRaises(MoreSamplesNeededException):
-            cf.fit(self.X)
-
-
-class TestSparseColumnFilter(TestCase):
-    def setUp(self):
-        self.X = csr_matrix([
-                [0, 1, 0, 0, 5],
-                [0, 0, 0, 0, 0],
-                [1, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 1, 0, 0, 0],
-        ])
-        self.N, self.M = self.X.shape
-
-    def test_zero(self):
-        cf = ColumnFilter(0)
-        cf.fit(self.X)
-        Y = cf.transform(self.X)
-        # == is inefficient, use != and check number of nonzeros:
-        self.assertTrue((self.X != Y).nnz == 0)
-        # the column mapping is the identity:
-        mapping_ok = [cf.column_map(i) == i for i in range(Y.shape[1])]
-        self.assertTrue(all(mapping_ok))
-
-    def test_one(self):
-        cf = ColumnFilter(1)
-        cf.fit(self.X)
-        Y = cf.transform(self.X)
-        self.assertEqual(Y.shape, (self.N, self.M - 1))
-        mask = numpy.array([True, True, True, False, True])
-        # == is inefficient, use != and check number of nonzeros:
-        self.assertTrue((Y != self.X[:, mask]).nnz == 0)
-        mapping = [cf.column_map(i) for i in range(Y.shape[1])]
-        self.assertEqual(mapping, [i for i in range(self.M) if mask[i]])
-
-    def test_all(self):
-        cf = ColumnFilter(6)
-        with self.assertRaises(MoreSamplesNeededException):
-            cf.fit(self.X)

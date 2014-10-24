@@ -27,7 +27,7 @@ _configuration_options = """
 
 
 class RelationExtractionClassifier:
-    def __init__(self, config):
+    def __init__(self, **config):
         # Validate options are present
         for option in _configuration_options:
             if option not in config:
@@ -53,13 +53,7 @@ class RelationExtractionClassifier:
         self.pipeline = make_pipeline(vectorization, StandardScaler())
         self.classifier = classifier
 
-    def fit(self, data):
-        X = []
-        y = []
-        for evidence, score in data.items():
-            X.append(evidence)
-            y.append(int(score))
-            assert y[-1] in (True, False)
+    def fit(self, X, y):
         X = self.pipeline.fit_transform(X, y)
         self.classifier.fit(X, y)
         return self
@@ -82,7 +76,7 @@ class RelationExtractionClassifier:
 
 class ClassifierAsFeature:
     """
-    A transformation that esentially implement a form of dimensionality
+    A transformation that esentially implements a form of dimensionality
     reduction.
     This class uses (by default) a fast SGDClassifier configured like a linear
     SVM to produce a feature that is the decision function of the classifier.

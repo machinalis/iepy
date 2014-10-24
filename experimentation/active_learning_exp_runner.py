@@ -66,7 +66,7 @@ class Runner(object):
             alcore.process()
 
         test_evidences, test_labels = zip(*list(testset.items()))
-        extractor = alcore.fact_extractor
+        extractor = alcore.relation_classifier
 
         # Evaluate prediction
         predicted_labels = extractor.predict(test_evidences)
@@ -86,7 +86,8 @@ class Runner(object):
 
 
 def extender(config):
-    config["features"] = set(config["features"])
+    config["sparse_features"] = set(config["sparse_features"])
+    config["dense_features"] = set(config["dense_features"])
     # Add a database id/hash
     dbhash = (iepy.data.models.TextSegment.objects.count(),
               iepy.data.models.IEDocument.objects.count(),

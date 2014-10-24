@@ -1,8 +1,7 @@
 import ast
 from string import punctuation
 
-from featureforge.feature import output_schema, Feature
-from schema import Schema, And
+from featureforge.feature import output_schema
 
 
 punct_set = set(punctuation)
@@ -146,34 +145,6 @@ def verbs_count(datapoint):
     Returns the number of Verb POS tags in the datapoint.
     """
     return len(verbs(datapoint))
-
-
-class BaseBagOfVerbs(Feature):
-    output_schema = Schema({str})
-
-    def _evaluate(self, datapoint):
-        i, j = None, None
-        if self.in_between:
-            i, j = in_between_offsets(datapoint)
-        verb_tokens = verbs(datapoint, i, j)
-        return set([self.do(tk) for tk in verb_tokens])
-
-
-class LemmaBetween(Feature):
-    output_schema = Schema(And(int, lambda x: x in (0, 1)))
-
-    def __init__(self, lemma):
-        self.lemma = lemma
-
-    def _evaluate(self, datapoint):
-        i, j = in_between_offsets(datapoint)
-        if self.lemma in datapoint.segment.tokens[i:j]:
-            return 1
-        else:
-            return 0
-
-    def name(self):
-        return u'<LemmaBetween, lemma=%s>' % self.lemma
 
 
 @output_schema(int, lambda x: x in (0, 1))
