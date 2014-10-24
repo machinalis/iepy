@@ -9,15 +9,15 @@ relations between entity occurrences.
 Running the web server
 ----------------------
 
-First of all, you need to run the web server that will serve the interface.
+First of all, you need to run the web server that will provide the interface.
 This is done by running a *Django* server.
 
-Assuming you have a shell with the current directory on the project's root,
+Assuming you have an iepy instance and it's your current directory,
 to start the server you need to run 
 
 .. code-block:: sh
     
-    $ python iepy/webui/manage.py runserver
+    $ python bin/manage.py runserver
 
 You will see a message like this:
 
@@ -29,7 +29,7 @@ You will see a message like this:
 Home page
 ---------
 
-At this point, you can go on and open a browser and access the URL **http://127.0.0.1:8000/**
+At this point, you can go on and open a browser and access the URL `http://127.0.0.1:8000 <http://127.0.0.1:8000/>`_
 and you will get a screen like this:
 
 .. image:: home_screenshot.jpg
