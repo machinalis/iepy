@@ -16,19 +16,31 @@
         <div class="large-12 columns">
             <div class="section relations-to-tag">
                 <div class="title">Label iepy-runs</div>
-                <div class="subtitle">Choose a relation to start labeling a iepy run</div>
-                <div class="description">There are some candidates that are waiting to be labeled so iepy can continue working</div>
+                <div class="subtitle">
+                    Choose a relation to start labeling
+                </div>
                 <div class="content">
-                    asd
+                    {% if iepy_runs %}
+                    {% else %}
+                        <div class="alert-box info"> No label information is needed right now. </div>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="section relations-to-tag">
-                <div class="title">Label a corpus</div>
-                <div class="subtitle">Choose a relation to start labeling</div>
-                <div class="description">Here you can label a complete corpus document by document or segment by segment</div>
+                <div class="title">label a corpus</div>
+                <div class="subtitle">
+                    choose a relation to start labeling
+                </div>
                 <div class="content">
                         asd
+                </div>
+            </div>
+
+            <div class="section relations-to-tag">
+                <div class="title">Manage your database</div>
+                <div class="subtitle">
+                    Access <a href="/admin/"> here </a> to modify any of the database models.
                 </div>
             </div>
         </div>

@@ -26,6 +26,8 @@ def _judge(request):
 class Home(TemplateView):
     template_name = 'corpus/home.html'
 
+home = Home.as_view()
+
 
 def next_segment_to_label(request, relation_id):
     relation = get_object_or_404(Relation, pk=relation_id)

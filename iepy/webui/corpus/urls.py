@@ -5,9 +5,6 @@ from corpus import api
 urlpatterns = patterns(
     '',
 
-    # Home page
-    url(r'^$', views.Home.as_view(), name='home'),
-
     # Next item to label
     url(r'^next_segment_to_label/(?P<relation_id>\d+)/',
         views.next_segment_to_label,
