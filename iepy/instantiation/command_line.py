@@ -38,12 +38,12 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 def execute_from_command_line(argv=None):
     opts = docopt(__doc__, argv=argv, version=0.1)
     folder_path = opts["<folder_path>"]
-    abs_folder_path = os.path.abspath(folder_path)
 
     if opts["--download-third-party-data"]:
         download_third_party_data()
         return
 
+    abs_folder_path = os.path.abspath(folder_path)
     if os.path.exists(folder_path):
         print("Error: folder already exists")
         sys.exit(1)
