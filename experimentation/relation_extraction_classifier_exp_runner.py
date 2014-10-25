@@ -7,7 +7,7 @@ import time
 from featureforge.experimentation import runner
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from iepy.extraction.fact_extractor import FactExtractorFactory
+from iepy.extraction.relation_extraction_classifier import RelationExtractionClassifier
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
 from experimentation_utils import result_dict_from_predictions
@@ -52,15 +52,22 @@ class Runner(object):
         }
 
         # Train
-        extractor = FactExtractorFactory(config, train)
+        extractor = RelationExtractionClassifier(config)
+        extractor.fit(train)
+
+        # Predict and rank
+        X = extractor._chew(test_evidences)
+        predicted_labels = extractor._predict(X)
+        try:
+            predicted_scores = extractor._rank(X)
+        except AttributeError:
+            predicted_scores = predicted_labels
 
         # Evaluate prediction
-        predicted_labels = extractor.predict(test_evidences)
         result.update(result_dict_from_predictions(
             test_evidences, test_labels, predicted_labels))
 
         # Evaluate ranking
-        predicted_scores = extractor.decision_function(test_evidences)
         auroc = roc_auc_score(test_labels, predicted_scores)
         avgprec = average_precision_score(test_labels, predicted_scores)
 
@@ -83,7 +90,8 @@ def get_train_test_indexes(config, N):
 
 
 def extender(config):
-    config["features"] = set(config["features"])
+    config["sparse_features"] = set(config["sparse_features"])
+    config["dense_features"] = set(config["dense_features"])
     # Add a database id/hash
     dbhash = (iepy.data.models.TextSegment.objects.count(),
               iepy.data.models.IEDocument.objects.count(),
@@ -99,4 +107,4 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    runner.main(Runner(), extender, booking_duration=60 * 60)
+    runner.main(Runner(), extender, booking_duration=5 * 60)
