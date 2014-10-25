@@ -56,7 +56,8 @@ class Runner(object):
 
         # Interact with oracle
         alcore = ActiveLearningCore(config["relation"], candidate_evidences,
-                                    extractor_config=config)
+                                    extractor_config=config,
+                                    performance_tradeoff=config["tradeoff"])
         alcore.start()
         # ^ Is acainst creenhouse emissions
         for _ in range(oracle_answers):
@@ -69,7 +70,10 @@ class Runner(object):
         extractor = alcore.relation_classifier
 
         # Evaluate prediction
-        predicted_labels = extractor.predict(test_evidences)
+        predicted_dict = alcore.predict()
+        test_evidences = list(testset)
+        test_labels = [testset[x] for x in test_evidences]
+        predicted_labels = [predicted_dict[x] for x in test_evidences]
         result.update(result_dict_from_predictions(
             test_evidences, test_labels, predicted_labels))
 
