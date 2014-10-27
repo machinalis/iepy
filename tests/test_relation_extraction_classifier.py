@@ -29,14 +29,14 @@ class TestFactExtractor(ManagerTestCase):
         }
 
     def test_simple_ok_configuration(self):
-        RelationExtractionClassifier(self.config)
+        RelationExtractionClassifier(**self.config)
 
     def test_error_missing_configuration(self):
         del self.config["dense_features"]
         with self.assertRaises(ValueError):
-            RelationExtractionClassifier(self.config)
+            RelationExtractionClassifier(**self.config)
 
     def test_error_nonexistent_feature(self):
-        self.config["features"].append("the_yeah_yeah_feature")
+        self.config["dense_features"].append("the_yeah_yeah_feature")
         with self.assertRaises(KeyError):
-            RelationExtractionClassifier(self.config)
+            RelationExtractionClassifier(**self.config)

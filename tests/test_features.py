@@ -11,7 +11,7 @@ from iepy.extraction.features import (
     bag_of_word_bigrams_in_between, bag_of_wordpos_in_between,
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
     other_entities_in_between, total_number_of_entities,
-    verbs_count_in_between, verbs_count, symbols_in_between, LemmaBetween)
+    verbs_count_in_between, verbs_count, symbols_in_between)
 
 from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
@@ -299,20 +299,4 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
                   EQ, 1),
         test_two=(u"Drinking {Mate|thing**}, makes you go, to the {toilet|thing*}",
                   EQ, 1),  # its only boolean
-    )
-
-
-class TestLemmaBetween(ManagerTestCase, FeatureEvidenceBaseCase):
-    feature = LemmaBetween('makes')
-    fixtures = dict(
-        test_lr=(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
-                 EQ, 1),
-        test_rl=(u"Drinking {Mate|thing**} makes you go to the {toilet|thing*}",
-                 EQ, 1),
-        test_no=(u"Drinking {Mate|thing**} takes you to the {toilet|thing*}",
-                 EQ, 0),
-        test_before=(u"Drinking makes {Mate|thing**} go to the {toilet|thing*}",
-                     EQ, 0),
-        test_after=(u"Drinking {Mate|thing**} in the {toilet|thing*} makes fun",
-                    EQ, 0),
     )
