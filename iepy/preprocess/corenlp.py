@@ -1,6 +1,7 @@
 import subprocess
 import xmltodict
 import os
+import sys
 import logging
 import stat
 
@@ -30,10 +31,13 @@ class StanfordCoreNLP:
         cmd = self.CORENLP_CMD
         if tokenize_with_whitespace:
             cmd += " -tokenize.whitespace=true"
-        args = [COMMAND_PATH] + cmd.split()
-        self.proc = subprocess.Popen(args, stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT)
+        self.corenlp_cmd = [COMMAND_PATH] + cmd.split()
+        self.proc = subprocess.Popen(
+            self.corenlp_cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
         self.output = self.iter_output_segments()
         self.receive()  # Wait until the prompt is ready
 
@@ -42,6 +46,12 @@ class StanfordCoreNLP:
             buf = b""
             while self.PROMPT not in buf:
                 buf += self.proc.stdout.read1(1024)
+
+                if self.proc.poll() == 1:
+                    logger.error("Error running '{}'".format(" ".join(self.corenlp_cmd)))
+                    logger.error("Output was: '{}'".format(buf))
+                    sys.exit(1)
+
             segment, _, buf = buf.partition(self.PROMPT)
             yield segment.decode("utf8")
 
