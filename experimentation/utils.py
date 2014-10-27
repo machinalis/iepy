@@ -3,7 +3,7 @@ from itertools import product
 import datetime
 import logging
 
-from iepy.extraction.fact_extractor import FactExtractor
+from iepy.extraction.relation_extraction_classifier import RelationExtractionClassifier
 
 
 logger = logging.getLogger('experimentation.utils')
@@ -45,9 +45,9 @@ def check_configs(configs, includes=None, excludes=None, always=None,
                                  config)
         if 'classifier_config' in config:
             # config dict wraps a classifier config. Let's check it inside
-            FactExtractor(config['classifier_config'])
+            RelationExtractionClassifier(config['classifier_config'])
         else:
-            FactExtractor(config)
+            RelationExtractionClassifier(config)
     N += 1
     if includes:
         raise ValueError("No configuration included {}".format(list(includes)))

@@ -41,7 +41,7 @@ class Runner(object):
         if not data:
             raise NotEnoughLabeledData("There is no labeled data for training!")
         train, test = get_train_test_indexes(config, len(data))
-        train = dict(data[i] for i in train)
+        train_evidences, train_labels = zip(*[data[i] for i in train])
         test_evidences, test_labels = zip(*[data[i] for i in test])
 
         result = {
@@ -52,8 +52,8 @@ class Runner(object):
         }
 
         # Train
-        extractor = RelationExtractionClassifier(config)
-        extractor.fit(train)
+        extractor = RelationExtractionClassifier(**config)
+        extractor.fit(train_evidences, train_labels)
 
         # Predict and rank
         X = extractor._chew(test_evidences)
@@ -107,4 +107,4 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    runner.main(Runner(), extender, booking_duration=5 * 60)
+    runner.main(Runner(), extender, booking_duration=2 * 60)
