@@ -30,7 +30,7 @@ class RuleBasedCore(object):
 
     From the user's point of view this class is meant to be used like this::
 
-        extractor = RuleBasedCore(relation, evidences, [<rule-1>, <rule-2>, ...])
+        extractor = RuleBasedCore(relation, evidences, [<rule-1>, ..., <rule-n>])
         extractor.start()
         predictions = extractor.predict()  # profit
     """
@@ -45,14 +45,12 @@ class RuleBasedCore(object):
     ###
 
     def start(self):
-        """Dumb method, just API compliance"""
+        """
+        Prepares the internal information to start predicting.
+        """
         # Right now it's a dumb method, here just because API compliance.
         # Anyways, it's a good placeholder for doing some heavy computations if you
         # need to.
-        pass
-
-    def process(self):
-        """Dumb method, just API compliance"""
         pass
 
     def predict(self):
@@ -68,6 +66,19 @@ class RuleBasedCore(object):
             match = self.match(evidence)
             predicted[evidence] = match if match is not None else False
         return predicted
+
+    def add_answer(self):
+        """Dumb method on this extractor, just API compliance"""
+        pass
+
+    def process(self):
+        """Dumb method on this extractor, just API compliance"""
+        pass
+
+    @property
+    def questions(self):
+        """Dumb method on this extractor, just API compliance"""
+        return []
 
     ###
     ### IEPY Internal Rules methods

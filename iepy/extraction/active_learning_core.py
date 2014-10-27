@@ -42,7 +42,7 @@ class ActiveLearningCore:
         self.relation = relation
         self.relation_classifier = None
         self._setup_labeled_evidences(labeled_evidences)
-        self.questions = list(self.candidate_evidence)
+        self._questions = list(self.candidate_evidence)
         if extractor_config is None:
             extractor_config = defaults.extractor_config
         self.extractor_config = extractor_config
@@ -52,11 +52,19 @@ class ActiveLearningCore:
 
     def start(self):
         """
-        Prepares all the internal information, and prepares the first "questions" that
+        Organizes the internal information, and prepares the first "questions" that
         need to be answered.
         """
         # API compliance. Nothing is done on current implementation.s
         pass
+
+    @property
+    def questions(self):
+        """Returns a list of candidate evidences that would be good to have
+        labels for.
+        Order is important: labels for evidences listed firsts are more valuable.
+        """
+        return self._questions
 
     def add_answer(self, evidence, answer):
         """
@@ -66,7 +74,7 @@ class ActiveLearningCore:
         """
         assert answer in (True, False)
         self.labeled_evidence[evidence] = answer
-        for list_ in (self.questions, self.candidate_evidence):  # TODO: Check performance. Should use set?
+        for list_ in (self._questions, self.candidate_evidence):  # TODO: Check performance. Should use set?
             list_.remove(evidence)
         # TODO: Save labeled evidence into database?
 
@@ -91,7 +99,7 @@ class ActiveLearningCore:
     def predict(self):
         """
         Blocking (ie, not fast).
-        With all the labeled evidence a classifier is trained and use for automatically
+        With all the labeled evidence a classifier is trained and used for automatically
         labeling all other evidences.
         Returns a dict {evidence: True/False}, where the boolean label indicates if
         the relation is present on that evidence or not.
@@ -169,8 +177,8 @@ class ActiveLearningCore:
     def choose_questions(self):
         # Criteria: Answer first candidates with decision function near 0
         # because they are the most uncertain for the classifier.
-        self.questions = sorted(self.ranked_candidate_evidence,
-                                key=lambda x: abs(self.ranked_candidate_evidence[x]))
+        self._questions = sorted(self.ranked_candidate_evidence,
+                                 key=lambda x: abs(self.ranked_candidate_evidence[x]))
 
     def get_kfold_data(self):
         """

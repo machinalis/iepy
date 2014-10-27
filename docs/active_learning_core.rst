@@ -10,4 +10,4 @@ Main class
 
 .. autoclass:: ActiveLearningCore
     :member-order: bysource
-    :members: __init__, start, add_answer, process, predict
+    :members: __init__, start, questions, add_answer, process, predict

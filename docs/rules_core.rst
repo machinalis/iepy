@@ -9,4 +9,5 @@ Main class
 ----------
 
 .. autoclass:: RuleBasedCore
-    :members: __init__, start, process, predict
+    :member-order: bysource
+    :members: __init__, start, predict, questions, add_answer, process
