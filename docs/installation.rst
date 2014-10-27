@@ -34,7 +34,7 @@ SciPy `here <http://www.scipy.org/install.html>`_
 Install IEPY package
 --------------------
 
-1. `Virtualenv creation`_
+1. :doc:`Create a Virtualenv <virtualenv>`
 
 2. Install IEPY itself
 
@@ -42,11 +42,11 @@ Install IEPY package
 
     pip install iepy
 
-3. Configure Java home
+3. Configure java & NLTK
 
-This step is only required for python 3 installations.
-    Make sure of having defined the environment variable JAVAHOME=/usr/bin/java (or the path where java was installed)
-    Make sure of making somehow persistent this configuration.
+    In order to be able to run documents preprocess, it's needed to have defined an
+    environment variable JAVAHOME=/usr/bin/java (or the path where java was installed)
+    Make sure of making somehow persistent this configuration (your shell rc file, for example).
 
 Download the third party data and tools
 ---------------------------------------
@@ -57,24 +57,3 @@ binaries.
 .. code-block:: bash
 
     iepy --download-third-party-data
-
-
-Virtualenv creation
--------------------
-
-For organization sake, its strongly recommended to make all the IEPY
-installation inside a virtual python environment.
-
-We shouldn't be explaining how to create it here, so we wont.
-There is way better documentation
-`here <https://docs.python.org/3.4/library/venv.html>`_
-for python 3.4.
-
-Just make sure of have it created and activated while following the
-IEPY installation instructions.
-Some small notes before leading you to the good documentation:
-
- - If you are working with python3.3 (or 3.4 but with the buggy ubuntu/debian release),
-   be warn that you will need to install *pip* by hand,
-   as explained `here <http://pip.readthedocs.org/en/latest/installing.html#install-pip>`_
- - Alternatively, create your virtualenv with `virtualenvwrapper <http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation>`_
