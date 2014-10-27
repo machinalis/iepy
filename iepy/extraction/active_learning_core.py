@@ -18,19 +18,19 @@ HIREC = (1, 2)  # Recall is 2x more important than precision
 
 class ActiveLearningCore:
     """
-    Iepy's main class. Implements an active learning information extraction
+    IEPY's main class. Implements an active learning information extraction
     pipeline.
 
     From the user's point of view this class is meant to be used like this::
 
-        p = BoostrappedIEPipeline(relation)
-        p.start()  # blocking
-        while UserIsNotTired and p.questions:
-            question = p.questions[0]
+        extractor = ActiveLearningCore(relation, lbl_evidences)
+        extractor.start()  # blocking
+        while UserIsNotTired and extractor.questions:
+            question = extractor.questions[0]
             answer = ask_user(question)
-            p.add_answer(question, answer)
-            p.process()
-        predictions = p.predict()  # profit
+            extractor.add_answer(question, answer)
+            extractor.process()
+        predictions = extractor.predict()  # profit
     """
 
     #
@@ -52,13 +52,17 @@ class ActiveLearningCore:
 
     def start(self):
         """
-        Blocking.
+        Prepares all the internal information, and prepares the first "questions" that
+        need to be answered.
         """
+        # API compliance. Nothing is done on current implementation.s
         pass
 
     def add_answer(self, evidence, answer):
         """
         Not blocking.
+        Informs to the Core the evidence label (True or False) decided
+        from the outside.
         """
         assert answer in (True, False)
         self.labeled_evidence[evidence] = answer
@@ -69,7 +73,9 @@ class ActiveLearningCore:
     def process(self):
         """
         Blocking.
-        After calling this method the values returned by `questions_available`
+        With all the labeled evidences, new questions are generated, optimizing the
+        future gain of having those evidences labeled.
+        After calling this method the values returned by `questions`
         and `predict` will change.
         """
         yesno = set(self.labeled_evidence.values())
@@ -85,6 +91,10 @@ class ActiveLearningCore:
     def predict(self):
         """
         Blocking (ie, not fast).
+        With all the labeled evidence a classifier is trained and use for automatically
+        labeling all other evidences.
+        Returns a dict {evidence: True/False}, where the boolean label indicates if
+        the relation is present on that evidence or not.
         """
         if not self.relation_classifier:
             return {}

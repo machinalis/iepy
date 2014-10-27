@@ -25,11 +25,19 @@ def rule(answer, priority=0):
 
 
 class RuleBasedCore(object):
+    """
+    IEPY's alternative main class. Implements a rule-based information extractor.
+
+    From the user's point of view this class is meant to be used like this::
+
+        extractor = RuleBasedCore(relation, evidences, [<rule-1>, <rule-2>, ...])
+        extractor.start()
+        predictions = extractor.predict()  # profit
+    """
     def __init__(self, relation, evidences, rules):
         self.relation = relation
         self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)
         self.evidences = evidences
-
         self.learnt = {}
 
     ###
@@ -37,12 +45,23 @@ class RuleBasedCore(object):
     ###
 
     def start(self):
-        pass  # Dummy method
+        """Dumb method, just API compliance"""
+        # Right now it's a dumb method, here just because API compliance.
+        # Anyways, it's a good placeholder for doing some heavy computations if you
+        # need to.
+        pass
 
     def process(self):
-        pass  # Dummy method
+        """Dumb method, just API compliance"""
+        pass
 
     def predict(self):
+        """
+        Using the provided rules, on the given order, applies them to each evidence
+        candidate, verifying if they match or not.
+        Returns a dict {evidence: True/False}, where the boolean label indicates if
+        the relation is present on that evidence or not.
+        """
         logger.info('Predicting using rule based core')
         predicted = {}
         for evidence in self.evidences:
