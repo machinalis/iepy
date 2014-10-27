@@ -74,7 +74,8 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   [test_rule])
         pipeline.start()
-        facts = pipeline.known_facts()
+        pipeline.process()
+        facts = pipeline.predict()
         candidate = self._candidates[0]
         self.assertTrue(facts[candidate])
 
@@ -87,7 +88,8 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   [test_rule])
         pipeline.start()
-        facts = pipeline.known_facts()
+        pipeline.process()
+        facts = pipeline.predict()
         candidate = self._candidates[0]
         self.assertFalse(facts[candidate])
 
@@ -95,8 +97,9 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   [])
         pipeline.start()
-        facts = pipeline.known_facts()
-        self.assertEqual(len(facts), 0)
+        pipeline.process()
+        facts = pipeline.predict()
+        self.assertEqual(len([x for x in facts if facts[x]]), 0)
 
     def test_match_run_on_every_rule(self):
         mocked_rules = [
@@ -105,6 +108,8 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   mocked_rules)
         pipeline.start()
+        pipeline.process()
+        pipeline.predict()
 
         for mock_rule in mocked_rules:
             self.assertTrue(mock_rule.called)
@@ -123,6 +128,8 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   [rule_should_not_run, rule_should_run])
         pipeline.start()
+        pipeline.process()
+        pipeline.predict()
         self.assertTrue(rule_should_run.called)
         self.assertFalse(rule_should_not_run.called)
 
@@ -142,6 +149,7 @@ class TestRuleBasedCore(ManagerTestCase):
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
                                   [test_rule])
         pipeline.start()
-        facts = pipeline.known_facts()
+        pipeline.process()
+        facts = pipeline.predict()
         candidate = self._candidates[0]
         self.assertFalse(facts[candidate])

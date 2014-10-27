@@ -37,16 +37,18 @@ class RuleBasedCore(object):
     ###
 
     def start(self):
-        logger.info('Starting rule based core')
+        pass  # Dummy method
 
-        self.learnt = defaultdict(bool)
+    def process(self):
+        pass  # Dummy method
+
+    def predict(self):
+        logger.info('Predicting using rule based core')
+        predicted = {}
         for evidence in self.evidences:
             match = self.match(evidence)
-            if match is not None:
-                self.learnt[evidence] = match
-
-    def known_facts(self):
-        return self.learnt
+            predicted[evidence] = match if match is not None else False
+        return predicted
 
     ###
     ### IEPY Internal Rules methods
