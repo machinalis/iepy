@@ -1,13 +1,12 @@
-==============================================
-How to use the core with the rule based system
-==============================================
+Running the rule based core
+===========================
 
 Here we will guide you through the steps to use the rule based system
 to detect relations on the documents.
 
 
 How they work
-=============
+-------------
 
 In the rule based system, you have to define a set of "regular expression like" rules
 that will be tested against the segments of the documents. If a rule matches it means
@@ -17,7 +16,7 @@ This is used to acquire high precision because you control exactly what is match
 
 
 Anatomy of a rule
-=================
+-----------------
 
 .. note::
     If you don't know how to define a python function,
@@ -71,7 +70,7 @@ Lets break the regular expression of the example into smaller parts:
 
 
 Setting priority
-================
+----------------
 
 Using the **rule decorator**, you can set that a rule is more important than another, and because of that it should
 try to match before.
@@ -88,7 +87,7 @@ For example, to set a priority of 1 you do:
 
 
 Negative rules
-==============
+--------------
 
 If you spot that your rules are matching things erroniously, you can write a rule 
 that catches that before it is taken by a positive rule.
@@ -116,7 +115,7 @@ Example:
 Note that the parameters of the rule decorator are **False** and **priority=1**
 
 Where do I place the rules
-==========================
+--------------------------
 
 On your project's instance folder, there should be a *rules.py* file. All rules should be place
 there along with a  **RELATION** variable that sets which relation is going to be used.
@@ -125,7 +124,7 @@ This is the file that will be loaded when you run the *iepy_rules_runner*.
 
 
 Example
-=======
+-------
 
 This is a portion of the example provided with IEPY:
 
