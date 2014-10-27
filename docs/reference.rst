@@ -4,4 +4,5 @@ Library Reference
 .. toctree::
    :maxdepth: 1
 
-   core
+   active_learning_core
+   rules_core
