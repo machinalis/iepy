@@ -623,18 +623,3 @@ class SegmentToTag(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['segment', 'relation']
-
-
-# Models utils
-
-def remove_invalid_segments():
-    """
-    Removes all segments that doesn't have two entity occurences
-    because they are useless.
-    """
-
-    segments = list(TextSegment.objects.all())
-    for segment in segments:
-        eos = list(segment.get_entity_occurrences())
-        if len(eos) < 2:
-            segment.delete()

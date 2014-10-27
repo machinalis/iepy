@@ -1,9 +1,13 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from .manager_case import ManagerTestCase
 from .factories import (
     EntityFactory, EntityKindFactory,
     TextSegmentFactory, RelationFactory,
     EntityOccurrenceFactory
 )
+
+from iepy.data.models import TextSegment
 
 
 class TestEntityOccurrences(ManagerTestCase):
@@ -55,3 +59,28 @@ class TestEntityOccurrences(ManagerTestCase):
         eo.delete()
         evidences_after = segment.get_evidences_for_relation(self.person_location_relation)
         self.assertEqual(len(list(evidences_after)), 2)  # only bob with each location
+
+    def test_delete_eo_removes_segment(self):
+        # We create a segment with only two entity occurrences,
+        # deleting one should delete the segment as well
+
+        segment, eos = self.create_segment_with_eos([
+            self.e_john, self.e_argentina
+        ])
+
+        self.assertIsNotNone(TextSegment.objects.get(pk=segment.id))
+        self.e_john.delete()
+        with self.assertRaises(ObjectDoesNotExist):
+            TextSegment.objects.get(pk=segment.id)
+
+    def test_delete_eo_does_not_removes_segment(self):
+        # We create a segment with only two entity occurrences,
+        # deleting one should delete the segment as well
+
+        segment, eos = self.create_segment_with_eos([
+            self.e_john, self.e_bob, self.e_argentina, self.e_germany
+        ])
+
+        self.assertIsNotNone(TextSegment.objects.get(pk=segment.id))
+        self.e_john.delete()
+        self.assertIsNotNone(TextSegment.objects.get(pk=segment.id))
