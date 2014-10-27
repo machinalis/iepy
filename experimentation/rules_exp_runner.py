@@ -79,8 +79,9 @@ class Runner(object):
         # Run the rule based pipeline
         pipeline = RuleBasedCore(self.relation, self.evidences, rules)
         pipeline.start()
-        matched = pipeline.known_facts()
-        predicted_labels = [e in matched for e in self.evidences]
+        pipeline.process()
+        matched = pipeline.predict()
+        predicted_labels = [matched[e] for e in self.evidences]
 
         # Evaluate prediction
         result.update(result_dict_from_predictions(

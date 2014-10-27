@@ -32,5 +32,6 @@ if __name__ == u'__main__':
     # Run the pipeline
     iextractor = RuleBasedCore(relation, evidences, rules)
     iextractor.start()
-    facts = iextractor.known_facts()
+    iextractor.process()
+    facts = iextractor.predict()
     print(facts)
