@@ -40,8 +40,7 @@ if __name__ == u'__main__':
     opts = docopt(__doc__, version=0.1)
     relation = opts['<relation_name>']
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
 
     if opts['--tune-for'] == 'high-prec':
         tuning_mode = HIPREC
