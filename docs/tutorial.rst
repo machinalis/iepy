@@ -23,7 +23,7 @@ To create a new instance you have to run:
     iepy <project_name>
 
 Where *<project_name>* is something that you choose.
-This command will ask you a phew things such as database name, its username and its password.
+This command will ask you a few things such as database name, its username and its password.
 When that's done, you'll have an instance in a folder with the name that you choose
 Read more about the instantiation :doc:`here <instantiation>`.
 
