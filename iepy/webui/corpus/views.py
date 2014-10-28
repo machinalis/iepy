@@ -26,7 +26,17 @@ def _judge(request):
 class Home(TemplateView):
     template_name = 'corpus/home.html'
 
-home = Home.as_view()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["relations"] = Relation.objects.all()
+
+        segments_to_tag = SegmentToTag.objects.filter(done=False)
+        relation_ids_to_tag = list(set(segments_to_tag.values_list("relation", flat=True)))
+        relations_to_tag = Relation.objects.filter(id__in=relation_ids_to_tag)
+        context["iepy_runs"] = relations_to_tag
+
+        return context
+home = login_required(Home.as_view())
 
 
 def next_segment_to_label(request, relation_id):

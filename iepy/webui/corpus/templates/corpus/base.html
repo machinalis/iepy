@@ -19,9 +19,17 @@
     {% block extra_js %}{% endblock %}
 {% endblock %}
 
+{% block branding %}
+    <h1 id="site-name">IEPY administration</h1>
+{% endblock %}
+
+{% block title %}
+    {{ title }} {% if title %} | {% endif %} IEPY
+{% endblock %}
+
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url 'admin:index' %}">Home</a>
+        <a href="/">Home</a>
         {% if title %} &rsaquo; {{ title }}{% endif %}
 
         <div class="label-mode-switch">
