@@ -9,8 +9,8 @@ How they work
 -------------
 
 In the rule based system, you have to define a set of "regular expression like" rules
-that will be tested against the segments of the documents. If a rule matches it means
-that the relation is present.
+that will be tested against the segments of the documents. Roughly speaking,
+if a rule matches it means that the relation is present.
 
 This is used to acquire high precision because you control exactly what is matched.
 
@@ -48,12 +48,12 @@ has to return.
 After that it comes the body of the function. Here it is constructed a regular expression. That needs to be
 returned by the function.  This is not an ordinary regular expression, it
 uses `ReFO <https://github.com/machinalis/refo>`_.
-In ReFo you have to operate with objects that does some kind of check to the text segment. 
+In ReFo you have to operate with objects that does some kind of check to the text segment.
 
 For our example, we've chosen to look for the *Was Born* relation. Particularly we look for the date of birth of a
 person when it is written like this:
 
-:: 
+::
 
     Carl Bridgewater (January 2, 1965 - September 19, 1978)
 
@@ -61,7 +61,7 @@ To match this kind of cases, we have to specify the regex as a sum of predicates
 part matches.
 
 Lets break the regular expression of the example into smaller parts:
-    
+
     * **Subject**: matches if it is an entity of the kind of the relation's subject.
     * **Object**: matches if it is an entity of the kind of the relation's object.
     * **Pos**: matches the *part of speech* of the token examined.
@@ -89,7 +89,7 @@ For example, to set a priority of 1 you do:
 Negative rules
 --------------
 
-If you spot that your rules are matching things erroniously, you can write a rule 
+If you spot that your rules are matching things erroniously, you can write a rule
 that catches that before it is taken by a positive rule.
 
 You do this by setting the rule as a *negative rule* using the decorator. Also is
