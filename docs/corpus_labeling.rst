@@ -87,4 +87,4 @@ You can access this tool by right clicking in the problematic entity.
 
 .. image:: label_by_document_entity_edition.png
 
-There you can completly remove the entity or change the limits so it holds more (or less) tokens.
+There you can completely remove the entity or change the limits so it holds more (or less) tokens.

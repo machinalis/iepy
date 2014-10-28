@@ -27,7 +27,7 @@ setup(
     # Author details
     author=(
         "Rafael Carrascosa, Javier Mansilla, Gonzalo García Berrotarán, "
-        "Daniel Moisset, Franco M. Luque, Laura Alonso",
+        "Daniel Moisset, Franco M. Luque",
     ),
 
     # Choose your license
