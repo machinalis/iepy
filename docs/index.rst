@@ -16,9 +16,9 @@ Contents:
 
    installation
    tutorial
+   instantiation
    active_learning_tutorial
    rules_tutorial
-   instantiation
    preprocess
    corpus_labeling
 

@@ -38,8 +38,32 @@ This file has a `django settings <https://docs.djangoproject.com/en/1.7/ref/sett
 Database
 ........
 
-A database is created by default when you create an instance on the file **yourproject.sqlite**.
+When you create an instance, a database is created by default on the file **yourproject.sqlite**.
 This is a database with  sqlite format.  This has no data yet, you'll have to fill it with your own data.
+
+To change the database engine, change the settings file on the section where it says `DATABASES`:
+
+::
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'yourproject.sqlite',
+        }
+    }
+
+You can change the engine to use, for example, PostgreSQL like this:
+
+::
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'your_database_name',
+        }
+    }
+
+Take a look at the `django database configuration documentation <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ for more detail.
 
 Active learning configuration
 .............................
