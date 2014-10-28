@@ -1,15 +1,53 @@
 from unittest import TestCase
 from unittest import mock
 
-from iepy.data.db import DocumentManager, TextSegmentManager
-from iepy.data.models import EntityOccurrence, Entity, IEDocument
+from iepy.data.db import DocumentManager
+from iepy.data.models import IEDocument
 from iepy.preprocess.pipeline import PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
 from iepy.preprocess.segmenter import RawSegment
 
-from .factories import IEDocFactory, SentencedIEDocFactory, TextSegmentFactory, naive_tkn
+from .factories import IEDocFactory, SentencedIEDocFactory, naive_tkn
 from .manager_case import ManagerTestCase
-from .timelapse import timekeeper
+
+
+class TestDocumentCreationThruManager(ManagerTestCase):
+    sample_id = 'sample-id'
+    sample_text = 'this is a sample text'
+    sample_metadata = {'iepy': 'rocks'}
+    docmanager = DocumentManager()
+
+    def test_create_basic(self):
+        doc = self.docmanager.create_document(self.sample_id, self.sample_text,
+                                              self.sample_metadata)
+        self.assertEqual(doc.human_identifier, self.sample_id)
+        self.assertEqual(doc.text, self.sample_text)
+        self.assertEqual(doc.metadata, self.sample_metadata)
+        self.assertEqual(IEDocument.objects.count(), 1)
+
+    def test_create_existent_does_nothing(self):
+        doc = self.docmanager.create_document(self.sample_id, self.sample_text,
+                                              self.sample_metadata)
+        doc2 = self.docmanager.create_document(self.sample_id, self.sample_text,
+                                               self.sample_metadata)
+        self.assertEqual(doc, doc2)
+        self.assertEqual(IEDocument.objects.count(), 1)
+
+    def test_doc_text_and_metadata_are_updated_if_enabled(self):
+        new_text = self.sample_text + ' but longer'
+        new_metadata = {'something': 'different'}
+        self.docmanager.create_document(self.sample_id, self.sample_text,
+                                        self.sample_metadata)
+        doc = self.docmanager.create_document(self.sample_id, new_text,
+                                              new_metadata)
+        self.assertNotEqual(doc.text, new_text)
+        self.assertEqual(doc.text, self.sample_text)
+        self.assertNotEqual(doc.metadata, new_metadata)
+        self.assertEqual(doc.metadata, self.sample_metadata)
+        doc = self.docmanager.create_document(self.sample_id, new_text,
+                                              new_metadata, update_mode=True)
+        self.assertEqual(doc.text, new_text)
+        self.assertEqual(doc.metadata, new_metadata)
 
 
 class TestDocumentsPreprocessMetadata(ManagerTestCase):
@@ -169,5 +207,3 @@ class TestDocumentSentenceIterator(TestCase):
         sentences = [s for s in doc.get_sentences()]
         output_tokens = sum(sentences, [])
         self.assertEqual(doc.tokens, output_tokens)
-
-

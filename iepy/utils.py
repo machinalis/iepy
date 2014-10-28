@@ -3,6 +3,7 @@ import csv
 import gzip
 import logging
 import os
+import sys
 import zipfile
 
 from appdirs import AppDirs
@@ -72,7 +73,7 @@ def evaluate(predicted_knowledge, gold_knowledge):
 
 
 def csv_to_iepy(filepath):
-    logger.info('Importing Documents to IEPY from {}'.format(filepath))
+    print ('Importing Documents to IEPY from {}'.format(filepath))
     from iepy.data.db import DocumentManager
 
     if filepath.endswith(".gz"):
@@ -80,18 +81,25 @@ def csv_to_iepy(filepath):
     else:
         fin = open(filepath, "rt")
     reader = csv.DictReader(fin)
+
+    expected_fnames = ['document_id', 'document_text']
+    if not set(reader.fieldnames).issuperset(expected_fnames):
+        msg = "Couldn't find the expected field names on the provided csv {}"
+        sys.exit(msg.format(expected_fnames))
+
     name = os.path.basename(filepath)
 
     docdb = DocumentManager()
     seen = set()
     for i, d in enumerate(reader):
-        mid = d["freebase_mid"]
-        if mid in seen:
+        doc_id = d["document_id"]
+        if doc_id in seen:
             continue
-        seen.add(mid)
+        seen.add(doc_id)
         docdb.create_document(
-            identifier=mid,
-            text=d["description"],
-            metadata={"input_filename": name}
+            identifier=doc_id,
+            text=d["document_text"],
+            metadata={"input_filename": name},
+            update_mode=True
         )
-        logger.info('Added {} documents'.format(i+1))
+        print ('Added {} documents'.format(i+1))
