@@ -20,13 +20,13 @@ Running the core
 
 After creating a relation, you can start the core to look for instances of that relation.
 
-You can run this core in two modes: **High precision** or **high recall**. 
-`Precision and recall <http://en.wikipedia.org/wiki/Precision_and_recall>`_ can be traded with one another up to a certain point.  I.e. it is possible to trade some 
+You can run this core in two modes: **High precision** or **high recall**.
+`Precision and recall <http://en.wikipedia.org/wiki/Precision_and_recall>`_ can be traded with one another up to a certain point.  I.e. it is possible to trade some
 recall to get better precision and vice versa.
 
 To visualize better this trade off, lets see an example:
 A precision of 99% means that 1 of every 100 predicted relations will be wrong and the rest will be correct.
-A recall of 30% means that only 30 out of 100 existent relations will be detected by the algorithm and the rest 
+A recall of 30% means that only 30 out of 100 existent relations will be detected by the algorithm and the rest
 will be wrongly discarded as "no relation present".
 
 Run the active learning core by doing:
@@ -35,7 +35,8 @@ Run the active learning core by doing:
 
     python bin/iepy_runner.py <relation_name>
 
-And add ``--high-prec`` or ``--high-recall`` before the relation name to switch between modes. The default is **high precision**.
+And add ``--tune-for=high-prec`` or ``--tune-for=high-recall`` before the relation name to switch
+between modes. The default is **high precision**.
 
 This will run until it needs you to label some of the evidences. At this point, what you
 need to do is go to the web interface that you ran on the previous step, and there you
@@ -92,7 +93,7 @@ Features to be used in the classifier, you can use a subset of:
     * bag_of_pos
     * bag_of_words
 
-These can be added as `sparse` adding them into the 
+These can be added as `sparse` adding them into the
 `sparse_features` section or added as `dense` into the `dense_features`.
 
 The features in the sparse section will go through a stage of linear dimension reduction

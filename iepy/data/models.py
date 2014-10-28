@@ -538,12 +538,10 @@ class EvidenceCandidate(BaseModel):
         ]
 
     def __str__(self):
-        s = "Candidate for the relation '{}({}, {})' in '{}'"
+        s = "Candidate evidence for the relation '{}' (id {})"
         return s.format(
             self.relation.name,
-            self.left_entity_occurrence.alias,
-            self.right_entity_occurrence.alias,
-            self.segment
+            self.pk
         )
 
     @property
