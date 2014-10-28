@@ -148,7 +148,7 @@ class ActiveLearningCore:
             if lbl is None:
                 self.candidate_evidence.append(e)
             else:
-                self.labeled_evidence[e] = lbl
+                self.labeled_evidence[e] = 1 if lbl else 0
         if not self.candidate_evidence:
             raise ValueError("Cannot start core without candidate evidence")
         logger.info("Loaded {} candidate evidence and {} labeled evidence".format(
