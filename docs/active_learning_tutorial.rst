@@ -54,7 +54,7 @@ To terminate the process, type **STOP** and the output will be provided.
 Fine tuning
 -----------
 
-If you want to modify the internal behaviour, you can change the settings file. On your instance
+If you want to modify the internal behavior, you can change the settings file. On your instance
 folder you'll fine a file called ``extractor_config.json``. There you've all the configuration
 for the internal classifier, such as:
 

@@ -48,7 +48,7 @@ has to return.
 After that it comes the body of the function. Here it is constructed a regular expression. That needs to be
 returned by the function.  This is not an ordinary regular expression, it
 uses `ReFO <https://github.com/machinalis/refo>`_.
-In ReFo you have to operate with objects that does some kind of check to the text segment.
+In ReFO you have to operate with objects that does some kind of check to the text segment.
 
 For our example, we've chosen to look for the *Was Born* relation. Particularly we look for the date of birth of a
 person when it is written like this:
@@ -89,7 +89,7 @@ For example, to set a priority of 1 you do:
 Negative rules
 --------------
 
-If you spot that your rules are matching things erroniously, you can write a rule
+If you spot that your rules are matching things erroneously, you can write a rule
 that catches that before it is taken by a positive rule.
 
 You do this by setting the rule as a *negative rule* using the decorator. Also is

@@ -41,7 +41,7 @@ Database
 When you create an instance, a database is created by default on the file **yourproject.sqlite**.
 This is a database with sqlite format. It has no data yet, since you'll have to fill it with your own data.
 
-When working with big datasets, it's recommended to use some other database engine instead of *slite*.
+When working with big datasets, it's recommended to use some other database engine instead of *sqlite*.
 To change the database engine, change the settings file on the section where it says `DATABASES`:
 
 ::
@@ -107,8 +107,8 @@ Runners
 On the bin folder, you have scripts to run either the active learning core (**iepy_runner.py**) or the
 rule based core (**iepy_rules_runner.py**)
 
-Web UI managment
-................
+Web UI management
+.................
 
-For the web server managment, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
+For the web server management, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
 and with it you can start up your server.

@@ -5,15 +5,15 @@ The preprocessing adds the metadata that iepy needs to detect the relations, whi
 
     * Text tokenization and sentence splitting.
     * Part-Of-Speech (POS) tagging.
-    * Named Entity Recogntion (NER).
+    * Named Entity Recognition (NER).
     * TextSegments creation (internal IEPY text unit)
 
 We're currently running all this steps (except the last one) using the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ tools.
 This runs in a all-in-one run, but every step can be :ref:`modified to use a custom version <customize>` that adjust your needs.
 
 
-About the Tokenization and Sentece splitting
---------------------------------------------
+About the Tokenization and Sentence splitting
+---------------------------------------------
 
 The text of each Document is split on tokens and sentences, and that information is stored
 on the document itself, preserving (and also storing) for each token the offset (in chars)
@@ -39,7 +39,7 @@ To find a relation between entities one must first recognize these entities in t
 As an result of NER, each document is added with information about all the found
 Named Entities (together with which tokens are involved in each occurrence).
 
-An automatic NER is used to find ocurrences of an entity in the text.
+An automatic NER is used to find occurrences of an entity in the text.
 
 The default pre-process uses the Stanford NER, check the Stanford CoreNLP's `documentation <http://nlp.stanford.edu/software/corenlp.shtml>`_
 to find out which entity kinds are supported, but includes:
@@ -56,7 +56,7 @@ to find out which entity kinds are supported, but includes:
 Others remarkable features of this NER (that are incorporated to the default pre-process) are:
 
     - pronoun resolution
-    - simple correference resolution
+    - simple co-reference resolution
 
 This step can be customized to find entities of kinds defined by you, or anything else you may need.
 
@@ -66,7 +66,7 @@ About the Text Segmentation
 
 IEPY works on a **text segment** (or simply **segment**) level, meaning that will
 try to find if a relation is present within a segment of text. The
-pre-process is the responsible for spliting the documents into segments.
+pre-process is the responsible for splitting the documents into segments.
 
 The default pre-process uses a segmenter that creates for documents with the following criteria:
 
@@ -79,7 +79,7 @@ How to customize
 ----------------
 
 On your own IEPY instances, there's a file called ``preprocess.py`` located in the ``bin`` folder.
-There you'll find that the default is simply run the stanford preprocess, and later the segmenter.
+There you'll find that the default is simply run the Stanford preprocess, and later the segmenter.
 This can be changed to run a sequence of steps defined by you
 
 For example, take this pseudo-code to guide you:
@@ -98,8 +98,8 @@ For example, take this pseudo-code to guide you:
 
 .. note::
 
-    The steps can be functions or methods that define the `__call__`. We recomend objects because generally you'll
+    The steps can be functions or methods that define the `__call__`. We recommend objects because generally you'll
     want to do some load up of things on the `__init__` method to avoid loading everything over and over again.
 
 Each one of those steps will be called with each one of the documents, this means that for every step will be called
-with al the documents, after finishing with that the next step will be called with each one of the documents.
+with all the documents, after finishing with that the next step will be called with each one of the documents.

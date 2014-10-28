@@ -5,9 +5,9 @@ In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
 Be sure you have a working :doc:`installation <installation>`.
 
-IEPY internaly uses `Django <https://www.djangoproject.com/>`_ to define the database models,
+IEPY internally uses `Django <https://www.djangoproject.com/>`_ to define the database models,
 and for the web interface so you'll see some components of it around the project, such as the
-configuration file (with the database definition) and the ``manage.py``. If you're familirized
+configuration file (with the database definition) and the ``manage.py``. If you're familiarized
 with it, you will move faster in some of steps.
 
 
@@ -61,7 +61,7 @@ The preprocessing pipeline runs the following steps:
 
     * Text tokenization and sentence splitting.
     * Part-Of-Speech (POS) tagging.
-    * Named Entity Recogntion (NER).
+    * Named Entity Recognition (NER).
     * TextSegments creation (internal IEPY text unit)
 
 Your IEPY application comes with code to run all the preprocessing steps.
