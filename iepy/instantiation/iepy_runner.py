@@ -39,8 +39,8 @@ def load_labeled_evidences(relation, evidences):
 if __name__ == u'__main__':
     opts = docopt(__doc__, version=iepy.__version__)
     relation = opts['<relation_name>']
-
     logging.basicConfig(level=logging.INFO, format='%(message)s')
+    logging.getLogger("featureforge").setLevel(logging.WARN)
 
     if opts['--tune-for'] == 'high-prec':
         tuning_mode = HIPREC
