@@ -31,7 +31,7 @@ Settings file
 .............
 
 yourproject_settings.py is a configuration file where you can change the database
-settings and all the web interface related settings. 
+settings and all the web interface related settings.
 
 This file has a `django settings <https://docs.djangoproject.com/en/1.7/ref/settings/>`_ file format.
 
@@ -39,8 +39,9 @@ Database
 ........
 
 When you create an instance, a database is created by default on the file **yourproject.sqlite**.
-This is a database with  sqlite format.  This has no data yet, you'll have to fill it with your own data.
+This is a database with sqlite format. It has no data yet, since you'll have to fill it with your own data.
 
+When working with big datasets, it's recommended to use some other database engine instead of *slite*.
 To change the database engine, change the settings file on the section where it says `DATABASES`:
 
 ::
@@ -65,6 +66,16 @@ You can change the engine to use, for example, PostgreSQL like this:
 
 Take a look at the `django database configuration documentation <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ for more detail.
 
+.. note::
+
+    Each time you change your database (either the db-engine, or the db name) you will have
+    to instruct *django* to create all the tables in there, like this:
+
+    .. code-block:: bash
+
+        python bin/manage.py migrate
+
+
 Active learning configuration
 .............................
 
@@ -82,7 +93,7 @@ On the **bin** folder, you'll find a tool to import data from csv files. This is
 Your csv data has to be on the following format:
 
 ::
-    
+
     <document_id>, <document_text>
 
 Preprocess
@@ -99,5 +110,5 @@ rule based core (**iepy_rules_runner.py**)
 Web UI managment
 ................
 
-For the web server managment, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_ 
-and with it you can start up your server
+For the web server managment, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
+and with it you can start up your server.

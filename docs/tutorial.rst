@@ -36,7 +36,7 @@ The way we load the data into the database is importing it from a *csv* file. Yo
 provided in your application folder to do it.
 
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/preprocess.py data.csv
 
@@ -68,7 +68,7 @@ Your IEPY application comes with code to run all the preprocessing steps.
 
 You can run it by doing:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/preprocess.py
 
@@ -87,7 +87,7 @@ that the active learning core will need.
 To access it you must get the web server. Don't worry, you have everything
 that you need on your instance folder and it's as simple as running:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/manage.py runserver
 
