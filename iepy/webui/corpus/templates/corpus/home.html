@@ -1,0 +1,78 @@
+{% extends "corpus/base.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}" />
+{% endblock %}
+
+{% block content %}
+    <br />
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="title"> Welcome to IEPY </div>
+        </div>
+
+        <div class="large-12 columns">
+            <div class="section relations-to-tag">
+                <div class="title">Label iepy-runs</div>
+                <div class="subtitle">
+                    Choose a relation to start labeling
+                </div>
+                <div class="content">
+                    {% if iepy_runs %}
+                        <ul>
+                            {% for relation in iepy_runs %}
+                                <li><a href="{% url 'corpus:human_in_the_loop' relation_id=relation.id %}"> {{ relation.name }} </a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="row">
+                            <div class="large-5 columns">
+                                <div class="alert-box info">
+                                    No label information is needed right now. <br />
+                                    Run an Active Learning Core to get questions to answer.
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="section relations-to-tag">
+                <div class="title">Manage your database</div>
+                <div class="subtitle">
+                    Access <a href="/admin/"> here </a> to modify any of the database models.
+                </div>
+            </div>
+
+            <div class="section relations-to-tag">
+                <div class="title">Create a reference corpus</div>
+                <div class="subtitle">
+                    Choose a relation to start labeling evidences:
+                </div>
+                <div class="content">
+                    {% if relations %}
+                        <ul>
+                            {% for relation in relations %}
+                            <li><a href="{% url 'corpus:next_document_to_label' relation_id=relation.id %}">
+                                {{ relation.name }} 
+                            </a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="row">
+                            <div class="large-5 columns">
+                                <div class="alert-box info">
+                                    There are no relations created <br />
+                                    Create a relation <a href="/admin/corpus/relation/add/"> here </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
