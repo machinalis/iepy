@@ -32,25 +32,12 @@ Home page
 At this point, you can go on and open a browser and access the URL `http://127.0.0.1:8000 <http://127.0.0.1:8000/>`_
 and you will get a screen like this:
 
-.. image:: home_screenshot.jpg
+.. image:: home_screenshot.png
 
 
-There are two different ways to label evidences: by segment and by document.
-
-
-Segment based labeling
-----------------------
-
-When labeling by segment, you are presented with a segment of a document, and you will have to
-answer if the relation is present on all the possible combinations of entity occurrences.
-
-.. image:: label_by_segment_screenshot.png
-
-Here what you will need to do is complete every evidence whether the relation is present or not.
-When saving you will get another segment to label and so on.
-
-On top you have navigation controls and on the far right you have link to switch view 
-for one by document.
+After creating a relation, you can get access it on the ``Create a reference corpus`` section of the home page.
+Once you get there, you'll find that there are two different ways to label evidences: by segment and by document.
+The default one is by document by you can switch between from one to the other.
 
 
 Document based labeling
@@ -74,6 +61,21 @@ entity type.
 After saving, IEPY will take you to automatically to the next document.
 Also on top you have some navigation controls, but be careful with the following button because it won't
 save the changes that you’ve made on this document. 
+
+
+Segment based labeling
+----------------------
+
+When labeling by segment, you are presented with a segment of a document, and you will have to
+answer if the relation is present on all the possible combinations of entity occurrences.
+
+.. image:: label_by_segment_screenshot.png
+
+Here what you will need to do is complete every evidence whether the relation is present or not.
+When saving you will get another segment to label and so on.
+
+On top you have navigation controls and on the far right you have link to switch view 
+for one by document.
 
 
 Fixing entities mistagged
