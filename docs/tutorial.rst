@@ -5,6 +5,11 @@ In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
 Be sure you have a working :doc:`installation <installation>`.
 
+IEPY internaly uses `Django <https://www.djangoproject.com/>`_ to define the database models,
+and for the web interface so you'll see some components of it around the project, such as the
+configuration file (with the database definition) and the ``manage.py``. If you're familirized
+with it, you will move faster in some of steps.
+
 
 0 - Creating an instance of IEPY
 --------------------------------
