@@ -31,6 +31,5 @@ if __name__ == '__main__':
     pipeline = PreProcessPipeline([
         StanfordPreprocess(),
         SyntacticSegmenterRunner(increment=True)
-    ], docs
-    )
+    ], docs)
     pipeline.process_everything()

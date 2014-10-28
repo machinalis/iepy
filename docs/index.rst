@@ -19,6 +19,7 @@ Contents:
    instantiation
    active_learning_tutorial
    rules_tutorial
+   preprocess
    corpus_labeling
 
 

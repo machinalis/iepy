@@ -5,6 +5,11 @@ In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
 Be sure you have a working :doc:`installation <installation>`.
 
+IEPY internaly uses `Django <https://www.djangoproject.com/>`_ to define the database models,
+and for the web interface so you'll see some components of it around the project, such as the
+configuration file (with the database definition) and the ``manage.py``. If you're familirized
+with it, you will move faster in some of steps.
+
 
 0 - Creating an instance of IEPY
 --------------------------------
@@ -53,7 +58,6 @@ The preprocessing pipeline runs the following steps:
     * Text tokenization and segmentation into sentences.
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recogntion (NER).
-    * Text segmentation into fact-finding relevant parts.
 
 Your IEPY application comes with code to run all the preprocessing steps. 
 
@@ -64,6 +68,8 @@ You can run it by doing:
     python bin/preprocess.py
 
 This *will* take a while, specially if you have a lot of data.
+
+:doc:`Read more about the pre-process here. <preprocess>`
 
 
 3 - Open the web interface
@@ -91,3 +97,13 @@ IEPY
 
 Alright, you're ready to run either the :doc:`active learning core <active_learning_tutorial>`
 or the :doc:`rule based core <rules_tutorial>`.
+
+
+Constructing a reference corpus
+-------------------------------
+
+To test the performance IEPY provides a tool to label all the corpus "by hand" and then check the performance
+experimenting with that data.
+
+If you would like to create a labeled corpus to test the performance or for other purposes, take a look at
+the :doc:`corpus labeling tool <corpus_labeling>`
