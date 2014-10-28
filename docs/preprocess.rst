@@ -25,7 +25,7 @@ Part of speech tagging
 Each token is augmented with metadata about its part of speech such as noun, verb, adjective and other grammatical tags.
 Along the token itself, this is used by the NER to detect an entity occurrence.
 
-The one used by default it's the `Stanford Log-linear Part-Of-Speech Tagger <http://nlp.stanford.edu/software/tagger.shtml>`_
+The one used by default it's the one that the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ provides 
 
 Named Entity Recogntion
 -----------------------
@@ -33,12 +33,17 @@ Named Entity Recogntion
 To find a relation between entities one must first recognize these entities in the text. An automatic NER is used to find
 ocurrences of an entity in the text.
 
-The default process is the `Stanford Named Entity Recognizer <http://nlp.stanford.edu/software/CRF-NER.shtml>`_ and locates
-entity ocurrences of the following kinds:
+The default process uses the Stanford NER, check the Stanford CoreNLP's `documentation <http://nlp.stanford.edu/software/corenlp.shtml>`_ 
+to find out which entity kinds are supported, but includes:
 
     * Location
     * Person
     * Organization
+    * Date
+    * Number
+    * Time
+    * Money
+    * Percent
 
 This process can be customized to find entities of kinds defined by you.
 
