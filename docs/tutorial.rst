@@ -97,3 +97,13 @@ IEPY
 
 Alright, you're ready to run either the :doc:`active learning core <active_learning_tutorial>`
 or the :doc:`rule based core <rules_tutorial>`.
+
+
+Constructing a reference corpus
+-------------------------------
+
+To test the performance IEPY provides a tool to label all the corpus "by hand" and then check the performance
+experimenting with that data.
+
+If you would like to create a labeled corpus to test the performance or for other purposes, take a look at
+the :doc:`corpus labeling tool <corpus_labeling>`
