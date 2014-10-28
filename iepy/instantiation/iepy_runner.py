@@ -62,7 +62,7 @@ if __name__ == u'__main__':
     STOP = u'STOP'
     term = TerminalAdministration(relation,
                                   extra_options=[(STOP, u'Stop execution ASAP')])
-
+    was_ever_trained = False
     while iextractor.questions:
         questions = list(iextractor.questions)  # copying the list
         term.update_candidate_evidences_to_label(questions)
@@ -77,7 +77,11 @@ if __name__ == u'__main__':
                 i += 1
         print ('Added %s new human labels to the extractor core' % i)
         iextractor.process()
+        was_ever_trained = True
 
+    if not was_ever_trained:
+        # It's needed to run some process before asking for predictions
+        iextractor.process()
     predictions = iextractor.predict()
     print("Predictions:")
     for prediction, value in predictions.items():
