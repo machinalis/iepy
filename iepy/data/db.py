@@ -33,22 +33,31 @@ class DocumentManager(object):
 
     ### Basic administration and pre-process
 
-    def create_document(self, identifier, text, metadata=None):
+    def create_document(self, identifier, text, metadata=None, update_mode=False):
         """Creates a new Document with text ready to be inserted on the
         information extraction pipeline (ie, ready to be tokenized, POS Tagged,
         etc).
 
         Identifier must be a unique value that will be used for distinguishing
-        one document from another. If no title is given, will be inferred from
-        the identifier.
+        one document from another.
         Metadata is a dictionary where you can put whatever you want to persist
         with your document. IEPY will do nothing with it except ensuring that
         such information will be preserved.
+
+        With update_mode enabled, then if there's an existent document with the
+        provided identifier, it's updated (be warn that if some preprocess
+        result exist will be preserved untouched, delegating the responsability
+        of deciding what to do to the caller of this method).
         """
         if metadata is None:
             metadata = {}
-        doc = IEDocument(human_identifier=identifier, text=text, metadata=metadata)
-        doc.save()
+        doc, created = IEDocument.objects.get_or_create(
+            human_identifier=identifier, defaults={'text': text, 'metadata': metadata}
+        )
+        if not created and update_mode:
+            doc.text = text
+            doc.metadata = metadata
+            doc.save()
         return doc
 
     def __iter__(self):
