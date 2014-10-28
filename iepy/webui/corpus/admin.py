@@ -3,6 +3,10 @@ from django.core import urlresolvers
 
 from corpus.models import IEDocument, Entity, EntityKind, Relation, EntityOccurrence
 
+admin.site.site_header = 'IEPY administration'
+admin.site.site_title = 'IEPY'
+admin.site.index_title = 'IEPY'
+
 
 @admin.register(EntityKind)
 class EntityKindAdmin(admin.ModelAdmin):
