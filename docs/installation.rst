@@ -28,7 +28,7 @@ You need to install the following packages:
 They are needed for python scipy & numpy installation, and for running
 some java processes. If anything fails during the IEPY installation below,
 don't hesitate on checking fully installation notes for
-SciPy `here <http://www.scipy.org/install.html>`_
+SciPy `here <http://www.scipy.org/install.html>`__
 
 
 Install IEPY package
@@ -62,7 +62,7 @@ binaries.
 --------------------------
 
 We've experience some memory issues when using a computer with 32 bit architecture. This is because by default we use the
-Stanford CoreNLP, which uses java and has some notes about the memory. Read them more in detail `here <http://nlp.stanford.edu/software/tagger.shtml>`_
+Stanford CoreNLP, which uses java and has some notes about the memory. Read them more in detail `here <http://nlp.stanford.edu/software/tagger.shtml>`__
 
 We quote:
 
