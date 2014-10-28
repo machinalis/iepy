@@ -21,6 +21,7 @@ Contents:
    rules_tutorial
    preprocess
    corpus_labeling
+   architecture_issues
 
 
 Indices and tables
