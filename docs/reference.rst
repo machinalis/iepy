@@ -1,4 +1,4 @@
-Library Reference
+Main API Reference
 =================
 
 .. toctree::

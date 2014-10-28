@@ -20,7 +20,6 @@ Contents:
    active_learning_tutorial
    rules_tutorial
    corpus_labeling
-   reference
 
 
 Indices and tables
