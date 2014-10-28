@@ -24,14 +24,15 @@ To create a new instance you have to run:
 
 Where *<project_name>* is something that you choose.
 This command will ask you a few things such as database name, its username and its password.
-When that's done, you'll have an instance in a folder with the name that you choose
+When that's done, you'll have an instance in a folder with the name that you choose.
+
 Read more about the instantiation :doc:`here <instantiation>`.
 
 
 1 - Loading the database
 ------------------------
 
-The way we load the data into the database is importing it from a *csv* file. You can use the script **csv_to_iepy** 
+The way we load the data into the database is importing it from a *csv* file. You can use the script **csv_to_iepy**
 provided in your application folder to do it.
 
 
@@ -40,7 +41,10 @@ provided in your application folder to do it.
     python bin/preprocess.py data.csv
 
 This will load **data.csv** into the database and from now on, you will work accessing
-the data from there. 
+the data from there.
+
+See `here <instantiation.html#csv-importer>`_ for format details.
+
 
 .. note::
 
@@ -55,11 +59,12 @@ run the pre-process to generate all the information needed by IEPY's core.
 
 The preprocessing pipeline runs the following steps:
 
-    * Text tokenization and segmentation into sentences.
+    * Text tokenization and sentence splitting.
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recogntion (NER).
+    * TextSegments creation (internal IEPY text unit)
 
-Your IEPY application comes with code to run all the preprocessing steps. 
+Your IEPY application comes with code to run all the preprocessing steps.
 
 You can run it by doing:
 
