@@ -1,5 +1,5 @@
 """
-Run IEPY core loop
+Run IEPY active-learning extractor
 
 Usage:
     iepy_runner.py [options] <relation_name>
@@ -37,7 +37,7 @@ def load_labeled_evidences(relation, evidences):
     return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
 
 if __name__ == u'__main__':
-    opts = docopt(__doc__, version=0.1)
+    opts = docopt(__doc__, version=iepy.__version__)
     relation = opts['<relation_name>']
 
     logging.basicConfig(level=logging.INFO, format='%(message)s')

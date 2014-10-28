@@ -46,3 +46,10 @@ def _actual_path(fuzzy_path):
                 raise ValueError(
                     "There's no IEPY instance on the provided path {}".format(original))
             fuzzy_path = parent
+
+
+# Version number reading ...
+
+fname = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version.txt')
+with open(fname, encoding='utf-8') as filehandler:
+    __version__ = filehandler.read().strip().replace("\n", "")

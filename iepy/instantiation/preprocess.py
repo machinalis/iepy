@@ -24,9 +24,8 @@ from iepy.preprocess.segmenter import SyntacticSegmenterRunner
 if __name__ == '__main__':
     logger = logging.getLogger(u'preprocess')
     logger.setLevel(logging.INFO)
-    logging.basicConfig(level=logging.INFO,
-                        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    opts = docopt(__doc__, version=0.1)
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    opts = docopt(__doc__, version=iepy.__version__)
     docs = DocumentManager()
     pipeline = PreProcessPipeline([
         StanfordPreprocess(),
