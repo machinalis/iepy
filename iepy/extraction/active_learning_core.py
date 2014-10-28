@@ -111,7 +111,7 @@ class ActiveLearningCore:
         else:
             scores = self.relation_classifier.decision_function(self.candidate_evidence)
             labels = scores >= self.threshold
-        prediction = dict(zip(self.candidate_evidence, labels))
+        prediction = dict(zip(self.candidate_evidence, map(bool, labels)))
         prediction.update(self.labeled_evidence)
         return prediction
 
@@ -148,7 +148,7 @@ class ActiveLearningCore:
             if lbl is None:
                 self.candidate_evidence.append(e)
             else:
-                self.labeled_evidence[e] = 1 if lbl else 0
+                self.labeled_evidence[e] = bool(lbl)
         if not self.candidate_evidence:
             raise ValueError("Cannot start core without candidate evidence")
         logger.info("Loaded {} candidate evidence and {} labeled evidence".format(
