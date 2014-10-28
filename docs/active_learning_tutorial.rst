@@ -32,7 +32,7 @@ will be wrongly discarded as "no relation present".
 
 Run the active learning core by doing:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/iepy_runner.py <relation_name>
 
