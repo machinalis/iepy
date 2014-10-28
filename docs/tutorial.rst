@@ -53,7 +53,6 @@ The preprocessing pipeline runs the following steps:
     * Text tokenization and segmentation into sentences.
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recogntion (NER).
-    * Text segmentation into fact-finding relevant parts.
 
 Your IEPY application comes with code to run all the preprocessing steps. 
 
@@ -64,6 +63,8 @@ You can run it by doing:
     python bin/preprocess.py
 
 This *will* take a while, specially if you have a lot of data.
+
+:doc:`Read more about the pre-process here. <preprocess>`
 
 
 3 - Open the web interface
