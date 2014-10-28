@@ -3,26 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import jsonfield.fields
-import datetime
 import corpus.fields
-
-
-# Functions from the following migrations need manual copying.
-# Move them and any dependencies into this file, then update the
-# RunPython operations to refer to the local versions:
-# corpus.migrations.0009_data_migration_creating_evidencelabels
-def copied__create_separated_evidence_labels(apps, schema_editor):
-    # function copied from migration 0009_data_migration_creating_evidencelabels
-    EvidenceCandidate = apps.get_model('corpus', 'EvidenceCandidate')
-    EvidenceLabel = apps.get_model('corpus', 'EvidenceLabel')
-    for ev in EvidenceCandidate.objects.all():
-        EvidenceLabel.objects.create(evidence_candidate=ev,
-                                     judge=ev.judge,
-                                     label=ev.label,
-                                     modification_date=ev.modification_date,
-                                     labeled_by_machine=False
-                                     )
-
 
 
 class Migration(migrations.Migration):
@@ -36,46 +17,73 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Entity',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('key', models.CharField(max_length=256)),
             ],
             options={
-                'abstract': False,
                 'ordering': ['kind', 'key'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EntityKind',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, unique=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('name', models.CharField(unique=True, max_length=256)),
             ],
             options={
-                'abstract': False,
                 'ordering': ['name'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EntityOccurrence',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('offset', models.IntegerField()),
                 ('offset_end', models.IntegerField()),
                 ('alias', models.CharField(max_length=256)),
             ],
             options={
-                'abstract': False,
                 'ordering': ['document', 'offset', 'offset_end'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='EvidenceCandidate',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('left_entity_occurrence', models.ForeignKey(related_name='left_evidence_relations', to='corpus.EntityOccurrence')),
+            ],
+            options={
+                'ordering': ['segment_id', 'relation_id', 'left_entity_occurrence', 'right_entity_occurrence'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='EvidenceLabel',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('label', models.CharField(default='SK', choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')], null=True, max_length=2)),
+                ('modification_date', models.DateTimeField(auto_now=True)),
+                ('judge', models.CharField(max_length=256)),
+                ('labeled_by_machine', models.BooleanField(default=True)),
+                ('evidence_candidate', models.ForeignKey(related_name='labels', to='corpus.EvidenceCandidate')),
+            ],
+            options={
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='IEDocument',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
-                ('human_identifier', models.CharField(max_length=256, unique=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('human_identifier', models.CharField(unique=True, max_length=256)),
                 ('title', models.CharField(max_length=256)),
                 ('url', models.URLField()),
                 ('text', models.TextField()),
@@ -92,20 +100,7 @@ class Migration(migrations.Migration):
                 ('metadata', jsonfield.fields.JSONField(blank=True)),
             ],
             options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='LabeledRelationEvidence',
-            fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')], default='SK', max_length=2)),
-                ('date', models.DateTimeField(auto_now_add=True)),
-                ('judge', models.CharField(max_length=256)),
-                ('left_entity_occurrence', models.ForeignKey(to='corpus.EntityOccurrence', related_name='left_evidence_relations')),
-            ],
-            options={
+                'ordering': ['id'],
                 'abstract': False,
             },
             bases=(models.Model,),
@@ -113,28 +108,41 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Relation',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('name', models.CharField(max_length=256)),
-                ('left_entity_kind', models.ForeignKey(to='corpus.EntityKind', related_name='left_relations')),
-                ('right_entity_kind', models.ForeignKey(to='corpus.EntityKind', related_name='right_relations')),
+                ('left_entity_kind', models.ForeignKey(related_name='left_relations', to='corpus.EntityKind')),
+                ('right_entity_kind', models.ForeignKey(related_name='right_relations', to='corpus.EntityKind')),
+            ],
+            options={
+                'ordering': ['name', 'left_entity_kind', 'right_entity_kind'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SegmentToTag',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('done', models.BooleanField(default=False)),
+                ('modification_date', models.DateTimeField(auto_now=True)),
+                ('relation', models.ForeignKey(to='corpus.Relation')),
             ],
             options={
                 'abstract': False,
-                'ordering': ['name', 'left_entity_kind', 'right_entity_kind'],
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='TextSegment',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('offset', models.IntegerField(db_index=True)),
                 ('offset_end', models.IntegerField(db_index=True)),
-                ('document', models.ForeignKey(to='corpus.IEDocument', related_name='segments')),
+                ('document', models.ForeignKey(related_name='segments', to='corpus.IEDocument')),
             ],
             options={
-                'abstract': False,
                 'ordering': ['document', 'offset', 'offset_end'],
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -142,32 +150,50 @@ class Migration(migrations.Migration):
             name='textsegment',
             unique_together=set([('document', 'offset', 'offset_end')]),
         ),
+        migrations.AddField(
+            model_name='segmenttotag',
+            name='segment',
+            field=models.ForeignKey(to='corpus.TextSegment'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='segmenttotag',
+            unique_together=set([('segment', 'relation')]),
+        ),
         migrations.AlterUniqueTogether(
             name='relation',
             unique_together=set([('name', 'left_entity_kind', 'right_entity_kind')]),
         ),
+        migrations.AlterUniqueTogether(
+            name='evidencelabel',
+            unique_together=set([('evidence_candidate', 'label', 'judge')]),
+        ),
         migrations.AddField(
-            model_name='labeledrelationevidence',
+            model_name='evidencecandidate',
             name='relation',
-            field=models.ForeignKey(to='corpus.Relation', related_name='evidence_relations'),
+            field=models.ForeignKey(related_name='evidence_relations', to='corpus.Relation'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='labeledrelationevidence',
+            model_name='evidencecandidate',
             name='right_entity_occurrence',
-            field=models.ForeignKey(to='corpus.EntityOccurrence', related_name='right_evidence_relations'),
+            field=models.ForeignKey(related_name='right_evidence_relations', to='corpus.EntityOccurrence'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='labeledrelationevidence',
+            model_name='evidencecandidate',
             name='segment',
-            field=models.ForeignKey(to='corpus.TextSegment', related_name='evidence_relations'),
+            field=models.ForeignKey(related_name='evidence_relations', to='corpus.TextSegment'),
             preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='evidencecandidate',
+            unique_together=set([('left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment')]),
         ),
         migrations.AddField(
             model_name='entityoccurrence',
             name='document',
-            field=models.ForeignKey(to='corpus.IEDocument', related_name='entity_occurrences'),
+            field=models.ForeignKey(related_name='entity_occurrences', to='corpus.IEDocument'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -195,109 +221,5 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='entity',
             unique_together=set([('key', 'kind')]),
-        ),
-        migrations.AlterModelOptions(
-            name='labeledrelationevidence',
-            options={'ordering': ['segment_id', 'relation_id', 'left_entity_occurrence', 'right_entity_occurrence']},
-        ),
-        migrations.AlterField(
-            model_name='labeledrelationevidence',
-            name='label',
-            field=models.CharField(choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')], default='SK', null=True, max_length=2),
-        ),
-        migrations.AlterUniqueTogether(
-            name='labeledrelationevidence',
-            unique_together=set([('left_entity_occurrence', 'right_entity_occurrence', 'relation', 'segment')]),
-        ),
-        migrations.RenameField(
-            model_name='labeledrelationevidence',
-            old_name='date',
-            new_name='modification_date',
-        ),
-        migrations.AlterField(
-            model_name='labeledrelationevidence',
-            name='modification_date',
-            field=models.DateTimeField(auto_now=True),
-        ),
-        migrations.AlterModelOptions(
-            name='iedocument',
-            options={'ordering': ['id']},
-        ),
-        migrations.RenameModel(
-            old_name='LabeledRelationEvidence',
-            new_name='EvidenceCandidate',
-        ),
-        migrations.CreateModel(
-            name='EvidenceLabel',
-            fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(choices=[('NO', 'No relation present'), ('YE', 'Yes, relation is present'), ('DK', "Don't know if the relation is present"), ('SK', 'Skipped labeling of this evidence'), ('NS', 'Evidence is nonsense')], default='SK', null=True, max_length=2)),
-                ('modification_date', models.DateTimeField(auto_now=True)),
-                ('judge', models.CharField(max_length=256)),
-                ('labeled_by_machine', models.BooleanField(default=True)),
-                ('evidence_candidate', models.ForeignKey(to='corpus.EvidenceCandidate', related_name='labels')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.AlterUniqueTogether(
-            name='evidencelabel',
-            unique_together=set([('evidence_candidate', 'label', 'judge')]),
-        ),
-        migrations.RunPython(
-            code=copied__create_separated_evidence_labels,
-            reverse_code=None,
-            atomic=True,
-        ),
-        migrations.RemoveField(
-            model_name='evidencecandidate',
-            name='judge',
-        ),
-        migrations.RemoveField(
-            model_name='evidencecandidate',
-            name='label',
-        ),
-        migrations.RemoveField(
-            model_name='evidencecandidate',
-            name='modification_date',
-        ),
-        migrations.CreateModel(
-            name='SegmentToTag',
-            fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
-                ('run_number', models.IntegerField()),
-                ('done', models.BooleanField(default=False)),
-                ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('relation', models.ForeignKey(to='corpus.Relation')),
-                ('segment', models.ForeignKey(to='corpus.TextSegment')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.AlterUniqueTogether(
-            name='segmenttotag',
-            unique_together=set([('segment', 'relation', 'run_number')]),
-        ),
-        migrations.RemoveField(
-            model_name='segmenttotag',
-            name='creation_date',
-        ),
-        migrations.AddField(
-            model_name='segmenttotag',
-            name='modification_date',
-            field=models.DateTimeField(default=datetime.date(2014, 10, 14), auto_now=True),
-            preserve_default=False,
-        ),
-        migrations.AlterUniqueTogether(
-            name='segmenttotag',
-            unique_together=set([('segment', 'relation')]),
-        ),
-        migrations.RemoveField(
-            model_name='segmenttotag',
-            name='run_number',
         ),
     ]
