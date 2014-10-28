@@ -1,4 +1,20 @@
+"""
+Run IEPY rule-based extractor
+
+Usage:
+    iepy_rules_runner.py
+    iepy_rules_runner.py -h | --help | --version
+
+Picks from rules.py the relation to work with, and the rules definitions and
+proceeds with the extraction.
+
+Options:
+  -h --help             Show this screen
+  --version             Version number
+"""
 import logging
+
+from docopt import docopt
 
 import iepy
 iepy.setup(__file__)
@@ -11,10 +27,8 @@ import rules
 
 
 if __name__ == u'__main__':
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    opts = docopt(__doc__, version=iepy.__version__)
 
     relation = models.Relation.objects.get(name=rules.RELATION)
 

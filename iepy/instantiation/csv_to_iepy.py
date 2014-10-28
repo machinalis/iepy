@@ -1,6 +1,7 @@
 """
 Birthdate corpus preprocessing script.
 
+
 Usage:
     csv_to_iepy.py <filename>
     csv_to_iepy.py -h | --help
@@ -10,6 +11,7 @@ corpus in two columns: 'freebase_mid' and 'description'.
 
 Options:
   -h --help             Show this screen
+  --version             Version number
 """
 
 import logging
@@ -21,10 +23,7 @@ iepy.setup(__file__)
 from iepy.utils import csv_to_iepy
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format=u"%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    opts = docopt(__doc__, version=0.1)
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    opts = docopt(__doc__, version=iepy.__version__)
     filepath = opts["<filename>"]
     csv_to_iepy(filepath)
