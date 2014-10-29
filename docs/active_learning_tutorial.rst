@@ -12,7 +12,7 @@ You can also label evidences and re-run the core as much as you like to have a b
 Creating a relation
 -------------------
 
-To create a relation, first :doc:`open up the web server <tutorial>` if you haven't already, and use a
+To create a relation, first `open up the web server <tutorial.html#open-the-web-interface>`__ if you haven't already, and use a
 web browser to navigate on `http://127.0.0.1:8000 <http://127.0.0.1:8000>`_.
 There you'll find instructions on how to create a relation.
 
