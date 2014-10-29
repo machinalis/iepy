@@ -544,13 +544,6 @@ class EvidenceCandidate(BaseModel):
             self.pk
         )
 
-    @property
-    def fact(self):
-        return (
-            self.right_entity_occurrence.entity,
-            self.relation, self.left_entity_occurrence.entity
-        )
-
     def get_or_create_label_for_judge(self, judge):
         obj, created = EvidenceLabel.objects.get_or_create(
             evidence_candidate=self, judge=judge,

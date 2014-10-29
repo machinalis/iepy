@@ -39,7 +39,10 @@ class ActiveLearningCore:
     #
 
     def __init__(self, relation, labeled_evidences, extractor_config=None,
-                 performance_tradeoff=None):
+                 performance_tradeoff=None, extractor=None):
+        if extractor is None:
+            extractor = RelationExtractionClassifier
+        self.extractor = extractor
         self.relation = relation
         self.relation_classifier = None
         self._setup_labeled_evidences(labeled_evidences)
@@ -110,7 +113,7 @@ class ActiveLearningCore:
         the relation is present on that evidence or not.
         """
         if not self.relation_classifier:
-            logger.info("There is not trained classifier. Can't predict")
+            logger.info("There is no classifier. Can't predict")
             return {}
         if self.threshold is None:
             labels = self.relation_classifier.predict(self.candidate_evidence)
@@ -167,7 +170,7 @@ class ActiveLearningCore:
             X.append(evidence)
             y.append(int(score))
             assert y[-1] in (True, False)
-        self.relation_classifier = RelationExtractionClassifier(**self.extractor_config)
+        self.relation_classifier = self.extractor(**self.extractor_config)
         self.relation_classifier.fit(X, y)
 
     def rank_candidate_evidence(self):
@@ -213,7 +216,7 @@ class ActiveLearningCore:
         for train_index, test_index in StratifiedKFold(ally, 5):
             X = allX[train_index]
             y = ally[train_index]
-            c = RelationExtractionClassifier(**self.extractor_config)
+            c = self.extractor(**self.extractor_config)
             c.fit(X, y)
             y_true.append(ally[test_index])
             scores.append(c.decision_function(allX[test_index]))
