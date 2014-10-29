@@ -126,7 +126,8 @@ This is the file that will be loaded when you run the *iepy_rules_runner*.
 Example
 -------
 
-This is a portion of the example provided with IEPY:
+This is a portion of the example provided with IEPY, you can view the `complete
+file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/was_born_rules_sample.py>`__.
 
 .. code-block:: python
 
