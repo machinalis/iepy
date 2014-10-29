@@ -34,7 +34,7 @@ class RelationAdmin(admin.ModelAdmin):
 
     def link_to_label(self, obj):
         return '<a href="{0}">Label evidence</a>'.format(
-            urlresolvers.reverse('corpus:next_segment_to_label', args=(obj.id,))
+            urlresolvers.reverse('corpus:next_document_to_label', args=(obj.id,))
         )
     link_to_label.short_description = 'Labeling'
     link_to_label.allow_tags = True
