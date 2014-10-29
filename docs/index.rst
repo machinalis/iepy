@@ -21,6 +21,7 @@ Contents:
    rules_tutorial
    preprocess
    corpus_labeling
+   how_to_hack
 
 
 Indices and tables
