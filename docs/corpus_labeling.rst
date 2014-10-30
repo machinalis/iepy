@@ -35,9 +35,9 @@ and you will get a screen like this:
 .. image:: home_screenshot.png
 
 
-After creating a relation, you can get access it on the ``Create a reference corpus`` section of the home page.
+After creating a relation, you can access it on the ``Create a reference corpus`` section of the home page.
 Once you get there, you'll find that there are two different ways to label evidences: by segment and by document.
-The default one is by document by you can switch between from one to the other.
+The default one is by document but you can switch between both of them.
 
 
 Document based labeling
@@ -59,8 +59,11 @@ entity type.
 .. image:: label_by_document_relation_labeled.png
 
 After saving, IEPY will take you to automatically to the next document.
-Also on top you have some navigation controls, but be careful with the following button because it won't
-save the changes that you’ve made on this document. 
+Also on top you have some navigation controls.
+
+.. note::
+
+    Be careful with the navigation buttons because it won't save the changes that you’ve made on this document. 
 
 
 Segment based labeling

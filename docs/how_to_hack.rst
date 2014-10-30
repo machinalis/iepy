@@ -1,7 +1,7 @@
 How to Hack
 ===========
 
-There are several places where you can incorporate your own ideas and needs to IEPY.
+There are several places where you can incorporate your own ideas and needs into IEPY.
 
 On :doc:`preprocess <preprocess>` section was already mentioned that you can customize how the corpus is created.
 
@@ -34,7 +34,7 @@ First, define your own custom classifier, like this:
             return self.pipeline.decision_function(X)
 
 
-and later, on iepy_runner.py of your IEPY instance, on the **ActiveLearningCore** creation,
+and later, in iepy_runner.py of your IEPY instance, in the **ActiveLearningCore** creation,
 provide it as a configuration parameter like this
 
 
