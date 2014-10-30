@@ -24,6 +24,7 @@ from iepy.extraction.active_learning_core import ActiveLearningCore, HIPREC, HIR
 from iepy.data.db import CandidateEvidenceManager
 from iepy.data.models import Relation
 from iepy.extraction.terminal import TerminalAdministration
+from iepy.data import output
 
 
 def print_all_relations():
@@ -39,6 +40,7 @@ def load_labeled_evidences(relation, evidences):
 if __name__ == u'__main__':
     opts = docopt(__doc__, version=iepy.__version__)
     relation = opts['<relation_name>']
+
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     logging.getLogger("featureforge").setLevel(logging.WARN)
 
@@ -92,6 +94,4 @@ if __name__ == u'__main__':
         # It's needed to run some process before asking for predictions
         iextractor.process()
     predictions = iextractor.predict()
-    print("Predictions:")
-    for prediction, value in predictions.items():
-        print("({} -- {})".format(prediction, value))
+    output.dump_output_loop(predictions)

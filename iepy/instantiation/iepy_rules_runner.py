@@ -12,6 +12,7 @@ Options:
   -h --help             Show this screen
   --version             Version number
 """
+import sys
 import logging
 
 from docopt import docopt
@@ -20,7 +21,7 @@ import iepy
 iepy.setup(__file__)
 
 from iepy.extraction.rules_core import RuleBasedCore
-from iepy.data import models
+from iepy.data import models, output
 from iepy.data.db import CandidateEvidenceManager
 
 import rules
@@ -29,6 +30,12 @@ import rules
 if __name__ == u'__main__':
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     opts = docopt(__doc__, version=iepy.__version__)
+
+    try:
+        relation = rules.RELATION
+    except AttributeError:
+        logging.error("RELATION not defined in rules file")
+        sys.exit(1)
 
     relation = models.Relation.objects.get(name=rules.RELATION)
 
@@ -47,5 +54,5 @@ if __name__ == u'__main__':
     iextractor = RuleBasedCore(relation, evidences, rules)
     iextractor.start()
     iextractor.process()
-    facts = iextractor.predict()
-    print(facts)
+    predictions = iextractor.predict()
+    output.dump_output_loop(predictions)
