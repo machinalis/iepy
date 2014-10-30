@@ -38,7 +38,7 @@ provided in your application folder to do it.
 
 .. code-block:: bash
 
-    python bin/preprocess.py data.csv
+    python bin/csv_to_iepy.py data.csv
 
 This will load **data.csv** into the database and from now on, you will work accessing
 the data from there.
