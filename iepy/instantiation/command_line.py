@@ -13,6 +13,7 @@ Options:
   --upgrade                         Upgrades IEPY instance
   --download-third-party-data       Downloads the necesary data from third party software
   -h --help                         Show this screen
+  --version                         Version number
 """
 
 import nltk.data
