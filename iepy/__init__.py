@@ -3,6 +3,13 @@ import sys
 import django
 from django.conf import settings
 
+# Version number reading ...
+
+fname = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version.txt')
+with open(fname, encoding='utf-8') as filehandler:
+    __version__ = filehandler.read().strip().replace("\n", "")
+del fname
+
 
 def setup(fuzzy_path=None, settings_prefix=None):
     # Prevent nosetests messing up with this
@@ -20,6 +27,12 @@ def setup(fuzzy_path=None, settings_prefix=None):
             sys.path.append(path)  # add to py-path the first
             os.environ['DJANGO_SETTINGS_MODULE'] = "{}_settings".format(settings_prefix)
         django.setup()
+        if settings.IEPY_VERSION != __version__:
+            sys.exit(
+                'Instance version is {} and current IEPY installation is {}.\n'
+                'Run iepy --upgrade on the instance.'.format(settings.IEPY_VERSION,
+                                                             __version__)
+            )
 
 
 def _actual_path(fuzzy_path):
@@ -46,10 +59,3 @@ def _actual_path(fuzzy_path):
                 raise ValueError(
                     "There's no IEPY instance on the provided path {}".format(original))
             fuzzy_path = parent
-
-
-# Version number reading ...
-
-fname = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version.txt')
-with open(fname, encoding='utf-8') as filehandler:
-    __version__ = filehandler.read().strip().replace("\n", "")
