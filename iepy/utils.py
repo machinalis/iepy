@@ -38,7 +38,8 @@ def unzip_from_url(zip_url, extraction_base_path):
     zipfile = None
     try:
         zipfile = wget.download(zip_url)
-        unzip_file(zipfile, DIRS.user_data_dir)
+        print('')  # just because wget progress-bar finishes a line with no EOL
+        unzip_file(zipfile, extraction_base_path)
     finally:
         if zipfile:
             os.remove(zipfile)
