@@ -1,0 +1,223 @@
+import filecmp
+import json
+import os
+import shutil
+import sys
+
+from django.utils.crypto import get_random_string
+from django.core.management import execute_from_command_line as django_command_line
+
+import iepy
+from iepy import defaults
+from iepy.utils import DIRS, unzip_from_url
+
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
+
+class InstanceManager:
+    # class instead of a fuction just for allowing better code organization
+
+    files_to_copy = [
+        "csv_to_iepy.py",
+        "preprocess.py",
+        "iepy_runner.py",
+        "iepy_rules_runner.py",
+        "manage.py",
+    ]
+    steps = [
+        'create_folders',
+        'copy_bin',
+        'create_rules_file',
+        'configure_settings_file',
+        'migrate_db',
+        'create_db_user',
+        'greetings',
+    ]
+
+    def __init__(self, folder_path):
+        self.folder_path = folder_path
+        self.abs_folder_path = os.path.abspath(self.folder_path)
+
+    def _run_steps(self):
+        for step_name in self.steps:
+            step = getattr(self, step_name)
+            step()
+
+    def create(self):
+        if os.path.exists(self.folder_path):
+            print("Error: folder already exists")
+            sys.exit(1)
+        self.creating = True
+        self._run_steps()
+
+    def upgrade(self):
+        if not os.path.exists(self.folder_path):
+            print("Error: instance folder does not exist")
+            sys.exit(1)
+
+        try:
+            iepy.setup(self.folder_path, _safe_mode=True)
+        except ValueError as err:
+            print(err)
+            sys.exit(1)
+
+        from django.conf import settings
+        self.old_version = settings.IEPY_VERSION
+        if self.old_version.count('.') == 1:
+            # buggy version number (like 0.9), lets make it 0.9.0
+            self.old_version += '.0'
+        if settings.IEPY_VERSION == iepy.__version__:
+            print("Iepy instance '{}' is already up to date.".format(self.folder_path))
+            return
+        print("Upgrading iepy instance '{}' from {} to {}".format(
+            self.folder_path, self.old_version, iepy.__version__))
+        self.creating = False
+        self.old_version_path = self.download_old_iepy_version()
+        self._run_steps()
+
+    def download_old_iepy_version(self):
+        tag = self.old_version
+        tag_url = "https://github.com/machinalis/iepy/archive/{}.zip".format(tag)
+        old_versions_path = os.path.join(DIRS.user_data_dir, 'old_versions')
+        os.makedirs(old_versions_path, exist_ok=True)
+        asked_tag_path = os.path.join(old_versions_path, 'iepy-{}'.format(tag))
+        if not os.path.exists(asked_tag_path):
+            print ('Downloading old iepy version {} for allowing patches'.format(tag))
+            unzip_from_url(tag_url, old_versions_path)
+            print('Done')
+        return asked_tag_path
+
+    def create_folders(self):
+        self.bin_folder = os.path.join(self.folder_path, "bin")
+        os.makedirs(self.bin_folder, exist_ok=not self.creating)
+
+    def copy_bin(self):
+        # Create folders
+        for filename in self.files_to_copy:
+            destination = os.path.join(self.bin_folder, filename)
+            self._copy_file(filename, destination)
+
+    def create_rules_file(self):
+        rules_filepath = os.path.join(self.folder_path, "rules.py")
+        if self.creating:
+            with open(rules_filepath, "w") as filehandler:
+                filehandler.write("# Write here your rules\n")
+                filehandler.write("# RELATION = 'your relation here'\n")
+
+    def create_extractor_config_file(self):
+        # Create extractor config
+        config_filepath = os.path.join(self.folder_path, "extractor_config.json")
+
+        def do_it():
+            with open(config_filepath, "w") as filehandler:
+                json.dump(defaults.extractor_config, filehandler, indent=4)
+
+        if self.creating:
+            do_it()
+        else:
+            if json.load(open(config_filepath)) != defaults.extractor_config:
+                msg = 'Should we override your extraction config settings?'
+                msg += ' (existing version will be backed up first)'
+                if self.prompt(msg):
+                    self.preserve_old_file_version_as_copy(config_filepath)
+                    do_it()
+                    print ('Extraction configs upgraded.')
+            else:
+                    print ('Extraction configs left untouched.')
+
+    def _copy_file(self, filename, destination):
+        filepath = os.path.join(THIS_FOLDER, filename)
+
+        def do_it():
+            shutil.copyfile(filepath, destination)
+
+        if self.creating:
+            do_it()
+        else:
+            # first check if the file is already present
+            if not os.path.exists(destination):
+                do_it()
+            else:
+                # file exists. Let's check if what the instance has is the
+                # vainilla old version or not
+                old_version_filepath = os.path.join(
+                    self.old_version_path, 'iepy', 'instantiation', filename)
+                if filecmp.cmp(old_version_filepath, destination):
+                    # vainilla old version. Let's simply upgrade it
+                    do_it()
+                else:
+                    # customized file. We'll back it up, and later upgrade
+                    self.preserve_old_file_version_as_copy(destination)
+                    do_it()
+
+    def prompt(self, msg):
+        answer = raw_input("%s (y/n) " % msg).lower().strip()
+        while answer not in ['y', 'n']:
+            print ('Invalid answer "{}".'.format(answer))
+            answer = raw_input("%s (y/n) " % msg).lower().strip()
+        return answer == 'y'
+
+    def preserve_old_file_version_as_copy(self, fpath):
+        i = 1
+        while True:
+            back_up_path = fpath + '.backup_{}'.format(i)
+            if not os.path.exists(back_up_path):
+                break
+            i += 1
+        shutil.copyfile(fpath, back_up_path)
+        print("Backed up your instance version of {} at {}. "
+              "Remove it if you don't need it".format(fpath, back_up_path))
+
+    def configure_settings_file(self):
+        # Create the settings file
+        folder_name = os.path.basename(self.folder_path)  # aka iepy instance name
+        settings_filepath = os.path.join(self.folder_path,
+                                         "{}_settings.py".format(folder_name))
+
+        def do_it():
+            print("Initializing database")
+            database_name = input("Database name [{}]: ".format(folder_name))
+            if not database_name:
+                database_name = folder_name
+            database_path = os.path.join(self.abs_folder_path, database_name)
+            settings_data = get_settings_string(database_path)
+            with open(settings_filepath, "w") as filehandler:
+                filehandler.write(settings_data)
+        if self.creating:
+            do_it()
+        else:
+            with open(settings_filepath, 'a') as filehandler:
+                filehandler.write("IEPY_VERSION = '{}'\n".format(iepy.__version__))
+            print ('Patched IEPY_VERSION at {}.'.format(settings_filepath))
+
+    def migrate_db(self):
+        # Setup IEPY with the new instance
+        os.chdir(self.abs_folder_path)
+        iepy.setup(self.abs_folder_path)
+        django_command_line(["", "migrate"])
+
+    def create_db_user(self):
+        # Setup the database user
+        if self.creating:
+            print("\nCreating database user")
+            django_command_line(["", "createsuperuser"])
+
+    def greetings(self):
+        print("\n IEPY instance ready to use at '{}'".format(self.abs_folder_path))
+
+
+def get_settings_string(database_path):
+    template_settings_filepath = os.path.join(THIS_FOLDER, "settings.py.template")
+    with open(template_settings_filepath) as filehandler:
+        settings_data = filehandler.read()
+
+    if not database_path.endswith(".sqlite"):
+        database_path += ".sqlite"
+
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    secret_key = get_random_string(50, chars)
+    settings_data = settings_data.replace("{SECRET_KEY}", secret_key)
+    settings_data = settings_data.replace("{DATABASE_PATH}", database_path)
+    settings_data = settings_data.replace("{IEPY_VERSION}", iepy.__version__)
+
+    return settings_data
