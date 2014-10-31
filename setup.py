@@ -20,7 +20,7 @@ setup(
     name='iepy',
     version=iepy_version,
     zip_safe=False,
-    description='',
+    description='Information Extraction framework in Python',
     long_description=long_description,
     url='https://github.com/machinalis/iepy',
 
