@@ -39,12 +39,12 @@ class ActiveLearningCore:
     #
 
     def __init__(self, relation, labeled_evidences, extractor_config=None,
-                 performance_tradeoff=None, extractor=None):
+                 performance_tradeoff=None, extractor=None, classifier=None):
         if extractor is None:
             extractor = RelationExtractionClassifier
         self.extractor = extractor
         self.relation = relation
-        self.relation_classifier = None
+        self.relation_classifier = classifier
         self._setup_labeled_evidences(labeled_evidences)
         self._questions = list(self.candidate_evidence)
         if extractor_config is None:
