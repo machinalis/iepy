@@ -7,6 +7,7 @@ Usage:
 
 Options:
   --classifier=<classifier_path>     Load an already trained classifier
+  --no-questions                     Won't generate questions to answer and will try to predict as is. Should be used with --classifier
   -h --help                          Show this screen
   --tune-for=<tune-for>              Predictions tuning. Options are high-prec or high-recall [default: high-prec]
   --extractor-config=<config.json>   Sets the extractor config
@@ -39,7 +40,7 @@ def load_labeled_evidences(relation, evidences):
     return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
 
 
-if __name__ == u'__main__':
+def run_from_command_line():
     opts = docopt(__doc__, version=iepy.__version__)
     relation = opts['<relation_name>']
     classifier_path = opts.get('--classifier')
@@ -91,6 +92,18 @@ if __name__ == u'__main__':
         iextractor.start()
         was_ever_trained = False
 
+
+    if not opts.get("--no-questions", False):
+        questions_loop(iextractor, relation, was_ever_trained)
+
+    # Predict and store output
+    predictions = iextractor.predict()
+    if predictions:
+        output.dump_output_loop(predictions)
+        output.dump_classifier_loop(iextractor)
+
+
+def questions_loop(iextractor, relation, was_ever_trained):
     STOP = u'STOP'
     term = TerminalAdministration(
         relation,
@@ -115,7 +128,6 @@ if __name__ == u'__main__':
         # It's needed to run some process before asking for predictions
         iextractor.process()
 
-    # Predict and store output
-    predictions = iextractor.predict()
-    output.dump_output_loop(predictions)
-    output.dump_classifier_loop(iextractor)
+
+if __name__ == u'__main__':
+    run_from_command_line()
