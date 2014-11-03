@@ -13,7 +13,12 @@ class Serializer(BaseSerializer):
                 obj.hydrate()
                 _nothing = object()
                 for f in missing:
-                    value = getattr(obj, f, _nothing)
+                    fs = f.split('__')
+                    value =
+                    while fs:
+                        value = getattr(value, fs.pop())
+
+                    #value = getattr(obj, f, _nothing)
                     if value is not _nothing:
                         self._current[f] = value
         return super().end_object(obj)
