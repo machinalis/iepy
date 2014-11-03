@@ -6,6 +6,7 @@ import os
 import sys
 import zipfile
 
+import wget
 from appdirs import AppDirs
 
 
@@ -31,6 +32,17 @@ def unzip(zipped_list, n):
         if not all(isinstance(x, tuple) and len(x) == n for x in zipped_list):
             raise ValueError
         return zip(*zipped_list)
+
+
+def unzip_from_url(zip_url, extraction_base_path):
+    zipfile = None
+    try:
+        zipfile = wget.download(zip_url)
+        print('')  # just because wget progress-bar finishes a line with no EOL
+        unzip_file(zipfile, extraction_base_path)
+    finally:
+        if zipfile:
+            os.remove(zipfile)
 
 
 def unzip_file(zip_path, extraction_base_path):

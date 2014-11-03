@@ -5,9 +5,7 @@ import sys
 import logging
 import stat
 
-import wget
-
-from iepy.utils import DIRS, unzip_file
+from iepy.utils import DIRS, unzip_from_url
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +14,8 @@ DOWNLOAD_URL = "http://nlp.stanford.edu/software/" + _FOLDER + ".zip"
 COMMAND_PATH = os.path.join(DIRS.user_data_dir, _FOLDER, "corenlp.sh")
 
 
-def get_analizer(*args, _singleton=[]):
+def get_analizer(_singleton=[]):
+    # intentionally using a mutable default, so it's loaded only once
     if not _singleton:
         logger.info("Loading StanfordCoreNLP...")
         _singleton.append(StanfordCoreNLP())
@@ -74,20 +73,11 @@ class StanfordCoreNLP:
 def download():
     base = os.path.dirname(COMMAND_PATH)
     if os.path.isfile(COMMAND_PATH):
-        logger.info("Stanford CoreNLP is already downloaded at {}.".format(base))
+        print("Stanford CoreNLP is already downloaded at {}.".format(base))
         return
-    logger.info("Downloading Stanford CoreNLP...")
+    print("Downloading Stanford CoreNLP...")
 
-    if not os.path.exists(base):
-        os.makedirs(base)
-
-    zipfile = None
-    try:
-        zipfile = wget.download(DOWNLOAD_URL)
-        unzip_file(zipfile, DIRS.user_data_dir)
-    finally:
-        if zipfile:
-            os.remove(zipfile)
+    unzip_from_url(DOWNLOAD_URL, DIRS.user_data_dir)
 
     for directory in os.listdir(DIRS.user_data_dir):
         if directory.startswith("stanford-corenlp-full"):
@@ -97,4 +87,3 @@ def download():
                 st = os.stat(corenlp)
                 os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
                 break
-
