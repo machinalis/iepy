@@ -63,9 +63,6 @@ class InstanceManager:
 
         from django.conf import settings
         self.old_version = settings.IEPY_VERSION
-        if self.old_version.count('.') == 1:
-            # buggy version number (like 0.9), lets make it 0.9.0
-            self.old_version += '.0'
         if settings.IEPY_VERSION == iepy.__version__:
             print("Iepy instance '{}' is already up to date.".format(self.folder_path))
             return
@@ -76,14 +73,14 @@ class InstanceManager:
         self._run_steps()
 
     def download_old_iepy_version(self):
-        tag = self.old_version
-        tag_url = "https://github.com/machinalis/iepy/archive/{}.zip".format(tag)
+        oldv = self.old_version
+        url = "https://pypi.python.org/packages/source/i/iepy/iepy-{}.tar.gz".format(oldv)
         old_versions_path = os.path.join(DIRS.user_data_dir, 'old_versions')
         os.makedirs(old_versions_path, exist_ok=True)
-        asked_tag_path = os.path.join(old_versions_path, 'iepy-{}'.format(tag))
+        asked_tag_path = os.path.join(old_versions_path, 'iepy-{}'.format(oldv))
         if not os.path.exists(asked_tag_path):
-            print ('Downloading old iepy version {} for allowing patches'.format(tag))
-            unzip_from_url(tag_url, old_versions_path)
+            print ('Downloading old iepy version {} for allowing patches'.format(oldv))
+            unzip_from_url(url, old_versions_path)
             print('Done')
         return asked_tag_path
 
