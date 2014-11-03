@@ -54,7 +54,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 SERIALIZATION_MODULES = {
-    "hydrated_python": "corpus.serializer",
+    "underscore_resolution": "corpus.serializer",
 }
 
 
