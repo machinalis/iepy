@@ -136,88 +136,11 @@
 
                 <div class="segments">
                 <br />
-                {% for segment in segments %}
-                    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
-                        {% for rich_token in segment.rich_tokens %}
-                            {% if rich_token.eo_ids %}
-                                <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
-                                    ng-click="eo_click({{ rich_token.eo_ids }})"
-                                    ng-class="{
-                                        selectable: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selectable
-                                                {% if not forloop.last %} && {% endif %}
-                                            {% endfor %},
-                                        selected: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selected
-                                                {% if not forloop.last %} || {% endif %}
-                                            {% endfor %}
-                                    }"
-                                    {% if rich_token.eo_ids|length > 1 %}
-                                        data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
-                                    {% else %}
-                                        ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
-                                        data-eo-id="{{ rich_token.eo_ids.0 }}"
-                                    {% endif %}
-                                >
-                            {% else %}
-                                <span class="rich-token">
-                            {% endif %}
-                                {% if rich_token.eo_ids|length > 1 %}
-                                    <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
-                                {% endif %}
-
-                                <span class="pos-tag"> {{ rich_token.pos }} </span>
-                                <span class="token"> {{ rich_token.token }} </span>
-                            </span>
-
-                            {% if rich_token.eo_ids|length > 1 %}
-                                <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
-                                    {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
-                                        <li>
-                                        <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
-                                            ng-right-click="manage_eo({{ eo_id }}, {{segment.id}})"
-                                        >
-                                                #{{ forloop.counter }} - {{ eo_kind }}
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endfor %}
+                    {% include "corpus/segments_render.html" %}
                 </div>
             </div>
         </div>
 
-        <div id="eoModal" class="reveal-modal large" data-reveal>
-            <h2>Manage Entity Occurrence</h2>
-            <div class="entity_id">Entity id: <span/></div>
-                <div class="message"></div>
-                <div class="delete">
-                    <a class="remove-eo-ask">Delete</a>
-                    <div class="remove-confirm-wrapper">
-                        Are you sure to delete the occurrence? 
-                        <small> This will have an impact on the possible relations </small>
-                        <br />
-                        <div class="remove-buttons">
-                            <a class="remove-eo-cancel">Cancel</a>
-                            <a class="remove-eo-confirm">Yes, i'm sure</a>
-                        </div>
-                    </div>
-                </div>
-                <br />
-                <div class="offsets">
-                    <p>Move occurrence limits:</p>
-                    <div class="segment">
-                    </div>
-                </div>
-                <a class="close-reveal-modal">&#215;</a>
-                <div class="controls">
-                    <a class="button alert cancel">Cancel</a>
-                    <a class="button save">Save</a>
-                </div>
-            </div>
-
+        {% include "corpus/entity_occurrence_modal.html" %}
     </div>
 {% endblock %}

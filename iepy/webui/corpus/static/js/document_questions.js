@@ -378,34 +378,34 @@ function ($scope, EntityOccurrence, TextSegment) {
                 marker_html +=    '<i class="fi-arrows-expand"></span></div>';
                 $modal.find('.message').empty();
                 $modal.find('.segment').empty();
-                TextSegment.get({pk: segment_id}).$promise.then(
-                    function (segment) {
-                        // store resources on the scope
-                        $scope.eo_modal.eo = eo_obj;
-                        $scope.eo_modal.segment = segment;
-                        $modal.find('.entity_id span').text(eo_obj.entity);
-                        var $segment = $modal.find('.segment');
-                        for (var i = 0; i < segment.tokens.length; i++) {
-                            if (segment.offset + i === eo_obj.offset) {
-                                $segment.append(marker_html);
-                            }
-                            if (segment.offset + i === eo_obj.offset_end) {
-                                $segment.append(marker_html);
-                            }
-                            $segment.append(
-                                '<div class="token">' + segment.tokens[i] + '</div>'
-                            );
-                        }
-                        $scope.eo_modal.update_selection();
-                        $segment.sortable({
-                            cancel: ".token",
-                            update: $scope.eo_modal.update_selection
-                        });
-                    },
-                    function (response) {
-                        $scope.eo_modal.add_msg("Server error " + response);
+
+
+                $modal.find('.entity_id span').text(eo_obj.entity);
+
+                $scope.eo_modal.eo = eo_obj;
+
+                var $tokens = $(".eo-" + eo_obj.pk).parent(".segment").find(".rich-token");
+                var $segment = $modal.find('.segment');
+                $tokens.each(function(){
+                    var $this = $(this);
+                    var $token = $("<div>");
+                    $token.addClass("token");
+                    $token.text($this.find(".token").text());
+                    $token.data("offset", $this.find(".token").data("offset"));
+                    if($this.hasClass("eo-" + eo_obj.pk)){
+                        $token.addClass("eo");
                     }
-                );
+                    $segment.append($token);
+                });
+
+                var eo_tokens = $segment.find(".eo");
+                $(marker_html).insertBefore($(eo_tokens[0]));
+                $(marker_html).insertAfter($(eo_tokens[eo_tokens.length - 1]));
+                $scope.eo_modal.update_selection();
+                $segment.sortable({
+                    cancel: ".token",
+                    update: $scope.eo_modal.update_selection
+                });
                 $modal.foundation('reveal', 'open');
             });
     };
@@ -443,9 +443,14 @@ function ($scope, EntityOccurrence, TextSegment) {
                 $elem.addClass(className);
             }
         });
-        var base = $scope.eo_modal.segment.offset;
-        $scope.eo_modal.eo.new_offset = base + new_offsets[0];
-        $scope.eo_modal.eo.new_offset_end = base + new_offsets[1] - 1;
+
+        if(new_offsets.length == 2){
+            var $divs = $scope.eo_modal.elem.find('.segment div');
+            var $first_word_in = $divs.eq([new_offsets[0] + 1]);
+            var $first_word_out = $divs.eq([new_offsets[1] + 1]);
+            $scope.eo_modal.eo.new_offset = $first_word_in.data("offset");
+            $scope.eo_modal.eo.new_offset_end = $first_word_out.data("offset");
+        }
     };
 
     $scope.eo_modal.submit = function () {
@@ -465,7 +470,12 @@ function ($scope, EntityOccurrence, TextSegment) {
     };
 
     $scope.run_partial_save = function () {
-        $('#partial-save').val('enabled').parents('form').submit();
+        var $partial_save = $("#partial-save");
+        if($partial_save.length !== 0){
+            $partial_save.val('enabled').parents('form').submit();
+        } else {
+            location.reload();
+        }
     };
 
     $scope.eo_modal.save_success = function () {
