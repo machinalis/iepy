@@ -12,6 +12,12 @@ del fname
 
 
 def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
+    """
+    Configure IEPY internals,
+        Reads IEPY instance configuration if any path provided.
+        Detects out of dated instances.
+        Returns the absolute path to the IEPY instance if provided, None if not.
+    """
     # Prevent nosetests messing up with this
     if not isinstance(fuzzy_path, (type(None), str)):
         # nosetests is grabing this function because its named "setup"... .
@@ -20,12 +26,14 @@ def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
         if fuzzy_path is None:
             if not os.getenv('DJANGO_SETTINGS_MODULE'):
                 os.environ['DJANGO_SETTINGS_MODULE'] = 'iepy.webui.webui.settings'
+            result = None
         else:
             path = _actual_path(fuzzy_path)
             if settings_prefix is None:
                 settings_prefix = path.rsplit(os.sep, 1)[1]
             sys.path.append(path)  # add to py-path the first
             os.environ['DJANGO_SETTINGS_MODULE'] = "{}_settings".format(settings_prefix)
+            result = path
         django.setup()
         if not _safe_mode and settings.IEPY_VERSION != __version__:
             sys.exit(
@@ -33,7 +41,7 @@ def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
                 'Run iepy --upgrade on the instance.'.format(settings.IEPY_VERSION,
                                                              __version__)
             )
-    return path
+        return result
 
 
 def _actual_path(fuzzy_path):

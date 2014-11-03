@@ -14,7 +14,7 @@ class LoginNgCrudView(NgCRUDView):
 
 class EOCRUDView(LoginNgCrudView):
     model = EntityOccurrence
-    fields = ['offset', 'offset_end', 'entity']
+    fields = ['offset', 'offset_end', 'entity', 'milanesa']
 
     def get_form_class(self):
         """
