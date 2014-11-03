@@ -1,0 +1,40 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+{% load iepy_tags %}
+
+{% block content_title %}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/vendor/jquery-ui.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+{% endblock %}
+
+{% block navigation %} 
+    <a href="{% url 'corpus:navigate_documents' document.pk 'back' %}">
+        &lsaquo; Previous document
+    </a>|
+    <a href="{% url 'corpus:navigate_documents' document.pk 'forth' %}">
+        Next document &rsaquo;
+    </a>
+{% endblock %}
+
+{% block inner_content %}
+    <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
+        <div class="row">
+            <div class="large-12 columns">
+                {% include "corpus/segments_render.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% include "corpus/entity_occurrence_modal.html" %}
+{% endblock %}
