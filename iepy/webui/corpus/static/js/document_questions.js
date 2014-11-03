@@ -319,8 +319,7 @@ function ($scope, EntityOccurrence) {
         var x_offset = -30;
 
         if (alternative) {
-            curve_distance = curve_distance * -1;
-            y_offset -= 40;
+            curve_distance *= 1.5;
         }
 
         // Entity occurrences
@@ -354,9 +353,6 @@ function ($scope, EntityOccurrence) {
             value
         ));
         path.setAttribute("d", curve_string);
-        if (alternative) {
-            path.setAttribute("stroke-dasharray", "5,5");
-        }
         $scope.svg.appendChild(path);
 
         return path;
@@ -505,7 +501,7 @@ function ($scope, EntityOccurrence) {
         var $this = $(this);
         var judge = $this.data("judge");
         var data = $scope.other_judges_labels[judge];
-        //$scope.clean_all_arrows();
+        $scope.clean_all_arrows();
         for (var i in data) {
             if (data.hasOwnProperty(i)) {
                 var path = $scope.calculate_arrow_string(
