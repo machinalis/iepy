@@ -33,6 +33,7 @@ def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
                 'Run iepy --upgrade on the instance.'.format(settings.IEPY_VERSION,
                                                              __version__)
             )
+    return path
 
 
 def _actual_path(fuzzy_path):
@@ -59,5 +60,3 @@ def _actual_path(fuzzy_path):
                 raise ValueError(
                     "There's no IEPY instance on the provided path {}".format(original))
             fuzzy_path = parent
-
-
