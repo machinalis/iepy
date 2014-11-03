@@ -20,7 +20,7 @@ To create a new instance you have to run:
 
 .. code-block:: bash
 
-    iepy <project_name>
+    iepy --create <project_name>
 
 Where *<project_name>* is something that you choose.
 This command will ask you a few things such as database name, its username and its password.
