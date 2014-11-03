@@ -372,9 +372,8 @@ function ($scope, EntityOccurrence) {
                 marker_html +=    '<i class="fi-arrows-expand"></span></div>';
                 $modal.find('.message').empty();
                 $modal.find('.segment').empty();
-
-
                 $modal.find('.entity_id span').text(eo_obj.entity);
+                $modal.find('.entity_kind span').text(eo_obj.entity__kind__name);
 
                 $scope.eo_modal.eo = eo_obj;
 
