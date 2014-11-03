@@ -56,10 +56,13 @@ class InstanceManager:
             sys.exit(1)
 
         try:
-            iepy.setup(self.folder_path, _safe_mode=True)
+            actual_path = iepy.setup(self.folder_path, _safe_mode=True)
         except ValueError as err:
             print(err)
             sys.exit(1)
+        finally:
+            self.folder_path = actual_path
+            self.abs_folder_path = os.path.abspath(self.folder_path)
 
         from django.conf import settings
         self.old_version = settings.IEPY_VERSION
@@ -143,7 +146,14 @@ class InstanceManager:
                     # vainilla old version. Let's simply upgrade it
                     do_it()
                 else:
-                    # customized file. We'll back it up, and later upgrade
+                    # customized file.
+                    # Check if it's exactly what the new version provides
+                    if filecmp.cmp(filepath, destination):
+                        # you have local changes that are 100% new version. Sounds like
+                        # you made your instance with a nightly built.. dunno, but we'll
+                        # do nothing, since is not needed.
+                        return
+                    # We'll back it up, and later upgrade
                     self.preserve_old_file_version_as_copy(destination)
                     do_it()
 
