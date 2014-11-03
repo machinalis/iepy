@@ -183,8 +183,10 @@ class InstanceManager:
         if self.creating:
             do_it()
         else:
-            with open(settings_filepath, 'a') as filehandler:
-                filehandler.write("IEPY_VERSION = '{}'\n".format(iepy.__version__))
+            with open(settings_filepath, 'a') as fhandler:
+                msg = 'Remove line declaring the old IEPY_VERSION above.'
+                fhandler.write(
+                    "IEPY_VERSION = '{}'  # {}\n".format(iepy.__version__, msg))
             print ('Patched IEPY_VERSION at {}.'.format(settings_filepath))
 
     def migrate_db(self):
