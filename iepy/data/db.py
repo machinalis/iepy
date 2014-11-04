@@ -123,10 +123,14 @@ class CandidateEvidenceManager(object):
         ev.evidence = ev.segment.hydrate(document)
         ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
         ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
+        all_eos = [eo.hydrate_for_segment(ev.segment)
+                   for eo in ev.segment.entity_occurrences.all()]
+        # contains a duplicate of left and right eo. Not big deal
+        ev.all_eos = all_eos
         return ev
 
     @classmethod
-    def candidates_for_relation(cls, relation):
+    def candidates_for_relation(cls, relation, construct_missing_candidates=True):
         # Wraps the actual database lookup of evidence, hydrating them so
         # in theory, no extra db access shall be done
         # The idea here is simple, but with some tricks for improving performance
@@ -148,11 +152,12 @@ class CandidateEvidenceManager(object):
         evidences = []
         for document in IEDocument.objects.filter(pk__in=doc_ids):
             for segment in segments_per_document[document.id]:
-                seg_ecs = segment.get_evidences_for_relation(
-                    relation, existent_ec_per_segment[segment.pk])
-                evidences.extend(
-                    [hydrate(e, document) for e in seg_ecs]
-                )
+                _existent = existent_ec_per_segment[segment.pk]
+                if construct_missing_candidates:
+                    seg_ecs = segment.get_evidences_for_relation(relation, _existent)
+                else:
+                    seg_ecs = _existent
+                evidences.extend([hydrate(e, document) for e in seg_ecs])
         return evidences
 
     @classmethod
