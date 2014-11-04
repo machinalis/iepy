@@ -312,6 +312,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
         form_toolbox = EvidenceToolboxForm(prefix='toolbox')
         question_options = [x[0] for x in form_toolbox.fields["label"].choices]
+        form_for_others = EvidenceForm(
+            prefix='for_others', initial={"label": EvidenceLabel.NORELATION}
+        )
 
         ctx.update({
             'title': title,
@@ -319,7 +322,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'document': self.document,
             'segments': segments_with_rich_tokens,
             'relation': self.relation,
-            'form_for_others': EvidenceForm(prefix='for_others'),
+            'form_for_others': form_for_others,
             'form_toolbox': form_toolbox,
             'initial_tool': EvidenceLabel.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),

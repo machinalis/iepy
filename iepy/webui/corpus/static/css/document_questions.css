@@ -189,3 +189,12 @@ input, textarea, select, .form-row p{
     background: #eee;
     color: #000 !important;
 }
+
+.non-selected-relations ul{
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+.non-selected-relations ul li{
+    list-style: none;
+    height: 25px;
+}

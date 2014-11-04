@@ -28,12 +28,6 @@ app.factory('EntityOccurrence', ['$resource',
     }
 ]);
 
-app.factory('TextSegment', ['$resource',
-    function ($resource) {
-        return $resource('/corpus/crud/text_segment/', {'pk': '@pk'}, {});
-    }
-]);
-
 app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
@@ -46,8 +40,8 @@ app.directive('ngRightClick', function ($parse) {
     };
 });
 
-app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'TextSegment',
-function ($scope, EntityOccurrence, TextSegment) {
+app.controller('QuestionsController', ['$scope', 'EntityOccurrence',
+function ($scope, EntityOccurrence) {
     "use strict";
     // ### Attributes ###
 
@@ -84,12 +78,18 @@ function ($scope, EntityOccurrence, TextSegment) {
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
-        $(".entity-occurrence").mouseover($scope.highlight_eo_tokens);
-        $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
-        $(".prev-relations li").mouseover($scope.highlight_relation);
-        $(".prev-relations li").mouseout($scope.highlight_relation);
         $(".judge-answers-button").mouseover($scope.draw_judge_answers);
         $(".judge-answers-button").mouseout($scope.update_relations_arrows);
+        $(".prev-relations li").mouseover($scope.highlight_relation);
+        $(".prev-relations li").mouseout($scope.highlight_relation);
+        $(".entity-occurrence").mouseover(function () {
+            var $eo = $(this);
+            $scope.on_eo_mouseover($eo, false)
+        });
+        $(".entity-occurrence").mouseout(function () {
+            var $eo = $(this);
+            $scope.on_eo_mouseover($eo, true);
+        });
 
         $scope.eo_modal.elem = $('#eoModal');
         $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
@@ -218,9 +218,25 @@ function ($scope, EntityOccurrence, TextSegment) {
         }
     };
 
-    $scope.highlight_eo_tokens = function () {
-        var $this = $(this);
-        var eo_id = $this.data("eo-id");
+    $scope.on_eo_mouseover = function ($eo, mouseout) {
+        var eo_id = $eo.data("eo-id");
+        mouseout = mouseout || false;
+
+        for (var i in $scope.relations) {
+            if ($scope.relations.hasOwnProperty(i)) {
+                var rel_obj = $scope.relations[i];
+                if (rel_obj.relation.indexOf(eo_id) === -1) {
+                    var arrow = $scope.arrows[rel_obj.form_id];
+                    if (mouseout) {
+                        arrow.style.opacity = "";
+                    } else {
+                        arrow.style.opacity = ".15";
+                    }
+                }
+            }
+        }
+
+
         $(".eo-{0}".format(eo_id)).each(function () {
             var $this = $(this);
             $this.toggleClass("highlight");
@@ -325,8 +341,7 @@ function ($scope, EntityOccurrence, TextSegment) {
         var x_offset = -30;
 
         if (alternative) {
-            curve_distance = curve_distance * -1;
-            y_offset -= 40;
+            curve_distance *= 1.5;
         }
 
         // Entity occurrences
@@ -360,9 +375,6 @@ function ($scope, EntityOccurrence, TextSegment) {
             value
         ));
         path.setAttribute("d", curve_string);
-        if (alternative) {
-            path.setAttribute("stroke-dasharray", "5,5");
-        }
         $scope.svg.appendChild(path);
 
         return path;
@@ -378,9 +390,8 @@ function ($scope, EntityOccurrence, TextSegment) {
                 marker_html +=    '<i class="fi-arrows-expand"></span></div>';
                 $modal.find('.message').empty();
                 $modal.find('.segment').empty();
-
-
                 $modal.find('.entity_id span').text(eo_obj.entity);
+                $modal.find('.entity_kind span').text(eo_obj.entity__kind__name);
 
                 $scope.eo_modal.eo = eo_obj;
 
@@ -444,7 +455,7 @@ function ($scope, EntityOccurrence, TextSegment) {
             }
         });
 
-        if(new_offsets.length == 2){
+        if(new_offsets.length === 2){
             var $divs = $scope.eo_modal.elem.find('.segment div');
             var $first_word_in = $divs.eq([new_offsets[0] + 1]);
             var $first_word_out = $divs.eq([new_offsets[1] + 1]);
@@ -512,7 +523,7 @@ function ($scope, EntityOccurrence, TextSegment) {
         var $this = $(this);
         var judge = $this.data("judge");
         var data = $scope.other_judges_labels[judge];
-        //$scope.clean_all_arrows();
+        $scope.clean_all_arrows();
         for (var i in data) {
             if (data.hasOwnProperty(i)) {
                 var path = $scope.calculate_arrow_string(

@@ -582,19 +582,17 @@ class EvidenceCandidate(BaseModel):
 class EvidenceLabel(BaseModel):
     NORELATION = "NO"
     YESRELATION = "YE"
-    DONTKNOW = "DK"
     SKIP = "SK"
     NONSENSE = "NS"
     LABEL_CHOICES = (
-        (NORELATION, "No relation present"),
         (YESRELATION, "Yes, relation is present"),
-        (DONTKNOW, "Don't know if the relation is present"),
+        (NORELATION, "No relation present"),
+        (NONSENSE, "Evidence is nonsense"),
         (SKIP, "Skipped labeling of this evidence"),
-        (NONSENSE, "Evidence is nonsense")
     )
     NEED_RELABEL = (
         # list of evidence labels that means it would be good to ask again
-        DONTKNOW, SKIP
+        SKIP
     )
 
     evidence_candidate = models.ForeignKey(

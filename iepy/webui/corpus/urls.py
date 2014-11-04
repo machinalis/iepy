@@ -55,5 +55,4 @@ urlpatterns = patterns(
 
     # CRUD Angular EOs
     url(r'^crud/entity_occurrence/?$', api.EOCRUDView.as_view(), name='eo_crud_view'),
-    url(r'^crud/text_segment/?$', api.SegmentCRUDView.as_view(), name='segm_crud_view'),
 )
