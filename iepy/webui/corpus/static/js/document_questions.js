@@ -78,12 +78,18 @@ function ($scope, EntityOccurrence) {
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
-        $(".entity-occurrence").mouseover($scope.highlight_eo_tokens);
-        $(".entity-occurrence").mouseout($scope.highlight_eo_tokens);
-        $(".prev-relations li").mouseover($scope.highlight_relation);
-        $(".prev-relations li").mouseout($scope.highlight_relation);
         $(".judge-answers-button").mouseover($scope.draw_judge_answers);
         $(".judge-answers-button").mouseout($scope.update_relations_arrows);
+        $(".prev-relations li").mouseover($scope.highlight_relation);
+        $(".prev-relations li").mouseout($scope.highlight_relation);
+        $(".entity-occurrence").mouseover(function () {
+            var $eo = $(this);
+            $scope.on_eo_mouseover($eo, false)
+        });
+        $(".entity-occurrence").mouseout(function () {
+            var $eo = $(this);
+            $scope.on_eo_mouseover($eo, true);
+        });
 
         $scope.eo_modal.elem = $('#eoModal');
         $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
@@ -212,9 +218,25 @@ function ($scope, EntityOccurrence) {
         }
     };
 
-    $scope.highlight_eo_tokens = function () {
-        var $this = $(this);
-        var eo_id = $this.data("eo-id");
+    $scope.on_eo_mouseover = function ($eo, mouseout) {
+        var eo_id = $eo.data("eo-id");
+        mouseout = mouseout || false;
+
+        for (var i in $scope.relations) {
+            if ($scope.relations.hasOwnProperty(i)) {
+                var rel_obj = $scope.relations[i];
+                if (rel_obj.relation.indexOf(eo_id) === -1) {
+                    var arrow = $scope.arrows[rel_obj.form_id];
+                    if (mouseout) {
+                        arrow.style.opacity = "";
+                    } else {
+                        arrow.style.opacity = ".15";
+                    }
+                }
+            }
+        }
+
+
         $(".eo-{0}".format(eo_id)).each(function () {
             var $this = $(this);
             $this.toggleClass("highlight");
@@ -433,7 +455,7 @@ function ($scope, EntityOccurrence) {
             }
         });
 
-        if(new_offsets.length == 2){
+        if(new_offsets.length === 2){
             var $divs = $scope.eo_modal.elem.find('.segment div');
             var $first_word_in = $divs.eq([new_offsets[0] + 1]);
             var $first_word_out = $divs.eq([new_offsets[1] + 1]);
