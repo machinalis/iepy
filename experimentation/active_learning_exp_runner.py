@@ -31,9 +31,10 @@ class Runner(object):
         # Prepare data
         if self.data is None or self.relname != config["relation"]:
             relation = iepy.data.models.Relation.objects.get(name=config["relation"])
-            c_evidences = CEM.candidates_for_relation(relation)
-            self.data = CEM.labels_for(relation, c_evidences,
-                CEM.conflict_resolution_newest_wins)
+            c_evidences = CEM.candidates_for_relation(relation,
+                                                      construct_missing_candidates=True)
+            self.data = CEM.labels_for(
+                relation, c_evidences, CEM.conflict_resolution_newest_wins)
             self.data = [(x, label) for x, label in self.data.items() if label is not None]
             self.relname = config["relation"]
         data = self.data
