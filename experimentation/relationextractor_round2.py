@@ -19,7 +19,7 @@ def iter_configs(relation_name):
         "data_shuffle_seed": "portishead",
         "train_size": None,
         #"relation": "was born",
-        "relation": "organization_located",
+        "relation": relation_name,
 
         # Classifier configuration
         "classifier": "svc",
