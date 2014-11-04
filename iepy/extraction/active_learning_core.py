@@ -1,5 +1,6 @@
-import random
 import logging
+import random
+import sys
 
 import numpy
 from sklearn.cross_validation import StratifiedKFold
@@ -38,9 +39,12 @@ class ActiveLearningCore:
     #
 
     def __init__(self, relation, labeled_evidences, extractor_config=None,
-                 performance_tradeoff=None):
+                 performance_tradeoff=None, extractor=None, classifier=None):
+        if extractor is None:
+            extractor = RelationExtractionClassifier
+        self.extractor = extractor
         self.relation = relation
-        self.relation_classifier = None
+        self.relation_classifier = classifier
         self._setup_labeled_evidences(labeled_evidences)
         self._questions = list(self.candidate_evidence)
         if extractor_config is None:
@@ -87,8 +91,12 @@ class ActiveLearningCore:
         and `predict` will change.
         """
         yesno = set(self.labeled_evidence.values())
-        assert len(yesno) <= 2, "Evidence is not binary!"
+        if len(yesno) > 2:
+            msg = "Evidence is not binary! Can't proceed."
+            logger.error(msg)
+            raise ValueError(msg)
         if len(yesno) < 2:
+            logger.debug("Not enough labels to train.")
             return
         if self.tradeoff:
             self.estimate_threshold()
@@ -105,6 +113,7 @@ class ActiveLearningCore:
         the relation is present on that evidence or not.
         """
         if not self.relation_classifier:
+            logger.info("There is no classifier. Can't predict")
             return {}
         if self.threshold is None:
             labels = self.relation_classifier.predict(self.candidate_evidence)
@@ -161,18 +170,22 @@ class ActiveLearningCore:
             X.append(evidence)
             y.append(int(score))
             assert y[-1] in (True, False)
-        self.relation_classifier = RelationExtractionClassifier(**self.extractor_config)
+        self.relation_classifier = self.extractor(**self.extractor_config)
         self.relation_classifier.fit(X, y)
 
     def rank_candidate_evidence(self):
+        if not self.candidate_evidence:
+            self.ranked_candidate_evidence = {}
+            logger.info("No evidence left to rank.")
+            return
         N = min(10 * len(self.labeled_evidence), len(self.candidate_evidence))
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
         ranks = self.relation_classifier.decision_function(sample)
         self.ranked_candidate_evidence = dict(zip(self.candidate_evidence, ranks))
         ranks = [abs(x) for x in ranks]
-        logger.debug("Ranking completed, lowest absolute rank={}, "
-                     "highest absolute rank={}".format(min(ranks), max(ranks)))
+        logger.info("Ranking completed, lowest absolute rank={}, "
+                    "highest absolute rank={}".format(min(ranks), max(ranks)))
 
     def choose_questions(self):
         # Criteria: Answer first candidates with decision function near 0
@@ -203,7 +216,7 @@ class ActiveLearningCore:
         for train_index, test_index in StratifiedKFold(ally, 5):
             X = allX[train_index]
             y = ally[train_index]
-            c = RelationExtractionClassifier(**self.extractor_config)
+            c = self.extractor(**self.extractor_config)
             c.fit(X, y)
             y_true.append(ally[test_index])
             scores.append(c.decision_function(allX[test_index]))

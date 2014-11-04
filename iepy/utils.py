@@ -4,8 +4,10 @@ import gzip
 import logging
 import os
 import sys
+import tarfile
 import zipfile
 
+import wget
 from appdirs import AppDirs
 
 
@@ -33,9 +35,24 @@ def unzip(zipped_list, n):
         return zip(*zipped_list)
 
 
+def unzip_from_url(zip_url, extraction_base_path):
+    got_zipfile = None
+    try:
+        got_zipfile = wget.download(zip_url)
+        print('')  # just because wget progress-bar finishes a line with no EOL
+        unzip_file(got_zipfile, extraction_base_path)
+    finally:
+        if zipfile:
+            os.remove(got_zipfile)
+
+
 def unzip_file(zip_path, extraction_base_path):
-    zfile = zipfile.ZipFile(zip_path)
-    zfile.extractall(extraction_base_path)
+    if zip_path.endswith('.tar.gz'):
+        with tarfile.open(zip_path, mode='r:gz') as tfile:
+            tfile.extractall(extraction_base_path)
+    else:
+        zfile = zipfile.ZipFile(zip_path)
+        zfile.extractall(extraction_base_path)
 
 
 def make_feature_list(text):

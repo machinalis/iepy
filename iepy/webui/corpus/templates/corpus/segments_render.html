@@ -1,0 +1,52 @@
+{% load iepy_tags %}
+
+{% for segment in segments %}
+    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
+        {% for rich_token in segment.rich_tokens %}
+            {% if rich_token.eo_ids %}
+                <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                    ng-click="eo_click({{ rich_token.eo_ids }})"
+                    ng-class="{
+                        selectable: {% for eo_id in rich_token.eo_ids %}
+                            eos[{{ eo_id }}].selectable
+                                {% if not forloop.last %} && {% endif %}
+                            {% endfor %},
+                        selected: {% for eo_id in rich_token.eo_ids %}
+                            eos[{{ eo_id }}].selected
+                                {% if not forloop.last %} || {% endif %}
+                            {% endfor %}
+                    }"
+                    {% if rich_token.eo_ids|length > 1 %}
+                        data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                    {% else %}
+                        ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
+                        data-eo-id="{{ rich_token.eo_ids.0 }}"
+                    {% endif %}
+                >
+            {% else %}
+                <span class="rich-token">
+            {% endif %}
+                {% if rich_token.eo_ids|length > 1 %}
+                    <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
+                {% endif %}
+
+                <span class="pos-tag"> {{ rich_token.pos }} </span>
+                <span class="token" data-offset="{{ rich_token.offset }}"> {{ rich_token.token }} </span>
+            </span>
+
+            {% if rich_token.eo_ids|length > 1 %}
+                <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
+                    {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
+                        <li>
+                        <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
+                            ng-right-click="manage_eo({{ eo_id }}, {{segment.id}})"
+                        >
+                                #{{ forloop.counter }} - {{ eo_kind }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}

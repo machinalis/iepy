@@ -3,16 +3,16 @@ Running the active learning core
 
 The active learning core works by trying to predict the relations using information provided by the user.
 This means you'll have to label some of the examples and based on those, the core will infer the rest.
-The core will also give you to label the more important examples, these are the once that best helps it
-to figure out the other cases.
+The core will also give you to label the more important examples (those which best helps
+to figure out the other cases).
 
-To start using it you'll need to define a relation, run the core, label some evidence and re-run the core.
+To start using it you'll need to define a relation, run the core, label some evidence and re-run the core loop.
 You can also label evidences and re-run the core as much as you like to have a better performance.
 
 Creating a relation
 -------------------
 
-To create a relation, first :doc:`open up the web server <tutorial>` if you haven't already, and use a
+To create a relation, first `open up the web server <tutorial.html#open-the-web-interface>`__ if you haven't already, and use a
 web browser to navigate on `http://127.0.0.1:8000 <http://127.0.0.1:8000>`_.
 There you'll find instructions on how to create a relation.
 
@@ -32,7 +32,7 @@ will be wrongly discarded as "no relation present".
 
 Run the active learning core by doing:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/iepy_runner.py <relation_name>
 
@@ -43,8 +43,8 @@ This will run until it needs you to label some of the evidences. At this point, 
 need to do is go to the web interface that you ran on the previous step, and there you
 can label some evidences.
 
-When you consider that is enough, go to the prompt that the iepy runner presented you,
-and continue the execution by typing **run**.
+When you consider that is enough, on the prompt that the iepy runner presented you,
+continue the execution by typing **run**.
 
 That will cycle again and repeat the process.
 
@@ -54,7 +54,7 @@ To terminate the process, type **STOP** and the output will be provided.
 Fine tuning
 -----------
 
-If you want to modify the internal behaviour, you can change the settings file. On your instance
+If you want to modify the internal behavior, you can change the settings file. On your instance
 folder you'll fine a file called ``extractor_config.json``. There you've all the configuration
 for the internal classifier, such as:
 

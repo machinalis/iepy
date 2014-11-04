@@ -433,3 +433,26 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
         kwargs["data"] = new_data
         return kwargs
+
+
+def navigate_documents(context, document_id, direction):
+    if direction == "back":
+        documents = IEDocument.objects.filter(id__lt=document_id).order_by("-id")
+    else:
+        documents = IEDocument.objects.filter(id__gt=document_id).order_by("id")
+
+    document = documents[0]
+    return redirect('corpus:navigate_document', document.id)
+
+class DocumentNavigation(TemplateView):
+    template_name = 'corpus/document.html'
+
+    def get_context_data(self, document_id, **kwargs):
+        context = super().get_context_data(**kwargs)
+        document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
+        sentences = [{"rich_tokens": x, "id": i} for i, x in enumerate(document.get_sentences(enriched=True))]
+
+        context["document"] = document
+        context["segments"] = sentences
+        context["draw_navigation"] = True
+        return context

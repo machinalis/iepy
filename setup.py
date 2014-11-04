@@ -20,14 +20,14 @@ setup(
     name='iepy',
     version=iepy_version,
     zip_safe=False,
-    description='',
+    description='Information Extraction framework in Python',
     long_description=long_description,
     url='https://github.com/machinalis/iepy',
 
     # Author details
     author=(
         "Rafael Carrascosa, Javier Mansilla, Gonzalo García Berrotarán, "
-        "Daniel Moisset, Franco M. Luque, Laura Alonso",
+        "Daniel Moisset, Franco M. Luque",
     ),
 
     # Choose your license

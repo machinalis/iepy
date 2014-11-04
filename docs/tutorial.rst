@@ -5,9 +5,9 @@ In this tutorial we will guide you through the steps to create your first
 Information Extraction application with IEPY.
 Be sure you have a working :doc:`installation <installation>`.
 
-IEPY internaly uses `Django <https://www.djangoproject.com/>`_ to define the database models,
+IEPY internally uses `Django <https://www.djangoproject.com/>`_ to define the database models,
 and for the web interface so you'll see some components of it around the project, such as the
-configuration file (with the database definition) and the ``manage.py``. If you're familirized
+configuration file (with the database definition) and the ``manage.py``. If you're familiarized
 with it, you will move faster in some of steps.
 
 
@@ -20,27 +20,31 @@ To create a new instance you have to run:
 
 .. code-block:: bash
 
-    iepy <project_name>
+    iepy --create <project_name>
 
 Where *<project_name>* is something that you choose.
 This command will ask you a few things such as database name, its username and its password.
-When that's done, you'll have an instance in a folder with the name that you choose
+When that's done, you'll have an instance in a folder with the name that you choose.
+
 Read more about the instantiation :doc:`here <instantiation>`.
 
 
 1 - Loading the database
 ------------------------
 
-The way we load the data into the database is importing it from a *csv* file. You can use the script **csv_to_iepy** 
+The way we load the data into the database is importing it from a *csv* file. You can use the script **csv_to_iepy**
 provided in your application folder to do it.
 
 
-.. code-blocK:: bash
+.. code-block:: bash
 
-    python bin/preprocess.py data.csv
+    python bin/csv_to_iepy.py data.csv
 
 This will load **data.csv** into the database and from now on, you will work accessing
-the data from there. 
+the data from there.
+
+See `here <instantiation.html#csv-importer>`_ for format details.
+
 
 .. note::
 
@@ -55,15 +59,16 @@ run the pre-process to generate all the information needed by IEPY's core.
 
 The preprocessing pipeline runs the following steps:
 
-    * Text tokenization and segmentation into sentences.
+    * Text tokenization and sentence splitting.
     * Part-Of-Speech (POS) tagging.
-    * Named Entity Recogntion (NER).
+    * Named Entity Recognition (NER).
+    * TextSegments creation (internal IEPY text unit)
 
-Your IEPY application comes with code to run all the preprocessing steps. 
+Your IEPY application comes with code to run all the preprocessing steps.
 
 You can run it by doing:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/preprocess.py
 
@@ -82,7 +87,7 @@ that the active learning core will need.
 To access it you must get the web server. Don't worry, you have everything
 that you need on your instance folder and it's as simple as running:
 
-.. code-blocK:: bash
+.. code-block:: bash
 
     python bin/manage.py runserver
 
@@ -102,8 +107,8 @@ or the :doc:`rule based core <rules_tutorial>`.
 Constructing a reference corpus
 -------------------------------
 
-To test the performance IEPY provides a tool to label all the corpus "by hand" and then check the performance
-experimenting with that data.
+To test the extraction performance, IEPY provides a tool for labeling all the corpus "by hand"
+and the check the performance experimenting with that data.
 
 If you would like to create a labeled corpus to test the performance or for other purposes, take a look at
 the :doc:`corpus labeling tool <corpus_labeling>`
