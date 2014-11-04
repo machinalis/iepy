@@ -123,6 +123,10 @@ class CandidateEvidenceManager(object):
         ev.evidence = ev.segment.hydrate(document)
         ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
         ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
+        all_eos = [eo.hydrate_for_segment(ev.segment)
+                   for eo in ev.segment.entity_occurrences.all()]
+        # contains a duplicate of left and right eo. Not big deal
+        ev.all_eos = all_eos
         return ev
 
     @classmethod
