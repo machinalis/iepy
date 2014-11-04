@@ -115,8 +115,7 @@ def other_entities_in_between(datapoint):
     """
     n = 0
     i, j = in_between_offsets(datapoint)
-    for other in datapoint.segment.entity_occurrences.all():
-        other.hydrate_for_segment(datapoint.segment)
+    for other in datapoint.all_eos:
         if other.segment_offset >= i and other.segment_offset < j:
             n += 1
     return n
@@ -127,7 +126,7 @@ def total_number_of_entities(datapoint):
     """
     Returns the number of entity in the text segment
     """
-    return len(datapoint.segment.entity_occurrences.all())
+    return len(datapoint.all_eos)
 
 
 @output_schema(int, lambda x: x >= 0)
