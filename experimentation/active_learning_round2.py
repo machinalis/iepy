@@ -3,7 +3,7 @@
 Experimental evaluation of FactExtractor round 2.
 
 Usage:
-    factextractor_round2.py
+    factextractor_round2.py <relation_name>
 
 Options:
  -h --help              Show this screen.
@@ -12,13 +12,13 @@ from utils import apply_dict_combinations
 from iepy.utils import make_feature_list
 
 
-def iter_configs():
+def iter_configs(relation_name):
     base = {
         # Experiment configuration
         "config_version": "2active_learning",
         "data_shuffle_seed": "silvio",  # Has no meaning but to force different runs
         "oracle_answers": None,
-        "relation": "was born",
+        "relation": relation_name,
 
         # Classifier configuration
         "classifier": "svc",
@@ -58,7 +58,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     opts = docopt(__doc__)
+    relation_name = opts["<relation_name>"]
 
-    configs = list(iter_configs())
+    configs = list(iter_configs(relation_name))
     json.dump(configs, sys.stdout, sort_keys=True, indent=4,
               separators=(",", ": "))
