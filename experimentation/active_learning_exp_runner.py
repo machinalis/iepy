@@ -2,14 +2,21 @@
 Experiment runner for ActiveLearningCore
 """
 import time
+import logging
 
 from featureforge.experimentation import runner
 from sklearn.metrics import roc_auc_score, average_precision_score
+
+import iepy
+from os import getenv
+iepy.setup(getenv('PWD'))
 
 from iepy.extraction.active_learning_core import ActiveLearningCore
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
 from experimentation_utils import result_dict_from_predictions
+
+logging.getLogger("featureforge").setLevel(logging.WARN)
 
 
 class NotEnoughData(Exception):
@@ -32,7 +39,7 @@ class Runner(object):
         if self.data is None or self.relname != config["relation"]:
             relation = iepy.data.models.Relation.objects.get(name=config["relation"])
             c_evidences = CEM.candidates_for_relation(relation,
-                                                      construct_missing_candidates=True)
+                                                      construct_missing_candidates=False)
             self.data = CEM.labels_for(
                 relation, c_evidences, CEM.conflict_resolution_newest_wins)
             self.data = [(x, label) for x, label in self.data.items() if label is not None]

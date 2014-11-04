@@ -1,16 +1,23 @@
 """
 Experiment runner for FactExtractor
 """
+import logging
 import random
 import time
 
 from featureforge.experimentation import runner
 from sklearn.metrics import roc_auc_score, average_precision_score
 
+import iepy
+from os import getenv
+iepy.setup(getenv('PWD'))
+
 from iepy.extraction.relation_extraction_classifier import RelationExtractionClassifier
 from iepy.data.db import CandidateEvidenceManager as CEM
 import iepy.data.models
 from experimentation_utils import result_dict_from_predictions
+
+logging.getLogger("featureforge").setLevel(logging.WARN)
 
 
 class NotEnoughLabeledData(Exception):
@@ -32,7 +39,7 @@ class Runner(object):
         # Prepare data
         if self.data is None or self.relname != config["relation"]:
             relation = iepy.data.models.Relation.objects.get(name=config["relation"])
-            c_evidences = CEM.candidates_for_relation(relation)
+            c_evidences = CEM.candidates_for_relation(relation, construct_missing_candidates=False)
             self.data = CEM.labels_for(relation, c_evidences,
                 CEM.conflict_resolution_newest_wins)
             self.data = [(x, label) for x, label in self.data.items() if label is not None]
