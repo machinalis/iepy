@@ -29,6 +29,7 @@ class InstanceManager:
         'copy_bin',
         'create_rules_file',
         'configure_settings_file',
+        'create_extractor_config_file',
         'migrate_db',
         'create_db_user',
         'greetings',
