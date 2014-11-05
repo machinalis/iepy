@@ -26,6 +26,7 @@ class InstanceManager:
     ]
     steps = [
         'create_folders',
+        'create_init_file',
         'copy_bin',
         'create_rules_file',
         'configure_settings_file',
@@ -91,6 +92,10 @@ class InstanceManager:
     def create_folders(self):
         self.bin_folder = os.path.join(self.folder_path, "bin")
         os.makedirs(self.bin_folder, exist_ok=not self.creating)
+
+    def create_init_file(self):
+        rules_filepath = os.path.join(self.folder_path, "__init__.py")
+        open(rules_filepath, "w")
 
     def copy_bin(self):
         # Create folders
