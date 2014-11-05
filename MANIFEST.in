@@ -2,6 +2,7 @@ include README.rst
 include AUTHORS
 include LICENSE
 include MANIFEST.in
+include ChangeLog
 include iepy/version.txt
 
 recursive-include iepy/instantiation *.template
