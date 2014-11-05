@@ -112,3 +112,23 @@ Web UI management
 
 For the web server management, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
 and with it you can start up your server.
+
+
+Instance Upgrade
+----------------
+
+From time to time, small changes on the iepy internals will need some *upgrade* of the existent iepy instances.
+
+The upgrade process will apply the needed changes to the instance-folder structure.
+
+In the case made local changes, the tool will preserve a copy of your changes so you can merge by hand on the conflict areas.
+
+For upgrading a iepy instance, simply run the following command
+
+    .. code-block:: bash
+
+        iepy --upgrade <instance path>
+
+.. note::
+
+    On any instance you can know which is the iepy-version of it by looking at the settings file.

@@ -1,0 +1,11 @@
+
+0.9.1
+
+    - Add entity kind on the modal dialog
+    - Change arrows display to be more understandable
+    - Join skip and don't know label options
+    - Change options dropdown for radio buttons
+    - Show help for shortcuts and change the order of the options
+    - Documents rich view (without needing to be labeling the document for some relation)
+    - instance upgrader
+

@@ -7,6 +7,26 @@ from featureforge.feature import output_schema
 punct_set = set(punctuation)
 
 
+def all_len_two(v):
+    return all(len(x) == 2 for x in v)
+
+
+def all_len_two_inner_too(v):
+    return all(len(x) == 2 and all(len(y) == 2 for y in x) for x in v)
+
+
+def binary_values(x):
+    return x in (0, 1)
+
+
+def ge_than_zero(v):
+    return v >= 0
+
+
+def ge_than_two(v):
+    return v >= 2
+
+
 def parse_features(feature_names):
     features = []
     for line in feature_names:
@@ -36,19 +56,17 @@ def bag_of_pos(datapoint):
     return set(pos(datapoint))
 
 
-@output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
+@output_schema({(str,)}, all_len_two)
 def bag_of_word_bigrams(datapoint):
     return set(bigrams(words(datapoint)))
 
 
-@output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
+@output_schema({(str,)}, all_len_two)
 def bag_of_wordpos(datapoint):
     return set(zip(words(datapoint), pos(datapoint)))
 
 
-@output_schema({((str,),)},
-               lambda v: all(len(x) == 2 and
-                             all(len(y) == 2 for y in x) for x in v))
+@output_schema({((str,),)}, all_len_two_inner_too)
 def bag_of_wordpos_bigrams(datapoint):
     xs = list(zip(words(datapoint), pos(datapoint)))
     return set(bigrams(xs))
@@ -66,28 +84,26 @@ def bag_of_pos_in_between(datapoint):
     return set(pos(datapoint)[i:j])
 
 
-@output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
+@output_schema({(str,)}, all_len_two)
 def bag_of_word_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
     return set(bigrams(words(datapoint)[i:j]))
 
 
-@output_schema({(str,)}, lambda v: all(len(x) == 2 for x in v))
+@output_schema({(str,)}, all_len_two)
 def bag_of_wordpos_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
     return set(list(zip(words(datapoint), pos(datapoint)))[i:j])
 
 
-@output_schema({((str,),)},
-               lambda v: all(len(x) == 2 and
-                             all(len(y) == 2 for y in x) for x in v))
+@output_schema({((str,),)}, all_len_two_inner_too)
 def bag_of_wordpos_bigrams_in_between(datapoint):
     i, j = in_between_offsets(datapoint)
     xs = list(zip(words(datapoint), pos(datapoint)))[i:j]
     return set(bigrams(xs))
 
 
-@output_schema(int, lambda x: x in (0, 1))
+@output_schema(int, binary_values)
 def entity_order(datapoint):
     """
     Returns 1 if A occurs prior to B in the segment and 0 otherwise.
@@ -98,7 +114,7 @@ def entity_order(datapoint):
     return 0
 
 
-@output_schema(int, lambda x: x >= 0)
+@output_schema(int, ge_than_zero)
 def entity_distance(datapoint):
     """
     Returns the distance (in tokens) that separates the ocurrence of the
@@ -108,29 +124,28 @@ def entity_distance(datapoint):
     return j - i
 
 
-@output_schema(int, lambda x: x >= 0)
+@output_schema(int, ge_than_zero)
 def other_entities_in_between(datapoint):
     """
     Returns the number of entity ocurrences in between the datapoint entities.
     """
     n = 0
     i, j = in_between_offsets(datapoint)
-    for other in datapoint.segment.entity_occurrences.all():
-        other.hydrate_for_segment(datapoint.segment)
+    for other in datapoint.all_eos:
         if other.segment_offset >= i and other.segment_offset < j:
             n += 1
     return n
 
 
-@output_schema(int, lambda x: x >= 2)
+@output_schema(int, ge_than_two)
 def total_number_of_entities(datapoint):
     """
     Returns the number of entity in the text segment
     """
-    return len(datapoint.segment.entity_occurrences.all())
+    return len(datapoint.all_eos)
 
 
-@output_schema(int, lambda x: x >= 0)
+@output_schema(int, ge_than_zero)
 def verbs_count_in_between(datapoint):
     """
     Returns the number of Verb POS tags in between of the 2 entities.
@@ -139,7 +154,7 @@ def verbs_count_in_between(datapoint):
     return len(verbs(datapoint, i, j))
 
 
-@output_schema(int, lambda x: x >= 0)
+@output_schema(int, ge_than_zero)
 def verbs_count(datapoint):
     """
     Returns the number of Verb POS tags in the datapoint.
@@ -147,7 +162,7 @@ def verbs_count(datapoint):
     return len(verbs(datapoint))
 
 
-@output_schema(int, lambda x: x in (0, 1))
+@output_schema(int, binary_values)
 def in_same_sentence(datapoint):  # TODO: Test
     """
     Returns 1 if the datapoints entities are in the same sentence, 0 otherwise.
@@ -159,7 +174,7 @@ def in_same_sentence(datapoint):  # TODO: Test
     return 1
 
 
-@output_schema(int, lambda x: x in (0, 1))
+@output_schema(int, binary_values)
 def symbols_in_between(datapoint):
     """
     Returns 1 if there are symbols between the entities, 0 if not.
@@ -172,7 +187,7 @@ def symbols_in_between(datapoint):
     return 0
 
 
-@output_schema(int, lambda x: x >= 0)
+@output_schema(int, ge_than_zero)
 def number_of_tokens(datapoint):
     return len(datapoint.segment.tokens)
 

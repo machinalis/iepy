@@ -16,6 +16,7 @@ import jsonfield
 CHAR_MAX_LENGHT = 256
 
 logger = logging.getLogger(__name__)
+RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds offset")
 
 
 class BaseModel(models.Model):
@@ -85,14 +86,33 @@ class IEDocument(BaseModel):
     def __str__(self):
         return '<IEDocument {0}>'.format(self.human_identifier)
 
-    def get_sentences(self):
+    def get_sentences(self, enriched=False):
         """Iterator over the sentences, each sentence being a list of tokens.
         """
         tokens = self.tokens
+        postags = self.postags
         sentences = self.sentences
         start = 0
+        eos = list(self.get_entity_occurrences())
+        tkn_offset = 0
         for i, end in enumerate(sentences[1:]):
-            yield tokens[start:end]
+            if enriched:
+                rich_tokens = []
+                for i, (token, postag) in enumerate(zip(tokens[start:end], postags[start:end])):
+                    tkn_eos = [eo for eo in eos if eo.offset <= tkn_offset < eo.offset_end]
+
+                    rich_tokens.append(RichToken(
+                        token=token,
+                        pos=postag,
+                        eo_ids=[eo.id for eo in tkn_eos],
+                        eo_kinds=[eo.entity.kind for eo in tkn_eos],
+                        offset=tkn_offset,
+                    ))
+                    tkn_offset += 1
+                yield rich_tokens
+            else:
+                yield tokens[start:end]
+
             start = end
 
     def get_entity_occurrences(self):
@@ -335,7 +355,6 @@ class TextSegment(BaseModel):
         translation_dict = {'-LRB-': '(',
                             '-RRB-': ')'}
         eos = list(self.get_entity_occurrences())
-        RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds")
         for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
             tkn_eos = [eo for eo in eos
                        if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
@@ -343,7 +362,8 @@ class TextSegment(BaseModel):
                 token=translation_dict.get(tkn, tkn),
                 pos=postag,
                 eo_ids=[eo.id for eo in tkn_eos],
-                eo_kinds=[eo.entity.kind for eo in tkn_eos]
+                eo_kinds=[eo.entity.kind for eo in tkn_eos],
+                offset=self.offset + tkn_offset,
             )
 
     @classmethod
@@ -562,19 +582,17 @@ class EvidenceCandidate(BaseModel):
 class EvidenceLabel(BaseModel):
     NORELATION = "NO"
     YESRELATION = "YE"
-    DONTKNOW = "DK"
     SKIP = "SK"
     NONSENSE = "NS"
     LABEL_CHOICES = (
-        (NORELATION, "No relation present"),
         (YESRELATION, "Yes, relation is present"),
-        (DONTKNOW, "Don't know if the relation is present"),
+        (NORELATION, "No relation present"),
+        (NONSENSE, "Evidence is nonsense"),
         (SKIP, "Skipped labeling of this evidence"),
-        (NONSENSE, "Evidence is nonsense")
     )
     NEED_RELABEL = (
         # list of evidence labels that means it would be good to ask again
-        DONTKNOW, SKIP
+        SKIP
     )
 
     evidence_candidate = models.ForeignKey(

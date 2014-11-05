@@ -312,6 +312,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
         form_toolbox = EvidenceToolboxForm(prefix='toolbox')
         question_options = [x[0] for x in form_toolbox.fields["label"].choices]
+        form_for_others = EvidenceForm(
+            prefix='for_others', initial={"label": EvidenceLabel.NORELATION}
+        )
 
         ctx.update({
             'title': title,
@@ -319,7 +322,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'document': self.document,
             'segments': segments_with_rich_tokens,
             'relation': self.relation,
-            'form_for_others': EvidenceForm(prefix='for_others'),
+            'form_for_others': form_for_others,
             'form_toolbox': form_toolbox,
             'initial_tool': EvidenceLabel.YESRELATION,
             'eos_propperties': json.dumps(eos_propperties),
@@ -433,3 +436,26 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
 
         kwargs["data"] = new_data
         return kwargs
+
+
+def navigate_documents(context, document_id, direction):
+    if direction == "back":
+        documents = IEDocument.objects.filter(id__lt=document_id).order_by("-id")
+    else:
+        documents = IEDocument.objects.filter(id__gt=document_id).order_by("id")
+
+    document = documents[0]
+    return redirect('corpus:navigate_document', document.id)
+
+class DocumentNavigation(TemplateView):
+    template_name = 'corpus/document.html'
+
+    def get_context_data(self, document_id, **kwargs):
+        context = super().get_context_data(**kwargs)
+        document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
+        sentences = [{"rich_tokens": x, "id": i} for i, x in enumerate(document.get_sentences(enriched=True))]
+
+        context["document"] = document
+        context["segments"] = sentences
+        context["draw_navigation"] = True
+        return context
