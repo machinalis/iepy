@@ -6,7 +6,8 @@ from refo.patterns import Pattern
 from refo import Question, Star, Any
 
 from iepy.data.db import CandidateEvidenceManager
-from iepy.extraction.rules_core import rule, RuleBasedCore, Token
+from iepy.extraction.rules import rule, Token
+from iepy.extraction.rules_core import RuleBasedCore
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,
