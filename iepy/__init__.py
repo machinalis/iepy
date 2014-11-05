@@ -11,7 +11,7 @@ with open(fname, encoding='utf-8') as filehandler:
 del fname
 
 
-def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
+def setup(fuzzy_path=None, _safe_mode=False):
     """
     Configure IEPY internals,
         Reads IEPY instance configuration if any path provided.
@@ -28,12 +28,11 @@ def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
                 os.environ['DJANGO_SETTINGS_MODULE'] = 'iepy.webui.webui.settings'
             result = None
         else:
-            path = _actual_path(fuzzy_path)
-            if settings_prefix is None:
-                settings_prefix = path.rsplit(os.sep, 1)[1]
-            sys.path.append(path)  # add to py-path the first
-            os.environ['DJANGO_SETTINGS_MODULE'] = "{}_settings".format(settings_prefix)
-            result = path
+            path, project_name = _actual_path(fuzzy_path)
+            sys.path.insert(0, path)
+            os.environ['DJANGO_SETTINGS_MODULE'] = "{0}.settings".format(project_name)
+            result = os.path.join(path, project_name)
+
         django.setup()
         if not _safe_mode and settings.IEPY_VERSION != __version__:
             sys.exit(
@@ -46,14 +45,11 @@ def setup(fuzzy_path=None, settings_prefix=None, _safe_mode=False):
 
 def _actual_path(fuzzy_path):
     """
-    Given the fuzzy_path path, walks-up until it finds a folder containing a
-    iepy-instance, and that folder path is returned"""
+    Given the fuzzy_path path, walks-up until it finds a folder containing a iepy-instance.
+    Returns the path where the folder is contained and the folder name.
+    """
     def _is_iepy_instance(folder_path):
-        folder_name = os.path.basename(folder_path)
-        expected_file = os.path.join(
-            folder_path,
-            "{}_settings.py".format(folder_name)
-        )
+        expected_file = os.path.join(folder_path, "settings.py")
         return os.path.exists(expected_file)
 
     # first, make sure we are handling an absolute path
@@ -61,10 +57,9 @@ def _actual_path(fuzzy_path):
     fuzzy_path = os.path.abspath(fuzzy_path)
     while True:
         if _is_iepy_instance(fuzzy_path):
-            return fuzzy_path
+            return os.path.dirname(fuzzy_path), os.path.basename(fuzzy_path)
         else:
             parent = os.path.dirname(fuzzy_path)
             if parent == fuzzy_path:
-                raise ValueError(
-                    "There's no IEPY instance on the provided path {}".format(original))
+                raise ValueError("There's no IEPY instance on the provided path {}".format(original))
             fuzzy_path = parent

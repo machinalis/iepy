@@ -184,8 +184,7 @@ class InstanceManager:
     def configure_settings_file(self):
         # Create the settings file
         folder_name = os.path.basename(self.folder_path)  # aka iepy instance name
-        settings_filepath = os.path.join(self.folder_path,
-                                         "{}_settings.py".format(folder_name))
+        settings_filepath = os.path.join(self.folder_path, "settings.py".format(folder_name))
 
         def do_it():
             print("Initializing database")
