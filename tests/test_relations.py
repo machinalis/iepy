@@ -38,7 +38,7 @@ class BaseTestReferenceBuilding(ManagerTestCase):
                                              right_entity_kind=self.k_location)
         self.r_father_of = RelationFactory(left_entity_kind=self.k_person,
                                            right_entity_kind=self.k_person)
-        self.weak_label = EvidenceLabel.DONTKNOW  # means that will need to be re-labeled
+        self.weak_label = EvidenceLabel.SKIP  # means that will need to be re-labeled
         self.solid_label = EvidenceLabel.YESRELATION
 
     def create_occurrence(self, doc, e, offset, end):
