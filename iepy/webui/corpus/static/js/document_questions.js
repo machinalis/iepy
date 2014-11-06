@@ -299,7 +299,7 @@ function ($scope, EntityOccurrence) {
                         $scope.forms[rel.form_id] = new_value;
 
                         $scope.add_or_remove_arrow(
-                            eo_id1, eo_id2,
+                            rel.relation[0], rel.relation[1],
                             new_value, rel.form_id
                         );
                         $scope.eos[eo_id1].selected = false;
