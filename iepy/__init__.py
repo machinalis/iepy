@@ -1,5 +1,7 @@
 import os
 import sys
+from importlib import import_module
+
 import django
 from django.conf import settings
 
@@ -10,6 +12,8 @@ with open(fname, encoding='utf-8') as filehandler:
     __version__ = filehandler.read().strip().replace("\n", "")
 del fname
 
+instance = None  # instance reference will be stored here
+
 
 def setup(fuzzy_path=None, _safe_mode=False):
     """
@@ -18,10 +22,12 @@ def setup(fuzzy_path=None, _safe_mode=False):
         Detects out of dated instances.
         Returns the absolute path to the IEPY instance if provided, None if not.
     """
+
     # Prevent nosetests messing up with this
     if not isinstance(fuzzy_path, (type(None), str)):
         # nosetests is grabing this function because its named "setup"... .
         return
+
     if not settings.configured:
         if fuzzy_path is None:
             if not os.getenv('DJANGO_SETTINGS_MODULE'):
@@ -32,8 +38,10 @@ def setup(fuzzy_path=None, _safe_mode=False):
             sys.path.insert(0, path)
             os.environ['DJANGO_SETTINGS_MODULE'] = "{0}.settings".format(project_name)
             result = os.path.join(path, project_name)
+            import_instance(project_name)
 
         django.setup()
+
         if not _safe_mode and settings.IEPY_VERSION != __version__:
             sys.exit(
                 'Instance version is {} and current IEPY installation is {}.\n'
@@ -41,6 +49,16 @@ def setup(fuzzy_path=None, _safe_mode=False):
                                                              __version__)
             )
         return result
+
+
+def import_instance(project_name):
+    """
+    Imports the project_name instance and stores it
+    on the global variable `instance`.
+    """
+
+    global instance
+    instance = import_module(project_name)
 
 
 def _actual_path(fuzzy_path):
