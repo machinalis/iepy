@@ -15,7 +15,7 @@ Options:
 import sys
 import logging
 
-from docopt import docopt
+from django.core.exceptions import ObjectDoesNotExist
 
 import iepy
 iepy.setup(__file__)
@@ -24,25 +24,26 @@ from iepy.extraction.rules_core import RuleBasedCore
 from iepy.data import models, output
 from iepy.data.db import CandidateEvidenceManager
 
-import rules
 
-
-if __name__ == u'__main__':
+def run_from_command_line():
     logging.basicConfig(level=logging.INFO, format='%(message)s')
-    opts = docopt(__doc__, version=iepy.__version__)
 
     try:
-        relation = rules.RELATION
+        relation_name = iepy.instance.rules.RELATION
     except AttributeError:
         logging.error("RELATION not defined in rules file")
         sys.exit(1)
 
-    relation = models.Relation.objects.get(name=rules.RELATION)
+    try:
+        relation = models.Relation.objects.get(name=relation_name)
+    except ObjectDoesNotExist:
+        logging.error("Relation {!r} not found".format(relation_name))
+        sys.exit(1)
 
     # Load rules
     rules = []
-    for attr_name in dir(rules):
-        attr = getattr(rules, attr_name)
+    for attr_name in dir(iepy.instance.rules):
+        attr = getattr(iepy.instance.rules, attr_name)
         if hasattr(attr, '__call__'):  # is callable
             if hasattr(attr, "is_rule") and attr.is_rule:
                 rules.append(attr)
@@ -56,3 +57,7 @@ if __name__ == u'__main__':
     iextractor.process()
     predictions = iextractor.predict()
     output.dump_output_loop(predictions)
+
+
+if __name__ == u'__main__':
+    run_from_command_line()
