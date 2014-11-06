@@ -1,6 +1,6 @@
 import ast
 from string import punctuation
-from importlib import import_module
+import importlib
 
 import refo
 from featureforge.feature import output_schema
@@ -39,7 +39,7 @@ _loaded_modules = {}
 def load_module(module_name):
     module = _loaded_modules.get(module_name)
     if module is None:
-        module = import_module(module_name)
+        module = importlib.import_module(module_name)
         _loaded_modules[module_name] = module
     return module
 
