@@ -39,6 +39,7 @@ class InstanceManager:
     def __init__(self, folder_path):
         self.folder_path = folder_path
         self.abs_folder_path = os.path.abspath(self.folder_path)
+        self.creating = True
 
     def _run_steps(self):
         for step_name in self.steps:
@@ -49,7 +50,6 @@ class InstanceManager:
         if os.path.exists(self.folder_path):
             print("Error: folder already exists")
             sys.exit(1)
-        self.creating = True
         self._run_steps()
 
     def upgrade(self):
@@ -185,7 +185,7 @@ class InstanceManager:
     def configure_settings_file(self):
         # Create the settings file
         folder_name = os.path.basename(self.folder_path)  # aka iepy instance name
-        settings_filepath = os.path.join(self.folder_path, "settings.py".format(folder_name))
+        settings_filepath = os.path.join(self.folder_path, "settings.py")
 
         def do_it():
             print("Initializing database")
@@ -199,6 +199,12 @@ class InstanceManager:
         if self.creating:
             do_it()
         else:
+            if self.old_version in ["0.9.0", "0.9.1"]:
+                old_settings_filepath = os.path.join(
+                    self.folder_path, "{}_settings.py".format(folder_name)
+                )
+                shutil.move(old_settings_filepath, settings_filepath)
+
             with open(settings_filepath, 'a') as fhandler:
                 msg = 'Remove line declaring the old IEPY_VERSION above.'
                 fhandler.write(
