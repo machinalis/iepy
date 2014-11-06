@@ -95,7 +95,8 @@ class InstanceManager:
 
     def create_init_file(self):
         rules_filepath = os.path.join(self.folder_path, "__init__.py")
-        open(rules_filepath, "w")
+        with open(rules_filepath, "w") as filehandler:
+            filehandler.write("from . import rules")
 
     def copy_bin(self):
         # Create folders
