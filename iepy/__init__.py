@@ -34,9 +34,14 @@ def setup(fuzzy_path=None, _safe_mode=False):
                 os.environ['DJANGO_SETTINGS_MODULE'] = 'iepy.webui.webui.settings'
             result = None
         else:
-            path, project_name = _actual_path(fuzzy_path)
+            path, project_name, old = _actual_path(fuzzy_path)
             sys.path.insert(0, path)
-            os.environ['DJANGO_SETTINGS_MODULE'] = "{0}.settings".format(project_name)
+            if old:
+                django_settings_module = "{0}_settings".format(project_name)
+                sys.path.insert(0, os.path.join(path, project_name))
+            else:
+                django_settings_module = "{0}.settings".format(project_name)
+            os.environ['DJANGO_SETTINGS_MODULE'] = django_settings_module
             result = os.path.join(path, project_name)
             import_instance(project_name)
 
@@ -64,18 +69,28 @@ def import_instance(project_name):
 def _actual_path(fuzzy_path):
     """
     Given the fuzzy_path path, walks-up until it finds a folder containing a iepy-instance.
-    Returns the path where the folder is contained and the folder name.
+    Returns the path where the folder is contained, the folder name and a boolean to indicate
+    if its an instance older than 0.9.2 where the settings file was different.
     """
-    def _is_iepy_instance(folder_path):
+    def _find_settings_file(folder_path):
+        folder_name = os.path.basename(folder_path)
         expected_file = os.path.join(folder_path, "settings.py")
-        return os.path.exists(expected_file)
+        old_settings_file = os.path.join(
+            folder_path, "{}_settings.py".format(folder_name)
+        )
+        if os.path.exists(expected_file):
+            return expected_file
+        elif os.path.exists(old_settings_file):
+            return old_settings_file
 
     # first, make sure we are handling an absolute path
     original = fuzzy_path   # used for debug
     fuzzy_path = os.path.abspath(fuzzy_path)
     while True:
-        if _is_iepy_instance(fuzzy_path):
-            return os.path.dirname(fuzzy_path), os.path.basename(fuzzy_path)
+        settings_filepath = _find_settings_file(fuzzy_path)
+        if settings_filepath is not None:
+            old = True if settings_filepath.endswith("_settings.py") else False
+            return os.path.dirname(fuzzy_path), os.path.basename(fuzzy_path), old
         else:
             parent = os.path.dirname(fuzzy_path)
             if parent == fuzzy_path:
