@@ -159,10 +159,10 @@ class InstanceManager:
                     do_it()
 
     def prompt(self, msg):
-        answer = raw_input("%s (y/n) " % msg).lower().strip()
+        answer = input("%s (y/n) " % msg).lower().strip()
         while answer not in ['y', 'n']:
             print ('Invalid answer "{}".'.format(answer))
-            answer = raw_input("%s (y/n) " % msg).lower().strip()
+            answer = input("%s (y/n) " % msg).lower().strip()
         return answer == 'y'
 
     def preserve_old_file_version_as_copy(self, fpath):
