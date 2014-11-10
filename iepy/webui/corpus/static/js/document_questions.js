@@ -338,7 +338,6 @@ function ($scope, EntityOccurrence) {
         // Curve configuration
         var curve_distance = 25;
         var y_offset = $($scope.svg).offset().top - $($scope.svg).parent().offset().top;
-        var x_offset = -30;
 
         if (alternative) {
             curve_distance *= 1.5;
@@ -353,9 +352,9 @@ function ($scope, EntityOccurrence) {
         var eo2_pos = $eo2.position();
 
         // Corrected positions
-        var eo1_pos_left = eo1_pos.left - x_offset;
+        var eo1_pos_left = eo1_pos.left + $eo1.width() / 4;
         var eo1_pos_top = eo1_pos.top - y_offset;
-        var eo2_pos_left = eo2_pos.left - x_offset;
+        var eo2_pos_left = eo2_pos.left + $eo2.width() / 4;
         var eo2_pos_top = eo2_pos.top - y_offset;
 
         // Format should be:

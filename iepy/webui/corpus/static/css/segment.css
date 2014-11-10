@@ -4,6 +4,8 @@
 
 .rich-token{
     position: relative;
+    display: inline-block;
+    line-height: 25px;
 }
 
 .rich-token .token{
@@ -33,7 +35,7 @@
 .entity-occurrence{
     font-weight: bold;
     border-bottom: 2px dashed #bbb;
-    padding: 4px;
+    padding: 0 4px;
     cursor: help;
     -webkit-transition: background .5s; /* For Safari 3.1 to 6.0 */
     transition: background .5s;
