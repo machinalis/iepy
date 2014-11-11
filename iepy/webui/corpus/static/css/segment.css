@@ -1,9 +1,11 @@
 .segment{
-    line-height: 40px;
+    line-height: 45px;
 }
 
 .rich-token{
     position: relative;
+    display: inline-block;
+    line-height: 25px;
 }
 
 .rich-token .token{
@@ -14,7 +16,7 @@
     position: absolute;
     color: #BDBDBD;
     font-size: 10px;
-    top: -25px;
+    top: -18px;
     left: 35%;
 }
 
@@ -33,7 +35,7 @@
 .entity-occurrence{
     font-weight: bold;
     border-bottom: 2px dashed #bbb;
-    padding: 4px;
+    padding: 0 4px;
     cursor: help;
     -webkit-transition: background .5s; /* For Safari 3.1 to 6.0 */
     transition: background .5s;

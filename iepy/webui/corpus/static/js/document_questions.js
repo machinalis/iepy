@@ -72,7 +72,7 @@ function ($scope, EntityOccurrence) {
             }
         });
 
-        $scope.update_relations_arrows();
+        setTimeout($scope.update_relations_arrows, 300);
         $scope.create_relations_metadata();
 
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
@@ -84,7 +84,7 @@ function ($scope, EntityOccurrence) {
         $(".prev-relations li").mouseout($scope.highlight_relation);
         $(".entity-occurrence").mouseover(function () {
             var $eo = $(this);
-            $scope.on_eo_mouseover($eo, false)
+            $scope.on_eo_mouseover($eo, false);
         });
         $(".entity-occurrence").mouseout(function () {
             var $eo = $(this);
@@ -337,8 +337,7 @@ function ($scope, EntityOccurrence) {
 
         // Curve configuration
         var curve_distance = 25;
-        var y_offset = $($scope.svg).position().top;
-        var x_offset = -30;
+        var y_offset = $($scope.svg).offset().top - $($scope.svg).parent().offset().top;
 
         if (alternative) {
             curve_distance *= 1.5;
@@ -353,10 +352,10 @@ function ($scope, EntityOccurrence) {
         var eo2_pos = $eo2.position();
 
         // Corrected positions
-        var eo1_pos_left = eo1_pos.left - x_offset;
-        var eo1_pos_top = eo1_pos.top - y_offset - 5;
-        var eo2_pos_left = eo2_pos.left - x_offset;
-        var eo2_pos_top = eo2_pos.top - y_offset - 10;
+        var eo1_pos_left = eo1_pos.left + $eo1.width() / 4;
+        var eo1_pos_top = eo1_pos.top - y_offset;
+        var eo2_pos_left = eo2_pos.left + $eo2.width() / 4;
+        var eo2_pos_top = eo2_pos.top - y_offset;
 
         // Format should be:
         // M<x1>,<y1> C<x1>,<y1 + distance> <x2>,<y2 + distance> <x2>,<y2>
@@ -395,7 +394,8 @@ function ($scope, EntityOccurrence) {
 
                 $scope.eo_modal.eo = eo_obj;
 
-                var $tokens = $(".eo-" + eo_obj.pk).parent(".segment").find(".rich-token");
+                var $eo = $(".eo-" + eo_obj.pk);
+                var $tokens = $eo.parent(".segment").find(".rich-token");
                 var $segment = $modal.find('.segment');
                 $tokens.each(function(){
                     var $this = $(this);
