@@ -72,7 +72,7 @@ function ($scope, EntityOccurrence) {
             }
         });
 
-        $scope.update_relations_arrows();
+        setTimeout($scope.update_relations_arrows, 300);
         $scope.create_relations_metadata();
 
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
@@ -84,7 +84,7 @@ function ($scope, EntityOccurrence) {
         $(".prev-relations li").mouseout($scope.highlight_relation);
         $(".entity-occurrence").mouseover(function () {
             var $eo = $(this);
-            $scope.on_eo_mouseover($eo, false)
+            $scope.on_eo_mouseover($eo, false);
         });
         $(".entity-occurrence").mouseout(function () {
             var $eo = $(this);
@@ -394,7 +394,8 @@ function ($scope, EntityOccurrence) {
 
                 $scope.eo_modal.eo = eo_obj;
 
-                var $tokens = $(".eo-" + eo_obj.pk).parent(".segment").find(".rich-token");
+                var $eo = $(".eo-" + eo_obj.pk);
+                var $tokens = $eo.parent(".segment").find(".rich-token");
                 var $segment = $modal.find('.segment');
                 $tokens.each(function(){
                     var $this = $(this);
