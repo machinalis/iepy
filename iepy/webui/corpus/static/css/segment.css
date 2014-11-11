@@ -1,5 +1,5 @@
 .segment{
-    line-height: 40px;
+    line-height: 45px;
 }
 
 .rich-token{
@@ -16,7 +16,7 @@
     position: absolute;
     color: #BDBDBD;
     font-size: 10px;
-    top: -25px;
+    top: -18px;
     left: 35%;
 }
 
