@@ -106,24 +106,37 @@ class ConditionPredicate(refo.Predicate):
         return True
 
 
-@lru_cache(maxsize=None)
-def generate_subject_and_object(evidence):
-    subject_kind = evidence.left_entity_occurrence.entity.kind.name
-    object_kind = evidence.right_entity_occurrence.entity.kind.name
+def generate_subject_and_object(relation):
+    subject_kind = relation.left_entity_kind.name
+    object_kind = relation.right_entity_kind.name
     Subject = refo.Plus(ConditionPredicate(is_subj=True, kinds__has=subject_kind))
     Object = refo.Plus(ConditionPredicate(is_obj=True, kinds__has=object_kind))
     return Subject, Object
 
 
+_cache = {}
+def cached_segment_enriched_tokens(segment):
+    # Not using lru_cache because segment.get_enriched_tokens returns a
+    # consumable, so next call will get an empty generator.
+    if segment.id in _cache:
+        # This falls into the dict.setdefault pattern, but the bad is
+        # that the call to segment.get_enriched_tokens is computed allways.
+        rich_tks = _cache[segment.id]
+    else:
+        rich_tks = list(segment.get_enriched_tokens())
+        _cache[segment.id] = rich_tks
+    return rich_tks
+
+
 @lru_cache(maxsize=None)
 def generate_tokens_to_match(evidence):
     tokens_to_match = []
-    l_eo_id = evidence.left_entity_occurrence.id
-    r_eo_id = evidence.right_entity_occurrence.id
+    l_eo_id = evidence.left_entity_occurrence_id
+    r_eo_id = evidence.right_entity_occurrence_id
 
     segment = evidence.segment
 
-    for rich_token in segment.get_enriched_tokens():
+    for rich_token in cached_segment_enriched_tokens(segment):
         is_subj = False
         is_obj = False
         if l_eo_id in rich_token.eo_ids:
