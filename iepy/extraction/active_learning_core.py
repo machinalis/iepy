@@ -79,7 +79,6 @@ class ActiveLearningCore:
         self.labeled_evidence[evidence] = answer
         for list_ in (self._questions, self.candidate_evidence):  # TODO: Check performance. Should use set?
             list_.remove(evidence)
-        # TODO: Save labeled evidence into database?
 
     def process(self):
         """
