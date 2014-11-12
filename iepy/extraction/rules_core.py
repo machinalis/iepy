@@ -5,7 +5,8 @@ import logging
 
 import refo
 
-from iepy.extraction.rules import generate_subject_and_object, generate_tokens_to_match
+from iepy.extraction.rules import (generate_subject_and_object, generate_tokens_to_match,
+                                   compile_rule)
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,8 @@ class RuleBasedCore(object):
         self._Subject = s
         self._Object = o
         self.rule_regexes = [
-            (rule(s, o) + refo.Literal(_EOL), rule.answer)
-            for rule in self.rules]
+            (compile_rule(rule, s, o), rule.answer) for rule in self.rules
+        ]
 
     def predict(self):
         """
