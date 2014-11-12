@@ -163,17 +163,17 @@ file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/wa
         return Subject + Token(", born") + Object + anything
 
 
-Testing your rules
-------------------
+Verifying your rules
+--------------------
 
 During the construction of your rules, you might want to check wether if the rules are matching or if they
 aren't. Even more, if you have tagged data in your corpus, you can know how good is the performance.
 
-The rules tester is located on your isntance under the ``bin`` directory, it's called ``rules_tester.py``
+The rules verifier is located on your isntance under the ``bin`` directory, it's called ``rules_verifier.py``
 
-You can run the tester with every rule or with a single rule, on all of the segments or in a sample of those.
-Take a look at the parameters on the rules tester to find out how to use them by running:
+You can run the verifier with every rule or with a single rule, on all of the segments or in a sample of those.
+Take a look at the parameters on the rules verifier to find out how to use them by running:
 
 .. code-block:: bash
 
-    $ python bin/rules_tester.py --help
+    $ python bin/rules_verifier.py --help

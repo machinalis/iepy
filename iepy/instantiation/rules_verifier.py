@@ -1,9 +1,9 @@
 """
-IEPY rules tester
+IEPY rules verifier
 
 
 Usage:
-    rules_tester.py <relation> [options]
+    rules_verifier.py <relation> [options]
 
 Options:
   --shuffle             Chooses the sample randomly and not the first ones
