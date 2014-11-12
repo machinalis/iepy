@@ -22,6 +22,7 @@ class InstanceManager:
         "preprocess.py",
         "iepy_runner.py",
         "iepy_rules_runner.py",
+        "rules_tester.py",
         "manage.py",
     ]
     steps = [
