@@ -5,8 +5,7 @@ import logging
 
 import refo
 
-from iepy.extraction.rules import (generate_subject_and_object, generate_tokens_to_match,
-                                   compile_rule)
+from iepy.extraction.rules import generate_tokens_to_match, compile_rule
 
 logger = logging.getLogger(__name__)
 
