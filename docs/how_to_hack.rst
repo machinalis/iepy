@@ -77,7 +77,7 @@ example lets call it ``custom_features.py``. There you'll define your features:
 
 .. note::
 
-    Your features can use some of the `Feature Forge's <http://feature-forge.readthedocs.org/en/latest/>`__ 
+    Your features can use some of the `Feature Forge's <http://feature-forge.readthedocs.org/en/latest/>`__
     capabilities.
 
 Once you've defined your feature you can use it in the classifier by adding it to the configuration
@@ -90,7 +90,7 @@ To include it, you have to add a line with a python path to your feature functio
 the format you should follow this pattern:
 
 ::
-    
+
     {project_name}.{features_file}.{feature_function}
 
 In our example, our instance is called ``born_date``, so in the config this would be:
@@ -109,10 +109,10 @@ Remember that if you want to use that configuration file you have to use the opt
 Using rules as features
 -----------------------
 
-In the same way, and without doing any change to the rule, you can 
+In the same way, and without doing any change to the rule, you can
 add it as feature by declaring it in your config like this:
 
-Suppose your instance is called ``born_date`` and your rule is called ``born_date_in_parenthesis``, 
+Suppose your instance is called ``born_date`` and your rule is called ``born_date_in_parenthesis``,
 then you'll do:
 
 
@@ -130,50 +130,38 @@ Using all rules as one feature
 ..............................
 
 Suppose you have a bunch of rules defined in your rules file and instead of using each rule as a
-different feature you want to use a single feature that runs all the rules to test if the evidence 
+different feature you want to use a single feature that runs all the rules to test if the evidence
 matches. You can write a custom feature that does so. Let's look an example snippet:
 
 .. code-block:: python
 
     # custom_features.py
-    from operator import attrgetter
-
     import refo
 
     import iepy
-    from iepy.extraction.rules import generate_subject_and_object, generate_tokens_to_match, _EOL
-
-
-    def load_rules():
-        loaded_rules = []
-        for attr_name in dir(iepy.instance.rules):
-            attr = getattr(iepy.instance.rules, attr_name)
-            if hasattr(attr, '__call__'):  # is callable
-                if hasattr(attr, "is_rule") and attr.is_rule:
-                    loaded_rules.append(attr)
-        return sorted(loaded_rules, key=attrgetter("priority"), reverse=True)
+    from iepy.extraction.rules import compile_rule, generate_tokens_to_match, load_rules
 
     rules = load_rules()
 
 
     def rules_match(evidence):
-        Subject, Object = generate_subject_and_object(evidence)
         tokens_to_match = generate_tokens_to_match(evidence)
 
         for rule in rules:
-            regex = rule(Subject, Object) + refo.Literal(_EOL)
+            regex = compile_rule(rule, evidence.relation)
 
             if refo.match(regex, tokens_to_match):
-                if rule.answer:
-                    return "rule matched positive"
-                else:
-                    return "rule matched negative"
-
-        return "rule didn't match"
+                if rule.answer:  # positive rule
+                    return 1
+                else:  # negative rule
+                    return -1
+        # no rule matched
+        return 0
 
 
 This will define a feature called ``rules_match`` that tries every rule for an evidence
-and returns one of three different values, depending on the type of match.
+until a match occurs, and returns one of three different values, depending on the type
+of match.
 
 To use this you have to add this single feature to your config like this:
 
