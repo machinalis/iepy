@@ -27,8 +27,7 @@ from iepy.data import models
 from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction.terminal import TerminalEvidenceFormatter
 from iepy.extraction.rules import (
-    is_rule, load_rules, generate_subject_and_object,
-    generate_tokens_to_match
+    is_rule, load_rules, compile_rule, generate_tokens_to_match
 )
 from iepy.metrics import result_dict_from_predictions
 
@@ -60,6 +59,9 @@ def run_from_command_line():
 
     # Load rules
     rules = get_rules(rule_name)
+    rule_regexes = [
+        (rule.__name__, compile_rule(rule, relation), rule.answer) for rule in rules
+    ]
 
     # Load evidences
     evidences = CandidateEvidenceManager.candidates_for_relation(
@@ -69,10 +71,10 @@ def run_from_command_line():
     answers = CandidateEvidenceManager.labels_for(
         relation, evidences, conflict_solver
     )
-    run_tests(rules, evidences, answers)
+    run_tests(rule_regexes, evidences, answers)
 
 
-def run_tests(rules, evidences, answers):
+def run_tests(rule_regexes, evidences, answers):
     predictions = []
     real_labels = []
     evidences_with_labels = []
@@ -80,18 +82,13 @@ def run_tests(rules, evidences, answers):
     colorama_init()
     formatter = TerminalEvidenceFormatter()
 
-    for rule in rules:
-        title = "Matches for rule '{}' (value: {})".format(
-            rule.__name__, rule.answer
-        )
+    for name, regex, answer in rule_regexes:
+        title = "Matches for rule '{}' (value: {})".format(name, answer)
         print("\n{}\n{}".format(title, "-" * len(title)))
 
         anything_matched = False
         for evidence in evidences:
-            Subject, Object = generate_subject_and_object(evidence)
             tokens_to_match = generate_tokens_to_match(evidence)
-
-            regex = rule(Subject, Object)
             match = refo.match(regex, tokens_to_match)
 
             if match:
@@ -103,7 +100,7 @@ def run_tests(rules, evidences, answers):
                 real_labels.append(answers[evidence])
 
                 if match:
-                    predictions.append(rule.answer)
+                    predictions.append(answer)
                 else:
                     predictions.append(False)
 
@@ -132,19 +129,12 @@ def run_tests(rules, evidences, answers):
 
 def get_rules(rule_name):
     # Load rules
-    if rule_name is None:
-        rules = load_rules()
-    else:
-        try:
-            rule = getattr(iepy.instance.rules, rule_name)
-        except AttributeError:
-            logging.error("rule '{}' does not exists".format(rule_name))
-            sys.exit(1)
+    rules = load_rules()
 
-        if is_rule(rule):
-            rules = [rule]
-        else:
-            logging.error("{} is not a rule".format(rule_name))
+    if rule_name:
+        rules = [x for x in rules if x.__name__ == rule_name]
+        if not rules:
+            logging.error("rule '{}' does not exists".format(rule_name))
             sys.exit(1)
 
     return rules
