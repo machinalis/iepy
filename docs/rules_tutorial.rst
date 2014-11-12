@@ -161,3 +161,19 @@ file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/wa
         """
         anything = Star(Any())
         return Subject + Token(", born") + Object + anything
+
+
+Testing your rules
+------------------
+
+During the construction of your rules, you might want to check wether if the rules are matching or if they
+aren't. Even more, if you have tagged data in your corpus, you can know how good is the performance.
+
+The rules tester is located on your isntance under the ``bin`` directory, it's called ``rules_tester.py``
+
+You can run the tester with every rule or with a single rule, on all of the segments or in a sample of those.
+Take a look at the parameters on the rules tester to find out how to use them by running:
+
+.. code-block:: bash
+
+    $ python bin/rules_tester.py --help
