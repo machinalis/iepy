@@ -1,6 +1,5 @@
 import logging
 import random
-import sys
 
 import numpy
 from sklearn.cross_validation import StratifiedKFold
@@ -182,7 +181,7 @@ class ActiveLearningCore:
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
         ranks = self.relation_classifier.decision_function(sample)
-        self.ranked_candidate_evidence = dict(zip(self.candidate_evidence, ranks))
+        self.ranked_candidate_evidence = dict(zip(sample, ranks))
         ranks = [abs(x) for x in ranks]
         logger.info("Ranking completed, lowest absolute rank={}, "
                     "highest absolute rank={}".format(min(ranks), max(ranks)))
