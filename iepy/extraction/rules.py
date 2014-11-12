@@ -108,7 +108,7 @@ class ConditionPredicate(refo.Predicate):
 
 @lru_cache(maxsize=None)
 def compile_rule(rule, Subject, Object):
-    return rule(Subject, Object) + refo.Literal(_EOL)
+    return rule(Subject, Object)
 
 
 @lru_cache(maxsize=8)
