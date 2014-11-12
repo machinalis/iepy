@@ -8,7 +8,7 @@ from featureforge.feature import make_feature
 
 from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction import features
-from iepy.extraction.rules import rule
+from iepy.extraction.rules import rule, Token
 from iepy.extraction.features import (
     bag_of_words, bag_of_pos, bag_of_word_bigrams, bag_of_wordpos,
     bag_of_wordpos_bigrams, bag_of_words_in_between, bag_of_pos_in_between,
@@ -313,11 +313,23 @@ class MockedModule:
 
     @rule(True)
     def custom_rule_feature(*args, **kwargs):
+        # always match
         return refo.Star(refo.Any())
+
+    @rule(True)
+    def custom_only_match_dot(*args, **kwargs):
+        # only match dot
+        return Token('.')
 
     @rule(False)
     def custom_negative_rule_feature(*args, **kwargs):
+        # always matchs
         return refo.Star(refo.Any())
+
+    @rule(False)
+    def custom_negative_only_match_dot(*args, **kwargs):
+        # only match dot
+        return Token('.')
 
 
 class TestCustomFeatures(ManagerTestCase):
@@ -354,5 +366,11 @@ class TestCustomFeatures(ManagerTestCase):
             fs = parse_features(["app.rules.custom_rule_feature"])
             self.assertEqual(fs[0](evidence), 1)
 
+            fs = parse_features(["app.rules.custom_only_match_dot"])
+            self.assertEqual(fs[0](evidence), 0)
+
             fs = parse_features(["app.rules.custom_negative_rule_feature"])
+            self.assertEqual(fs[0](evidence), 1)
+
+            fs = parse_features(["app.rules.custom_negative_only_match_dot"])
             self.assertEqual(fs[0](evidence), 0)

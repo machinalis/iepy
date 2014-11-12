@@ -107,7 +107,7 @@ class TestRuleBasedCore(ManagerTestCase):
             rule(True)(mock.MagicMock(return_value=Token("asd")))
         ] * 10
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  mocked_rules)
+                                 mocked_rules)
         pipeline.start()
         pipeline.process()
         pipeline.predict()
@@ -119,20 +119,29 @@ class TestRuleBasedCore(ManagerTestCase):
 
     def test_rule_priority(self):
 
-        def rule_match(Subject, Object):
-            anything = Question(Star(Any()))
-            return Subject + Token("(") + Object + Token("-") + anything
+        matcher = lambda *args: True
+        not_matcher = lambda *args: None
 
-        rule_should_run = rule(True, priority=1)(mock.MagicMock(side_effect=rule_match))
-        rule_should_not_run = rule(True, priority=0)(mock.MagicMock(side_effect=rule_match))
+        rule_should_run = rule(True, priority=1)(mock.MagicMock(return_value=matcher))
+        rule_should_not_run = rule(True, priority=0)(
+            mock.MagicMock(return_value=not_matcher))
 
         pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [rule_should_not_run, rule_should_run])
+                                 [rule_should_not_run, rule_should_run])
         pipeline.start()
-        pipeline.process()
-        pipeline.predict()
+        # All rules are compiled on start
         self.assertTrue(rule_should_run.called)
-        self.assertFalse(rule_should_not_run.called)
+        self.assertTrue(rule_should_not_run.called)
+        pipeline.process()
+        import refo
+        with mock.patch.object(refo, 'match') as fake_refo_match:
+            fake_refo_match.side_effect = lambda regex, evidence: regex()
+            pipeline.predict()
+            self.assertEqual(fake_refo_match.call_count, len(self._candidates))
+            # check that on every call, the called is rule_match
+            for c_args in fake_refo_match.call_args_list:
+                args, kwargs = c_args
+                self.assertEqual(args[0], matcher)
 
     def test_rule_incorrect_answer(self):
         with self.assertRaises(ValueError):
