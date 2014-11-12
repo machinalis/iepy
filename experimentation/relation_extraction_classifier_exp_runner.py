@@ -96,14 +96,14 @@ def get_train_test_indexes(config, N):
     return indexes[:n], indexes[n:]
 
 
+db_hash = (iepy.data.models.TextSegment.objects.count(),
+           iepy.data.models.IEDocument.objects.count(),
+           iepy.data.models.Entity.objects.count())
 def extender(config):
     config["sparse_features"] = set(config["sparse_features"])
     config["dense_features"] = set(config["dense_features"])
     # Add a database id/hash
-    dbhash = (iepy.data.models.TextSegment.objects.count(),
-              iepy.data.models.IEDocument.objects.count(),
-              iepy.data.models.Entity.objects.count())
-    config["database_hash"] = dbhash
+    config["database_hash"] = db_hash
     return config
 
 
