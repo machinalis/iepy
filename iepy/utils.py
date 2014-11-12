@@ -108,7 +108,20 @@ def csv_to_iepy(filepath):
 
     docdb = DocumentManager()
     seen = set()
-    for i, d in enumerate(reader):
+
+    i = 0
+    while True:
+
+        try:
+            d = next(reader)
+        except StopIteration:
+            break
+        except csv.Error as error:
+            logger.warn("Couldn't load document: {}".format(error))
+            continue
+
+        i += 1
+
         doc_id = d["document_id"]
         if doc_id in seen:
             continue
@@ -119,4 +132,4 @@ def csv_to_iepy(filepath):
             metadata={"input_filename": name},
             update_mode=True
         )
-        print ('Added {} documents'.format(i+1))
+        print ('Added {} documents'.format(i))
