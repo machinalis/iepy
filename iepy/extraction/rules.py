@@ -106,6 +106,12 @@ class ConditionPredicate(refo.Predicate):
         return True
 
 
+@lru_cache(maxsize=None)
+def compile_rule(rule, Subject, Object):
+    return rule(Subject, Object) + refo.Literal(_EOL)
+
+
+@lru_cache(maxsize=8)
 def generate_subject_and_object(relation):
     subject_kind = relation.left_entity_kind.name
     object_kind = relation.right_entity_kind.name
