@@ -36,11 +36,8 @@ class RuleBasedCore(object):
         """
         Prepares the internal information to start predicting.
         """
-        s, o = generate_subject_and_object(self.relation)
-        self._Subject = s
-        self._Object = o
         self.rule_regexes = [
-            (compile_rule(rule, s, o), rule.answer) for rule in self.rules
+            (compile_rule(rule, self.relation), rule.answer) for rule in self.rules
         ]
 
     def predict(self):

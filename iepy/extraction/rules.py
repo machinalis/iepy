@@ -107,8 +107,9 @@ class ConditionPredicate(refo.Predicate):
 
 
 @lru_cache(maxsize=None)
-def compile_rule(rule, Subject, Object):
-    return rule(Subject, Object)
+def compile_rule(rule, relation):
+    s, o = generate_subject_and_object(relation)
+    return rule(s, o)
 
 
 @lru_cache(maxsize=8)

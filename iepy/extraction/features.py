@@ -5,9 +5,7 @@ import importlib
 import refo
 from featureforge.feature import output_schema
 
-from iepy.extraction.rules import (generate_subject_and_object, generate_tokens_to_match,
-                                   compile_rule)
-
+from iepy.extraction.rules import generate_tokens_to_match, compile_rule
 
 punct_set = set(punctuation)
 
@@ -44,10 +42,9 @@ def load_module(module_name):
 def rule_wrapper(rule_feature):
     @output_schema(int, binary_values)
     def inner(evidence):
-        Subject, Object = generate_subject_and_object(evidence.relation)
-        regex = compile_rule(rule_feature, Subject, Object)
+        regex = compile_rule(rule_feature, evidence.relation)
         tokens_to_match = generate_tokens_to_match(evidence)
-        return int(refo.match(regex, tokens_to_match))
+        return int(bool(refo.match(regex, tokens_to_match)))
     return inner
 
 
