@@ -12,6 +12,16 @@ We're currently running all this steps (except the last one) using the `Stanford
 This runs in a all-in-one run, but every step can be :ref:`modified to use a custom version <customize>` that adjust your needs.
 
 
+.. note::
+
+    Problems with the preprocess under MacOS? Apparently a change in the CoreNLP script is needed to
+    be run. You need to change the file ``corenlp.sh`` that is located on
+    ``/Users/<your user>/Library/Application Support/iepy/stanford-corenlp-full-2014-08-27/``
+    and change ``scriptdir=`dirname $0``` for ``scriptdir=`dirname "$0"```
+
+
+
+
 About the Tokenization and Sentence splitting
 ---------------------------------------------
 
