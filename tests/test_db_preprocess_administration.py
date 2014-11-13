@@ -55,7 +55,7 @@ class TestDocumentsPreprocessMetadata(ManagerTestCase):
     def test_preprocess_steps(self):
         self.assertEqual(
             [p.name for p in PreProcessSteps],
-            ['tokenization', 'sentencer', 'tagging', 'ner', 'segmentation'])
+            ['tokenization', 'lemmatization', 'sentencer', 'tagging', 'ner', 'segmentation'])
 
     def test_just_created_document_has_no_preprocess_done(self):
         doc = IEDocFactory()
@@ -112,6 +112,7 @@ class TestStorePreprocessOutputSideEffects(ManagerTestCase):
         doc = IEDocFactory(text=text)
         sample_values = [
             (PreProcessSteps.tokenization, [(0, 'Hello'), (6, 'world'), (11, '.')]),
+            (PreProcessSteps.lemmatization, ['hello', 'world', '.']),
             (PreProcessSteps.sentencer, [0, 3]),
             (PreProcessSteps.tagging, ['NN', 'NN', '.']),
             (PreProcessSteps.ner, [FoundEntity('world', 'LOCATION', 'world', 1, 2)]),

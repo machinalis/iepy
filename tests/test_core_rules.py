@@ -57,10 +57,12 @@ class TestRuleBasedCore(ManagerTestCase):
 
     def _create_simple_document(self, text):
         tokens = tuple(text.split())
+        lemmas = [""] * len(tokens)
         postags = ["POSTAG"] * len(tokens)
         indexes = tuple(list(range(len(tokens))))
         document = IEDocFactory(text=text)
         document.set_tokenization_result(list(zip(indexes, tokens)))
+        document.set_lemmatization_result(lemmas)
         document.set_tagging_result(postags)
         document.save()
         return document
@@ -72,8 +74,9 @@ class TestRuleBasedCore(ManagerTestCase):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
 
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [test_rule])
+        pipeline = RuleBasedCore(
+            self.person_date_relation, self._candidates, [test_rule]
+        )
         pipeline.start()
         pipeline.process()
         facts = pipeline.predict()
