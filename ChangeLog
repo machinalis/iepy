@@ -10,7 +10,6 @@
     - Change instance files schema, now it's a python package and renamed settings.
 
 0.9.1
-
     - Add entity kind on the modal dialog
     - Change arrows display to be more understandable
     - Join skip and don't know label options
