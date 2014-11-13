@@ -16,7 +16,7 @@ import jsonfield
 CHAR_MAX_LENGHT = 256
 
 logger = logging.getLogger(__name__)
-RichToken = namedtuple("RichToken", "token pos eo_ids eo_kinds offset")
+RichToken = namedtuple("RichToken", "token lemma pos eo_ids eo_kinds offset")
 
 
 class BaseModel(models.Model):
@@ -92,6 +92,7 @@ class IEDocument(BaseModel):
         """Iterator over the sentences, each sentence being a list of tokens.
         """
         tokens = self.tokens
+        lemmas = self.lemmas
         postags = self.postags
         sentences = self.sentences
         start = 0
@@ -100,11 +101,13 @@ class IEDocument(BaseModel):
         for i, end in enumerate(sentences[1:]):
             if enriched:
                 rich_tokens = []
-                for i, (token, postag) in enumerate(zip(tokens[start:end], postags[start:end])):
+                for i, (token, lemma, postag) in enumerate(zip(
+                    tokens[start:end], lemmas[start:end], postags[start:end]
+                )):
                     tkn_eos = [eo for eo in eos if eo.offset <= tkn_offset < eo.offset_end]
-
                     rich_tokens.append(RichToken(
                         token=token,
+                        lemma=lemma,
                         pos=postag,
                         eo_ids=[eo.id for eo in tkn_eos],
                         eo_kinds=[eo.entity.kind for eo in tkn_eos],
@@ -304,8 +307,9 @@ class TextSegment(BaseModel):
         else:
             doc = self.document
         self.tokens = doc.tokens[self.offset: self.offset_end]
-        self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
+        self.lemmas = doc.lemmas[self.offset: self.offset_end]
         self.postags = doc.postags[self.offset: self.offset_end]
+        self.offsets_to_text = doc.offsets_to_text[self.offset: self.offset_end]
         if self.offsets_to_text:
             # grab the text except the last token
             self.text = doc.text[self.offsets_to_text[0]:
@@ -367,11 +371,12 @@ class TextSegment(BaseModel):
         translation_dict = {'-LRB-': '(',
                             '-RRB-': ')'}
         eos = list(self.get_entity_occurrences())
-        for tkn_offset, (tkn, postag) in enumerate(zip(self.tokens, self.postags)):
+        for tkn_offset, (tkn, lemma, postag) in enumerate(zip(self.tokens, self.lemmas, self.postags)):
             tkn_eos = [eo for eo in eos
                        if eo.segment_offset <= tkn_offset < eo.segment_offset_end]
             yield RichToken(
                 token=translation_dict.get(tkn, tkn),
+                lemma=lemma,
                 pos=postag,
                 eo_ids=[eo.id for eo in tkn_eos],
                 eo_kinds=[eo.entity.kind for eo in tkn_eos],
