@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import chain, groupby
 import logging
 
-from iepy.preprocess.corenlp import get_analizer
+from iepy.preprocess import corenlp
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
 from iepy.data.models import Entity, EntityOccurrence
@@ -18,7 +18,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # Lemmatization was added after the first so we need to support
         # that a document has all the steps done but lemmatization
 
-        analysis = get_analizer().analize(document.text)
+        analysis = corenlp.get_analizer().analize(document.text)
         sentences = analysis_to_sentences(analysis)
         tokens = get_tokens(sentences)
         if document.tokens != tokens:
@@ -53,7 +53,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
             raise NotImplementedError("Running with mixed preprocess steps not supported, must be 100% StanfordMultiStepRunner")
 
-        analysis = get_analizer().analize(document.text)
+        analysis = corenlp.get_analizer().analize(document.text)
         sentences = analysis_to_sentences(analysis)
 
         # Tokenization
