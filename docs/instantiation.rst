@@ -10,19 +10,19 @@ The folder structure of an iepy instance is the following:
 
 .. code-block:: bash
 
-    yourproject
-    ├── yourproject_settings.py
-    ├── yourproject.sqlite
+    ├── __init__.py
+    ├── settings.py
+    ├── database_name_you_picked.sqlite
     ├── bin
     │   ├── csv_to_iepy.py
     │   ├── iepy_rules_runner.py
     │   ├── iepy_runner.py
     │   ├── manage.py
-    │   └── preprocess.py
+    │   ├── preprocess.py
+    │   └── rules_verifier.py
     ├── extractor_config.json
     └── rules.py
 
-Note that instead of *yourproject* you'll have your own project name there.
 
 Lets see why each one of this files is there:
 
@@ -30,15 +30,13 @@ Lets see why each one of this files is there:
 Settings file
 .............
 
-yourproject_settings.py is a configuration file where you can change the database
-settings and all the web interface related settings.
-
+settings.py is a configuration file where you can change the database settings and all the web interface related settings.
 This file has a `django settings <https://docs.djangoproject.com/en/1.7/ref/settings/>`_ file format.
 
 Database
 ........
 
-When you create an instance, a database is created by default on the file **yourproject.sqlite**.
+When you create an instance, a database is created by default.
 This is a database with sqlite format. It has no data yet, since you'll have to fill it with your own data.
 
 When working with big datasets, it's recommended to use some other database engine instead of *sqlite*.
@@ -49,7 +47,7 @@ To change the database engine, change the settings file on the section where it 
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'yourproject.sqlite',
+            'NAME': 'database_name_you_picked.sqlite',
         }
     }
 
@@ -79,17 +77,20 @@ Take a look at the `django database configuration documentation <https://docs.dj
 Active learning configuration
 .............................
 
-**extractor_config.json** has all the configuration of the active learning core in a *json* format.
+``extractor_config.json`` has all the configuration of the active learning core in a *json* format.
 
 Rules definition
 ................
 
-If you decide to use the rule based core, you'll have to define all your rules in the file **rules.py**
+If you decide to use the rule based core, you'll have to define all your rules in the file ``rules.py``
+
+You can verify if your rules run correctly using ``bin/rules_verifier.py``.
+Read more about it `here <rules_tutorial.html#verifying-your-rules>`__.
 
 CSV importer
 ............
 
-On the **bin** folder, you'll find a tool to import data from csv files. This is the script **csv_to_iepy.py**.
+On the ``bin`` folder, you'll find a tool to import data from csv files. This is the script ``csv_to_iepy.py``.
 Your csv data has to be on the following format:
 
 ::
@@ -99,18 +100,18 @@ Your csv data has to be on the following format:
 Preprocess
 ..........
 
-To preprocess your data, you will use the  **preprocess.py** script that is located on the **bin** folder.
+To preprocess your data, you will use the  ``bin/preprocess.py``. Read more about it :doc:`here <preprocess>`
 
 Runners
 .......
 
-On the bin folder, you have scripts to run either the active learning core (**iepy_runner.py**) or the
-rule based core (**iepy_rules_runner.py**)
+On the ``bin`` folder, you have scripts to run either the active learning core (``iepy_runner.py``) or the
+rule based core (``iepy_rules_runner.py``)
 
 Web UI management
 .................
 
-For the web server management, you have the **manage.py** script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
+For the web server management, you have the ``bin/manage.py`` script. This is a `django manage file <https://docs.djangoproject.com/en/1.7/ref/django-admin/>`_
 and with it you can start up your server.
 
 
