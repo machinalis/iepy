@@ -20,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import iepy
 iepy.setup(__file__)
 
+from iepy.extraction.rules import load_rules
 from iepy.extraction.rules_core import RuleBasedCore
 from iepy.data import models, output
 from iepy.data.db import CandidateEvidenceManager
@@ -41,12 +42,7 @@ def run_from_command_line():
         sys.exit(1)
 
     # Load rules
-    rules = []
-    for attr_name in dir(iepy.instance.rules):
-        attr = getattr(iepy.instance.rules, attr_name)
-        if hasattr(attr, '__call__'):  # is callable
-            if hasattr(attr, "is_rule") and attr.is_rule:
-                rules.append(attr)
+    rules = load_rules()
 
     # Load evidences
     evidences = CandidateEvidenceManager.candidates_for_relation(relation)
