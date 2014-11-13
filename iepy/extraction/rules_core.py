@@ -5,7 +5,7 @@ import logging
 
 import refo
 
-from iepy.extraction.rules import generate_subject_and_object, generate_tokens_to_match, _EOL
+from iepy.extraction.rules import generate_subject_and_object, generate_tokens_to_match
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +71,7 @@ class RuleBasedCore(object):
         tokens_to_match = generate_tokens_to_match(evidence)
 
         for rule in self.rules:
-            regex = rule(Subject, Object) + refo.Literal(_EOL)
-
+            regex = rule(Subject, Object)
             match = refo.match(regex, tokens_to_match)
             if match:
                 return rule.answer

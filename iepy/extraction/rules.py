@@ -5,7 +5,8 @@ from collections import namedtuple
 
 import refo
 
-_EOL = None
+import iepy
+
 TokenToMatch = namedtuple("TokenToMatch", "token pos kinds, is_subj is_obj")
 
 
@@ -22,6 +23,21 @@ def rule(answer, priority=0):
     return inner
 
 
+def is_rule(fun):
+    """ Returns whether something is a rule or not """
+    is_callable = hasattr(fun, '__call__')
+    return is_callable and hasattr(fun, "is_rule") and fun.is_rule
+
+
+def load_rules():
+    result = []
+    for attr_name in dir(iepy.instance.rules):
+        attr = getattr(iepy.instance.rules, attr_name)
+        if is_rule(attr):
+            result.append(attr)
+    return result
+
+
 class ObjectAttrPredicate(refo.Predicate):
     def __init__(self, attr_name, attr_value):
         self.attr_name = attr_name
@@ -30,7 +46,7 @@ class ObjectAttrPredicate(refo.Predicate):
         self.arg = attr_value
 
     def _predicate(self, obj):
-        return obj != _EOL and getattr(obj, self.attr_name) == self.attr_value
+        return getattr(obj, self.attr_name) == self.attr_value
 
 
 def obj_attr_predicate_factory(attr_values, attr_name):
@@ -61,7 +77,7 @@ class Kind(refo.Predicate):
     def _predicate(self, obj):
         if hasattr(obj, "eo_kinds"):
             obj_kind_names = [x.name for x in obj.eo_kinds]
-            return obj != _EOL and self.kind in obj_kind_names
+            return self.kind in obj_kind_names
         return False
 
 
@@ -123,5 +139,4 @@ def generate_tokens_to_match(evidence):
             is_obj=is_obj,
         ))
 
-    tokens_to_match.append(_EOL)
     return tokens_to_match

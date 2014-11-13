@@ -8,7 +8,6 @@ from featureforge.feature import output_schema
 from iepy.extraction.rules import (
     generate_subject_and_object,
     generate_tokens_to_match,
-    rule, _EOL
 )
 
 
@@ -50,7 +49,7 @@ def rule_wrapper(rule_feature):
         Subject, Object = generate_subject_and_object(evidence)
         tokens_to_match = generate_tokens_to_match(evidence)
 
-        regex = rule_feature(Subject, Object) + refo.Literal(_EOL)
+        regex = rule_feature(Subject, Object)
         match = refo.match(regex, tokens_to_match)
         if match:
             return int(rule_feature.answer)

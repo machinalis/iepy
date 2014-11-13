@@ -1,6 +1,5 @@
 """
-Birthdate corpus preprocessing script.
-
+IEPY database loader from csv file
 
 Usage:
     csv_to_iepy.py <filename>

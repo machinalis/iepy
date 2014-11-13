@@ -1,5 +1,5 @@
 """
-Birthdate corpus preprocessing script
+Corpus preprocessing script
 
 Usage:
     preprocess.py
