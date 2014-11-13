@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 class PreProcessSteps(Enum):
     tokenization = 1
+    lemmatization = 6  # numbers do not imply order
     sentencer = 2
     tagging = 3
     ner = 4
