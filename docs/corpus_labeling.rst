@@ -81,7 +81,7 @@ On top you have navigation controls and on the far right you have link to switch
 for one by document.
 
 
-Fixing entities mistagged
+Fixing mistagged entities
 -------------------------
 
 It is possible that the automatic process that detects entities have been mistaken.

@@ -42,8 +42,7 @@ function that matches will label the relations as present and a negative one wil
 You can define this by passing the True or False parameter to the rule decorator.
 
 Then it comes the definition of the function. This functions takes two parameters: the **Subject** and the **Object**.
-This are patterns that will be part of the regex that the function
-has to return.
+This are patterns that will be part of the regex that the function has to return.
 
 After that it comes the body of the function. Here it is constructed a regular expression. That needs to be
 returned by the function.  This is not an ordinary regular expression, it
@@ -62,8 +61,8 @@ part matches.
 
 Lets break the regular expression of the example into smaller parts:
 
-    * **Subject**: matches if it is an entity of the kind of the relation's subject.
-    * **Object**: matches if it is an entity of the kind of the relation's object.
+    * **Subject**: matches if it is an entity of the kind of the relation's left part.
+    * **Object**: matches if it is an entity of the kind of the relation's right part.
     * **Pos**: matches the *part of speech* of the token examined.
     * **Token**: matches if the token literally the one specified.
     * **Any**: matches any token.
@@ -166,10 +165,10 @@ file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/wa
 Verifying your rules
 --------------------
 
-During the construction of your rules, you might want to check wether if the rules are matching or if they
+During the construction of your rules, you might want to check whether if the rules are matching or if they
 aren't. Even more, if you have tagged data in your corpus, you can know how good is the performance.
 
-The rules verifier is located on your isntance under the ``bin`` directory, it's called ``rules_verifier.py``
+The rules verifier is located on your instance under the ``bin`` directory, it's called ``rules_verifier.py``
 
 You can run the verifier with every rule or with a single rule, on all of the segments or in a sample of those.
 Take a look at the parameters on the rules verifier to find out how to use them by running:
@@ -177,3 +176,9 @@ Take a look at the parameters on the rules verifier to find out how to use them 
 .. code-block:: bash
 
     $ python bin/rules_verifier.py --help
+
+If you have labeled data on your corpus, the run will calculate how it scored in terms of precision, recall and
+other metrics. You have to keep in mind that this is not exactly what you'll get when you run the rules core, even
+if you run the verifier with all the rules and all the data, the numbers are going to be a little different because
+this will run every evidence with every rule, and the core will stop at first match. This is just a warning so you
+don't get too excited or too depressed with this results.
