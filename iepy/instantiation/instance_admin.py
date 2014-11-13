@@ -29,8 +29,9 @@ class InstanceManager:
         'create_init_file',
         'copy_bin',
         'create_rules_file',
-        'configure_settings_file',
         'create_extractor_config_file',
+        # Put this following step at the end of all the steps that doesnt need settings
+        'configure_settings_file',
         'migrate_db',
         'create_db_user',
         'greetings',
@@ -199,7 +200,7 @@ class InstanceManager:
         if self.creating:
             do_it()
         else:
-            if self.old_version in ["0.9.0", "0.9.1"]:
+            if self.old_version in ["0.9", "0.9.0", "0.9.1"]:
                 old_settings_filepath = os.path.join(
                     self.folder_path, "{}_settings.py".format(folder_name)
                 )

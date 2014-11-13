@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import importlib
+import refo
 from unittest import skip, mock
 
 from featureforge.validate import BaseFeatureFixture, EQ
@@ -8,6 +8,7 @@ from featureforge.feature import make_feature
 
 from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction import features
+from iepy.extraction.rules import rule
 from iepy.extraction.features import (
     bag_of_words, bag_of_pos, bag_of_word_bigrams, bag_of_wordpos,
     bag_of_wordpos_bigrams, bag_of_words_in_between, bag_of_pos_in_between,
@@ -306,13 +307,21 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
                   EQ, 1),  # its only boolean
     )
 
+class MockedModule:
+    def custom_feature(*args, **kwargs):
+        return "custom feature"
+
+    @rule(True)
+    def custom_rule_feature(*args, **kwargs):
+        return refo.Star(refo.Any())
+
+    @rule(False)
+    def custom_negative_rule_feature(*args, **kwargs):
+        return refo.Star(refo.Any())
+
 
 class TestCustomFeatures(ManagerTestCase):
     def test_parse_custom_feature(self):
-        class MockedModule:
-            def custom_feature(*args, **kwargs):
-                return "custom feature"
-
         with mock.patch("importlib.import_module") as mock_import:
             mocked_module = MockedModule()
             mock_import.return_value = mocked_module
@@ -323,16 +332,27 @@ class TestCustomFeatures(ManagerTestCase):
             self.assertEqual(fs[0](), "custom feature")
 
     def test_parse_custom_rule_feature(self):
-        class MockedModule:
-            def custom_rule_feature(*args, **kwargs):
-                return "custom rule feature"
-
         with mock.patch("importlib.import_module") as mock_import:
             with mock.patch.object(features, "rule_wrapper") as mock_rule_wrapper:
-                mock_rule_wrapper.return_value = 42
                 mocked_module = MockedModule()
                 mock_import.return_value = mocked_module
                 fs = parse_features(["app.rules.custom_rule_feature"])
                 mock_import.assert_called_with("app.rules")
                 self.assertEqual(len(fs), 1)
-                self.assertEqual(fs[0], 42)
+                self.assertTrue(mock_rule_wrapper.called)
+
+    def test_invalid_custom_feature(self):
+        with self.assertRaises(KeyError):
+            parse_features(["does.not.exists"])
+
+    def test_rule_wrapper_returns_int(self):
+        with mock.patch("importlib.import_module") as mock_import:
+            mocked_module = MockedModule()
+            mock_import.return_value = mocked_module
+            evidence = _e("test")
+
+            fs = parse_features(["app.rules.custom_rule_feature"])
+            self.assertEqual(fs[0](evidence), 1)
+
+            fs = parse_features(["app.rules.custom_negative_rule_feature"])
+            self.assertEqual(fs[0](evidence), 0)
