@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
-from unittest import skip
+
+import importlib
+from unittest import skip, mock
 
 from featureforge.validate import BaseFeatureFixture, EQ
 from featureforge.feature import make_feature
 
 from iepy.data.db import CandidateEvidenceManager
+from iepy.extraction import features
 from iepy.extraction.features import (
     bag_of_words, bag_of_pos, bag_of_word_bigrams, bag_of_wordpos,
     bag_of_wordpos_bigrams, bag_of_words_in_between, bag_of_pos_in_between,
     bag_of_word_bigrams_in_between, bag_of_wordpos_in_between,
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
     other_entities_in_between, total_number_of_entities,
-    verbs_count_in_between, verbs_count, symbols_in_between)
+    verbs_count_in_between, verbs_count, symbols_in_between,
+    parse_features
+)
 
 from .factories import EvidenceFactory
 from .manager_case import ManagerTestCase
@@ -300,3 +305,34 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
         test_two=(u"Drinking {Mate|thing**}, makes you go, to the {toilet|thing*}",
                   EQ, 1),  # its only boolean
     )
+
+
+class TestCustomFeatures(ManagerTestCase):
+    def test_parse_custom_feature(self):
+        class MockedModule:
+            def custom_feature(*args, **kwargs):
+                return "custom feature"
+
+        with mock.patch("importlib.import_module") as mock_import:
+            mocked_module = MockedModule()
+            mock_import.return_value = mocked_module
+            fs = parse_features(["app.module.custom_feature"])
+            mock_import.assert_called_with("app.module")
+
+            self.assertEqual(len(fs), 1)
+            self.assertEqual(fs[0](), "custom feature")
+
+    def test_parse_custom_rule_feature(self):
+        class MockedModule:
+            def custom_rule_feature(*args, **kwargs):
+                return "custom rule feature"
+
+        with mock.patch("importlib.import_module") as mock_import:
+            with mock.patch.object(features, "rule_wrapper") as mock_rule_wrapper:
+                mock_rule_wrapper.return_value = 42
+                mocked_module = MockedModule()
+                mock_import.return_value = mocked_module
+                fs = parse_features(["app.rules.custom_rule_feature"])
+                mock_import.assert_called_with("app.rules")
+                self.assertEqual(len(fs), 1)
+                self.assertEqual(fs[0], 42)
