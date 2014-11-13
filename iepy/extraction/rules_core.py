@@ -5,7 +5,7 @@ import logging
 
 import refo
 
-from iepy.extraction.rules import generate_subject_and_object, generate_tokens_to_match
+from iepy.extraction.rules import generate_tokens_to_match, compile_rule
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,12 @@ class RuleBasedCore(object):
         extractor.start()
         predictions = extractor.predict()  # profit
     """
-    def __init__(self, relation, evidences, rules):
+    def __init__(self, relation, evidences, rules, verbosity=0):
         self.relation = relation
         self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)
         self.evidences = evidences
         self.learnt = {}
+        self.verbosity = verbosity
 
     ###
     ### IEPY User API
@@ -34,10 +35,9 @@ class RuleBasedCore(object):
         """
         Prepares the internal information to start predicting.
         """
-        # Right now it's a dumb method, here just because API compliance.
-        # Anyways, it's a good placeholder for doing some heavy computations if you
-        # need to.
-        pass
+        self.rule_regexes = [
+            (compile_rule(rule, self.relation), rule.answer) for rule in self.rules
+        ]
 
     def predict(self):
         """
@@ -48,9 +48,12 @@ class RuleBasedCore(object):
         """
         logger.info('Predicting using rule based core')
         predicted = {}
-        for evidence in self.evidences:
+        for i, evidence in enumerate(self.evidences):
             match = self.match(evidence)
             predicted[evidence] = match if match is not None else False
+            if self.verbosity > 0:
+                if (i + 1) % 1000 == 0:
+                    logger.info('checked {} candidate evidences'.format(i+1))
         return predicted
 
     def add_answer(self):
@@ -67,11 +70,8 @@ class RuleBasedCore(object):
         return []
 
     def match(self, evidence):
-        Subject, Object = generate_subject_and_object(evidence)
         tokens_to_match = generate_tokens_to_match(evidence)
-
-        for rule in self.rules:
-            regex = rule(Subject, Object)
+        for regex, answer in self.rule_regexes:
             match = refo.match(regex, tokens_to_match)
             if match:
-                return rule.answer
+                return answer
