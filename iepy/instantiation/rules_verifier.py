@@ -7,6 +7,7 @@ Usage:
 
 Options:
   --shuffle             Chooses the sample randomly and not the first ones
+  --create-evidences    Creates evidences that are missing [default: false]
   -r --rule=<rule>      Tests only this rule
   -l --limit=<limit>    Limits the amount of evidences uses
   -h --help             Show this screen
@@ -24,10 +25,11 @@ import iepy
 iepy.setup(__file__)
 
 from iepy.data import models
+from iepy.data.models import EvidenceCandidate
 from iepy.data.db import CandidateEvidenceManager
 from iepy.extraction.terminal import TerminalEvidenceFormatter
 from iepy.extraction.rules import (
-    is_rule, load_rules, compile_rule, generate_tokens_to_match
+    load_rules, compile_rule, generate_tokens_to_match
 )
 from iepy.metrics import result_dict_from_predictions
 
@@ -41,6 +43,7 @@ def run_from_command_line():
     limit = opts.get("--limit")
     rule_name = opts.get("--rule")
     shuffle = opts.get("--shuffle")
+    create_evidences = opts.get("--create-evidences")
 
     if limit is None:
         limit = -1
@@ -64,8 +67,10 @@ def run_from_command_line():
     ]
 
     # Load evidences
+    if EvidenceCandidate.objects.all().count() == 0:
+        create_evidences = True
     evidences = CandidateEvidenceManager.candidates_for_relation(
-        relation, False, seg_limit=limit, shuffle_segs=shuffle
+        relation, create_evidences, seg_limit=limit, shuffle_segs=shuffle
     )
     conflict_solver = CandidateEvidenceManager.conflict_resolution_newest_wins
     answers = CandidateEvidenceManager.labels_for(
@@ -95,7 +100,7 @@ def run_tests(rule_regexes, evidences, answers):
                 anything_matched = True
                 print("  * {}".format(formatter.colored_text(evidence)))
 
-            if evidence in answers:
+            if evidence in answers and answers[evidence] is not None:
                 evidences_with_labels.append(evidence)
                 real_labels.append(answers[evidence])
 
