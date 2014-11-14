@@ -8,6 +8,7 @@
     - Skip instead of crashing when a document could not be loaded via csv importer
     - Performance improvement on rules runner
     - Change instance files schema, now it's a python package and renamed settings.
+    - Add lemmatization to the pre-process
 
 0.9.1
     - Add entity kind on the modal dialog
