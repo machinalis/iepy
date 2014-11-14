@@ -65,6 +65,17 @@
         <br />
         <div class="row">
             <div class="large-3 medium-3 columns">
+                <label>Display metadata</label>
+                <input type="radio" name="metadata_visible" value="pos" ng-model="metadata_visible" id="postag-option">
+                <label for="postag-option">POS tag</label>
+
+                <input type="radio" name="metadata_visible" value="lemma" ng-model="metadata_visible" id="lemma-option">
+                <label for="lemma-option">Lemma</label>
+
+                <input type="radio" name="metadata_visible" value="none" ng-model="metadata_visible" id="none-option">
+                <label for="none-option">None</label>
+                <hr />
+
                 {% if form_toolbox %}
                     <div class="toolbox">
                         Tag using this answer:

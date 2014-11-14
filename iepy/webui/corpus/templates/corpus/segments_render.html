@@ -30,7 +30,8 @@
                     <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
                 {% endif %}
 
-                <span class="pos-tag"> {{ rich_token.pos }} </span>
+                <span class="pos-tag" ng-show="metadata_visible == 'pos'"> {{ rich_token.pos }} </span>
+                <span class="lemma" ng-show="metadata_visible == 'lemma'"> {{ rich_token.lemma }} </span>
                 <span class="token" data-offset="{{ rich_token.offset }}"> {{ rich_token.token }} </span>
             </div>
 

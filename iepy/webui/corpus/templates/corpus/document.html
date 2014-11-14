@@ -5,6 +5,7 @@
 {% block content_title %}{% endblock %}
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
 {% endblock %}
@@ -30,7 +31,16 @@
 {% block inner_content %}
     <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
-            <div class="large-12 columns">
+            <div class="large-2 columns">
+                <label>Display metadata</label>
+                <input type="radio" name="metadata_visible" value="pos" ng-model="metadata_visible" id="postag-option">
+                <label for="postag-option">POS tag</label> <br />
+                <input type="radio" name="metadata_visible" value="lemma" ng-model="metadata_visible" id="lemma-option">
+                <label for="lemma-option">Lemma</label> <br />
+                <input type="radio" name="metadata_visible" value="none" ng-model="metadata_visible" id="none-option">
+                <label for="none-option">None</label> <br />
+            </div>
+            <div class="large-10 columns">
                 {% include "corpus/segments_render.html" %}
             </div>
         </div>
