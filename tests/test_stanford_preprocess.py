@@ -1,7 +1,14 @@
-from unittest import TestCase
-from iepy.preprocess.stanford_preprocess import (get_tokens, get_token_offsets,
-                                                 get_sentence_boundaries,
-                                                 get_entity_occurrences)
+from unittest import TestCase, mock
+from datetime import datetime
+
+from .factories import IEDocFactory
+from .manager_case import ManagerTestCase
+from iepy.preprocess.stanford_preprocess import (
+    get_tokens, get_token_offsets,
+    get_sentence_boundaries,
+    get_entity_occurrences,
+    StanfordPreprocess
+)
 
 
 def sentence_factory(description):
@@ -111,3 +118,66 @@ class TestSentenceFunctions(TestCase):
             (14, 15, "L"),  # last word of the fourth sentence
         ]
         self.assertEqual(get_entity_occurrences(sentences), expected)
+
+
+class TestPreProcessCall(ManagerTestCase):
+    def setUp(self):
+        self.preprocess = StanfordPreprocess()
+
+        self.document_nothing_done = IEDocFactory()
+        self.document_all_done = IEDocFactory(
+            tokenization_done_at=datetime.now(),
+            lemmatization_done_at=datetime.now(),
+            sentencer_done_at=datetime.now(),
+            tagging_done_at=datetime.now(),
+            ner_done_at=datetime.now(),
+            segmentation_done_at=datetime.now(),
+        )
+        self.document_missing_lemmatization = IEDocFactory(
+            tokenization_done_at=datetime.now(),
+            sentencer_done_at=datetime.now(),
+            tagging_done_at=datetime.now(),
+            ner_done_at=datetime.now(),
+            segmentation_done_at=datetime.now(),
+        )
+
+    def test_non_step_is_run(self):
+
+        with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
+            self.preprocess(self.document_all_done)
+            self.assertFalse(mock_analizer.called)
+
+    def test_lemmatization_is_run_even_all_others_already_did(self):
+
+        with mock.patch.object(self.preprocess, "lemmatization_only") as mock_lemmatization:
+            mock_lemmatization.side_effect = lambda x: None
+            self.preprocess(self.document_missing_lemmatization)
+            self.assertTrue(mock_lemmatization.called)
+
+    def test_override(self):
+        self.override_preprocess = StanfordPreprocess()
+        self.override_preprocess.override = True
+
+        with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
+            class MockAnalizer:
+                def analize(self, *args, **kwargs):
+                    return {}
+
+            mock_analizer.side_effect = lambda: MockAnalizer
+            self.override_preprocess(self.document_all_done)
+            self.assertTrue(mock_analizer.called)
+
+    def test_all_process_called(self):
+        with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
+            class MockAnalizer:
+                def analize(self, *args, **kwargs):
+                    return {}
+
+            mock_analizer.side_effect = lambda: MockAnalizer
+            self.preprocess(self.document_nothing_done)
+
+        self.assertNotEqual(self.document_nothing_done.tokenization_done_at, None)
+        self.assertNotEqual(self.document_nothing_done.lemmatization_done_at, None)
+        self.assertNotEqual(self.document_nothing_done.tagging_done_at, None)
+        self.assertNotEqual(self.document_nothing_done.ner_done_at, None)
+        self.assertNotEqual(self.document_nothing_done.sentencer_done_at, None)
