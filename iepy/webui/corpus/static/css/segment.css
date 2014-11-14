@@ -12,7 +12,8 @@
     font-size: 20px;
 }
 
-.rich-token .pos-tag{
+.rich-token .pos-tag,
+.rich-token .lemma{
     position: absolute;
     color: #BDBDBD;
     font-size: 10px;

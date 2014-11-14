@@ -56,6 +56,7 @@ function ($scope, EntityOccurrence) {
     $scope.other_judges_labels = window.other_judges_labels;
     $scope.arrows = {};
     $scope.eo_modal = {};
+    $scope.metadata_visible = "pos";
 
     $(document).ready(function () {
         $scope.$segments = $(".segments");
