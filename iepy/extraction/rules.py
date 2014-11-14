@@ -7,7 +7,7 @@ import refo
 
 import iepy
 
-TokenToMatch = namedtuple("TokenToMatch", "token pos kinds, is_subj is_obj")
+TokenToMatch = namedtuple("TokenToMatch", "token lemma pos kinds, is_subj is_obj")
 
 
 def rule(answer, priority=0):
@@ -62,6 +62,10 @@ def obj_attr_predicate_factory(attr_values, attr_name):
 
 def Token(string):
     return obj_attr_predicate_factory(string, "token")
+
+
+def Lemma(string):
+    return obj_attr_predicate_factory(string, "lemma")
 
 
 def Pos(string):
@@ -154,6 +158,7 @@ def generate_tokens_to_match(evidence):
         tokens_to_match.append(TokenToMatch(
             token=rich_token.token,
             pos=rich_token.pos,
+            lemma=rich_token.lemma,
             kinds=set([x.name for x in rich_token.eo_kinds]),
             is_subj=is_subj,
             is_obj=is_obj,
