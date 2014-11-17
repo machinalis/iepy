@@ -60,6 +60,7 @@ run the pre-process to generate all the information needed by IEPY's core.
 The preprocessing pipeline runs the following steps:
 
     * Text tokenization and sentence splitting.
+    * Text lemmatization
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recognition (NER).
     * TextSegments creation (internal IEPY text unit)
