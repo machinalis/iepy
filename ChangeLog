@@ -1,14 +1,14 @@
 0.9.2
     - Fix critical bug on loading rules
     - Fix critical bug on ranking questions on the active learning
-    - Add ability to use custom features
-    - Add ability to use rules as features
-    - Add rules verifier
+    - Add ability to use custom features (http://iepy.rtfd.org/en/latest/how_to_hack.html#implementing-your-own-features)
+    - Add ability to use rules as features (http://iepy.rtfd.org/en/latest/how_to_hack.html#using-rules-as-features)
+    - Add rules verifier (http://iepy.rtfd.org/en/latest/rules_tutorial.html#verifying-your-rules)
     - Fixed bugs of compatibility with firefox
     - Skip instead of crashing when a document could not be loaded via csv importer
     - Performance improvement on rules runner
     - Change instance files schema, now it's a python package and renamed settings.
-    - Add lemmatization to the pre-process
+    - Add lemmatization to the pre-process (http://iepy.rtfd.org/en/latest/preprocess.html#lemmatization)
 
 0.9.1
     - Add entity kind on the modal dialog
