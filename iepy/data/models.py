@@ -10,7 +10,7 @@ from collections import namedtuple
 from django.db import models
 
 from iepy.utils import unzip
-from corpus.fields import ListField
+from corpus.fields import ListField, ListLexTreeField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
@@ -64,6 +64,7 @@ class IEDocument(BaseModel):
     lemmas = ListField()  # strings
     postags = ListField()  # strings
     offsets_to_text = ListField()  # ints, character offset for tokens, lemmas and postags
+    lex_parsed_sentences = ListLexTreeField()
 
     sentences = ListField()  # ints, it's a list of token-offsets
 
@@ -78,6 +79,7 @@ class IEDocument(BaseModel):
     tagging_done_at = models.DateTimeField(null=True, blank=True)
     ner_done_at = models.DateTimeField(null=True, blank=True)
     segmentation_done_at = models.DateTimeField(null=True, blank=True)
+    lex_parsing_done_at = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField(blank=True)
@@ -181,6 +183,11 @@ class IEDocument(BaseModel):
                 'Tagging result must have same cardinality than tokens')
         self.postags = value
         self.tagging_done_at = datetime.now()
+        return self
+
+    def set_lex_parsing_result(self, parsed_sentences):
+        self.lex_parsed_sentences = parsed_sentences
+        self.lex_parsing_done_at = datetime.now()
         return self
 
     def set_ner_result(self, value):
