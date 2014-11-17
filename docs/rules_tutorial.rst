@@ -59,13 +59,17 @@ person when it is written like this:
 To match this kind of cases, we have to specify the regex as a sum of predicates. This will check if every
 part matches.
 
-Lets break the regular expression of the example into smaller parts:
+Rule's building blocks
+----------------------
+    
+Aside of every ReFO predicates, iepy comes with a bunch that you will find usefull for creating your own rules
 
-    * **Subject**: matches if it is an entity of the kind of the relation's left part.
-    * **Object**: matches if it is an entity of the kind of the relation's right part.
+    * **Subject**: matches the evidence's left part.
+    * **Object**: matches the evidence's right part.
+    * **Token**: matches if the token is literally the one specified.
+    * **Lemma**: matches if the lemma literally the one specified.
     * **Pos**: matches the *part of speech* of the token examined.
-    * **Token**: matches if the token literally the one specified.
-    * **Any**: matches any token.
+    * **Kind**: matches if the token belongs to an entity occurrence with a given kind.
 
 
 Setting priority

@@ -4,6 +4,7 @@ About the Pre-Process
 The preprocessing adds the metadata that iepy needs to detect the relations, which includes:
 
     * Text tokenization and sentence splitting.
+    * Text lemmatization
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recognition (NER).
     * TextSegments creation (internal IEPY text unit)
@@ -30,6 +31,18 @@ on the document itself, preserving (and also storing) for each token the offset 
 to the original document text.
 
 The one used by default it's the one that the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ provides.
+
+Lemmatization
+-------------
+
+.. note::
+
+    Lemmatization was added on the version 0.9.2, all instances that were created before that,
+    need to run the preprocess script again. This will run only the lemmatization step.
+
+The text runs a step of lemmatization where each token gets a lemma. This is a canonical form of the word that
+can be used in the classifier features or the rules core.
+
 
 Part of speech tagging
 ----------------------
