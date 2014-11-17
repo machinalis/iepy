@@ -11,6 +11,7 @@ class PreProcessSteps(Enum):
     tagging = 3
     ner = 4
     segmentation = 5
+    lex_parsing = 7
 
 
 class PreProcessPipeline(object):

@@ -3,6 +3,7 @@ from itertools import chain, groupby
 import logging
 
 from iepy.preprocess import corenlp
+from iepy.preprocess.stanford_lex_parser import StanfordLexParser
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
 from iepy.data.models import Entity, EntityOccurrence
@@ -12,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class StanfordPreprocess(BasePreProcessStepRunner):
+    def __init__(self):
+        super().__init__()
+        self.lex_parser = StanfordLexParser()
+
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
 
@@ -31,23 +36,39 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_lemmatization_result(get_lemmas(sentences))
         document.save()
 
+    def lex_parsing_only(self, document):
+        """ Run only the lex parsing """
+
+        # Lex parsing was added after the first so we need to support
+        # that a document has all the steps done but lex parsing
+        document.set_lex_parsing_result(self.lex_parser.parse_document(document))
+        document.save()
+
     def __call__(self, document):
         steps = [
             PreProcessSteps.tokenization,
             PreProcessSteps.sentencer,
             PreProcessSteps.tagging,
             PreProcessSteps.ner,
+            # Steps added after 0.9.1
             PreProcessSteps.lemmatization,
+            PreProcessSteps.lex_parsing,
         ]
         if not self.override:
+            # All steps done
             if all(document.was_preprocess_step_done(step) for step in steps):
                 return
 
-            old_steps = steps[:-1]  # all but lemmatization
-            old_steps_done = all(document.was_preprocess_step_done(step) for step in old_steps)
-            lemmatization_done = document.was_preprocess_step_done(PreProcessSteps.lemmatization)
-            if old_steps_done and not lemmatization_done:
-                self.lemmatization_only(document)
+            # Old steps are the one added up to version 0.9.1
+            old_steps = steps[:4]
+            done_steps = [step for step in steps if document.was_preprocess_step_done(step)]
+            old_steps_done = all([x in done_steps for x in old_steps])
+
+            if old_steps_done:
+                if PreProcessSteps.lemmatization not in done_steps:
+                    self.lemmatization_only(document)
+                if PreProcessSteps.lex_parsing not in done_steps:
+                    self.lex_parsing_only(document)
                 return
 
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
@@ -70,13 +91,17 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # POS tagging
         document.set_tagging_result(get_pos(sentences))
 
+        # Lex parsing
+        document.set_lex_parsing_result(self.lex_parser.parse_document(document))
+
         # NER
-        xs = [FoundEntity(key="{} {} {} {}".format(document.human_identifier, kind, i, j),
-                          kind_name=kind,
-                          alias=" ".join(tokens[i:j]),
-                          offset=i,
-                          offset_end=j)
-              for i, j, kind in get_entity_occurrences(sentences)]
+        xs = [FoundEntity(
+            key="{} {} {} {}".format(document.human_identifier, kind, i, j),
+            kind_name=kind,
+            alias=" ".join(tokens[i:j]),
+            offset=i,
+            offset_end=j
+        ) for i, j, kind in get_entity_occurrences(sentences)]
         document.set_ner_result(xs)
 
         # Save progress so far, next step doesn't modify `document`
