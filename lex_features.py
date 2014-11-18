@@ -23,4 +23,49 @@ def _bag_of_eo_IOB_chain(datapoint, eo):
         tk_actual_idx = idx - sentence
         assert tk_actual_idx >= 0
         path = tree.leaf_treeposition(tk_actual_idx)
-        #chain = 
+        #chain =
+
+
+#######
+
+def walk_tree(tree, path):
+    result = tree
+    for i in path:
+        result = result[i]
+    return result
+
+
+def chunk_tag(evidence):
+    result = set()
+    tree = evidence.segment.lex_trees[0]
+    for i, _ in enumerate(tree.leaves()):
+        path = tree.leaf_treeposition(i)
+        parent = walk_tree(tree, path[:-2])
+        parent_label = parent.label()
+
+        position_in_sentence = path[-2]
+        if parent_label == "S":
+            tag = "O"
+        else:
+            modifier = "B" if position_in_sentence == 0 else "I"
+            tag = "{}-{}".format(modifier, parent_label)
+
+        result.add(tag)
+
+    return result
+
+
+def iob_chain(evidence):
+    result = set()
+    tree = evidence.segment.lex_trees[0]
+    for i, _ in enumerate(tree.leaves()):
+        path = tree.leaf_treeposition(i)[:-1]
+        chain = []
+        subtree = tree
+        for (step, next_step) in zip(path, path[1:]):
+            subtree = subtree[step]
+            modifier = "B" if next_step == 0 else "I"
+            tag = "{}-{}".format(modifier, subtree.label())
+            chain.append(tag)
+        result.add("/".join(chain))
+    return result
