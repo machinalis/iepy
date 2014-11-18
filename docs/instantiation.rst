@@ -122,7 +122,7 @@ From time to time, small changes on the iepy internals will need some *upgrade* 
 
 The upgrade process will apply the needed changes to the instance-folder structure.
 
-In the case made local changes, the tool will preserve a copy of your changes so you can merge by hand on the conflict areas.
+In the case you made local changes, the tool will preserve a copy of your changes so you can merge by hand on the conflicting areas.
 
 For upgrading a iepy instance, simply run the following command
 

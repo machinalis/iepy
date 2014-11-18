@@ -57,6 +57,7 @@ Contents:
    preprocess
    corpus_labeling
    how_to_hack
+   troubleshooting
 
 
 Authors
@@ -89,4 +90,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
