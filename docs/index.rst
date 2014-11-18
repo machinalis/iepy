@@ -77,6 +77,11 @@ http://github.com/machinalis/iepy
 
 You can join the mailing list `here <https://groups.google.com/forum/?hl=es-419#%21forum/iepy>`__
 
+Changelog
+---------
+
+.. include:: Changelog
+
 
 Indices and tables
 ==================
