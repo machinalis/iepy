@@ -191,7 +191,7 @@ class InstanceManager:
 
         def do_it():
             print("Initializing database")
-            print("By default, we will create an sqlite database although "
+            print("By default, we will create an SQLite database although "
                   "it has a very poor performance, specialy with large amounts "
                   "of text.\nYou might want to change this in the future.")
             database_name = input("Database name [{}]: ".format(folder_name))
