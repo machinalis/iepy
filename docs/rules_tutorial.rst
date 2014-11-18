@@ -135,7 +135,7 @@ file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/wa
 .. code-block:: python
 
     from refo import Question, Star, Any, Plus
-    from iepy.extraction.rules_core import rule, Token, Pos
+    from iepy.extraction.rules import rule, Token, Pos
 
     RELATION = "was born"
 
