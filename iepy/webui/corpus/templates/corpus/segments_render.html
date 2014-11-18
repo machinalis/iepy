@@ -1,7 +1,21 @@
 {% load iepy_tags %}
 
-{% for segment in segments %}
+{% for segment, parsed in segments|zip:parsed_sentences %}
     <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
+        {% if parsed %}
+            <div class="parse-tree-button-wrapper">
+                <a class="parse-tree-button" data-reveal-id="parse-tree-{{ forloop.counter }}"><i class="fi-trees"></i></a>
+
+                <div id="parse-tree-{{ forloop.counter }}" class="reveal-modal" data-reveal>
+                    <h3>Parse tree</h3>
+                    <pre> {% for token in segment.rich_tokens %} {{ token.token }} {% endfor %}</pre>
+                    <hr />
+                    <pre> {{parsed}} </pre>
+                    <a class="close-reveal-modal">&#215;</a>
+                </div>
+            </div>
+        {% endif %}
+
         {% for rich_token in segment.rich_tokens %}
             {% if rich_token.eo_ids %}
                 <div class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
