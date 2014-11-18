@@ -327,6 +327,7 @@ class TextSegment(BaseModel):
             self.text = ""
         self.sentences = [i - self.offset for i in doc.sentences
                           if i >= self.offset and i < self.offset_end]
+        self.lex_trees = [doc.lex_parsed_sentences[s] for s in self.sentences]
         self._hydrated = True
         return self
 
