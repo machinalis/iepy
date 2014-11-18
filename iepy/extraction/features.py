@@ -1,8 +1,11 @@
 import ast
 from string import punctuation
+import importlib
 
+import refo
 from featureforge.feature import output_schema
 
+from iepy.extraction.rules import generate_tokens_to_match, compile_rule
 
 punct_set = set(punctuation)
 
@@ -27,17 +30,53 @@ def ge_than_two(v):
     return v >= 2
 
 
+_loaded_modules = {}
+def load_module(module_name):
+    module = _loaded_modules.get(module_name)
+    if module is None:
+        module = importlib.import_module(module_name)
+        _loaded_modules[module_name] = module
+    return module
+
+
+def rule_wrapper(rule_feature):
+    @output_schema(int, binary_values)
+    def inner(evidence):
+        regex = compile_rule(rule_feature, evidence.relation)
+        tokens_to_match = generate_tokens_to_match(evidence)
+        return int(bool(refo.match(regex, tokens_to_match)))
+    return inner
+
+
 def parse_features(feature_names):
     features = []
     for line in feature_names:
         if not line or line != line.strip():
             raise ValueError("Garbage in feature set: {!r}".format(line))
         fname, _, args = line.partition(" ")
-        try:
-            feature = globals()[fname]
-        except KeyError:
-            raise KeyError("There is not such feature: "
-                           "{!r}".format(fname))
+
+        if fname.count("."):  # Is a module path
+            feature_module, feature_name = fname.rsplit(".", 1)
+            try:
+                module = load_module(feature_module)
+            except ImportError:
+                raise KeyError("Couldn't load module {!r}".format(feature_module))
+
+            try:
+                feature = getattr(module, feature_name)
+            except AttributeError:
+                raise KeyError(
+                    "Feature {!r} not found in {!r} module".format(feature_name, feature_module)
+                )
+
+            if feature_module.endswith(".rules"):
+                feature = rule_wrapper(feature)
+        else:
+            try:
+                feature = globals()[fname]
+            except KeyError:
+                raise KeyError("There is not such feature: "
+                               "{!r}".format(fname))
         args = args.strip()
         if args:
             args = ast.literal_eval(args + ",")

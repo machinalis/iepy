@@ -22,14 +22,17 @@ class InstanceManager:
         "preprocess.py",
         "iepy_runner.py",
         "iepy_rules_runner.py",
+        "rules_verifier.py",
         "manage.py",
     ]
     steps = [
         'create_folders',
+        'create_init_file',
         'copy_bin',
         'create_rules_file',
-        'configure_settings_file',
         'create_extractor_config_file',
+        # Put this following step at the end of all the steps that doesnt need settings
+        'configure_settings_file',
         'migrate_db',
         'create_db_user',
         'greetings',
@@ -38,6 +41,7 @@ class InstanceManager:
     def __init__(self, folder_path):
         self.folder_path = folder_path
         self.abs_folder_path = os.path.abspath(self.folder_path)
+        self.creating = True
 
     def _run_steps(self):
         for step_name in self.steps:
@@ -48,7 +52,6 @@ class InstanceManager:
         if os.path.exists(self.folder_path):
             print("Error: folder already exists")
             sys.exit(1)
-        self.creating = True
         self._run_steps()
 
     def upgrade(self):
@@ -91,6 +94,11 @@ class InstanceManager:
     def create_folders(self):
         self.bin_folder = os.path.join(self.folder_path, "bin")
         os.makedirs(self.bin_folder, exist_ok=not self.creating)
+
+    def create_init_file(self):
+        rules_filepath = os.path.join(self.folder_path, "__init__.py")
+        with open(rules_filepath, "w") as filehandler:
+            filehandler.write("from . import rules")
 
     def copy_bin(self):
         # Create folders
@@ -159,10 +167,10 @@ class InstanceManager:
                     do_it()
 
     def prompt(self, msg):
-        answer = raw_input("%s (y/n) " % msg).lower().strip()
+        answer = input("%s (y/n) " % msg).lower().strip()
         while answer not in ['y', 'n']:
             print ('Invalid answer "{}".'.format(answer))
-            answer = raw_input("%s (y/n) " % msg).lower().strip()
+            answer = input("%s (y/n) " % msg).lower().strip()
         return answer == 'y'
 
     def preserve_old_file_version_as_copy(self, fpath):
@@ -179,11 +187,13 @@ class InstanceManager:
     def configure_settings_file(self):
         # Create the settings file
         folder_name = os.path.basename(self.folder_path)  # aka iepy instance name
-        settings_filepath = os.path.join(self.folder_path,
-                                         "{}_settings.py".format(folder_name))
+        settings_filepath = os.path.join(self.folder_path, "settings.py")
 
         def do_it():
             print("Initializing database")
+            print("By default, we will create an SQLite database although "
+                  "it has a very poor performance, specialy with large amounts "
+                  "of text.\nYou might want to change this in the future.")
             database_name = input("Database name [{}]: ".format(folder_name))
             if not database_name:
                 database_name = folder_name
@@ -194,6 +204,12 @@ class InstanceManager:
         if self.creating:
             do_it()
         else:
+            if self.old_version in ["0.9", "0.9.0", "0.9.1"]:
+                old_settings_filepath = os.path.join(
+                    self.folder_path, "{}_settings.py".format(folder_name)
+                )
+                shutil.move(old_settings_filepath, settings_filepath)
+
             with open(settings_filepath, 'a') as fhandler:
                 msg = 'Remove line declaring the old IEPY_VERSION above.'
                 fhandler.write(

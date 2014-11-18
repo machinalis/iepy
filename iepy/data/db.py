@@ -7,6 +7,7 @@ the chosen database engine and ORM and the IEPY core and tools.
 
 from collections import defaultdict, namedtuple
 from functools import lru_cache
+from random import shuffle
 import logging
 
 import iepy
@@ -130,14 +131,26 @@ class CandidateEvidenceManager(object):
         return ev
 
     @classmethod
-    def candidates_for_relation(cls, relation, construct_missing_candidates=True):
+    def candidates_for_relation(cls, relation, construct_missing_candidates=True,
+                                seg_limit=-1, shuffle_segs=False):
         # Wraps the actual database lookup of evidence, hydrating them so
         # in theory, no extra db access shall be done
         # The idea here is simple, but with some tricks for improving performance
         logger.info("Loading candidate evidence from database...")
         hydrate = cls.hydrate
         segments_per_document = defaultdict(list)
-        raw_segments = {s.id: s for s in relation._matching_text_segments()}
+
+        raw_segments = {}
+        segments = relation._matching_text_segments()
+        if shuffle_segs:
+            segments = list(segments)
+            shuffle(segments)
+
+        for i, s in enumerate(segments):
+            if seg_limit >= 0 and i >= seg_limit:
+                break
+            raw_segments[s.id] = s
+
         for s in raw_segments.values():
             segments_per_document[s.document_id].append(s)
         doc_ids = segments_per_document.keys()

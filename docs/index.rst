@@ -57,6 +57,7 @@ Contents:
    preprocess
    corpus_labeling
    how_to_hack
+   troubleshooting
 
 
 Authors
@@ -75,6 +76,13 @@ authors are:
 You can follow the development of this project and report issues at
 http://github.com/machinalis/iepy
 
+You can join the mailing list `here <https://groups.google.com/forum/?hl=es-419#%21forum/iepy>`__
+
+Changelog
+---------
+
+.. include:: Changelog
+
 
 Indices and tables
 ==================
@@ -82,4 +90,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

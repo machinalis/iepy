@@ -4,7 +4,7 @@
     <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
         {% for rich_token in segment.rich_tokens %}
             {% if rich_token.eo_ids %}
-                <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                <div class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
                     ng-click="eo_click({{ rich_token.eo_ids }})"
                     ng-class="{
                         selectable: {% for eo_id in rich_token.eo_ids %}
@@ -24,15 +24,16 @@
                     {% endif %}
                 >
             {% else %}
-                <span class="rich-token">
+                <div class="rich-token">
             {% endif %}
                 {% if rich_token.eo_ids|length > 1 %}
                     <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
                 {% endif %}
 
-                <span class="pos-tag"> {{ rich_token.pos }} </span>
+                <span class="pos-tag" ng-show="metadata_visible == 'pos'"> {{ rich_token.pos }} </span>
+                <span class="lemma" ng-show="metadata_visible == 'lemma'"> {{ rich_token.lemma }} </span>
                 <span class="token" data-offset="{{ rich_token.offset }}"> {{ rich_token.token }} </span>
-            </span>
+            </div>
 
             {% if rich_token.eo_ids|length > 1 %}
                 <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>

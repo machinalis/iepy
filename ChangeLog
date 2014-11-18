@@ -1,6 +1,16 @@
+0.9.2
+    - Add ability to use custom features (http://iepy.rtfd.org/en/latest/how_to_hack.html#implementing-your-own-features)
+    - Add ability to use rules as features (http://iepy.rtfd.org/en/latest/how_to_hack.html#using-rules-as-features)
+    - Add rules verifier (http://iepy.rtfd.org/en/latest/rules_tutorial.html#verifying-your-rules)
+    - Fixed bugs of compatibility with firefox [thanks dchaplinsky for the bug report]
+    - Skip instead of crashing when a document could not be loaded via csv importer [thanks dchaplinsky for the report and suggestion]
+    - Performance improvement on rules runner
+    - Change instance files schema, now it's a python package and renamed settings.
+    - Add lemmatization to the pre-process (http://iepy.rtfd.org/en/latest/preprocess.html#lemmatization)
+    - Fix critical bug on loading rules
+    - Fix critical bug on ranking questions on the active learning extraction runner
 
 0.9.1
-
     - Add entity kind on the modal dialog
     - Change arrows display to be more understandable
     - Join skip and don't know label options
@@ -8,4 +18,3 @@
     - Show help for shortcuts and change the order of the options
     - Documents rich view (without needing to be labeling the document for some relation)
     - instance upgrader
-

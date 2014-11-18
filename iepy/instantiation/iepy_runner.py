@@ -14,13 +14,14 @@ Options:
   --version                          Version number
 """
 
+import os
 import json
 import logging
 from docopt import docopt
 from sys import exit
 
 import iepy
-iepy.setup(__file__)
+INSTANCE_PATH = iepy.setup(__file__)
 
 from iepy.extraction.active_learning_core import ActiveLearningCore, HIPREC, HIREC
 from iepy.data.db import CandidateEvidenceManager
@@ -80,10 +81,21 @@ def run_from_command_line():
         )
         was_ever_trained = True
     else:
-        extractor_config = opts.get("--extractor-config")
-        if extractor_config:
-            with open(extractor_config) as filehandler:
+        config_filepath = opts.get("--extractor-config")
+        if not config_filepath:
+            config_filepath = os.path.join(INSTANCE_PATH, "extractor_config.json")
+
+        if not os.path.exists(config_filepath):
+            print("Error: extractor config does not exists, please create the "
+                  "file extractor_config.json or use the --extractor-config")
+            exit(1)
+
+        with open(config_filepath) as filehandler:
+            try:
                 extractor_config = json.load(filehandler)
+            except Exception as error:
+                print("Error: unable to load extractor config: {}".format(error))
+                exit(1)
 
         iextractor = ActiveLearningCore(
             relation, labeled_evidences, extractor_config,

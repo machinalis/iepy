@@ -1,6 +1,5 @@
 import logging
 import random
-import sys
 
 import numpy
 from sklearn.cross_validation import StratifiedKFold
@@ -80,7 +79,6 @@ class ActiveLearningCore:
         self.labeled_evidence[evidence] = answer
         for list_ in (self._questions, self.candidate_evidence):  # TODO: Check performance. Should use set?
             list_.remove(evidence)
-        # TODO: Save labeled evidence into database?
 
     def process(self):
         """
@@ -182,7 +180,7 @@ class ActiveLearningCore:
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
         ranks = self.relation_classifier.decision_function(sample)
-        self.ranked_candidate_evidence = dict(zip(self.candidate_evidence, ranks))
+        self.ranked_candidate_evidence = dict(zip(sample, ranks))
         ranks = [abs(x) for x in ranks]
         logger.info("Ranking completed, lowest absolute rank={}, "
                     "highest absolute rank={}".format(min(ranks), max(ranks)))

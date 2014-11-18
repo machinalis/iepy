@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import chain, groupby
 import logging
 
-from iepy.preprocess.corenlp import get_analizer
+from iepy.preprocess import corenlp
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
 from iepy.data.models import Entity, EntityOccurrence
@@ -12,25 +12,57 @@ logger = logging.getLogger(__name__)
 
 
 class StanfordPreprocess(BasePreProcessStepRunner):
+    def lemmatization_only(self, document):
+        """ Run only the lemmatization """
+
+        # Lemmatization was added after the first so we need to support
+        # that a document has all the steps done but lemmatization
+
+        analysis = corenlp.get_analizer().analize(document.text)
+        sentences = analysis_to_sentences(analysis)
+        tokens = get_tokens(sentences)
+        if document.tokens != tokens:
+            raise ValueError(
+                "Document changed since last tokenization, "
+                "can't add lemmas to it"
+            )
+
+        # Lemmatization
+        document.set_lemmatization_result(get_lemmas(sentences))
+        document.save()
+
     def __call__(self, document):
         steps = [
             PreProcessSteps.tokenization,
             PreProcessSteps.sentencer,
             PreProcessSteps.tagging,
-            PreProcessSteps.ner
+            PreProcessSteps.ner,
+            PreProcessSteps.lemmatization,
         ]
-        if not self.override and all(document.was_preprocess_step_done(step) for step in steps):
-            return
+        if not self.override:
+            if all(document.was_preprocess_step_done(step) for step in steps):
+                return
+
+            old_steps = steps[:-1]  # all but lemmatization
+            old_steps_done = all(document.was_preprocess_step_done(step) for step in old_steps)
+            lemmatization_done = document.was_preprocess_step_done(PreProcessSteps.lemmatization)
+            if old_steps_done and not lemmatization_done:
+                self.lemmatization_only(document)
+                return
+
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
             raise NotImplementedError("Running with mixed preprocess steps not supported, must be 100% StanfordMultiStepRunner")
 
-        analysis = get_analizer().analize(document.text)
+        analysis = corenlp.get_analizer().analize(document.text)
         sentences = analysis_to_sentences(analysis)
 
         # Tokenization
         tokens = get_tokens(sentences)
         offsets = get_token_offsets(sentences)
         document.set_tokenization_result(list(zip(offsets, tokens)))
+
+        # Lemmatization
+        document.set_lemmatization_result(get_lemmas(sentences))
 
         # "Sentencing" (splitting in sentences)
         document.set_sentencer_result(get_sentence_boundaries(sentences))
@@ -84,6 +116,10 @@ def analysis_to_sentences(analysis):
 
 def get_tokens(sentences):
     return [x["word"] for x in chain.from_iterable(sentences)]
+
+
+def get_lemmas(sentences):
+    return [x["lemma"] for x in chain.from_iterable(sentences)]
 
 
 def get_token_offsets(sentences):

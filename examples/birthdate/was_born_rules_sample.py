@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from refo import Question, Star, Any, Plus
-from iepy.extraction.rules_core import rule, Token, Pos
+from iepy.extraction.rules import rule, Token, Pos
 
 
 RELATION = "was born"
