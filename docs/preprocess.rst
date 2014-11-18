@@ -13,16 +13,6 @@ We're currently running all this steps (except the last one) using the `Stanford
 This runs in a all-in-one run, but every step can be :ref:`modified to use a custom version <customize>` that adjust your needs.
 
 
-.. note::
-
-    Problems with the preprocess under MacOS? Apparently a change in the CoreNLP script is needed to
-    be run. You need to change the file ``corenlp.sh`` that is located on
-    ``/Users/<your user>/Library/Application Support/iepy/stanford-corenlp-full-2014-08-27/``
-    and change ``scriptdir=`dirname $0``` for ``scriptdir=`dirname "$0"```
-
-
-
-
 About the Tokenization and Sentence splitting
 ---------------------------------------------
 
@@ -40,12 +30,12 @@ Lemmatization
     Lemmatization was added on the version 0.9.2, all instances that were created before that,
     need to run the preprocess script again. This will run only the lemmatization step.
 
-The text runs a step of lemmatization where each token gets a lemma. This is a canonical form of the word that
+The text runs through a step of lemmatization where each token gets a lemma. This is a canonical form of the word that
 can be used in the classifier features or the rules core.
 
 
-Part of speech tagging
-----------------------
+Part of speech tagging (POS)
+----------------------------
 
 Each token is augmented with metadata about its part of speech such as noun, verb,
 adjective and other grammatical tags.
@@ -54,8 +44,8 @@ This information is also stored on the Document itself, together with the tokens
 
 The one used by default it's the one that the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ provides.
 
-Named Entity Recognition
-------------------------
+Named Entity Recognition (NER)
+------------------------------
 
 To find a relation between entities one must first recognize these entities in the text.
 
@@ -112,6 +102,7 @@ For example, take this pseudo-code to guide you:
     pipeline = PreProcessPipeline([
         CustomTokenizer(),
         CustomSentencer(),
+        CustomLemmatizer(),
         CustomPOSTagger(),
         CustomNER(),
         CustomSegmenter(),
@@ -121,8 +112,8 @@ For example, take this pseudo-code to guide you:
 
 .. note::
 
-    The steps can be functions or methods that define the `__call__`. We recommend objects because generally you'll
+    The steps can be functions or callable objects. We recommend objects because generally you'll
     want to do some load up of things on the `__init__` method to avoid loading everything over and over again.
 
-Each one of those steps will be called with each one of the documents, this means that for every step will be called
+Each one of those steps will be called with each one of the documents, meaning that every step will be called
 with all the documents, after finishing with that the next step will be called with each one of the documents.

@@ -61,8 +61,8 @@ part matches.
 
 Rule's building blocks
 ----------------------
-    
-Aside of every ReFO predicates, iepy comes with a bunch that you will find usefull for creating your own rules
+
+Aside of every ReFO predicates, iepy comes with a bunch that you will find useful for creating your own rules
 
     * **Subject**: matches the evidence's left part.
     * **Object**: matches the evidence's right part.
@@ -135,7 +135,7 @@ file here <https://github.com/machinalis/iepy/blob/develop/examples/birthdate/wa
 .. code-block:: python
 
     from refo import Question, Star, Any, Plus
-    from iepy.extraction.rules_core import rule, Token, Pos
+    from iepy.extraction.rules import rule, Token, Pos
 
     RELATION = "was born"
 
@@ -184,5 +184,5 @@ Take a look at the parameters on the rules verifier to find out how to use them 
 If you have labeled data on your corpus, the run will calculate how it scored in terms of precision, recall and
 other metrics. You have to keep in mind that this is not exactly what you'll get when you run the rules core, even
 if you run the verifier with all the rules and all the data, the numbers are going to be a little different because
-this will run every evidence with every rule, and the core will stop at first match. This is just a warning so you
-don't get too excited or too depressed with this results.
+this will run every evidence with every rule, and the core instead stops at the first match. This is just a warning so you
+don't get too excited or too depressed with these results.

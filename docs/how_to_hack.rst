@@ -138,7 +138,6 @@ matches. You can write a custom feature that does so. Let's look an example snip
     # custom_features.py
     import refo
 
-    import iepy
     from iepy.extraction.rules import compile_rule, generate_tokens_to_match, load_rules
 
     rules = load_rules()
