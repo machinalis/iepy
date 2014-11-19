@@ -186,6 +186,10 @@ class IEDocument(BaseModel):
         return self
 
     def set_lex_parsing_result(self, parsed_sentences):
+        if len(parsed_sentences) != len(list(self.get_sentences())):
+            raise ValueError(
+                'Lex parsing must have same cardinality than sentences'
+            )
         self.lex_parsed_sentences = parsed_sentences
         self.lex_parsing_done_at = datetime.now()
         return self
