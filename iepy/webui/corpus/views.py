@@ -254,8 +254,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                  'rich_tokens': list(segment.get_enriched_tokens())}
             )
 
-        if self.document.lex_parsed_sentences:
-            parsed_sentences = [x.pprint() for x in self.document.lex_parsed_sentences]
+        if self.document.syntactic_sentences:
+            parsed_sentences = [x.pprint() for x in self.document.syntactic_sentences]
         else:
             parsed_sentences = [""] * len(segments_with_rich_tokens)
 
@@ -461,8 +461,8 @@ class DocumentNavigation(TemplateView):
         context = super().get_context_data(**kwargs)
         document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
         sentences = [{"rich_tokens": x, "id": i} for i, x in enumerate(document.get_sentences(enriched=True))]
-        if document.lex_parsed_sentences:
-            parsed_sentences = [x.pprint() for x in document.lex_parsed_sentences]
+        if document.syntactic_sentences:
+            parsed_sentences = [x.pprint() for x in document.syntactic_sentences]
         else:
             parsed_sentences = [""] * len(sentences)
 

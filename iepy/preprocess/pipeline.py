@@ -5,13 +5,14 @@ logger = logging.getLogger(__name__)
 
 
 class PreProcessSteps(Enum):
+    # numbers do not imply order
     tokenization = 1
-    lemmatization = 6  # numbers do not imply order
+    lemmatization = 6
     sentencer = 2
     tagging = 3
     ner = 4
     segmentation = 5
-    lex_parsing = 7
+    syntactic_parsing = 7
 
 
 class PreProcessPipeline(object):

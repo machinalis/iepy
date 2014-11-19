@@ -30,8 +30,8 @@ class ListField(models.TextField, metaclass=models.SubfieldBase):
         return self.get_db_prep_value(value)
 
 
-class ListLexTreeField(models.TextField, metaclass=models.SubfieldBase):
-    description = "List of Stanford lex tree"
+class ListSyntacticTreeField(models.TextField, metaclass=models.SubfieldBase):
+    description = "List of Stanford syntactic tree"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

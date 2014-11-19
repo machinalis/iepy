@@ -30,15 +30,15 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_lemmatization_result(get_lemmas(sentences))
         document.save()
 
-    def lex_parsing_only(self, document):
-        """ Run only the lex parsing """
+    def syntactic_parsing_only(self, document):
+        """ Run only the syntactic parsing """
 
-        # Lex parsing was added after the first so we need to support
-        # that a document has all the steps done but lex parsing
+        # syntactic parsing was added after the first so we need to support
+        # that a document has all the steps done but syntactic parsing
 
         analysis = corenlp.get_analizer().analize(document.text)
         parse_trees = analysis_to_parse_trees(analysis)
-        document.set_lex_parsing_result(parse_trees)
+        document.set_syntactic_parsing_result(parse_trees)
         document.save()
 
     def __call__(self, document):
@@ -49,7 +49,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
             PreProcessSteps.ner,
             # Steps added after 0.9.1
             PreProcessSteps.lemmatization,
-            PreProcessSteps.lex_parsing,
+            PreProcessSteps.syntactic_parsing,
         ]
         if not self.override:
             # All steps done
@@ -64,8 +64,8 @@ class StanfordPreprocess(BasePreProcessStepRunner):
             if old_steps_done:
                 if PreProcessSteps.lemmatization not in done_steps:
                     self.lemmatization_only(document)
-                if PreProcessSteps.lex_parsing not in done_steps:
-                    self.lex_parsing_only(document)
+                if PreProcessSteps.syntactic_parsing not in done_steps:
+                    self.syntactic_parsing_only(document)
                 return
 
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
@@ -92,8 +92,8 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # POS tagging
         document.set_tagging_result(get_pos(sentences))
 
-        # Lex parsing
-        document.set_lex_parsing_result(parse_trees)
+        # Syntactic parsing
+        document.set_syntactic_parsing_result(parse_trees)
 
         # NER
         xs = [FoundEntity(
