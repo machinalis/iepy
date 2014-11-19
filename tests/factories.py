@@ -81,6 +81,28 @@ class SentencedIEDocFactory(IEDocFactory):
         self.set_sentencer_result(sentences)
 
 
+class SyntacticParsedIEDocFactory(IEDocFactory):
+    FACTORY_FOR = IEDocument
+
+    # This factory will always return
+    # the same sentences and trees
+
+    @factory.post_generation
+    def init(self, create, extracted, **kwargs):
+        sentences_amount = 20
+
+        tokens = []
+        sentences = [0]
+        for sent_tokens in nltk.corpus.treebank.sents()[:sentences_amount]:
+            tokens.extend(list(enumerate(sent_tokens)))
+            sentences.append(sentences[-1] + len(sent_tokens))
+
+        self.set_tokenization_result(tokens)
+        self.set_sentencer_result(sentences)
+        tree_strings = [x.pprint() for x in nltk.corpus.treebank.parsed_sents()[:sentences_amount]]
+        self.set_syntactic_parsing_result(tree_strings)
+
+
 class RelationFactory(BaseFactory):
     FACTORY_FOR = Relation
     name = factory.Sequence(lambda n: 'relation:%i' % n)
