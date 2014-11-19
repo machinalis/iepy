@@ -3,7 +3,6 @@ from itertools import chain, groupby
 import logging
 
 from iepy.preprocess import corenlp
-from iepy.preprocess.stanford_lex_parser import StanfordLexParser
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
 from iepy.data.models import Entity, EntityOccurrence
@@ -13,9 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class StanfordPreprocess(BasePreProcessStepRunner):
-    def __init__(self):
-        super().__init__()
-        self.lex_parser = StanfordLexParser()
 
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
@@ -31,8 +27,6 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 "Document changed since last tokenization, "
                 "can't add lemmas to it"
             )
-
-        # Lemmatization
         document.set_lemmatization_result(get_lemmas(sentences))
         document.save()
 
@@ -41,7 +35,10 @@ class StanfordPreprocess(BasePreProcessStepRunner):
 
         # Lex parsing was added after the first so we need to support
         # that a document has all the steps done but lex parsing
-        document.set_lex_parsing_result(self.lex_parser.parse_document(document))
+
+        analysis = corenlp.get_analizer().analize(document.text)
+        parse_trees = analysis_to_parse_trees(analysis)
+        document.set_lex_parsing_result(parse_trees)
         document.save()
 
     def __call__(self, document):
@@ -72,10 +69,14 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 return
 
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
-            raise NotImplementedError("Running with mixed preprocess steps not supported, must be 100% StanfordMultiStepRunner")
+            raise NotImplementedError(
+                "Running with mixed preprocess steps not supported, "
+                "must be 100% StanfordMultiStepRunner"
+            )
 
         analysis = corenlp.get_analizer().analize(document.text)
         sentences = analysis_to_sentences(analysis)
+        parse_trees = analysis_to_parse_trees(analysis)
 
         # Tokenization
         tokens = get_tokens(sentences)
@@ -92,7 +93,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_tagging_result(get_pos(sentences))
 
         # Lex parsing
-        document.set_lex_parsing_result(self.lex_parser.parse_document(document))
+        document.set_lex_parsing_result(parse_trees)
 
         # NER
         xs = [FoundEntity(
@@ -136,6 +137,11 @@ def analysis_to_sentences(analysis):
         for t in tokens:
             xs.append(t)
         result.append(xs)
+    return result
+
+def analysis_to_parse_trees(analysis):
+    sentences = _dictpath(analysis, "sentences", "sentence")
+    result = [x["parse"] for x in sentences]
     return result
 
 
