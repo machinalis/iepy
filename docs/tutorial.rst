@@ -63,7 +63,8 @@ The preprocessing pipeline runs the following steps:
     * Text lemmatization
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recognition (NER).
-    * TextSegments creation (internal IEPY text unit)
+    * Syntactic parsing.
+    * TextSegments creation (internal IEPY text unit).
 
 Your IEPY application comes with code to run all the preprocessing steps.
 

@@ -26,6 +26,10 @@ It's aimed at:
     - :doc:`scientists <how_to_hack>`
       wanting to experiment with new IE algorithms.
 
+
+You can follow the development of this project and report issues at http://github.com/machinalis/iepy
+or join the mailing list `here <https://groups.google.com/forum/?hl=es-419#%21forum/iepy>`__
+
 Features
 --------
 
@@ -73,20 +77,7 @@ authors are:
  * Franco M. Luque <francolq@famaf.unc.edu.ar> (francolq at github)
  * Daniel Moisset <dmoisset@machinalis.com> (dmoisset at github)
 
-You can follow the development of this project and report issues at
-http://github.com/machinalis/iepy
-
-You can join the mailing list `here <https://groups.google.com/forum/?hl=es-419#%21forum/iepy>`__
-
 Changelog
 ---------
 
 .. include:: Changelog
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
