@@ -78,6 +78,11 @@ This step can be customized to find entities of kinds defined by you, or anythin
 Syntactic parsing
 -----------------
 
+.. note::
+
+    Syntactic parsing was added on the version 0.9.3, all instances that were created before that,
+    need to run the preprocess script again. This will run only the syntactic parsing step.
+
 The sentences are parsed to works out the syntactic structure. Each sentence gets an structure tree
 that is stored in `Penn Treebank notation <http://en.wikipedia.org/wiki/Treebank>`__. IEPY presents
 this to the user using a `NLTK Tree object <http://www.nltk.org/howto/tree.html>`__.
