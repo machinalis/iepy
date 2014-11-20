@@ -342,6 +342,42 @@ class TestBagOfLemmas(ManagerTestCase, FeatureEvidenceBaseCase):
             EQ, set()),
     )
 
+
+class TestSyntacticTreeBagOfTags(ManagerTestCase, FeatureEvidenceBaseCase):
+    def bag_of_tree_tags(datapoint):
+        tags = set()
+        to_explore = datapoint.segment.syntactic_sentences
+        while to_explore:
+            tree = to_explore.pop(0)
+            if isinstance(tree, str):  # leaf
+                continue
+            tags.add(tree.label())
+            to_explore.extend(list(tree))
+        return tags
+
+    feature = make_feature(bag_of_tree_tags)
+    fixtures = dict(
+        test_empty=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, set()),
+        test_one=(
+            lambda: _e(
+                u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                syntactic_sentence="""
+                (ROOT
+                  (S
+                    (NP (NNP Drinking) (NNP Mate))
+                    (VP (VBZ makes)
+                      (S
+                        (NP (PRP you))
+                        (VP (VB go)
+                          (PP (TO to)
+                            (NP (DT the) (NN toilet))))))))
+                """),
+            EQ, set("ROOT S NP NNP VP VBZ PRP VB PP TO DT NN".split())),
+    )
+
+
 class MockedModule:
     def custom_feature(*args, **kwargs):
         return "custom feature"
