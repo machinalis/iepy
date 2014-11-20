@@ -378,6 +378,34 @@ class TestSyntacticTreeBagOfTags(ManagerTestCase, FeatureEvidenceBaseCase):
     )
 
 
+class TestSyntacticTreeHeight(ManagerTestCase, FeatureEvidenceBaseCase):
+    def tree_height(datapoint):
+        heights = [x.height() for x in datapoint.segment.syntactic_sentences]
+        return sum(heights)
+
+    feature = make_feature(tree_height)
+    fixtures = dict(
+        test_empty=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, 0),
+        test_one=(
+            lambda: _e(
+                u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                syntactic_sentence="""
+                (ROOT
+                  (S
+                    (NP (NNP Drinking) (NNP Mate))
+                    (VP (VBZ makes)
+                      (S
+                        (NP (PRP you))
+                        (VP (VB go)
+                          (PP (TO to)
+                            (NP (DT the) (NN toilet))))))))
+                """),
+            EQ, 9),
+    )
+
+
 class MockedModule:
     def custom_feature(*args, **kwargs):
         return "custom feature"
