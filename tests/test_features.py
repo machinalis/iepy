@@ -16,7 +16,7 @@ from iepy.extraction.features import (
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
     other_entities_in_between, total_number_of_entities,
     verbs_count_in_between, verbs_count, symbols_in_between,
-    parse_features
+    parse_features, in_between_offsets,
 )
 
 from .factories import EvidenceFactory
@@ -25,11 +25,16 @@ from .manager_case import ManagerTestCase
 
 def _e(markup, **kwargs):
     base_pos = kwargs.pop('base_pos', ["DT", u"JJ", u"NN"])
+    base_lemmas = kwargs.pop('base_lemmas', None)
     evidence = EvidenceFactory(markup=markup, **kwargs)
     evidence = CandidateEvidenceManager.hydrate(evidence)
+
+    if base_lemmas is None:
+        base_lemmas = [x.lower() for x in evidence.segment.tokens]
     n = len(evidence.segment.tokens)
     pos = (base_pos * n)[:n]
     evidence.segment.postags = pos
+    evidence.segment.lemmas = base_lemmas
     return evidence
 
 
