@@ -216,6 +216,12 @@ class EvidenceFactory(BaseFactory):
             args["segment__offset"] = 0
             args["segment__offset_end"] = len(tokens)
             args["e_occurrences"] = e_occurrences
+            if "syntactic_sentence" in kwargs:
+                syntactic_sentence = kwargs.pop("syntactic_sentence")
+                if isinstance(syntactic_sentence, str):
+                    syntactic_sentence = nltk.tree.Tree.fromstring(syntactic_sentence)
+                args["segment__document__sentences"] = [0]
+                args["segment__document__syntactic_sentences"] = [syntactic_sentence]
 
         args.update(kwargs)
         return super(EvidenceFactory, cls).create(**args)
