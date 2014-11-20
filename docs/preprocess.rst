@@ -7,7 +7,8 @@ The preprocessing adds the metadata that iepy needs to detect the relations, whi
     * Text lemmatization
     * Part-Of-Speech (POS) tagging.
     * Named Entity Recognition (NER).
-    * TextSegments creation (internal IEPY text unit)
+    * Syntactic parsing.
+    * TextSegments creation (internal IEPY text unit).
 
 We're currently running all this steps (except the last one) using the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ tools.
 This runs in a all-in-one run, but every step can be :ref:`modified to use a custom version <customize>` that adjust your needs.
@@ -73,6 +74,35 @@ Others remarkable features of this NER (that are incorporated to the default pre
 
 This step can be customized to find entities of kinds defined by you, or anything else you may need.
 
+
+Syntactic parsing
+-----------------
+
+.. note::
+
+    Syntactic parsing was added on the version 0.9.3, all instances that were created before that,
+    need to run the preprocess script again. This will run only the syntactic parsing step.
+
+The sentences are parsed to works out the syntactic structure. Each sentence gets an structure tree
+that is stored in `Penn Treebank notation <http://en.wikipedia.org/wiki/Treebank>`__. IEPY presents
+this to the user using a `NLTK Tree object <http://www.nltk.org/howto/tree.html>`__.
+
+By default the sentences are processed with the `Stanford Parser <http://nlp.stanford.edu/software/lex-parser.shtml>`__
+provided within the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`__.
+
+For example, the syntactic parsing of the sentence ``Join the dark side, we have cookies`` would be:
+
+::
+
+    (ROOT
+      (S
+        (S
+          (VP (VBN Join)
+            (NP (DT the) (JJ dark) (NN side))))
+        (, ,)
+        (NP (PRP we))
+        (VP (VBP have)
+          (NP (NNS cookies)))))
 
 About the Text Segmentation
 ---------------------------

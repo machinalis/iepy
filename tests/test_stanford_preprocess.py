@@ -1,10 +1,10 @@
 from unittest import TestCase, mock
 from datetime import datetime
 
-from .factories import IEDocFactory
+from .factories import IEDocFactory, SentencedIEDocFactory
 from .manager_case import ManagerTestCase
 from iepy.preprocess.stanford_preprocess import (
-    get_tokens, get_token_offsets,
+    get_tokens, get_token_offsets, get_lemmas,
     get_sentence_boundaries,
     get_entity_occurrences,
     StanfordPreprocess
@@ -17,18 +17,23 @@ def sentence_factory(description):
         line = line.strip()
         if not line:
             continue
-        token, offset, ner = line.split()
-        sentence.append({"word": token, "CharacterOffsetBegin": offset, "NER": ner})
+        token, offset, ner, lemma = line.split()
+        sentence.append({
+            "word": token,
+            "CharacterOffsetBegin": offset,
+            "NER": ner,
+            "lemma": lemma,
+        })
     return sentence
 
 
 class TestSentenceFunctions(TestCase):
     def test_get_tokens_simple(self):
         sentence = sentence_factory("""
-            friends x x
-            will x x
-            be x x
-            friends x x
+            friends x x x
+            will x x x
+            be x x x
+            friends x x x
         """)
         X = get_tokens([sentence])
         self.assertEqual(X, "friends will be friends".split())
@@ -42,10 +47,10 @@ class TestSentenceFunctions(TestCase):
 
     def test_get_token_offsets_simple(self):
         sentence = sentence_factory("""
-            x 1 x
-            x 4 x
-            x 8 x
-            x 3 x
+            x 1 x x
+            x 4 x x
+            x 8 x x
+            x 3 x x
         """)
         X = get_token_offsets([sentence])
         self.assertEqual(X, [1, 4, 8, 3])
@@ -62,9 +67,9 @@ class TestSentenceFunctions(TestCase):
 
     def test_sentence_boundaries_simple(self):
         sentences = [
-            sentence_factory("x x x\n" * 3),  # 3 words
-            sentence_factory("x x x\n" * 2),  # 2 words
-            sentence_factory("x x x\n" * 4),  # 4 words
+            sentence_factory("x x x x\n" * 3),  # 3 words
+            sentence_factory("x x x x\n" * 2),  # 2 words
+            sentence_factory("x x x x\n" * 4),  # 4 words
         ]
         #          1st 2nd 3rd   end
         expected = [0, 3, 3 + 2, 3 + 2 + 4]
@@ -72,10 +77,10 @@ class TestSentenceFunctions(TestCase):
 
     def test_offsets_and_tokens_work_togheter(self):
         sentences = [
-            sentence_factory("a x x\n" * 3),  # 3 words
-            sentence_factory("b x x\n" * 2),  # 2 words
-            sentence_factory("c x x\n" * 4),  # 4 words
-            sentence_factory("d x x\n" * 5),  # 5 words
+            sentence_factory("a x x x\n" * 3),  # 3 words
+            sentence_factory("b x x x\n" * 2),  # 2 words
+            sentence_factory("c x x x\n" * 4),  # 4 words
+            sentence_factory("d x x x\n" * 5),  # 5 words
         ]
         words = get_tokens(sentences)
         offsets = get_sentence_boundaries(sentences)
@@ -87,27 +92,27 @@ class TestSentenceFunctions(TestCase):
 
     def test_get_entity_occurrences_simple(self):
         a = sentence_factory("""
-            a 0  O
-            b 1  B
-            c 2  O
+            a 0  O x
+            b 1  B x
+            c 2  O x
         """)
         b = sentence_factory("""
-            d 3  O
-            e 4  O
-            f 5  O
+            d 3  O x
+            e 4  O x
+            f 5  O x
         """)
         c = sentence_factory("""
-            g 6  D
-            h 7  D
-            i 8  O
-            j 9  O
-            k 10 H
+            g 6  D x
+            h 7  D x
+            i 8  O x
+            j 9  O x
+            k 10 H x
         """)
         d = sentence_factory("""
-            l 11 H
-            m 12 O
-            n 13 O
-            o 14 L
+            l 11 H x
+            m 12 O x
+            n 13 O x
+            o 14 L x
         """)
         sentences = [a, b, c, d]
         expected = [
@@ -119,30 +124,40 @@ class TestSentenceFunctions(TestCase):
         ]
         self.assertEqual(get_entity_occurrences(sentences), expected)
 
+    def test_get_lemmas_empty(self):
+        self.assertEqual(get_lemmas([]), [])
+
+    def test_get_lemmas_and_tokens_same_length(self):
+        sentences = [
+            sentence_factory("x x x x\n" * 3),  # 3 words
+            sentence_factory("x x x x\n" * 2),  # 2 words
+            sentence_factory("x x x x\n" * 4),  # 4 words
+            sentence_factory("x x x x\n" * 5),  # 5 words
+        ]
+        tokens = get_tokens(sentences)
+        lemmas = get_lemmas(sentences)
+        self.assertEqual(len(tokens), len(lemmas))
+
 
 class TestPreProcessCall(ManagerTestCase):
+
+    def _doc_creator(self, steps):
+        doc = SentencedIEDocFactory()
+        for step in steps.split():
+            if step:
+                setattr(doc, "{}_done_at".format(step), datetime.now())
+        doc.save()
+        return doc
+
     def setUp(self):
         self.preprocess = StanfordPreprocess()
 
         self.document_nothing_done = IEDocFactory()
-        self.document_all_done = IEDocFactory(
-            tokenization_done_at=datetime.now(),
-            lemmatization_done_at=datetime.now(),
-            sentencer_done_at=datetime.now(),
-            tagging_done_at=datetime.now(),
-            ner_done_at=datetime.now(),
-            segmentation_done_at=datetime.now(),
-        )
-        self.document_missing_lemmatization = IEDocFactory(
-            tokenization_done_at=datetime.now(),
-            sentencer_done_at=datetime.now(),
-            tagging_done_at=datetime.now(),
-            ner_done_at=datetime.now(),
-            segmentation_done_at=datetime.now(),
-        )
+        self.document_all_done = self._doc_creator("tokenization lemmatization sentencer tagging ner segmentation syntactic_parsing")
+        self.document_missing_lemmatization = self._doc_creator("tokenization sentencer tagging ner segmentation syntactic_parsing")
+        self.document_missing_syntactic_parsing = self._doc_creator("tokenization sentencer tagging ner segmentation lemmatization")
 
     def test_non_step_is_run(self):
-
         with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
             self.preprocess(self.document_all_done)
             self.assertFalse(mock_analizer.called)
@@ -181,3 +196,17 @@ class TestPreProcessCall(ManagerTestCase):
         self.assertNotEqual(self.document_nothing_done.tagging_done_at, None)
         self.assertNotEqual(self.document_nothing_done.ner_done_at, None)
         self.assertNotEqual(self.document_nothing_done.sentencer_done_at, None)
+
+    def test_syntactic_parsing_is_run_even_all_others_already_did(self):
+        with mock.patch.object(self.preprocess, "syntactic_parsing_only") as mock_lemmatization:
+            mock_lemmatization.side_effect = lambda x: None
+            self.preprocess(self.document_missing_syntactic_parsing)
+            self.assertTrue(mock_lemmatization.called)
+
+    def test_syntactic_parsing_invalid_trees(self):
+        with mock.patch("iepy.preprocess.corenlp.get_analizer"):
+            with mock.patch("iepy.preprocess.stanford_preprocess.analysis_to_parse_trees") as mock_analysis:
+                sentences = list(self.document_missing_syntactic_parsing.get_sentences())
+                mock_analysis.side_effect = ["x"] * int(len(sentences) / 2)
+                with self.assertRaises(ValueError):
+                    self.preprocess(self.document_missing_syntactic_parsing)

@@ -10,7 +10,7 @@ from collections import namedtuple
 from django.db import models
 
 from iepy.utils import unzip
-from corpus.fields import ListField
+from corpus.fields import ListField, ListSyntacticTreeField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
@@ -64,6 +64,7 @@ class IEDocument(BaseModel):
     lemmas = ListField()  # strings
     postags = ListField()  # strings
     offsets_to_text = ListField()  # ints, character offset for tokens, lemmas and postags
+    syntactic_sentences = ListSyntacticTreeField()
 
     sentences = ListField()  # ints, it's a list of token-offsets
 
@@ -78,6 +79,7 @@ class IEDocument(BaseModel):
     tagging_done_at = models.DateTimeField(null=True, blank=True)
     ner_done_at = models.DateTimeField(null=True, blank=True)
     segmentation_done_at = models.DateTimeField(null=True, blank=True)
+    syntactic_parsing_done_at = models.DateTimeField(null=True, blank=True)
 
     # anything else you want to store in here that can be useful
     metadata = jsonfield.JSONField(blank=True)
@@ -181,6 +183,15 @@ class IEDocument(BaseModel):
                 'Tagging result must have same cardinality than tokens')
         self.postags = value
         self.tagging_done_at = datetime.now()
+        return self
+
+    def set_syntactic_parsing_result(self, parsed_sentences):
+        if len(parsed_sentences) != len(list(self.get_sentences())):
+            raise ValueError(
+                'Syntactic parsing must have same cardinality than sentences'
+            )
+        self.syntactic_sentences = parsed_sentences
+        self.syntactic_parsing_done_at = datetime.now()
         return self
 
     def set_ner_result(self, value):
@@ -320,6 +331,7 @@ class TextSegment(BaseModel):
             self.text = ""
         self.sentences = [i - self.offset for i in doc.sentences
                           if i >= self.offset and i < self.offset_end]
+        self.syntactic_sentences = [doc.syntactic_sentences[s] for s in self.sentences]
         self._hydrated = True
         return self
 

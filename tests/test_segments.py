@@ -125,6 +125,7 @@ class TextSegmentCreationTest(ManagerTestCase):
         d.tokens = ["X"]*L
         d.postags = ["N"]*L
         d.sentences = [0, 5, 35, 36, 41, 90]
+        d.syntactic_sentences = [""] * max(d.sentences)
         s = self.build_and_get_segment_from_raw(RSF(30, 60))
         self.assertEqual(s.sentences, [5, 6, 11])
         s = self.build_and_get_segment_from_raw(RSF(0, 60))

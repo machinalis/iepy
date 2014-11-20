@@ -16,7 +16,7 @@ from iepy.extraction.features import (
     bag_of_wordpos_bigrams_in_between, entity_order, entity_distance,
     other_entities_in_between, total_number_of_entities,
     verbs_count_in_between, verbs_count, symbols_in_between,
-    parse_features
+    parse_features, in_between_offsets,
 )
 
 from .factories import EvidenceFactory
@@ -25,11 +25,16 @@ from .manager_case import ManagerTestCase
 
 def _e(markup, **kwargs):
     base_pos = kwargs.pop('base_pos', ["DT", u"JJ", u"NN"])
+    base_lemmas = kwargs.pop('base_lemmas', None)
     evidence = EvidenceFactory(markup=markup, **kwargs)
     evidence = CandidateEvidenceManager.hydrate(evidence)
+
+    if base_lemmas is None:
+        base_lemmas = [x.lower() for x in evidence.segment.tokens]
     n = len(evidence.segment.tokens)
     pos = (base_pos * n)[:n]
     evidence.segment.postags = pos
+    evidence.segment.lemmas = base_lemmas
     return evidence
 
 
@@ -306,6 +311,100 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
         test_two=(u"Drinking {Mate|thing**}, makes you go, to the {toilet|thing*}",
                   EQ, 1),  # its only boolean
     )
+
+
+class TestLemmasInBetweenEntitiesCount(ManagerTestCase, FeatureEvidenceBaseCase):
+    def lemmas_count_in_between(datapoint):
+        i, j = in_between_offsets(datapoint)
+        return len([x for x in datapoint.segment.lemmas[i:j]])
+
+    feature = make_feature(lemmas_count_in_between)
+    fixtures = dict(
+        test_lemmas=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, 5),
+        test_none=(
+            lambda: _e(u"Drinking {Mate|thing*} {rocks|feeling**}"),
+            EQ, 0),
+    )
+
+class TestBagOfLemmas(ManagerTestCase, FeatureEvidenceBaseCase):
+    def bag_of_lemmas(datapoint):
+        return set(datapoint.segment.lemmas)
+
+    feature = make_feature(bag_of_lemmas)
+    fixtures = dict(
+        test_lemmas=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, set("drinking mate makes you go to the toilet".split())),
+        test_none=(
+            lambda: _e(u""),
+            EQ, set()),
+    )
+
+
+class TestSyntacticTreeBagOfTags(ManagerTestCase, FeatureEvidenceBaseCase):
+    def bag_of_tree_tags(datapoint):
+        tags = set()
+        to_explore = datapoint.segment.syntactic_sentences
+        while to_explore:
+            tree = to_explore.pop(0)
+            if isinstance(tree, str):  # leaf
+                continue
+            tags.add(tree.label())
+            to_explore.extend(list(tree))
+        return tags
+
+    feature = make_feature(bag_of_tree_tags)
+    fixtures = dict(
+        test_empty=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, set()),
+        test_one=(
+            lambda: _e(
+                u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                syntactic_sentence="""
+                (ROOT
+                  (S
+                    (NP (NNP Drinking) (NNP Mate))
+                    (VP (VBZ makes)
+                      (S
+                        (NP (PRP you))
+                        (VP (VB go)
+                          (PP (TO to)
+                            (NP (DT the) (NN toilet))))))))
+                """),
+            EQ, set("ROOT S NP NNP VP VBZ PRP VB PP TO DT NN".split())),
+    )
+
+
+class TestSyntacticTreeHeight(ManagerTestCase, FeatureEvidenceBaseCase):
+    def tree_height(datapoint):
+        heights = [x.height() for x in datapoint.segment.syntactic_sentences]
+        return sum(heights)
+
+    feature = make_feature(tree_height)
+    fixtures = dict(
+        test_empty=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, 0),
+        test_one=(
+            lambda: _e(
+                u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}",
+                syntactic_sentence="""
+                (ROOT
+                  (S
+                    (NP (NNP Drinking) (NNP Mate))
+                    (VP (VBZ makes)
+                      (S
+                        (NP (PRP you))
+                        (VP (VB go)
+                          (PP (TO to)
+                            (NP (DT the) (NN toilet))))))))
+                """),
+            EQ, 9),
+    )
+
 
 class MockedModule:
     def custom_feature(*args, **kwargs):

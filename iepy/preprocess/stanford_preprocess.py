@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class StanfordPreprocess(BasePreProcessStepRunner):
+
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
 
@@ -26,9 +27,18 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 "Document changed since last tokenization, "
                 "can't add lemmas to it"
             )
-
-        # Lemmatization
         document.set_lemmatization_result(get_lemmas(sentences))
+        document.save()
+
+    def syntactic_parsing_only(self, document):
+        """ Run only the syntactic parsing """
+
+        # syntactic parsing was added after the first so we need to support
+        # that a document has all the steps done but syntactic parsing
+
+        analysis = corenlp.get_analizer().analize(document.text)
+        parse_trees = analysis_to_parse_trees(analysis)
+        document.set_syntactic_parsing_result(parse_trees)
         document.save()
 
     def __call__(self, document):
@@ -37,24 +47,36 @@ class StanfordPreprocess(BasePreProcessStepRunner):
             PreProcessSteps.sentencer,
             PreProcessSteps.tagging,
             PreProcessSteps.ner,
+            # Steps added after 0.9.1
             PreProcessSteps.lemmatization,
+            PreProcessSteps.syntactic_parsing,
         ]
         if not self.override:
+            # All steps done
             if all(document.was_preprocess_step_done(step) for step in steps):
                 return
 
-            old_steps = steps[:-1]  # all but lemmatization
-            old_steps_done = all(document.was_preprocess_step_done(step) for step in old_steps)
-            lemmatization_done = document.was_preprocess_step_done(PreProcessSteps.lemmatization)
-            if old_steps_done and not lemmatization_done:
-                self.lemmatization_only(document)
+            # Old steps are the one added up to version 0.9.1
+            old_steps = steps[:4]
+            done_steps = [step for step in steps if document.was_preprocess_step_done(step)]
+            old_steps_done = all([x in done_steps for x in old_steps])
+
+            if old_steps_done:
+                if PreProcessSteps.lemmatization not in done_steps:
+                    self.lemmatization_only(document)
+                if PreProcessSteps.syntactic_parsing not in done_steps:
+                    self.syntactic_parsing_only(document)
                 return
 
         if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
-            raise NotImplementedError("Running with mixed preprocess steps not supported, must be 100% StanfordMultiStepRunner")
+            raise NotImplementedError(
+                "Running with mixed preprocess steps not supported, "
+                "must be 100% StanfordMultiStepRunner"
+            )
 
         analysis = corenlp.get_analizer().analize(document.text)
         sentences = analysis_to_sentences(analysis)
+        parse_trees = analysis_to_parse_trees(analysis)
 
         # Tokenization
         tokens = get_tokens(sentences)
@@ -70,13 +92,17 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # POS tagging
         document.set_tagging_result(get_pos(sentences))
 
+        # Syntactic parsing
+        document.set_syntactic_parsing_result(parse_trees)
+
         # NER
-        xs = [FoundEntity(key="{} {} {} {}".format(document.human_identifier, kind, i, j),
-                          kind_name=kind,
-                          alias=" ".join(tokens[i:j]),
-                          offset=i,
-                          offset_end=j)
-              for i, j, kind in get_entity_occurrences(sentences)]
+        xs = [FoundEntity(
+            key="{} {} {} {}".format(document.human_identifier, kind, i, j),
+            kind_name=kind,
+            alias=" ".join(tokens[i:j]),
+            offset=i,
+            offset_end=j
+        ) for i, j, kind in get_entity_occurrences(sentences)]
         document.set_ner_result(xs)
 
         # Save progress so far, next step doesn't modify `document`
@@ -111,6 +137,11 @@ def analysis_to_sentences(analysis):
         for t in tokens:
             xs.append(t)
         result.append(xs)
+    return result
+
+def analysis_to_parse_trees(analysis):
+    sentences = _dictpath(analysis, "sentences", "sentence")
+    result = [x["parse"] for x in sentences]
     return result
 
 
