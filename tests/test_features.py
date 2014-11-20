@@ -312,6 +312,36 @@ class TestSymbolsInBetween(ManagerTestCase, FeatureEvidenceBaseCase):
                   EQ, 1),  # its only boolean
     )
 
+
+class TestLemmasInBetweenEntitiesCount(ManagerTestCase, FeatureEvidenceBaseCase):
+    def lemmas_count_in_between(datapoint):
+        i, j = in_between_offsets(datapoint)
+        return len([x for x in datapoint.segment.lemmas[i:j]])
+
+    feature = make_feature(lemmas_count_in_between)
+    fixtures = dict(
+        test_lemmas=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, 5),
+        test_none=(
+            lambda: _e(u"Drinking {Mate|thing*} {rocks|feeling**}"),
+            EQ, 0),
+    )
+
+class TestBagOfLemmas(ManagerTestCase, FeatureEvidenceBaseCase):
+    def bag_of_lemmas(datapoint):
+        return set(datapoint.segment.lemmas)
+
+    feature = make_feature(bag_of_lemmas)
+    fixtures = dict(
+        test_lemmas=(
+            lambda: _e(u"Drinking {Mate|thing*} makes you go to the {toilet|thing**}"),
+            EQ, set("drinking mate makes you go to the toilet".split())),
+        test_none=(
+            lambda: _e(u""),
+            EQ, set()),
+    )
+
 class MockedModule:
     def custom_feature(*args, **kwargs):
         return "custom feature"
