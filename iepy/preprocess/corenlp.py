@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 import stat
+from functools import lru_cache
 
 import iepy
 from iepy.utils import DIRS, unzip_from_url
@@ -22,12 +23,10 @@ _FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
 COMMAND_PATH = os.path.join(_FOLDER_PATH, "corenlp.sh")
 
 
-def get_analizer(_singleton=[]):
-    # intentionally using a mutable default, so it's loaded only once
-    if not _singleton:
-        logger.info("Loading StanfordCoreNLP...")
-        _singleton.append(StanfordCoreNLP())
-    return _singleton[0]
+@lru_cache(maxsize=1)
+def get_analizer(*args, **kwargs):
+    logger.info("Loading StanfordCoreNLP...")
+    return StanfordCoreNLP(*args, **kwargs)
 
 
 class StanfordCoreNLP:
