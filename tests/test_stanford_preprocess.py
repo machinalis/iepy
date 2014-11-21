@@ -1,13 +1,14 @@
 from unittest import TestCase, mock
 from datetime import datetime
 
-from .factories import IEDocFactory, SentencedIEDocFactory
+from .factories import IEDocFactory, SentencedIEDocFactory, GazetteItemFactory
 from .manager_case import ManagerTestCase
 from iepy.preprocess.stanford_preprocess import (
     get_tokens, get_token_offsets, get_lemmas,
     get_sentence_boundaries,
     get_entity_occurrences,
-    StanfordPreprocess
+    StanfordPreprocess,
+    generate_gazettes_file
 )
 
 
@@ -210,3 +211,42 @@ class TestPreProcessCall(ManagerTestCase):
                 mock_analysis.side_effect = ["x"] * int(len(sentences) / 2)
                 with self.assertRaises(ValueError):
                     self.preprocess(self.document_missing_syntactic_parsing)
+
+
+class TestGazetteer(ManagerTestCase):
+    def test_generate_gazettes_file_emtpy(self):
+        self.assertEqual(generate_gazettes_file(), None)
+
+    def _test_single_gazette(self, text=None):
+        if text:
+            gazette_item = GazetteItemFactory(text=text)
+        else:
+            gazette_item = GazetteItemFactory()
+        filepath = generate_gazettes_file()
+        self.assertNotEqual(filepath, None)
+        data = open(filepath).read()
+
+        expected = "{}\t{}\n".format(
+            gazette_item.text,
+            gazette_item.kind.name
+        )
+        self.assertEqual(expected, data)
+        gazette_item.delete()
+
+    def test_generate_gazettes_several_lines(self):
+        gazettes = [GazetteItemFactory() for x in range(10)]
+        filepath = generate_gazettes_file()
+        self.assertNotEqual(filepath, None)
+        data = open(filepath).read()
+        self.assertEqual(data.count("\n"), 10)
+        for line in data.split("\n")[:-1]:
+            self.assertEqual(line.count("\t"), 1)
+
+    def test_generate_gazettes_one_line(self):
+        self._test_single_gazette()
+
+    def test_gazettes_unicode(self):
+        self._test_single_gazette("#½]}→@}#½ĸ@#")
+        self._test_single_gazette("ħøłæ")
+        self._test_single_gazette("æ}@ł¢µ«»µ«»“~þðøđþ")
+
