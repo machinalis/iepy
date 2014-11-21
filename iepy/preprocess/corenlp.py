@@ -26,10 +26,19 @@ class StanfordCoreNLP:
     CORENLP_CMD = "-outputFormat xml -threads 4"
     PROMPT = b"\nNLP> "
 
-    def __init__(self, tokenize_with_whitespace=False):
+    def __init__(self, tokenize_with_whitespace=False, gazettes_filepath=None):
+        annotators = ["tokenize", "ssplit", "pos", "lemma",
+                      "ner", "parse", "dcoref"]
+
         cmd = self.CORENLP_CMD
         if tokenize_with_whitespace:
             cmd += " -tokenize.whitespace=true"
+
+        if gazettes_filepath:
+            annotators.insert(annotators.index("ner") + 1, "regexner")
+            cmd += " -regexner.mapping {}".format(gazettes_filepath)
+
+        cmd += " -annotators {}".format(",".join(annotators))
         self.corenlp_cmd = [COMMAND_PATH] + cmd.split()
         self.proc = subprocess.Popen(
             self.corenlp_cmd,
