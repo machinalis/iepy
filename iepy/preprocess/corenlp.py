@@ -60,12 +60,12 @@ class StanfordCoreNLP:
 
         lang = iepy.instance.settings.IEPY_LANG
         if lang == 'es':
-            edu_mods = "edu/stanford/nlp/models/"
+            edu_mods = "edu/stanford/nlp/models"
             annotators.remove('dcoref')  # not supported for spanish on Stanford 3.4.1
-            cmd_args += "-tokenize.language es"
-            cmd_args += "-pos.model %s/pos-tagger/spanish/spanish-distsim.tagger" % edu_mods
-            cmd_args += "-ner.model %s/ner/spanish.ancora.distsim.s512.crf.ser.gz" % edu_mods
-            cmd_args += "-parse.model %s/lexparser/spanishPCFG.ser.gz" % edu_mods
+            cmd_args += " -tokenize.language es"
+            cmd_args += " -pos.model %s/pos-tagger/spanish/spanish-distsim.tagger" % edu_mods
+            cmd_args += " -ner.model %s/ner/spanish.ancora.distsim.s512.crf.ser.gz" % edu_mods
+            cmd_args += " -parse.model %s/lexparser/spanishPCFG.ser.gz" % edu_mods
 
         cmd_args += " -annotators {}".format(",".join(annotators))
         return cmd_args.split()
