@@ -5,6 +5,7 @@ import sys
 import logging
 import stat
 
+import iepy
 from iepy.utils import DIRS, unzip_from_url
 
 
@@ -30,31 +31,44 @@ def get_analizer(_singleton=[]):
 
 
 class StanfordCoreNLP:
-    CORENLP_CMD = "-outputFormat xml -threads 4"
+    CMD_ARGS = "-outputFormat xml -threads 4"
     PROMPT = b"\nNLP> "
 
     def __init__(self, tokenize_with_whitespace=False, gazettes_filepath=None):
-        annotators = ["tokenize", "ssplit", "pos", "lemma",
-                      "ner", "parse", "dcoref"]
-
-        cmd = self.CORENLP_CMD
-        if tokenize_with_whitespace:
-            cmd += " -tokenize.whitespace=true"
-
-        if gazettes_filepath:
-            annotators.insert(annotators.index("ner") + 1, "regexner")
-            cmd += " -regexner.mapping {}".format(gazettes_filepath)
-
-        cmd += " -annotators {}".format(",".join(annotators))
-        self.corenlp_cmd = [COMMAND_PATH] + cmd.split()
+        cmd_args = self.command_args(tokenize_with_whitespace, gazettes_filepath)
+        os.chdir(_FOLDER_PATH)
+        self.corenlp_cmd = [COMMAND_PATH] + cmd_args
         self.proc = subprocess.Popen(
             self.corenlp_cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
+            stderr=subprocess.STDOUT,
+            cwd=_FOLDER_PATH
         )
         self.output = self.iter_output_segments()
         self.receive()  # Wait until the prompt is ready
+
+    def command_args(self, tokenize_with_whitespace, gazettes_filepath):
+        annotators = ["tokenize", "ssplit", "pos", "lemma", "ner", "parse", "dcoref"]
+        cmd_args = self.CMD_ARGS[:]
+        if tokenize_with_whitespace:
+            cmd_args += " -tokenize.whitespace=true"
+
+        if gazettes_filepath:
+            annotators.insert(annotators.index("ner") + 1, "regexner")
+            cmd_args += " -regexner.mapping {}".format(gazettes_filepath)
+
+        lang = iepy.instance.settings.IEPY_LANG
+        if lang == 'es':
+            edu_mods = "edu/stanford/nlp/models/"
+            annotators.pop('dcoref')  # not supported for spanish on Stanford 3.4.1
+            cmd_args += "-tokenize.language es"
+            cmd_args += "-pos.model %s/pos-tagger/spanish/spanish-distsim.tagger" % edu_mods
+            cmd_args += "-ner.model %s/ner/spanish.ancora.distsim.s512.crf.ser.gz" % edu_mods
+            cmd_args += "-parse.model %s/lexparser/spanishPCFG.ser.gz" % edu_mods
+
+        cmd_args += " -annotators {}".format(",".join(annotators))
+        return cmd_args.split()
 
     def iter_output_segments(self):
         while True:
