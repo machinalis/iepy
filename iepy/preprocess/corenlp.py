@@ -9,9 +9,16 @@ from iepy.utils import DIRS, unzip_from_url
 
 
 logger = logging.getLogger(__name__)
-_FOLDER = "stanford-corenlp-full-2014-08-27"
-DOWNLOAD_URL = "http://nlp.stanford.edu/software/" + _FOLDER + ".zip"
-COMMAND_PATH = os.path.join(DIRS.user_data_dir, _FOLDER, "corenlp.sh")
+
+# Stanford Core NLP 3.4.1
+# Pitifully Stanford folks have a public name ("version") of their releases that is
+# not used on their download urls. So, 3.4.1 is also "stanford-corenlp-full-2014-08-27"
+_CORENLP_VERSION = "stanford-corenlp-full-2014-08-27"
+_STANFORD_BASE_URL = "http://nlp.stanford.edu/software/"
+DOWNLOAD_URL = _STANFORD_BASE_URL + _CORENLP_VERSION + ".zip"
+DOWNLOAD_URL_ES = _STANFORD_BASE_URL + '/stanford-spanish-corenlp-2014-08-26-models.jar'
+_FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
+COMMAND_PATH = os.path.join(_FOLDER_PATH, "corenlp.sh")
 
 
 def get_analizer(_singleton=[]):
@@ -79,20 +86,30 @@ class StanfordCoreNLP:
         return xmltodict.parse(text)["root"]["document"]
 
 
-def download():
+def download(lang='en'):
     base = os.path.dirname(COMMAND_PATH)
     if os.path.isfile(COMMAND_PATH):
         print("Stanford CoreNLP is already downloaded at {}.".format(base))
-        return
-    print("Downloading Stanford CoreNLP...")
+    else:
+        print("Downloading Stanford CoreNLP...")
+        unzip_from_url(DOWNLOAD_URL, DIRS.user_data_dir)
 
-    unzip_from_url(DOWNLOAD_URL, DIRS.user_data_dir)
+        for directory in os.listdir(DIRS.user_data_dir):
+            if directory.startswith("stanford-corenlp-full"):
+                stanford_directory = os.path.join(DIRS.user_data_dir, directory)
+                if os.path.isdir(stanford_directory):
+                    corenlp = os.path.join(stanford_directory, "corenlp.sh")
+                    st = os.stat(corenlp)
+                    os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
+                    break
 
-    for directory in os.listdir(DIRS.user_data_dir):
-        if directory.startswith("stanford-corenlp-full"):
-            stanford_directory = os.path.join(DIRS.user_data_dir, directory)
-            if os.path.isdir(stanford_directory):
-                corenlp = os.path.join(stanford_directory, "corenlp.sh")
-                st = os.stat(corenlp)
-                os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
-                break
+    # Download extra data for specific language
+    if lang.lower() == 'es':
+        SPANISH_PATH = os.path.join(_FOLDER_PATH, 'edu', 'stanford', 'nlp', 'models')
+        if os.path.isdir(SPANISH_PATH):
+            print("Extra data for lang '{}' already downloaded.".format(lang))
+        else:
+            print("Downloading Stanford CoreNLP extra data for lang '{}'...".format(lang))
+            unzip_from_url(DOWNLOAD_URL_ES, _FOLDER_PATH)
+    elif lang.lower() != 'en':
+        print("There are no extra data to download for lang '{}'.".format(lang))
