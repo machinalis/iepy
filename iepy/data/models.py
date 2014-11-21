@@ -661,3 +661,8 @@ class SegmentToTag(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['segment', 'relation']
+
+
+class GazetteItem(BaseModel):
+    kind = models.ForeignKey(EntityKind)
+    text = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False, unique=True)
