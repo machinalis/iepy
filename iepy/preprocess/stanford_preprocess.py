@@ -1,11 +1,12 @@
 from collections import defaultdict
 from itertools import chain, groupby
 import logging
+import tempfile
 
 from iepy.preprocess import corenlp
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
-from iepy.data.models import Entity, EntityOccurrence
+from iepy.data.models import Entity, EntityOccurrence, GazetteItem
 
 
 logger = logging.getLogger(__name__)
@@ -13,13 +14,18 @@ logger = logging.getLogger(__name__)
 
 class StanfordPreprocess(BasePreProcessStepRunner):
 
+    def __init__(self):
+        super().__init__()
+        gazettes_filepath = generate_gazettes_file()
+        self.corenlp = corenlp.get_analizer(gazettes_filepath=gazettes_filepath)
+
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
 
         # Lemmatization was added after the first so we need to support
         # that a document has all the steps done but lemmatization
 
-        analysis = corenlp.get_analizer().analize(document.text)
+        analysis = self.corenlp.analize(document.text)
         sentences = analysis_to_sentences(analysis)
         tokens = get_tokens(sentences)
         if document.tokens != tokens:
@@ -36,7 +42,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # syntactic parsing was added after the first so we need to support
         # that a document has all the steps done but syntactic parsing
 
-        analysis = corenlp.get_analizer().analize(document.text)
+        analysis = self.corenlp.analize(document.text)
         parse_trees = analysis_to_parse_trees(analysis)
         document.set_syntactic_parsing_result(parse_trees)
         document.save()
@@ -49,6 +55,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
             PreProcessSteps.ner,
             # Steps added after 0.9.1
             PreProcessSteps.lemmatization,
+            # Steps added after 0.9.2
             PreProcessSteps.syntactic_parsing,
         ]
         if not self.override:
@@ -74,7 +81,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 "must be 100% StanfordMultiStepRunner"
             )
 
-        analysis = corenlp.get_analizer().analize(document.text)
+        analysis = self.corenlp.analize(document.text)
         sentences = analysis_to_sentences(analysis)
         parse_trees = analysis_to_parse_trees(analysis)
 
@@ -290,6 +297,25 @@ def apply_coreferences(document, coreferences):
         for occurrence in EntityOccurrence.objects.filter(entity=entity):
             occurrence.entity = canonical
             occurrence.save()
+
+def generate_gazettes_file():
+    """
+    Generates the gazettes file if there's any. Returns
+    the filepath in case gazettes where found, else None.
+    """
+    gazettes = GazetteItem.objects.all()
+    if not gazettes.count():
+        return
+
+    gazette_format = "{}\t{}\n"
+    _, filepath = tempfile.mkstemp()
+    with open(filepath, "w") as gazette_file:
+        for gazette in gazettes:
+            kind = "{}{}".format(GAZETTE_PREFIX, gazette.kind.name.replace("\t", " "))
+            text = gazette.text.replace("\t", " ")
+            line = gazette_format.format(text, kind)
+            gazette_file.write(line)
+    return filepath
 
 
 class CoreferenceError(Exception):
