@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.core import urlresolvers
 
-from corpus.models import IEDocument, Entity, EntityKind, Relation, EntityOccurrence
+from corpus.models import (
+    IEDocument, Entity, EntityKind, Relation,
+    EntityOccurrence, GazetteItem
+)
 
 admin.site.site_header = 'IEPY administration'
 admin.site.site_title = 'IEPY'
@@ -50,3 +53,7 @@ class RelationAdmin(admin.ModelAdmin):
         if obj:  # editing an existing object
             return self.readonly_fields + ('left_entity_kind', 'right_entity_kind')
         return self.readonly_fields
+
+@admin.register(GazetteItem)
+class GazetteAdmin(admin.ModelAdmin):
+    pass
