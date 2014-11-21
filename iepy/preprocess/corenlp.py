@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 import stat
+from functools import lru_cache
 
 from iepy.utils import DIRS, unzip_from_url
 
@@ -14,12 +15,10 @@ DOWNLOAD_URL = "http://nlp.stanford.edu/software/" + _FOLDER + ".zip"
 COMMAND_PATH = os.path.join(DIRS.user_data_dir, _FOLDER, "corenlp.sh")
 
 
-def get_analizer(_singleton=[]):
-    # intentionally using a mutable default, so it's loaded only once
-    if not _singleton:
-        logger.info("Loading StanfordCoreNLP...")
-        _singleton.append(StanfordCoreNLP())
-    return _singleton[0]
+@lru_cache(maxsize=1)
+def get_analizer(*args, **kwargs):
+    logger.info("Loading StanfordCoreNLP...")
+    return StanfordCoreNLP(*args, **kwargs)
 
 
 class StanfordCoreNLP:
