@@ -109,3 +109,6 @@ LOGGING = {
         },
     },
 }
+
+
+IEPY_LANG = 'en'
