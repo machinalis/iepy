@@ -200,15 +200,22 @@ class IEDocument(BaseModel):
 
     def set_ner_result(self, value):
         for found_entity in value:
-            key, kind_name, alias, offset, offset_end = found_entity
+            key, kind_name, alias, offset, offset_end, from_gazette = found_entity
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
-            entity, created = Entity.objects.get_or_create(
-                key=key,
-                kind=kind)
+            if from_gazette:
+                gazette_item = GazetteItem.objects.get(text=alias, kind=kind)
+                entity, created = Entity.objects.get_or_create(
+                    key=key, kind=kind,
+                    gazette=gazette_item
+                )
+            else:
+                entity, created = Entity.objects.get_or_create(key=key, kind=kind)
+
             if len(alias) > CHAR_MAX_LENGHT:
                 alias_ = alias[:CHAR_MAX_LENGHT]
                 print('Alias "%s" reduced to "%s"' % (alias, alias_))
                 alias = alias_
+
             EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,

@@ -111,7 +111,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.save()
 
         # Coreference resolution
-        for coref in get_coreferences(analysis):
+        for coref in get_coreferences(analysis, sentences):
             try:
                 apply_coreferences(document, coref)
             except CoreferenceError as e:
@@ -208,25 +208,24 @@ def get_found_entities(document, sentences, tokens):
         alias = " ".join(tokens[i:j])
         if kind.startswith(GAZETTE_PREFIX):
             kind = kind.split(GAZETTE_PREFIX, 1)[1]
-            key = "{}{}_{}".format(
-                GAZETTE_PREFIX, kind, alias
-            )
+            key = "{}".format(alias)
+            from_gazette = True
         else:
-            key = "{} {} {} {}".format(
-                document.human_identifier, kind, i, j
-            )
+            key = "{} {} {} {}".format(document.human_identifier, kind, i, j)
+            from_gazette = False
 
         found_entities.append(FoundEntity(
             key=key,
             kind_name=kind,
             alias=alias,
             offset=i,
-            offset_end=j
+            offset_end=j,
+            from_gazette=from_gazette
         ))
     return found_entities
 
 
-def get_coreferences(analysis):
+def get_coreferences(analysis, sentences):
     """
     Returns a list of lists of tuples (i, j, k) such that `i` is the start
     offset of a reference, `j` is the end offset and `k` is the index of the
@@ -235,7 +234,6 @@ def get_coreferences(analysis):
     All references within the same list refer to the same entity.
     All references in different lists refer to different entities.
     """
-    sentences = analysis_to_sentences(analysis)
     sentence_offsets = get_sentence_boundaries(sentences)
     coreferences = []
     for mention in _dictpath(analysis, "coreference", "coreference"):
