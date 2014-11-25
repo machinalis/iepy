@@ -10,7 +10,7 @@ from iepy.data.models import Entity, EntityOccurrence, GazetteItem
 
 
 logger = logging.getLogger(__name__)
-
+GAZETTE_PREFIX = "__GAZETTE_"
 
 class StanfordPreprocess(BasePreProcessStepRunner):
 
@@ -18,6 +18,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         super().__init__()
         gazettes_filepath = generate_gazettes_file()
         self.corenlp = corenlp.get_analizer(gazettes_filepath=gazettes_filepath)
+        self.override = False
 
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
@@ -103,14 +104,8 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_syntactic_parsing_result(parse_trees)
 
         # NER
-        xs = [FoundEntity(
-            key="{} {} {} {}".format(document.human_identifier, kind, i, j),
-            kind_name=kind,
-            alias=" ".join(tokens[i:j]),
-            offset=i,
-            offset_end=j
-        ) for i, j, kind in get_entity_occurrences(sentences)]
-        document.set_ner_result(xs)
+        found_entities = get_found_entities(document, sentences, tokens)
+        document.set_ner_result(found_entities)
 
         # Save progress so far, next step doesn't modify `document`
         document.save()
@@ -198,6 +193,36 @@ def get_entity_occurrences(sentences):
             j = ix[-1] + 1 + offset
             found_entities.append((i, j, kind))
         offset += len(words)
+    return found_entities
+
+
+def get_found_entities(document, sentences, tokens):
+    """
+    Generates FoundEntity objects for the entities found.
+    For all the entities that came from a gazette, joins
+    the ones with the same kind.
+    """
+
+    found_entities = []
+    for i, j, kind in get_entity_occurrences(sentences):
+        alias = " ".join(tokens[i:j])
+        if kind.startswith(GAZETTE_PREFIX):
+            kind = kind.split(GAZETTE_PREFIX, 1)[1]
+            key = "{}{}_{}".format(
+                GAZETTE_PREFIX, kind, alias
+            )
+        else:
+            key = "{} {} {} {}".format(
+                document.human_identifier, kind, i, j
+            )
+
+        found_entities.append(FoundEntity(
+            key=key,
+            kind_name=kind,
+            alias=alias,
+            offset=i,
+            offset_end=j
+        ))
     return found_entities
 
 
@@ -297,6 +322,7 @@ def apply_coreferences(document, coreferences):
         for occurrence in EntityOccurrence.objects.filter(entity=entity):
             occurrence.entity = canonical
             occurrence.save()
+
 
 def generate_gazettes_file():
     """
