@@ -8,7 +8,7 @@ from iepy.preprocess.stanford_preprocess import (
     get_sentence_boundaries,
     get_entity_occurrences,
     StanfordPreprocess,
-    generate_gazettes_file
+    generate_gazettes_file, GAZETTE_PREFIX, get_found_entities,
 )
 
 
@@ -226,8 +226,9 @@ class TestGazetteer(ManagerTestCase):
         self.assertNotEqual(filepath, None)
         data = open(filepath).read()
 
-        expected = "{}\t{}\n".format(
+        expected = "{}\t{}{}\n".format(
             gazette_item.text,
+            GAZETTE_PREFIX,
             gazette_item.kind.name
         )
         self.assertEqual(expected, data)
@@ -250,3 +251,42 @@ class TestGazetteer(ManagerTestCase):
         self._test_single_gazette("ħøłæ")
         self._test_single_gazette("æ}@ł¢µ«»µ«»“~þðøđþ")
 
+    def test_gazettes_different_eo_has_different_entity(self):
+        document = IEDocFactory()
+        tokens = "Hugh Laurie stars in Stuart Little with Michael J. Fox, the one from Back to The Future".split()
+        sentences = [
+            sentence_factory(" ".join(["{} x x x\n".format(x) for x in tokens])),
+        ]
+        with mock.patch("iepy.preprocess.stanford_preprocess.get_entity_occurrences") as mock_eos:
+            mock_eos.return_value = [
+                (0, 2, "person"),
+                (4, 6, "{}MOVIE".format(GAZETTE_PREFIX)),
+                (7, 10, "person"),
+                (13, 17, "{}MOVIE".format(GAZETTE_PREFIX)),
+            ]
+
+            found_entities = get_found_entities(document, sentences, tokens)
+            self.assertEqual(len(found_entities), 4)
+            gazettes = [x for x in found_entities if x.key.startswith(GAZETTE_PREFIX)]
+            self.assertEqual(len(gazettes), 2)
+            self.assertNotEqual(gazettes[0].key, gazettes[1].key)
+
+    def test_gazettes_same_eo_has_same_entity(self):
+        document = IEDocFactory()
+        tokens = "Hugh Laurie stars in Stuart Little. Michael J. Fox also works in Stuart Little.".split()
+        sentences = [
+            sentence_factory(" ".join(["{} x x x\n".format(x) for x in tokens])),
+        ]
+        with mock.patch("iepy.preprocess.stanford_preprocess.get_entity_occurrences") as mock_eos:
+            mock_eos.return_value = [
+                (0, 2, "person"),
+                (4, 6, "{}MOVIE".format(GAZETTE_PREFIX)),
+                (6, 9, "person"),
+                (12, 14, "{}MOVIE".format(GAZETTE_PREFIX)),
+            ]
+
+            found_entities = get_found_entities(document, sentences, tokens)
+            self.assertEqual(len(found_entities), 4)
+            gazettes = [x for x in found_entities if x.key.startswith(GAZETTE_PREFIX)]
+            self.assertEqual(len(gazettes), 2)
+            self.assertEqual(gazettes[0].key, gazettes[1].key)
