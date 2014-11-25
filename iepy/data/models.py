@@ -42,6 +42,10 @@ class Entity(BaseModel):
     # Entity Occurrences
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
+    gazette = models.ForeignKey(
+        "GazetteItem", on_delete=models.CASCADE,
+        blank=True, null=True
+    )
 
     class Meta(BaseModel.Meta):
         ordering = ['kind', 'key']
