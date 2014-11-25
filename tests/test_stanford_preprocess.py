@@ -267,7 +267,7 @@ class TestGazetteer(ManagerTestCase):
 
             found_entities = get_found_entities(document, sentences, tokens)
             self.assertEqual(len(found_entities), 4)
-            gazettes = [x for x in found_entities if x.key.startswith(GAZETTE_PREFIX)]
+            gazettes = [x for x in found_entities if x.from_gazette]
             self.assertEqual(len(gazettes), 2)
             self.assertNotEqual(gazettes[0].key, gazettes[1].key)
 
@@ -287,6 +287,6 @@ class TestGazetteer(ManagerTestCase):
 
             found_entities = get_found_entities(document, sentences, tokens)
             self.assertEqual(len(found_entities), 4)
-            gazettes = [x for x in found_entities if x.key.startswith(GAZETTE_PREFIX)]
+            gazettes = [x for x in found_entities if x.from_gazette]
             self.assertEqual(len(gazettes), 2)
             self.assertEqual(gazettes[0].key, gazettes[1].key)
