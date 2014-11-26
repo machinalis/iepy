@@ -666,3 +666,7 @@ class SegmentToTag(BaseModel):
 class GazetteItem(BaseModel):
     kind = models.ForeignKey(EntityKind)
     text = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False, unique=True)
+    from_freebase = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False)
+
+    def __str__(self):
+        return "'{}' ({})".format(self.text, self.kind.name)

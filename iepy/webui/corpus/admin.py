@@ -54,6 +54,10 @@ class RelationAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('left_entity_kind', 'right_entity_kind')
         return self.readonly_fields
 
+
 @admin.register(GazetteItem)
 class GazetteAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['text']
+    list_display = ('text', 'kind', 'from_freebase',)
+    list_filter = ('kind', 'from_freebase',)
+    readonly_fields = ('from_freebase', )
