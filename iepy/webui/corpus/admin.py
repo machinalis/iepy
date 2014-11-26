@@ -30,10 +30,10 @@ class IEDocumentAdmin(admin.ModelAdmin):
     list_display = ['id', 'human_identifier', 'title', 'link_to_document_navigation']
 
     def link_to_document_navigation(self, obj):
-        return '<a href="{0}">Navigate</a>'.format(
+        return '<a href="{0}">Rich View</a>'.format(
             urlresolvers.reverse('corpus:navigate_document', args=(obj.id,))
         )
-    link_to_document_navigation.short_description = 'Navigation'
+    link_to_document_navigation.short_description = 'Rich View'
     link_to_document_navigation.allow_tags = True
     list_per_page = 20
 

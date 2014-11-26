@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+    <li>
+        <a href="{% url 'corpus:navigate_document' original.pk %}"
+           class="label-evidence">
+            Rich View
+        </a>
+    </li>
+{% endblock %}
