@@ -22,3 +22,9 @@ def on_eo_delete(sender, instance, **kwargs):
             eos = list(segment.get_entity_occurrences())
             if len(eos) < 2:
                 segment.delete()
+
+
+@receiver(post_delete, sender=models.Entity)
+def on_entity_delete(sender, instance, **kwargs):
+    if instance.gazette:
+        instance.gazette.delete()

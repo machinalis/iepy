@@ -3,7 +3,7 @@ from django.forms.models import modelform_factory
 from django.utils.decorators import method_decorator
 
 from djangular.views.crud import NgCRUDView
-from corpus.models import EntityOccurrence
+from corpus.models import EntityOccurrence, Entity
 
 
 class LoginNgCrudView(NgCRUDView):
@@ -22,3 +22,7 @@ class EOCRUDView(LoginNgCrudView):
         Build ModelForm from model
         """
         return modelform_factory(self.model, fields=self.fields[:])
+
+
+class EntityCRUDView(LoginNgCrudView):
+    model = Entity
