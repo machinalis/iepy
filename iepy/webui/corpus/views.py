@@ -444,14 +444,21 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         return kwargs
 
 
-def navigate_documents(context, document_id, direction):
+def navigate_documents(request, document_id, direction):
     if direction == "back":
         documents = IEDocument.objects.filter(id__lt=document_id).order_by("-id")
     else:
         documents = IEDocument.objects.filter(id__gt=document_id).order_by("id")
 
-    document = documents[0]
-    return redirect('corpus:navigate_document', document.id)
+    if documents:
+        document_id = documents[0].id
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            'No more documents to show'
+        )
+
+    return redirect('corpus:navigate_document', document_id)
 
 
 class DocumentNavigation(TemplateView):
