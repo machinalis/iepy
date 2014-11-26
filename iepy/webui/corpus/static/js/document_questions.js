@@ -27,6 +27,11 @@ app.factory('EntityOccurrence', ['$resource',
         return $resource('/corpus/crud/entity_occurrence/', {'pk': '@pk'}, {});
     }
 ]);
+app.factory('Entity', ['$resource',
+    function ($resource) {
+        return $resource('/corpus/crud/entity/', {'pk': '@pk'}, {});
+    }
+]);
 
 app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
@@ -40,8 +45,8 @@ app.directive('ngRightClick', function ($parse) {
     };
 });
 
-app.controller('QuestionsController', ['$scope', 'EntityOccurrence',
-function ($scope, EntityOccurrence) {
+app.controller('QuestionsController', ['$scope', 'EntityOccurrence', 'Entity',
+function ($scope, EntityOccurrence, Entity) {
     "use strict";
     // ### Attributes ###
 
@@ -104,6 +109,9 @@ function ($scope, EntityOccurrence) {
         );
         $scope.eo_modal.elem.find('a.remove-eo-confirm').bind(
             'click', $scope.eo_modal.remove_eo_confirm
+        );
+        $scope.eo_modal.elem.find('a.remove-eo-confirm-all').bind(
+            'click', $scope.eo_modal.remove_eo_confirm_all
         );
         $scope.eo_modal.elem.find('a.remove-eo-cancel').bind(
             'click', $scope.eo_modal.remove_eo_cancel
@@ -514,6 +522,14 @@ function ($scope, EntityOccurrence) {
 
         var eo = $scope.eo_modal.eo;
         EntityOccurrence.delete({pk: eo.pk}).$promise.then(function () {
+            $scope.run_partial_save();
+        });
+    };
+    $scope.eo_modal.remove_eo_confirm_all = function (event) {
+        event.preventDefault();
+
+        var eo = $scope.eo_modal.eo;
+        Entity.delete({pk: eo.entity}).$promise.then(function () {
             $scope.run_partial_save();
         });
     };
