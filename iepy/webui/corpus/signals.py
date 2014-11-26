@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete, pre_delete
 from django.dispatch import receiver
 from iepy.data import models
@@ -22,6 +23,19 @@ def on_eo_delete(sender, instance, **kwargs):
             eos = list(segment.get_entity_occurrences())
             if len(eos) < 2:
                 segment.delete()
+
+
+@receiver(pre_delete, sender=models.GazetteItem)
+def pre_gazette_delete(sender, instance, **kwargs):
+    to_delete = list(instance.entity_set.all())
+    sender.to_delete = to_delete
+
+
+@receiver(post_delete, sender=models.GazetteItem)
+def on_gazette_delete(sender, instance, **kwargs):
+    if hasattr(sender, "to_delete"):
+        for entity in sender.to_delete:
+            entity.delete()
 
 
 @receiver(post_delete, sender=models.Entity)
