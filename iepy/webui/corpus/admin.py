@@ -57,5 +57,7 @@ class RelationAdmin(admin.ModelAdmin):
 
 @admin.register(GazetteItem)
 class GazetteAdmin(admin.ModelAdmin):
-    list_display = ('text', 'kind', )
-    list_filter = ('kind', )
+    search_fields = ['text']
+    list_display = ('text', 'kind', 'from_freebase',)
+    list_filter = ('kind', 'from_freebase',)
+    readonly_fields = ('from_freebase', )
