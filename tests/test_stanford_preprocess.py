@@ -151,7 +151,6 @@ class TestPreProcessCall(ManagerTestCase):
         return doc
 
     def setUp(self):
-        self.preprocess = StanfordPreprocess()
 
         self.document_nothing_done = IEDocFactory()
         self.document_all_done = self._doc_creator("tokenization lemmatization sentencer tagging ner segmentation syntactic_parsing")
@@ -159,27 +158,30 @@ class TestPreProcessCall(ManagerTestCase):
         self.document_missing_syntactic_parsing = self._doc_creator("tokenization sentencer tagging ner segmentation lemmatization")
 
     def test_non_step_is_run(self):
-        with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
-            self.preprocess(self.document_all_done)
-            self.assertFalse(mock_analizer.called)
+        with mock.patch("iepy.preprocess.corenlp.get_analizer"):
+            preprocess = StanfordPreprocess()
+            with mock.patch.object(preprocess.corenlp, "analize") as mock_analize:
+                preprocess(self.document_all_done)
+                self.assertFalse(mock_analize.called)
 
     def test_lemmatization_is_run_even_all_others_already_did(self):
 
-        with mock.patch.object(self.preprocess, "lemmatization_only") as mock_lemmatization:
-            mock_lemmatization.side_effect = lambda x: None
-            self.preprocess(self.document_missing_lemmatization)
-            self.assertTrue(mock_lemmatization.called)
+        with mock.patch("iepy.preprocess.corenlp.get_analizer"):
+            preprocess = StanfordPreprocess()
+            with mock.patch.object(preprocess, "lemmatization_only") as mock_lemmatization:
+                mock_lemmatization.side_effect = lambda x: None
+                preprocess(self.document_missing_lemmatization)
+                self.assertTrue(mock_lemmatization.called)
 
     def test_override(self):
-        self.override_preprocess = StanfordPreprocess()
-        self.override_preprocess.override = True
-
         with mock.patch("iepy.preprocess.corenlp.get_analizer") as mock_analizer:
             class MockAnalizer:
                 def analize(self, *args, **kwargs):
                     return {}
+            mock_analizer.return_value = MockAnalizer()
 
-            mock_analizer.side_effect = lambda: MockAnalizer
+            self.override_preprocess = StanfordPreprocess()
+            self.override_preprocess.override = True
             self.override_preprocess(self.document_all_done)
             self.assertTrue(mock_analizer.called)
 
@@ -188,9 +190,10 @@ class TestPreProcessCall(ManagerTestCase):
             class MockAnalizer:
                 def analize(self, *args, **kwargs):
                     return {}
+            mock_analizer.return_value = MockAnalizer()
 
-            mock_analizer.side_effect = lambda: MockAnalizer
-            self.preprocess(self.document_nothing_done)
+            preprocess = StanfordPreprocess()
+            preprocess(self.document_nothing_done)
 
         self.assertNotEqual(self.document_nothing_done.tokenization_done_at, None)
         self.assertNotEqual(self.document_nothing_done.lemmatization_done_at, None)
@@ -199,18 +202,21 @@ class TestPreProcessCall(ManagerTestCase):
         self.assertNotEqual(self.document_nothing_done.sentencer_done_at, None)
 
     def test_syntactic_parsing_is_run_even_all_others_already_did(self):
-        with mock.patch.object(self.preprocess, "syntactic_parsing_only") as mock_lemmatization:
-            mock_lemmatization.side_effect = lambda x: None
-            self.preprocess(self.document_missing_syntactic_parsing)
-            self.assertTrue(mock_lemmatization.called)
+        with mock.patch("iepy.preprocess.corenlp.get_analizer"):
+            preprocess = StanfordPreprocess()
+            with mock.patch.object(preprocess, "syntactic_parsing_only") as mock_lemmatization:
+                mock_lemmatization.side_effect = lambda x: None
+                preprocess(self.document_missing_syntactic_parsing)
+                self.assertTrue(mock_lemmatization.called)
 
     def test_syntactic_parsing_invalid_trees(self):
         with mock.patch("iepy.preprocess.corenlp.get_analizer"):
+            preprocess = StanfordPreprocess()
             with mock.patch("iepy.preprocess.stanford_preprocess.analysis_to_parse_trees") as mock_analysis:
                 sentences = list(self.document_missing_syntactic_parsing.get_sentences())
                 mock_analysis.side_effect = ["x"] * int(len(sentences) / 2)
                 with self.assertRaises(ValueError):
-                    self.preprocess(self.document_missing_syntactic_parsing)
+                    preprocess(self.document_missing_syntactic_parsing)
 
 
 class TestGazetteer(ManagerTestCase):
