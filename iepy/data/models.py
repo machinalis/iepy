@@ -203,7 +203,7 @@ class IEDocument(BaseModel):
             key, kind_name, alias, offset, offset_end, from_gazette = found_entity
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             if from_gazette:
-                gazette_item = GazetteItem.objects.get(text=alias, kind=kind)
+                gazette_item = GazetteItem.objects.get(text=key, kind=kind)
                 entity, created = Entity.objects.get_or_create(
                     key=key, kind=kind,
                     gazette=gazette_item

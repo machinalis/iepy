@@ -208,7 +208,7 @@ def get_found_entities(document, sentences, tokens):
         alias = " ".join(tokens[i:j])
         if kind.startswith(GAZETTE_PREFIX):
             kind = kind.split(GAZETTE_PREFIX, 1)[1]
-            key = "{}".format(alias)
+            key = "{}".format(unescape_gazette(alias))
             from_gazette = True
         else:
             key = "{} {} {} {}".format(document.human_identifier, kind, i, j)
@@ -343,11 +343,31 @@ def generate_gazettes_file():
     _, filepath = tempfile.mkstemp()
     with open(filepath, "w") as gazette_file:
         for gazette in gazettes:
-            kind = "{}{}".format(GAZETTE_PREFIX, gazette.kind.name.replace("\t", " "))
-            text = gazette.text.replace("\t", " ")
-            line = gazette_format.format(text, kind)
+            kind = escape_gazette(gazette.kind.name)
+            text = escape_gazette(gazette.text)
+            kind = "{}{}".format(GAZETTE_PREFIX, kind)
+            line = gazette_format.format(text, kind, overridable_classes)
             gazette_file.write(line)
     return filepath
+
+
+gazette_replacements = [
+    ("\\", "\\\\"),
+    ("(", "\("),
+    (")", "\)"),
+    ("|", "\|"),
+]
+
+def escape_gazette(text):
+    for key, rep in gazette_replacements:
+        text = text.replace(key, rep)
+    return text
+
+
+def unescape_gazette(text):
+    for rep, key in gazette_replacements:
+        text = text.replace(key, rep)
+    return text
 
 
 class CoreferenceError(Exception):
