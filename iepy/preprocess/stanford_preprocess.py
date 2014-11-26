@@ -331,7 +331,15 @@ def generate_gazettes_file():
     if not gazettes.count():
         return
 
-    gazette_format = "{}\t{}\n"
+    # Stanford NER classes
+    overridable_classes = [
+        'DATE', 'DURATION', 'LOCATION', 'MISC',
+        'MONEY', 'NUMBER', 'ORDINAL', 'ORGANIZATION',
+        'PERCENT', 'PERSON', 'SET', 'TIME',
+    ]
+    overridable_classes = ",".join(overridable_classes)
+
+    gazette_format = "{}\t{}\t{}\n"
     _, filepath = tempfile.mkstemp()
     with open(filepath, "w") as gazette_file:
         for gazette in gazettes:
