@@ -9,6 +9,7 @@ from iepy.preprocess.stanford_preprocess import (
     get_entity_occurrences,
     StanfordPreprocess,
     generate_gazettes_file, GAZETTE_PREFIX, get_found_entities,
+    unescape_gazette, escape_gazette,
 )
 
 
@@ -232,12 +233,13 @@ class TestGazetteer(ManagerTestCase):
         self.assertNotEqual(filepath, None)
         data = open(filepath).read()
 
-        expected = "{}\t{}{}\n".format(
-            gazette_item.text,
-            GAZETTE_PREFIX,
-            gazette_item.kind.name
-        )
-        self.assertEqual(expected, data)
+        data = data.split("\n")
+        self.assertEqual(len(data), 2)
+        data = data[0].split("\t")
+        self.assertEqual(len(data), 3)
+
+        self.assertEqual(data[0], escape_gazette(gazette_item.text))
+        self.assertEqual(data[1], "{}{}".format(GAZETTE_PREFIX, gazette_item.kind.name))
         gazette_item.delete()
 
     def test_generate_gazettes_several_lines(self):
@@ -247,7 +249,7 @@ class TestGazetteer(ManagerTestCase):
         data = open(filepath).read()
         self.assertEqual(data.count("\n"), 10)
         for line in data.split("\n")[:-1]:
-            self.assertEqual(line.count("\t"), 1)
+            self.assertEqual(line.count("\t"), 2)
 
     def test_generate_gazettes_one_line(self):
         self._test_single_gazette()
@@ -256,6 +258,7 @@ class TestGazetteer(ManagerTestCase):
         self._test_single_gazette("#½]}→@}#½ĸ@#")
         self._test_single_gazette("ħøłæ")
         self._test_single_gazette("æ}@ł¢µ«»µ«»“~þðøđþ")
+        self._test_single_gazette("\ || \ ()(()))) \\ |")
 
     def test_gazettes_different_eo_has_different_entity(self):
         document = IEDocFactory()
@@ -296,3 +299,22 @@ class TestGazetteer(ManagerTestCase):
             gazettes = [x for x in found_entities if x.from_gazette]
             self.assertEqual(len(gazettes), 2)
             self.assertEqual(gazettes[0].key, gazettes[1].key)
+
+    def test_escaping(self):
+        text_and_expected = (
+            ("Maradona", "Maradona"),
+            ("El Diego", "El Diego"),
+            ("El Diego ( el 10 )", "El Diego \( el 10 \)"),
+            ("|()|", "\|\(\)\|"),
+            ("æßðæßð", "æßðæßð"),
+            ("\ hello \ ", "\\\\ hello \\\\ "),
+        )
+
+        for text, expected in text_and_expected:
+            self.assertEqual(escape_gazette(text), expected)
+
+    def test_escaping_unescape(self):
+        texts = ["Maradona", "El Diego", "El Diego ( el 10 )", "|()|", "æßðæßð", "\ hello \ "]
+
+        for text in texts:
+            self.assertEqual(unescape_gazette(escape_gazette(text)), text)
