@@ -43,7 +43,7 @@ class Entity(BaseModel):
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
     gazette = models.ForeignKey(
-        "GazetteItem", on_delete=models.CASCADE,
+        "GazetteItem", on_delete=models.SET_NULL,
         blank=True, null=True
     )
 
