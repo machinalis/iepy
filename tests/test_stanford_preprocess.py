@@ -308,6 +308,7 @@ class TestGazetteer(ManagerTestCase):
             ("|()|", "\|\(\)\|"),
             ("æßðæßð", "æßðæßð"),
             ("\ hello \ ", "\\\\ hello \\\\ "),
+            ("*", "\*"),
         )
 
         for text, expected in text_and_expected:
@@ -315,6 +316,5 @@ class TestGazetteer(ManagerTestCase):
 
     def test_escaping_unescape(self):
         texts = ["Maradona", "El Diego", "El Diego ( el 10 )", "|()|", "æßðæßð", "\ hello \ "]
-
         for text in texts:
             self.assertEqual(unescape_gazette(escape_gazette(text)), text)

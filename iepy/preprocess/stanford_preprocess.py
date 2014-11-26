@@ -207,7 +207,7 @@ def get_found_entities(document, sentences, tokens):
     for i, j, kind in get_entity_occurrences(sentences):
         alias = " ".join(tokens[i:j])
         if kind.startswith(GAZETTE_PREFIX):
-            kind = kind.split(GAZETTE_PREFIX, 1)[1]
+            kind = unescape_gazette(kind.split(GAZETTE_PREFIX, 1)[1])
             key = "{}".format(unescape_gazette(alias))
             from_gazette = True
         else:
@@ -356,6 +356,7 @@ gazette_replacements = [
     ("(", "\("),
     (")", "\)"),
     ("|", "\|"),
+    ("*", "\*"),
 ]
 
 def escape_gazette(text):
