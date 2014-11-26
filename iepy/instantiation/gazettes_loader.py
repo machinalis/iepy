@@ -81,7 +81,14 @@ if __name__ == "__main__":
         add_gazettes_from_csv(fname)
     else:
         kind = opts['<KIND>']
-        freebase_type = opts['--freebase_type']
-        gazettes = download_freebase_type(freebase_type)
-        print('Downloaded {} entries from freebase. Uploading to database...')
-        _create_gazette_entries(zip(gazettes, [kind]*len(gazettes)), freebase_type)
+        fb_type = opts['--freebase_type']
+        if not fb_type.startswith('/'):
+            fb_type = '/' + fb_type
+        try:
+            gazettes = download_freebase_type(fb_type)
+        except Exception as error:
+            sys.exit("Error while connecting to freebase: {}".format(error))
+        print('Downloaded {} entries from freebase "{}".'.format(len(gazettes), fb_type))
+        if gazettes:
+            print('Uploading to database...')
+        _create_gazette_entries(zip(gazettes, [kind]*len(gazettes)), fb_type)
