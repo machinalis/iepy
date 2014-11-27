@@ -57,17 +57,13 @@ See `here <instantiation.html#csv-importer>`_ for format details.
 Once you have your database with the documents you want to analyze, you have to
 run the pre-process to generate all the information needed by IEPY's core.
 
-The preprocessing pipeline runs the following steps:
+The preprocessing pipeline runs a series of steps such as 
+text tokenization, sentence splitting, lemmatization part-of-speech tagging,
+and named entity recognition
 
-    * Text tokenization and sentence splitting.
-    * Text lemmatization
-    * Part-Of-Speech (POS) tagging.
-    * Named Entity Recognition (NER).
-    * Syntactic parsing.
-    * TextSegments creation (internal IEPY text unit).
+:doc:`Read more about the pre-process here. <preprocess>`
 
 Your IEPY application comes with code to run all the preprocessing steps.
-
 You can run it by doing:
 
 .. code-block:: bash
@@ -76,7 +72,6 @@ You can run it by doing:
 
 This *will* take a while, specially if you have a lot of data.
 
-:doc:`Read more about the pre-process here. <preprocess>`
 
 
 3 - Open the web interface
