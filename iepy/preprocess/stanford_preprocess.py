@@ -12,6 +12,7 @@ from iepy.data.models import Entity, EntityOccurrence, GazetteItem
 logger = logging.getLogger(__name__)
 GAZETTE_PREFIX = "__GAZETTE_"
 
+
 class StanfordPreprocess(BasePreProcessStepRunner):
 
     def __init__(self):
@@ -119,6 +120,11 @@ class StanfordPreprocess(BasePreProcessStepRunner):
 
 
 def _dictpath(d, *args):
+    """Traverses throuth a dict of dicts.
+    Returns always a list. If the object to return is not a list,
+    it's encapsulated in one.
+    If any of the path steps does not exist, an empty list is returned.
+    """
     x = d
     for key in args:
         try:
@@ -140,6 +146,7 @@ def analysis_to_sentences(analysis):
             xs.append(t)
         result.append(xs)
     return result
+
 
 def analysis_to_parse_trees(analysis):
     sentences = _dictpath(analysis, "sentences", "sentence")
