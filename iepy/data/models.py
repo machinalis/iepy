@@ -58,19 +58,19 @@ class Entity(BaseModel):
 class IEDocument(BaseModel):
     human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
                                         unique=True)
-    title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
-    url = models.URLField()  # TODO: remove
+    title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)  # TODO: remove
+    url = models.URLField(blank=True)  # TODO: remove
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
-    tokens = ListField()  # strings
-    lemmas = ListField()  # strings
-    postags = ListField()  # strings
-    offsets_to_text = ListField()  # ints, character offset for tokens, lemmas and postags
-    syntactic_sentences = ListSyntacticTreeField()
+    tokens = ListField(blank=True)  # strings
+    lemmas = ListField(blank=True)  # strings
+    postags = ListField(blank=True)  # strings
+    offsets_to_text = ListField(blank=True)  # ints, character offset for tokens, lemmas and postags
+    syntactic_sentences = ListSyntacticTreeField(blank=True, editable=False)
 
-    sentences = ListField()  # ints, it's a list of token-offsets
+    sentences = ListField(blank=True)  # ints, it's a list of token-offsets
 
     # Reversed fields:
     # entity_occurrences = Reversed ForeignKey of EntityOccurrence
