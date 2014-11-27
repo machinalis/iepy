@@ -9,7 +9,7 @@ from iepy.preprocess.stanford_preprocess import (
     get_entity_occurrences,
     StanfordPreprocess,
     generate_gazettes_file, GAZETTE_PREFIX, get_found_entities,
-    unescape_gazette, escape_gazette,
+    escape_gazette,
 )
 
 
@@ -301,20 +301,17 @@ class TestGazetteer(ManagerTestCase):
             self.assertEqual(gazettes[0].key, gazettes[1].key)
 
     def test_escaping(self):
-        text_and_expected = (
-            ("Maradona", "Maradona"),
-            ("El Diego", "El Diego"),
-            ("El Diego ( el 10 )", "El Diego \( el 10 \)"),
-            ("|()|", "\|\(\)\|"),
-            ("æßðæßð", "æßðæßð"),
-            ("\ hello \ ", "\\\\ hello \\\\ "),
-            ("*", "\*"),
-        )
+        texts = [
+            "Maradona",
+            "El Diego",
+            "El Diego ( el 10 )",
+            "|()|",
+            "æßðæßð",
+            "\ hello \ ",
+            "*",
+        ]
 
-        for text, expected in text_and_expected:
-            self.assertEqual(escape_gazette(text), expected)
-
-    def test_escaping_unescape(self):
-        texts = ["Maradona", "El Diego", "El Diego ( el 10 )", "|()|", "æßðæßð", "\ hello \ "]
         for text in texts:
-            self.assertEqual(unescape_gazette(escape_gazette(text)), text)
+            escaped = escape_gazette(text)
+            self.assertEqual(escaped.count("\Q"), len(text.split()))
+            self.assertEqual(escaped.count("\E"), len(text.split()))
