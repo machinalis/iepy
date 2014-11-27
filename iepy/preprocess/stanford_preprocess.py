@@ -207,8 +207,8 @@ def get_found_entities(document, sentences, tokens):
     for i, j, kind in get_entity_occurrences(sentences):
         alias = " ".join(tokens[i:j])
         if kind.startswith(GAZETTE_PREFIX):
-            kind = unescape_gazette(kind.split(GAZETTE_PREFIX, 1)[1])
-            key = "{}".format(unescape_gazette(alias))
+            kind = kind.split(GAZETTE_PREFIX, 1)[1]
+            key = "{}".format(alias)
             from_gazette = True
         else:
             key = "{} {} {} {}".format(document.human_identifier, kind, i, j)
@@ -343,7 +343,7 @@ def generate_gazettes_file():
     _, filepath = tempfile.mkstemp()
     with open(filepath, "w") as gazette_file:
         for gazette in gazettes:
-            kind = escape_gazette(gazette.kind.name)
+            kind = gazette.kind.name
             text = escape_gazette(gazette.text)
             kind = "{}{}".format(GAZETTE_PREFIX, kind)
             line = gazette_format.format(text, kind, overridable_classes)
@@ -351,23 +351,8 @@ def generate_gazettes_file():
     return filepath
 
 
-gazette_replacements = [
-    ("\\", "\\\\"),
-    ("(", "\("),
-    (")", "\)"),
-    ("|", "\|"),
-    ("*", "\*"),
-]
-
 def escape_gazette(text):
-    for key, rep in gazette_replacements:
-        text = text.replace(key, rep)
-    return text
-
-
-def unescape_gazette(text):
-    for rep, key in gazette_replacements:
-        text = text.replace(key, rep)
+    text = " ".join("\Q{}\E".format(x) for x in text.split())
     return text
 
 
