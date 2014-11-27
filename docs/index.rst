@@ -59,6 +59,7 @@ Contents:
    active_learning_tutorial
    rules_tutorial
    preprocess
+   gazettes
    corpus_labeling
    how_to_hack
    troubleshooting
