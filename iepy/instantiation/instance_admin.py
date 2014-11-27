@@ -24,6 +24,7 @@ class InstanceManager:
         "iepy_rules_runner.py",
         "rules_verifier.py",
         "manage.py",
+        "gazettes_loader.py",
     ]
     steps = [
         'create_folders',

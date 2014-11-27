@@ -42,6 +42,10 @@ class Entity(BaseModel):
     # Entity Occurrences
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
+    gazette = models.ForeignKey(
+        "GazetteItem", on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
 
     class Meta(BaseModel.Meta):
         ordering = ['kind', 'key']
@@ -196,15 +200,22 @@ class IEDocument(BaseModel):
 
     def set_ner_result(self, value):
         for found_entity in value:
-            key, kind_name, alias, offset, offset_end = found_entity
+            key, kind_name, alias, offset, offset_end, from_gazette = found_entity
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
-            entity, created = Entity.objects.get_or_create(
-                key=key,
-                kind=kind)
+            if from_gazette:
+                gazette_item = GazetteItem.objects.get(text=key, kind=kind)
+                entity, created = Entity.objects.get_or_create(
+                    key=key, kind=kind,
+                    gazette=gazette_item
+                )
+            else:
+                entity, created = Entity.objects.get_or_create(key=key, kind=kind)
+
             if len(alias) > CHAR_MAX_LENGHT:
                 alias_ = alias[:CHAR_MAX_LENGHT]
                 print('Alias "%s" reduced to "%s"' % (alias, alias_))
                 alias = alias_
+
             EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
@@ -661,3 +672,12 @@ class SegmentToTag(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['segment', 'relation']
+
+
+class GazetteItem(BaseModel):
+    kind = models.ForeignKey(EntityKind)
+    text = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False, unique=True)
+    from_freebase = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False)
+
+    def __str__(self):
+        return "'{}' ({})".format(self.text, self.kind.name)

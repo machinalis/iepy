@@ -2,7 +2,7 @@ from collections import namedtuple
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 
 
-FoundEntity = namedtuple('FoundEntity', 'key kind_name alias offset offset_end')
+FoundEntity = namedtuple('FoundEntity', 'key kind_name alias offset offset_end from_gazette')
 
 
 class BaseNERRunner(BasePreProcessStepRunner):
@@ -35,4 +35,4 @@ class BaseNERRunner(BasePreProcessStepRunner):
         return []
 
     def build_occurrence(self, key, kind_name, alias, offset, offset_end):
-        return FoundEntity(key, kind_name.upper(), alias, offset, offset_end)
+        return FoundEntity(key, kind_name.upper(), alias, offset, offset_end, False)

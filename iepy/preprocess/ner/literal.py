@@ -1,5 +1,6 @@
 import json
-import urllib
+from urllib.parse import urlencode
+from urllib.request import urlopen
 import codecs
 
 from iepy.preprocess.ner.base import BaseNERRunner
@@ -108,49 +109,39 @@ class LiteralNERRunner(BaseNERRunner):
         return entities
 
 
-def download_freebase_type(type_name, dest_filename, normalizer=None, aliases=False):
+def download_freebase_type(type_name, normalizer=None, aliases=False):
     if not normalizer:
         normalizer = lambda x: x
 
-    # https://developers.google.com/freebase/v1/mql-overview
+    result = []
+
     service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
     query = [{'type': type_name, 'name': None}]
     if aliases:
         query[0]['/common/topic/alias'] = []
 
-    f = codecs.open(dest_filename, 'w', encoding='utf8')
-
-    params = {'query': json.dumps(query)}
-    url = service_url + '?' + urllib.urlencode(params) + '&cursor'
-    response = json.loads(urllib.urlopen(url).read())
-    cursor = response['cursor']
-
-    # write results
-    for result in response['result']:
-        name = normalizer(result['name'])
-        f.write(name + '\n')
-        if aliases:
-            for name in result['/common/topic/alias']:
-                name = normalizer(name)
-                f.write(name + '\n')
-
-    while cursor:
+    print('Downloading...')
+    page = 1
+    cursor = ''
+    while cursor or page == 1:
+        if page > 1:
+            print('Downloading page {} of entries...'.format(page))
+        page += 1
         params = {'query': json.dumps(query), 'cursor': cursor}
-        url = service_url + '?' + urllib.urlencode(params)
-        response = json.loads(urllib.urlopen(url).read())
+        url = service_url + '?' + urlencode(params)
+        response = json.loads(urlopen(url).read().decode('utf-8'))
         cursor = response['cursor']
 
-        # write results
-        for result in response['result']:
-            if result['name']:
-                name = normalizer(result['name'])
-                f.write(name + '\n')
+        # extract & format results
+        for item in response['result']:
+            name = normalizer(item['name'])
+            result.append(name)
             if aliases:
-                for name in result['/common/topic/alias']:
+                for name in item['/common/topic/alias']:
                     name = normalizer(name)
-                    f.write(name + '\n')
+                    result.append(name)
 
-    f.close()
+    return result
 
 
 def to_lower_normalizer(name):

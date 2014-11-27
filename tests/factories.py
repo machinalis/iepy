@@ -244,3 +244,10 @@ class EvidenceFactory(BaseFactory):
             offset__gte=self.segment.offset,
             offset_end__lte=self.segment.offset_end
         )
+
+
+class GazetteItemFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.GazetteItem'
+    kind = factory.SubFactory(EntityKindFactory)
+    text = factory.Sequence(lambda n: 'gazette_item_%i' % n)

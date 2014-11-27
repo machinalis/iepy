@@ -115,7 +115,7 @@ class TestStorePreprocessOutputSideEffects(ManagerTestCase):
             (PreProcessSteps.lemmatization, ['hello', 'world', '.']),
             (PreProcessSteps.sentencer, [0, 3]),
             (PreProcessSteps.tagging, ['NN', 'NN', '.']),
-            (PreProcessSteps.ner, [FoundEntity('world', 'LOCATION', 'world', 1, 2)]),
+            (PreProcessSteps.ner, [FoundEntity('world', 'LOCATION', 'world', 1, 2, False)]),
             (PreProcessSteps.segmentation, [RawSegment(0, 3, None)]),
             (PreProcessSteps.syntactic_parsing, ["(ROOT (NP (JJ Hello) (NN world) (. .)))]"]),
         ]
