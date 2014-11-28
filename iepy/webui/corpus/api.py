@@ -21,7 +21,8 @@ class EOCRUDView(LoginNgCrudView):
         """
         Build ModelForm from model
         """
-        return modelform_factory(self.model, fields=self.fields[:])
+        fields = [x for x in self.fields if not x.count("__")]
+        return modelform_factory(self.model, fields=fields)
 
 
 class EntityCRUDView(LoginNgCrudView):
