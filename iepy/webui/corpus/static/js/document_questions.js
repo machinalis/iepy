@@ -464,12 +464,20 @@ function ($scope, EntityOccurrence, Entity) {
             }
         });
 
-        if(new_offsets.length === 2){
+        if (new_offsets.length === 2) {
             var $divs = $scope.eo_modal.elem.find('.segment div');
             var $first_word_in = $divs.eq([new_offsets[0] + 1]);
             var $first_word_out = $divs.eq([new_offsets[1] + 1]);
+
+            if ($first_word_out.length === 0) {
+                $first_word_out = $divs.eq([new_offsets[1] - 1]);
+                var new_offset_end = $first_word_out.data("offset") + 1;
+            } else {
+                var new_offset_end = $first_word_out.data("offset");
+            }
+
             $scope.eo_modal.eo.new_offset = $first_word_in.data("offset");
-            $scope.eo_modal.eo.new_offset_end = $first_word_out.data("offset");
+            $scope.eo_modal.eo.new_offset_end = new_offset_end;
         }
     };
 
