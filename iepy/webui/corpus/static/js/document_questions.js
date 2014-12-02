@@ -411,7 +411,8 @@ function ($scope, EntityOccurrence, Entity) {
         var $token = $(".rich-token-" + token_id);
         var $modify_eo_item = $dropdown.find("#modify-eo-item");
         var $create_eo_item = $dropdown.find("#create-eo-item");
-        $create_eo_item.on("click", function(){
+        $create_eo_item.on("click", function (event) {
+            event.preventDefault();
             $scope.display_creation_modal($token);
             $scope.eo_creation_modal.selected = $token;
         });
@@ -420,7 +421,8 @@ function ($scope, EntityOccurrence, Entity) {
         if ($parent.hasClass("entity-occurrence")) {
             var segment_id = $parent.parents(".segment").data("segment-id");
             var entity_id = $parent.data("eo-id");
-            $modify_eo_item.on("click", function(){
+            $modify_eo_item.on("click", function (event) {
+                event.preventDefault();
                 $scope.display_edition_modal(entity_id, segment_id);
             });
             $modify_eo_item.show();
