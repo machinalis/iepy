@@ -15,7 +15,7 @@
     <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+
     <script type="text/javascript">
         var eos = {{ eos_propperties|safe }};
         var relations = {{ relations_list|safe }};
@@ -23,7 +23,9 @@
         var question_options = {{ question_options|safe }};
         var other_judges_labels = {{ other_judges_labels|safe }};
         var initial_tool = "{{ initial_tool }}";
+        var eo_creation_url = "{% url 'corpus:create_entity_occurrence' %}";
     </script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
 {% endblock %}
 
 {% block label_mode_switch %}
@@ -53,7 +55,7 @@
 {% block inner_content %}
     <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
-            <div class="large-12 columns">
+            <div class="large-12 columns document" data-document-id="{{ document.id }}">
                 {% if not segments %}
                     <br />
                     <div data-alert class="alert-box info radius">
@@ -155,7 +157,8 @@
                 </div>
             </div>
         </div>
-
-        {% include "corpus/entity_occurrence_modal.html" %}
     </div>
+
+    {% include "corpus/eo_edition_modal.html" %}
+    {% include "corpus/eo_creation_modal.html" %}
 {% endblock %}

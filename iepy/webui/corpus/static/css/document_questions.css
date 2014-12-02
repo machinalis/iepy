@@ -108,18 +108,18 @@ input, textarea, select, .form-row p{
 .toolbox-option-NS{ border-bottom: 2px solid #f0f; }
 
 
-#eoModal .segment {
+.eo-modal .segment {
     width: 90%;
 }
-#eoModal .segment .token,
-#eoModal .segment .marker{
+.eo-modal .segment .token,
+.eo-modal .segment .marker{
     display: inline-block;
     padding: 0 5px;
     margin: 3px;
     border: #CCC dashed 1px;
 }
 
-#eoModal .segment .marker {
+.eo-modal .segment .marker {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
@@ -128,51 +128,51 @@ input, textarea, select, .form-row p{
     background-color: #BBB;
 }
 
-#eoModal .segment .marker .rotate {
+.eo-modal .segment .marker .rotate {
     display: inline-block;
     -webkit-transform: rotate(45deg);
     -moz-transform: rotate(45deg);
 }
 
-#eoModal .segment .marker:active {
+.eo-modal .segment .marker:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
 
-#eoModal div.segment .between-markers {
+.eo-modal div.segment .between-markers {
     background-color: rgba(255, 182, 0, 0.17);
 }
 
-#eoModal div.message p {
+.eo-modal div.message p {
     background-color: #cf2a0e;
     padding: 5px;
     color: white;
 }
 
-#eoModal .controls {
+.eo-modal .controls {
     text-align: right;
 }
 
-#eoModal .cc-by-icons {
+.eo-modal .cc-by-icons {
     position: relative;
     bottom: 10px;
 }
 
-#eoModal .remove-confirm-wrapper{
+.eo-modal .remove-confirm-wrapper{
     display: none;
 }
 
-#eoModal .remove-buttons{
+.eo-modal .remove-buttons{
     margin-top: 10px;
 }
 
-#eoModal .remove-buttons a{
+.eo-modal .remove-buttons a{
     padding: 5px;
     background: #eee;
 }
 
-#eoModal .remove-confirm-wrapper small{
+.eo-modal .remove-confirm-wrapper small{
     font-size: 15px;
     color: #bbb;
 }
@@ -197,4 +197,7 @@ input, textarea, select, .form-row p{
 .non-selected-relations ul li{
     list-style: none;
     height: 25px;
+}
+.save .loading{
+    display: none;
 }

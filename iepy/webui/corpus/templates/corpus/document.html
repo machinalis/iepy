@@ -16,6 +16,10 @@
     <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
+
+    <script type="text/javascript">
+        var eo_creation_url = "{% url 'corpus:create_entity_occurrence' %}";
+    </script>
     <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
 {% endblock %}
 
@@ -40,11 +44,12 @@
                 <input type="radio" name="metadata_visible" value="none" ng-model="metadata_visible" id="none-option">
                 <label for="none-option">None</label> <br />
             </div>
-            <div class="large-10 columns">
+            <div class="large-10 columns document" data-document-id="{{ document.id }}">
                 {% include "corpus/segments_render.html" %}
             </div>
         </div>
     </div>
 
-    {% include "corpus/entity_occurrence_modal.html" %}
+    {% include "corpus/eo_edition_modal.html" %}
+    {% include "corpus/eo_creation_modal.html" %}
 {% endblock %}

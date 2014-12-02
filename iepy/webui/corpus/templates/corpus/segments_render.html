@@ -1,7 +1,12 @@
 {% load iepy_tags %}
 
+<ul id="token-edition-dropdown" class="f-dropdown" data-dropdown-content>
+    <li><a id="create-eo-item" href="#">Create new entity</a></li>
+    <li><a id="modify-eo-item" href="#">Modify entity</a></li>
+</ul>
+
 {% for segment, parsed in segments|zip:parsed_sentences %}
-    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
+    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}" data-segment-id="{{ segment.id }}">
         {% if parsed %}
             <div class="parse-tree-button-wrapper">
                 <a class="parse-tree-button" data-reveal-id="parse-tree-{{ forloop.counter }}"><i class="fi-trees"></i></a>
@@ -16,9 +21,11 @@
             </div>
         {% endif %}
 
+        {% with forloop.counter as segment_counter %}
         {% for rich_token in segment.rich_tokens %}
             {% if rich_token.eo_ids %}
-                <div class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}
+                            entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
                     ng-click="eo_click({{ rich_token.eo_ids }})"
                     ng-class="{
                         selectable: {% for eo_id in rich_token.eo_ids %}
@@ -33,13 +40,17 @@
                     {% if rich_token.eo_ids|length > 1 %}
                         data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
                     {% else %}
-                        ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
                         data-eo-id="{{ rich_token.eo_ids.0 }}"
+                        ng-right-click="token_context_menu('{{ segment_counter }}-{{ forloop.counter }}')"
                     {% endif %}
                 >
             {% else %}
-                <div class="rich-token">
+            <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}"
+                ng-right-click="token_context_menu('{{ segment_counter }}-{{ forloop.counter }}')">
             {% endif %}
+                <div class="context-menu-holder" id="context-menu-{{ segment_counter }}-{{ forloop.counter }}"
+                    data-dropdown="token-edition-dropdown" >&nbsp;</div>
+
                 {% if rich_token.eo_ids|length > 1 %}
                     <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
                 {% endif %}
@@ -53,9 +64,9 @@
                 <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
                     {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
                         <li>
-                        <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
-                            ng-right-click="manage_eo({{ eo_id }}, {{segment.id}})"
-                        >
+                            <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
+                                ng-right-click="display_edition_modal({{ eo_id }}, {{segment.id}})"
+                            >
                                 #{{ forloop.counter }} - {{ eo_kind }}
                             </a>
                         </li>
@@ -63,5 +74,6 @@
                 </ul>
             {% endif %}
         {% endfor %}
+        {% endwith %}
     </div>
 {% endfor %}
