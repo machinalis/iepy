@@ -56,4 +56,6 @@ urlpatterns = patterns(
     # CRUD Angular EOs
     url(r'^crud/entity_occurrence/?$', api.EOCRUDView.as_view(), name='eo_crud_view'),
     url(r'^crud/entity/?$', api.EntityCRUDView.as_view(), name='entity_crud_view'),
+
+    url(r'^create_eo/?$', views.create_entity_occurrence, name='create_entity_occurrence'),
 )
