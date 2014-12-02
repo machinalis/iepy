@@ -1,3 +1,5 @@
+var eo_creation_url;
+
 $(document).ready(function () {
     "use strict";
 
@@ -374,20 +376,20 @@ function ($scope, EntityOccurrence, Entity) {
         var eo2_pos_left = $eo2.offset().left - $scope.$svg.offset().left;
 
         // Corrected positions
-        var eo1_pos_left = eo1_pos_left + $eo1.width() / 4;
-        var eo1_pos_top = eo1_pos_top - y_offset;
-        var eo2_pos_left = eo2_pos_left + $eo2.width() / 4;
-        var eo2_pos_top = eo2_pos_top - y_offset;
+        var eo1_pos_shifted_left = eo1_pos_left + $eo1.width() / 4;
+        var eo1_pos_shifted_top = eo1_pos_top - y_offset;
+        var eo2_pos_shifted_left = eo2_pos_left + $eo2.width() / 4;
+        var eo2_pos_shifted_top = eo2_pos_top - y_offset;
 
         // Format should be:
         // M<x1>,<y1> C<x1>,<y1 + distance> <x2>,<y2 + distance> <x2>,<y2>
         var curve_string = "M{0},{1} C{0},{4} {2},{5} {2},{3}".format(
-            Math.round(eo1_pos_left), // {0}
-            Math.round(eo1_pos_top),  // {1}
-            Math.round(eo2_pos_left), // {2}
-            Math.round(eo2_pos_top),  // {3}
-            Math.round(eo1_pos_top - curve_distance), // {4}
-            Math.round(eo2_pos_top - curve_distance)  // {5}
+            Math.round(eo1_pos_shifted_left), // {0}
+            Math.round(eo1_pos_shifted_top),  // {1}
+            Math.round(eo2_pos_shifted_left), // {2}
+            Math.round(eo2_pos_shifted_top),  // {3}
+            Math.round(eo1_pos_shifted_top - curve_distance), // {4}
+            Math.round(eo2_pos_shifted_top - curve_distance)  // {5}
         );
 
         path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -427,7 +429,7 @@ function ($scope, EntityOccurrence, Entity) {
         }
 
         $contextmenu.trigger("click");
-    }
+    };
 
     $scope.display_edition_modal = function (value, segment_id) {
         EntityOccurrence.get({pk: value}).$promise.then(
@@ -463,7 +465,7 @@ function ($scope, EntityOccurrence, Entity) {
                 $scope.update_selection($modal);
                 $segment.sortable({
                     cancel: ".token",
-                    update: function () { $scope.update_selection($modal) }
+                    update: function () { $scope.update_selection($modal); }
                 });
                 $modal.foundation('reveal', 'open');
             });
@@ -497,7 +499,7 @@ function ($scope, EntityOccurrence, Entity) {
         $scope.update_selection($modal);
         $segment.sortable({
             cancel: ".token",
-            update: function () { $scope.update_selection($modal) }
+            update: function () { $scope.update_selection($modal); }
         });
         $modal.foundation('reveal', 'open');
     };
@@ -540,14 +542,15 @@ function ($scope, EntityOccurrence, Entity) {
             var $divs = $modal.find('.segment div');
             var $first_word_in = $divs.eq([new_offsets[0] + 1]);
             var $first_word_out = $divs.eq([new_offsets[1] + 1]);
+            var new_offset_end, new_offset;
 
             if ($first_word_out.length === 0) {
                 $first_word_out = $divs.eq([new_offsets[1] - 1]);
-                var new_offset_end = $first_word_out.data("offset") + 1;
+                new_offset_end = $first_word_out.data("offset") + 1;
             } else {
-                var new_offset_end = $first_word_out.data("offset");
+                new_offset_end = $first_word_out.data("offset");
             }
-            var new_offset = $first_word_in.data("offset");
+            new_offset = $first_word_in.data("offset");
             if ($first_word_in.hasClass("marker")) {
                 new_offset = new_offset_end;
             }
@@ -563,7 +566,9 @@ function ($scope, EntityOccurrence, Entity) {
         var new_offset = $modal.data("new_offset");
         var new_offset_end = $modal.data("new_offset_end");
         if (new_offset_end - new_offset <= 0) {
-            $scope.modal_add_msg($modal, "Invalid Entity Occurrence limits. Can't be empty.");
+            $scope.modal_add_msg(
+                $modal, "Invalid Entity Occurrence limits. Can't be empty."
+            );
         } else {
             eo.offset = new_offset;
             eo.offset_end = new_offset_end;
@@ -585,7 +590,9 @@ function ($scope, EntityOccurrence, Entity) {
         var $button = $modal.find(".save");
 
         if (new_offset_end - new_offset <= 0) {
-            $scope.modal_add_msg($modal, "Invalid Entity Occurrence limits. Can't be empty.");
+            $scope.modal_add_msg(
+                $modal, "Invalid Entity Occurrence limits. Can't be empty."
+            );
         } else if ($new_entity_kind.val() === null) {
             $scope.modal_add_msg($modal, "Error: you must select a kind");
         } else {
@@ -607,7 +614,7 @@ function ($scope, EntityOccurrence, Entity) {
                     $button.find(".loading").fadeOut(function () {
                         $button.find(".text").fadeIn();
                     });
-                    $scope.modal_save_success()
+                    $scope.modal_save_success();
                 },
                 error: function (jqXHR, textStatus) {
                     $scope.modal_add_msg($modal, "Not saved. " + textStatus);
@@ -697,12 +704,12 @@ String.prototype.format = String.prototype.f = function () {
 // using jQuery
 function getCookie(name) {
     var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
+    if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
