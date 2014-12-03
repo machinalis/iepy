@@ -40,3 +40,12 @@
 .question-form-wrapper ul li input{
     margin: 0;
 }
+
+.context-menu-holder{
+    width: 1px;
+    height: 10px;
+    background: transparent;
+    position: absolute;
+    top: 20px;
+    z-index: -1024;
+}

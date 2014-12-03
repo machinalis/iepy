@@ -1,3 +1,5 @@
+var eo_creation_url;
+
 $(document).ready(function () {
     "use strict";
 
@@ -60,7 +62,8 @@ function ($scope, EntityOccurrence, Entity) {
     $scope.question_options = window.question_options;
     $scope.other_judges_labels = window.other_judges_labels;
     $scope.arrows = {};
-    $scope.eo_modal = {};
+    $scope.eo_edition_modal = {};
+    $scope.eo_creation_modal = {};
     $scope.metadata_visible = "pos";
 
     $(document).ready(function () {
@@ -81,6 +84,14 @@ function ($scope, EntityOccurrence, Entity) {
         setTimeout($scope.update_relations_arrows, 300);
         $scope.create_relations_metadata();
 
+        $(".rich-token").on("click", function (event, stop) {
+            stop = stop === undefined ? true : stop;
+
+            if (stop) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
@@ -97,24 +108,34 @@ function ($scope, EntityOccurrence, Entity) {
             $scope.on_eo_mouseover($eo, true);
         });
 
-        $scope.eo_modal.elem = $('#eoModal');
-        $scope.eo_modal.elem.find('a.cancel').bind('click', function () {
-            $scope.eo_modal.elem.foundation('reveal', 'close');
+        // EO Creation modal
+        $scope.eo_creation_modal.elem = $('#eo-creation-modal');
+        $scope.eo_creation_modal.elem.find('a.save').bind('click', function () {
+            $scope.eo_creation_modal.submit();
         });
-        $scope.eo_modal.elem.find('a.save').bind('click', function () {
-            $scope.eo_modal.submit();
+        $scope.eo_creation_modal.elem.find('a.cancel').bind('click', function () {
+            $scope.eo_creation_modal.elem.foundation('reveal', 'close');
         });
-        $scope.eo_modal.elem.find('a.remove-eo-ask').bind(
-            'click', $scope.eo_modal.remove_eo_ask
+
+        // EO Edition modal
+        $scope.eo_edition_modal.elem = $('#eo-edition-modal');
+        $scope.eo_edition_modal.elem.find('a.cancel').bind('click', function () {
+            $scope.eo_edition_modal.elem.foundation('reveal', 'close');
+        });
+        $scope.eo_edition_modal.elem.find('a.save').bind('click', function () {
+            $scope.eo_edition_modal.submit();
+        });
+        $scope.eo_edition_modal.elem.find('a.remove-eo-ask').bind(
+            'click', $scope.eo_edition_modal.remove_eo_ask
         );
-        $scope.eo_modal.elem.find('a.remove-eo-confirm').bind(
-            'click', $scope.eo_modal.remove_eo_confirm
+        $scope.eo_edition_modal.elem.find('a.remove-eo-confirm').bind(
+            'click', $scope.eo_edition_modal.remove_eo_confirm
         );
-        $scope.eo_modal.elem.find('a.remove-eo-confirm-all').bind(
-            'click', $scope.eo_modal.remove_eo_confirm_all
+        $scope.eo_edition_modal.elem.find('a.remove-eo-confirm-all').bind(
+            'click', $scope.eo_edition_modal.remove_eo_confirm_all
         );
-        $scope.eo_modal.elem.find('a.remove-eo-cancel').bind(
-            'click', $scope.eo_modal.remove_eo_cancel
+        $scope.eo_edition_modal.elem.find('a.remove-eo-cancel').bind(
+            'click', $scope.eo_edition_modal.remove_eo_cancel
         );
     });
 
@@ -346,7 +367,7 @@ function ($scope, EntityOccurrence, Entity) {
 
         // Curve configuration
         var curve_distance = 25;
-        var y_offset = $($scope.svg).offset().top - $($scope.svg).parent().offset().top;
+        var y_offset = 10;
 
         if (alternative) {
             curve_distance *= 1.5;
@@ -357,24 +378,26 @@ function ($scope, EntityOccurrence, Entity) {
         var $eo2 = $(".eo-" + eo_id2);
 
         // Positions
-        var eo1_pos = $eo1.position();
-        var eo2_pos = $eo2.position();
+        var eo1_pos_top = $eo1.offset().top - $scope.$svg.offset().top;
+        var eo1_pos_left = $eo1.offset().left - $scope.$svg.offset().left;
+        var eo2_pos_top = $eo2.offset().top - $scope.$svg.offset().top;
+        var eo2_pos_left = $eo2.offset().left - $scope.$svg.offset().left;
 
         // Corrected positions
-        var eo1_pos_left = eo1_pos.left + $eo1.width() / 4;
-        var eo1_pos_top = eo1_pos.top - y_offset;
-        var eo2_pos_left = eo2_pos.left + $eo2.width() / 4;
-        var eo2_pos_top = eo2_pos.top - y_offset;
+        var eo1_pos_shifted_left = eo1_pos_left + $eo1.width() / 4;
+        var eo1_pos_shifted_top = eo1_pos_top - y_offset;
+        var eo2_pos_shifted_left = eo2_pos_left + $eo2.width() / 4;
+        var eo2_pos_shifted_top = eo2_pos_top - y_offset;
 
         // Format should be:
         // M<x1>,<y1> C<x1>,<y1 + distance> <x2>,<y2 + distance> <x2>,<y2>
         var curve_string = "M{0},{1} C{0},{4} {2},{5} {2},{3}".format(
-            Math.round(eo1_pos_left), // {0}
-            Math.round(eo1_pos_top),  // {1}
-            Math.round(eo2_pos_left), // {2}
-            Math.round(eo2_pos_top),  // {3}
-            Math.round(eo1_pos_top - curve_distance), // {4}
-            Math.round(eo2_pos_top - curve_distance)  // {5}
+            Math.round(eo1_pos_shifted_left), // {0}
+            Math.round(eo1_pos_shifted_top),  // {1}
+            Math.round(eo2_pos_shifted_left), // {2}
+            Math.round(eo2_pos_shifted_top),  // {3}
+            Math.round(eo1_pos_shifted_top - curve_distance), // {4}
+            Math.round(eo2_pos_shifted_top - curve_distance)  // {5}
         );
 
         path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -390,10 +413,36 @@ function ($scope, EntityOccurrence, Entity) {
 
     // ###  Entity Occurrence Modification methods (and modal)  ###
 
-    $scope.manage_eo = function (value, segment_id) {
+    $scope.token_context_menu = function (token_id) {
+        var $dropdown = $("#token-edition-dropdown");
+        var $token = $(".rich-token-" + token_id);
+        var $modify_eo_item = $dropdown.find("#modify-eo-item");
+        var $create_eo_item = $dropdown.find("#create-eo-item");
+        $create_eo_item.on("click", function (event) {
+            event.preventDefault();
+            $scope.display_creation_modal($token);
+            $scope.eo_creation_modal.selected = $token;
+        });
+
+        if ($token.hasClass("entity-occurrence")) {
+            var segment_id = $token.parents(".segment").data("segment-id");
+            var entity_id = $token.data("eo-id");
+            $modify_eo_item.on("click", function (event) {
+                event.preventDefault();
+                $scope.display_edition_modal(entity_id, segment_id);
+            });
+            $modify_eo_item.show();
+        } else {
+            $modify_eo_item.hide();
+        }
+
+        $token.trigger("click", false);
+    };
+
+    $scope.display_edition_modal = function (value, segment_id) {
         EntityOccurrence.get({pk: value}).$promise.then(
             function (eo_obj) {
-                var $modal = $scope.eo_modal.elem;
+                var $modal = $scope.eo_edition_modal.elem;
                 var marker_html = '<div class="marker"><span class="rotate">';
                 marker_html +=    '<i class="fi-arrows-expand"></span></div>';
                 $modal.find('.message').empty();
@@ -401,7 +450,7 @@ function ($scope, EntityOccurrence, Entity) {
                 $modal.find('.entity_id span').text(eo_obj.entity);
                 $modal.find('.entity_kind span').text(eo_obj.entity__kind__name);
 
-                $scope.eo_modal.eo = eo_obj;
+                $scope.eo_edition_modal.eo = eo_obj;
 
                 var $eo = $(".eo-" + eo_obj.pk);
                 var $tokens = $eo.parent(".segment").find(".rich-token");
@@ -421,29 +470,62 @@ function ($scope, EntityOccurrence, Entity) {
                 var eo_tokens = $segment.find(".eo");
                 $(marker_html).insertBefore($(eo_tokens[0]));
                 $(marker_html).insertAfter($(eo_tokens[eo_tokens.length - 1]));
-                $scope.eo_modal.update_selection();
+                $scope.update_selection($modal);
                 $segment.sortable({
                     cancel: ".token",
-                    update: $scope.eo_modal.update_selection
+                    update: function () { $scope.update_selection($modal); }
                 });
                 $modal.foundation('reveal', 'open');
             });
     };
 
-    $scope.eo_modal.reset = function () {
-        var $elem = $scope.eo_modal.elem;
+    $scope.display_creation_modal = function ($selected, segment_id) {
+        var $modal = $scope.eo_creation_modal.elem;
+        var marker_html = '<div class="marker"><span class="rotate">';
+        marker_html +=    '<i class="fi-arrows-expand"></span></div>';
+        $modal.find('.message').empty();
+        $modal.find('.segment').empty();
+
+        var $tokens = $selected.parent(".segment").find(".rich-token");
+        var $segment = $modal.find('.segment');
+        var $new_selected = {};
+        $tokens.each(function(){
+            var $this = $(this);
+            var $token = $("<div>");
+            $token.addClass("token");
+            $token.text($this.find(".token").text());
+            $token.data("offset", $this.find(".token").data("offset"));
+            $segment.append($token);
+
+            if ($this.hasClass($selected.attr("class"))) {
+                $new_selected = $token;
+            }
+        });
+
+        $(marker_html).insertBefore($new_selected);
+        $(marker_html).insertAfter($new_selected);
+        $scope.update_selection($modal);
+        $segment.sortable({
+            cancel: ".token",
+            update: function () { $scope.update_selection($modal); }
+        });
+        $modal.foundation('reveal', 'open');
+    };
+
+    $scope.eo_edition_modal.reset = function () {
+        var $elem = $scope.eo_edition_modal.elem;
         $elem.find('.message').empty();
         $elem.find('.segment').empty();
     };
 
-    $scope.eo_modal.add_msg = function (msg) {
-        $scope.eo_modal.elem.find('.message').empty().append('<p>' + msg + '</p>');
+    $scope.modal_add_msg = function ($modal, msg) {
+        $modal.find('.message').empty().append('<p>' + msg + '</p>');
     };
 
-    $scope.eo_modal.update_selection = function (event) {
+    $scope.update_selection = function ($modal) {
         var paiting = false;
         var new_offsets = [];
-        $scope.eo_modal.elem.find('.segment div').each(function (idx) {
+        $modal.find('.segment div').each(function (idx) {
             var className = 'between-markers';
             var $elem = $(this);
             $elem.removeClass(className);
@@ -465,35 +547,91 @@ function ($scope, EntityOccurrence, Entity) {
         });
 
         if (new_offsets.length === 2) {
-            var $divs = $scope.eo_modal.elem.find('.segment div');
+            var $divs = $modal.find('.segment div');
             var $first_word_in = $divs.eq([new_offsets[0] + 1]);
             var $first_word_out = $divs.eq([new_offsets[1] + 1]);
+            var new_offset_end, new_offset;
 
             if ($first_word_out.length === 0) {
                 $first_word_out = $divs.eq([new_offsets[1] - 1]);
-                var new_offset_end = $first_word_out.data("offset") + 1;
+                new_offset_end = $first_word_out.data("offset") + 1;
             } else {
-                var new_offset_end = $first_word_out.data("offset");
+                new_offset_end = $first_word_out.data("offset");
+            }
+            new_offset = $first_word_in.data("offset");
+            if ($first_word_in.hasClass("marker")) {
+                new_offset = new_offset_end;
             }
 
-            $scope.eo_modal.eo.new_offset = $first_word_in.data("offset");
-            $scope.eo_modal.eo.new_offset_end = new_offset_end;
+            $modal.data("new_offset", new_offset);
+            $modal.data("new_offset_end",  new_offset_end);
         }
     };
 
-    $scope.eo_modal.submit = function () {
-        var eo = $scope.eo_modal.eo;
-        if (eo.new_offset_end - eo.new_offset <= 0) {
-            $scope.eo_modal.add_msg("Invalid Entity Occurrence limits. Can't be empty.");
+    $scope.eo_edition_modal.submit = function () {
+        var $modal = $scope.eo_edition_modal.elem;
+        var eo = $scope.eo_edition_modal.eo;
+        var new_offset = $modal.data("new_offset");
+        var new_offset_end = $modal.data("new_offset_end");
+        if (new_offset_end - new_offset <= 0) {
+            $scope.modal_add_msg(
+                $modal, "Invalid Entity Occurrence limits. Can't be empty."
+            );
         } else {
-            eo.offset = eo.new_offset;
-            eo.offset_end = eo.new_offset_end;
+            eo.offset = new_offset;
+            eo.offset_end = new_offset_end;
             eo.$save().then(
-                $scope.eo_modal.save_success,
+                $scope.modal_save_success,
                 function (response) {
-                    $scope.eo_modal.add_msg("Not saved. " + response.statusText);
+                    $scope.modal_add_msg($modal, "Not saved. " + response.statusText);
                 }
             );
+        }
+    };
+
+    $scope.eo_creation_modal.submit = function () {
+        var $modal = $scope.eo_creation_modal.elem;
+        var new_offset = $modal.data("new_offset");
+        var new_offset_end = $modal.data("new_offset_end");
+        var $new_entity_kind = $("#new_entity_kind");
+        var $document = $(".document");
+        var $button = $modal.find(".save");
+
+        if (new_offset_end - new_offset <= 0) {
+            $scope.modal_add_msg(
+                $modal, "Invalid Entity Occurrence limits. Can't be empty."
+            );
+        } else if ($new_entity_kind.val() === null) {
+            $scope.modal_add_msg($modal, "Error: you must select a kind");
+        } else {
+            var csrftoken = getCookie('csrftoken');
+            $button.find(".text").fadeOut(function () {
+                $button.find(".loading").fadeIn();
+            });
+
+            $.ajax({
+                url: eo_creation_url,
+                type: "POST",
+                data: {
+                    offset: new_offset,
+                    offset_end: new_offset_end,
+                    kind: $new_entity_kind.val(),
+                    doc_id: $document.data("document-id")
+                },
+                success: function () {
+                    $button.find(".loading").fadeOut(function () {
+                        $button.find(".text").fadeIn();
+                    });
+                    $scope.modal_save_success();
+                },
+                error: function (jqXHR, textStatus) {
+                    $scope.modal_add_msg($modal, "Not saved. " + textStatus);
+                },
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            });
+
         }
     };
 
@@ -506,12 +644,12 @@ function ($scope, EntityOccurrence, Entity) {
         }
     };
 
-    $scope.eo_modal.save_success = function () {
+    $scope.modal_save_success = function () {
         /* Here is handled not the segment on the modal, but on the actual underlying
          * page */
         $scope.run_partial_save();
     };
-    $scope.eo_modal.remove_eo_ask = function (event) {
+    $scope.eo_edition_modal.remove_eo_ask = function (event) {
         event.preventDefault();
 
         $(".remove-eo-ask").fadeOut("fast", function () {
@@ -519,24 +657,24 @@ function ($scope, EntityOccurrence, Entity) {
         });
     };
 
-    $scope.eo_modal.remove_eo_cancel = function (event) {
+    $scope.eo_edition_modal.remove_eo_cancel = function (event) {
         $(".remove-confirm-wrapper").fadeOut("fast", function () {
             $(".remove-eo-ask").fadeIn("fast");
         });
     };
 
-    $scope.eo_modal.remove_eo_confirm = function (event) {
+    $scope.eo_edition_modal.remove_eo_confirm = function (event) {
         event.preventDefault();
 
-        var eo = $scope.eo_modal.eo;
+        var eo = $scope.eo_edition_modal.eo;
         EntityOccurrence.delete({pk: eo.pk}).$promise.then(function () {
             $scope.run_partial_save();
         });
     };
-    $scope.eo_modal.remove_eo_confirm_all = function (event) {
+    $scope.eo_edition_modal.remove_eo_confirm_all = function (event) {
         event.preventDefault();
 
-        var eo = $scope.eo_modal.eo;
+        var eo = $scope.eo_edition_modal.eo;
         Entity.delete({pk: eo.entity}).$promise.then(function () {
             $scope.run_partial_save();
         });
@@ -570,3 +708,20 @@ String.prototype.format = String.prototype.f = function () {
     }
     return s;
 };
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

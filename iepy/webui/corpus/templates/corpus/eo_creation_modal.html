@@ -1,0 +1,37 @@
+{% load static %}
+
+<div id="eo-creation-modal" class="reveal-modal large eo-modal" data-reveal>
+    <h2>Create Entity Occurrence</h2>
+    <div class="message"></div>
+    <div class="entity_kind row">
+        <div class="large-3">
+            <div class="row">
+                <div class="large-5 columns">
+                    <label class="right">Entity kind: </label>
+                </div>
+                <div class="large-7 columns">
+                    <select id="new_entity_kind">
+                        {% for entity_kind in entity_kinds %}
+                            <option value="{{ entity_kind.id }}">{{ entity_kind.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="offsets">
+        <p>Move occurrence limits:</p>
+        <div class="segment">
+        </div>
+    </div>
+
+    <a class="close-reveal-modal">&#215;</a>
+    <div class="controls">
+        <a class="button alert cancel">Cancel</a>
+        <a class="button save">
+            <img class="loading" src="{% static 'img/save_loading.gif' %}"></img>
+            <div class="text">Save</div>
+        </a>
+    </div>
+</div>

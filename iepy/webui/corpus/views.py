@@ -9,14 +9,17 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
 from django.utils import formats
 from django.views.generic.base import TemplateView
+from django.http import HttpResponse, HttpResponseBadRequest
 
 from extra_views import ModelFormSetView
 
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 from corpus.models import (
     Relation, TextSegment, IEDocument,
-    EvidenceLabel, SegmentToTag,
+    EvidenceLabel, SegmentToTag, EntityKind
 )
+
+from iepy.data.db import EntityOccurrenceManager
 
 
 def _judge(request):
@@ -268,6 +271,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'relations_list': [],
                 'forms_values': [],
                 'draw_navigation': True,
+                'entity_kinds': EntityKind.objects.all(),
             }
             return ctx
 
@@ -338,6 +342,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'other_judges_labels': json.dumps(other_judges_labels),
             'other_judges': list(other_judges_labels.keys()),
             "draw_navigation": True,
+            'entity_kinds': EntityKind.objects.all(),
         })
         return ctx
 
@@ -473,8 +478,26 @@ class DocumentNavigation(TemplateView):
         else:
             parsed_sentences = [""] * len(sentences)
 
+        context["entity_kinds"] = EntityKind.objects.all()
         context["document"] = document
         context["segments"] = sentences
         context["parsed_sentences"] = parsed_sentences
         context["draw_navigation"] = True
         return context
+
+
+def create_entity_occurrence(request):
+    kind = get_object_or_404(EntityKind, id=request.POST.get("kind"))
+    document = get_object_or_404(IEDocument, id=request.POST.get("doc_id"))
+
+    if "offset" not in request.POST or "offset_end" not in request.POST:
+        raise HttpResponseBadRequest("Invalid offsets")
+    try:
+        offset = int(request.POST["offset"])
+        offset_end = int(request.POST["offset_end"])
+    except ValueError:
+        raise HttpResponseBadRequest("Invalid offsets")
+
+    EntityOccurrenceManager.create_with_entity(kind, document, offset, offset_end)
+    result = json.dumps({"success": True})
+    return HttpResponse(result, content_type='application/json')
