@@ -1,11 +1,14 @@
+from unittest import mock
 from django.core.exceptions import ObjectDoesNotExist
 
 from .manager_case import ManagerTestCase
 from .factories import (
-    EntityFactory, GazetteItemFactory
+    IEDocFactory, GazetteItemFactory,
+    EntityFactory, EntityKindFactory,
 )
 
 from iepy.data.models import GazetteItem, Entity
+from iepy.data.db import EntityOccurrenceManager
 
 
 class TestEntityGazetteRelation(ManagerTestCase):
@@ -57,3 +60,31 @@ class TestEntityGazetteRelation(ManagerTestCase):
             Entity.objects.get(pk=entity2_id)
         except ObjectDoesNotExist:
             self.fail("Entity does not exists and it should")
+
+
+class TestEntityOccurrenceCreation(ManagerTestCase):
+    def test_entity_created(self):
+        kind = EntityKindFactory()
+        doc = IEDocFactory()
+        offset = 0
+        offset_end = 1
+
+        entity_count = Entity.objects.all().count()
+        EntityOccurrenceManager.create_with_entity(
+            kind, doc, offset, offset_end
+        )
+        new_entity_count = Entity.objects.all().count()
+        self.assertEqual(new_entity_count, entity_count + 1)
+
+    def test_segmenter_is_run(self):
+        with mock.patch("iepy.preprocess.segmenter.SyntacticSegmenterRunner") as mock_segmenter:
+            kind = EntityKindFactory()
+            doc = IEDocFactory()
+            offset = 0
+            offset_end = 1
+
+            EntityOccurrenceManager.create_with_entity(
+                kind, doc, offset, offset_end
+            )
+
+            self.assertTrue(mock_segmenter.called)
