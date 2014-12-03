@@ -26,6 +26,7 @@
             {% if rich_token.eo_ids %}
                 <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}
                             entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
+                    data-dropdown="token-edition-dropdown"
                     ng-click="eo_click({{ rich_token.eo_ids }})"
                     ng-class="{
                         selectable: {% for eo_id in rich_token.eo_ids %}
@@ -45,12 +46,11 @@
                     {% endif %}
                 >
             {% else %}
-            <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}"
-                ng-right-click="token_context_menu('{{ segment_counter }}-{{ forloop.counter }}')">
+                <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}"
+                    ng-right-click="token_context_menu('{{ segment_counter }}-{{ forloop.counter }}')" 
+                    data-dropdown="token-edition-dropdown"
+                >
             {% endif %}
-                <div class="context-menu-holder" id="context-menu-{{ segment_counter }}-{{ forloop.counter }}"
-                    data-dropdown="token-edition-dropdown" >&nbsp;</div>
-
                 {% if rich_token.eo_ids|length > 1 %}
                     <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
                 {% endif %}

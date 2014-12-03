@@ -84,6 +84,14 @@ function ($scope, EntityOccurrence, Entity) {
         setTimeout($scope.update_relations_arrows, 300);
         $scope.create_relations_metadata();
 
+        $(".rich-token").on("click", function (event, stop) {
+            stop = stop === undefined ? true : stop;
+
+            if (stop) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
@@ -407,7 +415,6 @@ function ($scope, EntityOccurrence, Entity) {
 
     $scope.token_context_menu = function (token_id) {
         var $dropdown = $("#token-edition-dropdown");
-        var $contextmenu = $("#context-menu-" + token_id);
         var $token = $(".rich-token-" + token_id);
         var $modify_eo_item = $dropdown.find("#modify-eo-item");
         var $create_eo_item = $dropdown.find("#create-eo-item");
@@ -417,10 +424,9 @@ function ($scope, EntityOccurrence, Entity) {
             $scope.eo_creation_modal.selected = $token;
         });
 
-        var $parent = $contextmenu.parent();
-        if ($parent.hasClass("entity-occurrence")) {
-            var segment_id = $parent.parents(".segment").data("segment-id");
-            var entity_id = $parent.data("eo-id");
+        if ($token.hasClass("entity-occurrence")) {
+            var segment_id = $token.parents(".segment").data("segment-id");
+            var entity_id = $token.data("eo-id");
             $modify_eo_item.on("click", function (event) {
                 event.preventDefault();
                 $scope.display_edition_modal(entity_id, segment_id);
@@ -430,7 +436,7 @@ function ($scope, EntityOccurrence, Entity) {
             $modify_eo_item.hide();
         }
 
-        $contextmenu.trigger("click");
+        $token.trigger("click", false);
     };
 
     $scope.display_edition_modal = function (value, segment_id) {
