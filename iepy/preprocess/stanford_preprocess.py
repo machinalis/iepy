@@ -19,6 +19,13 @@ class CoreferenceError(Exception):
 class GazetteManager:
     _PREFIX = "__GAZETTE_"
 
+    # Stanford NER default/native classes
+    NATIVE_CLASSES = [
+        'DATE', 'DURATION', 'LOCATION', 'MISC',
+        'MONEY', 'NUMBER', 'ORDINAL', 'ORGANIZATION',
+        'PERCENT', 'PERSON', 'SET', 'TIME',
+    ]
+
     def __init__(self):
         self.gazette_items = list(GazetteItem.objects.all())
         self._cache_per_kind = {}
@@ -49,13 +56,7 @@ class GazetteManager:
         if not self.gazette_items:
             return
 
-        # Stanford NER default/native classes
-        native_classes = [
-            'DATE', 'DURATION', 'LOCATION', 'MISC',
-            'MONEY', 'NUMBER', 'ORDINAL', 'ORGANIZATION',
-            'PERCENT', 'PERSON', 'SET', 'TIME',
-        ]
-        overridable_classes = ",".join(native_classes)
+        overridable_classes = ",".join(self.NATIVE_CLASSES)
         self._cache_per_kind = defaultdict(list)
 
         gazette_format = "{}\t{}\t{}\n"
@@ -63,7 +64,7 @@ class GazetteManager:
         with open(filepath, "w") as gazette_file:
             for gazette in self.gazette_items:
                 kname = gazette.kind.name
-                if kname in native_classes:
+                if kname in self.NATIVE_CLASSES:
                     # kind will not be escaped, but tokens will be stored on cache
                     self._cache_per_kind[kname].append(gazette.text)
                 else:
@@ -76,16 +77,16 @@ class GazetteManager:
 
 class StanfordPreprocess(BasePreProcessStepRunner):
 
-    def __init__(self):
+    def __init__(self, increment_ner=False):
         super().__init__()
         self.gazette_manager = GazetteManager()
         gazettes_filepath = self.gazette_manager.generate_stanford_gazettes_file()
         self.corenlp = corenlp.get_analizer(gazettes_filepath=gazettes_filepath)
         self.override = False
+        self.increment_ner = increment_ner
 
     def lemmatization_only(self, document):
         """ Run only the lemmatization """
-
         # Lemmatization was added after the first so we need to support
         # that a document has all the steps done but lemmatization
 
@@ -109,7 +110,31 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_syntactic_parsing_result(parse_trees)
         document.save()
 
+    def increment_ner(self, document):
+        """
+        Runs NER steps (basic NER and also Gazetter), adding the new found NE.
+        """
+        analysis = StanfordAnalysis(self.corenlp.analize(document.text))
+
+        # NER
+        found_entities = analysis.get_found_entities(
+            self.gazette_manager, document.human_identifier)
+        document.set_ner_result(found_entities, incremental=True)
+
+        # Save progress so far, next step doesn't modify `document`
+        document.save()
+
+        # Coreference resolution
+        for coref in analysis.get_coreferences():
+            try:
+                apply_coreferences(document, coref)
+            except CoreferenceError as e:
+                logger.warning(e)
+
     def __call__(self, document):
+        """Checks state of the document, and based on the preprocess options,
+        # decides what needs to be run, and triggers it.
+        """
         steps = [
             PreProcessSteps.tokenization,
             PreProcessSteps.sentencer,
@@ -123,6 +148,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         if not self.override:
             # All steps done
             if all(document.was_preprocess_step_done(step) for step in steps):
+                # nothing needs to be done
                 return
 
             # Old steps are the one added up to version 0.9.1
@@ -143,6 +169,10 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 "must be 100% StanfordMultiStepRunner"
             )
 
+        # if still here, means that every steps need to be run
+        self.run_everything(document)
+
+    def run_everything(self, document):
         analysis = StanfordAnalysis(self.corenlp.analize(document.text))
 
         # Tokenization
