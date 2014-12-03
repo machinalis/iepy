@@ -16,10 +16,10 @@ from extra_views import ModelFormSetView
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 from corpus.models import (
     Relation, TextSegment, IEDocument,
-    EvidenceLabel, SegmentToTag,
-    Entity, EntityKind, EntityOccurrence
+    EvidenceLabel, SegmentToTag, EntityKind
 )
-from iepy.preprocess.segmenter import SyntacticSegmenterRunner
+
+from iepy.data.db import EntityOccurrenceManager
 
 
 def _judge(request):
@@ -498,20 +498,6 @@ def create_entity_occurrence(request):
     except ValueError:
         raise HttpResponseBadRequest("Invalid offsets")
 
-    entity, _ = Entity.objects.get_or_create(
-        key="{} {} {} {}".format(document.human_identifier, kind, offset, offset_end),
-        kind=kind
-    )
-    entity_occurrence = EntityOccurrence(
-        entity=entity,
-        document=document,
-        offset=offset,
-        offset_end=offset_end,
-        alias=" ".join(document.tokens[offset:offset_end]),
-    )
-    entity_occurrence.save()
-    segmenter = SyntacticSegmenterRunner(override=True)
-    segmenter(document)
-
+    EntityOccurrenceManager.create_with_entity(kind, document, offset, offset_end)
     result = json.dumps({"success": True})
     return HttpResponse(result, content_type='application/json')

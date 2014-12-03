@@ -14,8 +14,12 @@ import iepy
 iepy.setup()
 
 from iepy.data.models import (
-    IEDocument, TextSegment, Entity, EntityKind, Relation, EvidenceLabel,
-    EvidenceCandidate)
+    IEDocument, TextSegment, Relation,
+    Entity, EntityKind, EntityOccurrence,
+    EvidenceLabel, EvidenceCandidate
+)
+
+from iepy.preprocess import segmenter
 from iepy.preprocess.pipeline import PreProcessSteps
 
 
@@ -105,6 +109,29 @@ class EntityManager(object):
         else:
             kw['kind__name'] = kind
         return Entity.objects.get(**kw)
+
+
+class EntityOccurrenceManager:
+
+    @classmethod
+    def create_with_entity(cls, kind, document, offset, offset_end):
+        entity, _ = Entity.objects.get_or_create(
+            key="{} {} {} {}".format(
+                document.human_identifier,
+                kind, offset, offset_end
+            ),
+            kind=kind
+        )
+        entity_occurrence = EntityOccurrence(
+            entity=entity,
+            document=document,
+            offset=offset,
+            offset_end=offset_end,
+            alias=" ".join(document.tokens[offset:offset_end]),
+        )
+        entity_occurrence.save()
+        segmenter_runner = segmenter.SyntacticSegmenterRunner(override=True)
+        segmenter_runner(document)
 
 
 class RelationManager(object):
