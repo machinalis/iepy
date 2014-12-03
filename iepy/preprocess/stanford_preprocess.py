@@ -110,7 +110,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         document.set_syntactic_parsing_result(parse_trees)
         document.save()
 
-    def increment_ner(self, document):
+    def increment_ner_only(self, document):
         """
         Runs NER steps (basic NER and also Gazetter), adding the new found NE.
         """
@@ -145,32 +145,37 @@ class StanfordPreprocess(BasePreProcessStepRunner):
             # Steps added after 0.9.2
             PreProcessSteps.syntactic_parsing,
         ]
-        if not self.override:
-            # All steps done
-            if all(document.was_preprocess_step_done(step) for step in steps):
-                # nothing needs to be done
-                return
 
-            # Old steps are the one added up to version 0.9.1
-            old_steps = steps[:4]
-            done_steps = [s for s in steps if document.was_preprocess_step_done(s)]
-            old_steps_done = set(old_steps).issubset(done_steps)
+        steps_done = set([s for s in steps if document.was_preprocess_step_done(s)])
 
-            if old_steps_done:
-                if PreProcessSteps.lemmatization not in done_steps:
+        if self.override or not steps_done:
+            # no matter what's the internal state of the document, or any other option
+            # on the StanfordPreprocess, everything need to be run
+            self.run_everything(document)
+        elif steps_done == set(steps):
+            # All steps are already done...
+            if self.increment_ner:
+                self.increment_ner_only()
+        else:
+            # Dealing with accepting "incremental-running" of preprocess for documents
+            # that were preprocessed with some older version of IEPY.
+
+            # "initial_steps" are the ones added up to version 0.9.1, which (at some point)
+            # were considered "all available steps".
+            initial_steps = steps[:4]
+            all_initials_done = set(initial_steps).issubset(steps_done)
+
+            if all_initials_done:
+                if PreProcessSteps.lemmatization not in steps_done:
                     self.lemmatization_only(document)
-                if PreProcessSteps.syntactic_parsing not in done_steps:
+                if PreProcessSteps.syntactic_parsing not in steps_done:
                     self.syntactic_parsing_only(document)
-                return
-
-        if not self.override and document.was_preprocess_step_done(PreProcessSteps.tokenization):
-            raise NotImplementedError(
-                "Running with mixed preprocess steps not supported, "
-                "must be 100% StanfordMultiStepRunner"
-            )
-
-        # if still here, means that every steps need to be run
-        self.run_everything(document)
+            else:
+                # weird combination of steps done. We can't handle that right now
+                raise NotImplementedError(
+                    "Running with mixed preprocess steps not supported, "
+                    "must be 100% StanfordMultiStepRunner"
+                )
 
     def run_everything(self, document):
         analysis = StanfordAnalysis(self.corenlp.analize(document.text))

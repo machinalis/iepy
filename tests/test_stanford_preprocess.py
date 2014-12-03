@@ -187,12 +187,6 @@ class TestPreProcessCall(ManagerTestCase):
         self.addCleanup(patcher.stop)
         self.stanfordpp = StanfordPreprocess()
 
-        #self.document_all_done = self._doc_creator(steps[:])
-        #self.document_missing_lemmatization = self._doc_creator(
-            #[s for s in steps if s != pps.lemmatization])
-        #self.document_missing_syntactic_parsing = self._doc_creator(
-            #[s for s in steps if s != pps.syntactic_parsing])
-
     def test_if_all_steps_are_done_then_no_step_is_run(self):
         doc = self._doc_creator(mark_as_done=self._all_steps)
         self.stanfordpp(doc)
@@ -231,6 +225,20 @@ class TestPreProcessCall(ManagerTestCase):
             mock_synparse.side_effect = lambda x: None
             self.stanfordpp(doc_no_synparse)
             self.assertTrue(mock_synparse.called)
+
+    def test_can_add_ner_on_incremental_mode_over_already_preprocessed_documents(self):
+        doc_done = self._doc_creator(mark_as_done=self._all_steps)
+        doc_fresh = IEDocFactory()
+        self.stanfordpp.increment_ner = True
+        p = lambda x: mock.patch.object(self.stanfordpp, x)
+        with p("increment_ner_only") as mock_ner_only:
+            with p("run_everything") as mock_run_everything:
+                self.stanfordpp(doc_done)
+                self.assertEqual(mock_ner_only.call_count, 1)
+                self.assertEqual(mock_run_everything.call_count, 0)
+                self.stanfordpp(doc_fresh)
+                self.assertEqual(mock_ner_only.call_count, 1)
+                self.assertEqual(mock_run_everything.call_count, 1)
 
 
 class TestGazetteer(ManagerTestCase):
