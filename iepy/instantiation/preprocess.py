@@ -8,7 +8,7 @@ Usage:
 
 Options:
   -h --help             Show this screen
-  --increment-ner           Re run NER and Gazetter for every document. If a document lacked any of the previous steps, WILL be preprocessed entirely.
+  --increment-ner       Re run NER and Gazetter for every document. If a document lacked any of the previous steps, will be preprocessed entirely.
   --version             Version number
 """
 import logging
