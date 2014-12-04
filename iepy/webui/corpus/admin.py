@@ -15,6 +15,7 @@ admin.site.index_title = 'IEPY'
 class EntityKindAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(EntityOccurrence)
 class EntityOccurrenceAdmin(admin.ModelAdmin):
     pass
