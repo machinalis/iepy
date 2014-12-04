@@ -26,7 +26,6 @@
             {% if rich_token.eo_ids %}
                 <div class="rich-token rich-token-{{ segment_counter }}-{{ forloop.counter }}
                             entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
-                    data-dropdown="token-edition-dropdown"
                     ng-click="eo_click({{ rich_token.eo_ids }})"
                     ng-class="{
                         selectable: {% for eo_id in rich_token.eo_ids %}
@@ -39,8 +38,10 @@
                             {% endfor %}
                     }"
                     {% if rich_token.eo_ids|length > 1 %}
-                        data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
+                        data-dropdown="eo-hover-{{ segment_counter }}-{{ forloop.counter }}"
+                        data-options="is_hover:true"
                     {% else %}
+                        data-dropdown="token-edition-dropdown"
                         data-eo-id="{{ rich_token.eo_ids.0 }}"
                         ng-right-click="token_context_menu('{{ segment_counter }}-{{ forloop.counter }}')"
                     {% endif %}
@@ -61,7 +62,7 @@
             </div>
 
             {% if rich_token.eo_ids|length > 1 %}
-                <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
+                <ul id="eo-hover-{{ segment_counter }}-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
                     {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
                         <li>
                             <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
