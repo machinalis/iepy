@@ -28,7 +28,7 @@ class GazetteManager:
 
     def __init__(self):
         self.gazette_items = list(GazetteItem.objects.all())
-        self._cache_per_kind = {}
+        self._cache_per_kind = defaultdict(list)
 
     def escape_text(self, text):
         text = " ".join("\Q{}\E".format(x) for x in text.split())
@@ -119,7 +119,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # NER
         found_entities = analysis.get_found_entities(
             self.gazette_manager, document.human_identifier)
-        document.set_ner_result(found_entities, incremental=True)
+        document.set_ner_result(found_entities)
 
         # Save progress so far, next step doesn't modify `document`
         document.save()
@@ -155,7 +155,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         elif steps_done == set(steps):
             # All steps are already done...
             if self.increment_ner:
-                self.increment_ner_only()
+                self.increment_ner_only(document)
         else:
             # Dealing with accepting "incremental-running" of preprocess for documents
             # that were preprocessed with some older version of IEPY.

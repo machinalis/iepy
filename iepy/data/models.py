@@ -199,8 +199,23 @@ class IEDocument(BaseModel):
         return self
 
     def set_ner_result(self, value):
+        # Before even doing anything, basic offset validation
+        def feo_has_issues(feo):
+            return (feo.offset < 0 or feo.offset >= feo.offset_end
+                    or feo.offset > len(self.tokens))
+        invalids = [x for x in value if feo_has_issues(x)]
+        if invalids:
+            raise ValueError('Invalid FoundEvidences: {}'.format(invalids))
+
+        existents = set()
+        eo_clash_key = lambda x: (x.offset, x.offset_end, x.entity.kind.name)
+        for eo in self.entity_occurrences.all():
+            existents.add(eo_clash_key(eo))
+        # No issue, let's create them
         for found_entity in value:
             key, kind_name, alias, offset, offset_end, from_gazette = found_entity
+            if (offset, offset_end, kind_name) in existents:
+                continue
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             if from_gazette:
                 gazette_item = GazetteItem.objects.get(text=key, kind=kind)
@@ -216,13 +231,15 @@ class IEDocument(BaseModel):
                 print('Alias "%s" reduced to "%s"' % (alias, alias_))
                 alias = alias_
 
-            EntityOccurrence.objects.get_or_create(
+            obj, created = EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
                 offset=offset,
                 offset_end=offset_end,
                 alias=alias
             )
+            if created:
+                existents.add(eo_clash_key(obj))
         self.ner_done_at = datetime.now()
         return self
 
