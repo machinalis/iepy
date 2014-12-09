@@ -1,6 +1,7 @@
 from collections import defaultdict
 from itertools import chain, groupby
 import logging
+from operator import attrgetter
 import tempfile
 
 from iepy.preprocess import corenlp
@@ -358,7 +359,7 @@ class StanfordAnalysis:
 
 def apply_coreferences(document, coreferences):
     """
-    Makes all entity ocurrences named in `coreference` have the same
+    Makes all entity ocurrences listed in `coreferences` have the same
     entity.
     It uses coreference information to merge entity ocurrence's
     entities into a single entity.
@@ -383,27 +384,28 @@ def apply_coreferences(document, coreferences):
             occurrences[i].append(occurrence)
 
     entities = []  # Existing entities referenced by correferences
+    pickable_as_representant = []
     missing = []  # References that have no entity occurrence yet
-    for i, j, head in coreferences:
+    for i, j, head in sorted(coreferences):
         if occurrences[head]:
-            entities.extend(x.entity for x in occurrences[head])
+            for x in occurrences[head]:
+                entities.append(x.entity)
+                if not x.anaphora:
+                    pickable_as_representant.append(x.entity)
         else:
             missing.append((i, j, head))
 
-    if not entities:
+    if not pickable_as_representant:
         return
     if len(set(e.kind for e in entities)) != 1:
         raise CoreferenceError("Cannot merge entities of different kinds {!r}".format(
             set(e.kind for e in entities)))
 
-    # Select canonical name for the entity
-    i, j, _ = coreferences[0]
-    name = " ".join(document.tokens[i:j])
-    # Select canonical entity, every occurrence will point to this entity
-    try:
-        canonical = Entity.objects.get(key=name)
-    except Entity.DoesNotExist:
-        canonical = entities[0]
+    from_ner = [r for r in pickable_as_representant if not r.gazette]
+    if from_ner:
+        canonical = from_ner[0]
+    else:
+        canonical = pickable_as_representant[0]
 
     # Each missing coreference needs to be created into an occurrence now
     for i, j, head in missing:
@@ -415,9 +417,10 @@ def apply_coreferences(document, coreferences):
             entity=canonical,
             offset=i,
             offset_end=j,
-            alias=" ".join(document.tokens[i:j]))
+            alias=" ".join(document.tokens[i:j]),
+            defaults={'anaphora': True})
 
-    # Finally, the merging 'per se', where all things are entity ocurrences
+    # Finally, the merging 'per se', where all things are entity occurrences
     for entity in set(x for x in entities if x != canonical):
         for occurrence in EntityOccurrence.objects.filter(entity=entity):
             occurrence.entity = canonical

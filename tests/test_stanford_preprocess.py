@@ -1,11 +1,12 @@
 from unittest import TestCase, mock
 from datetime import datetime
 
-from .factories import IEDocFactory, SentencedIEDocFactory, GazetteItemFactory
+from .factories import (IEDocFactory, SentencedIEDocFactory, GazetteItemFactory,
+                        EntityOccurrenceFactory, EntityKindFactory)
 from .manager_case import ManagerTestCase
 from iepy.preprocess.pipeline import PreProcessSteps
 from iepy.preprocess.stanford_preprocess import (
-    StanfordPreprocess, GazetteManager,
+    StanfordPreprocess, GazetteManager, apply_coreferences, CoreferenceError,
     StanfordAnalysis)
 
 
@@ -317,3 +318,93 @@ class TestGazetteer(ManagerTestCase):
             escaped = gm.escape_text(text)
             self.assertEqual(escaped.count("\Q"), len(text.split()))
             self.assertEqual(escaped.count("\E"), len(text.split()))
+
+
+class TestMergeCorreferences(ManagerTestCase):
+
+    def setUp(self):
+        self.doc = SentencedIEDocFactory(
+            text="Diego did it . He scored on the first half , and now he did it again . "
+                 #0     1   2  3 4  5      6  7   8     9   10 11  12  13 14  15 16    17
+                 "Diego Maradona , the best player ever , won the game alone .")
+                 #18    19      20 21  22   23     24  25 26  27  28   29    30
+        # mentions is a list of triplets (start, end, head) of each mention
+        self.mentions = [(0, 1, 0),  # Diego
+                         (4, 5, 4),  # He
+                         (13, 14, 13),  # he
+                         (18, 20, 18),  # Diego Maradona
+                         (21, 25, 23),  # the best player ever
+                         ]
+        assert self.doc.entity_occurrences.count() == 0
+        self.sample_ekind = EntityKindFactory()
+
+    def merge(self, correfs):
+        # runs the method on document
+        return apply_coreferences(self.doc, correfs)
+
+    def create_eo_with_mention(self, mention):
+        return EntityOccurrenceFactory(
+            document=self.doc, entity__kind=self.sample_ekind,
+            offset=mention[0], offset_end=mention[1])
+
+    def test_if_none_of_the_mentions_is_already_and_EO_nothing_happens(self):
+        self.merge(self.mentions[:])
+        self.assertEqual(self.doc.entity_occurrences.count(), 0)
+
+    def test_merging_when_there_are_EOS_from_different_kind_fails(self):
+        for m in self.mentions[:2]:
+            eo = self.create_eo_with_mention(self.mentions[0])
+            eo.entity.kind = EntityKindFactory()
+            eo.entity.save()
+        self.assertRaises(CoreferenceError, self.merge, self.mentions[:])
+
+    def test_if_only_one_EO_existed_then_all_others_are_created_with_same_entity(self):
+        original_eo = self.create_eo_with_mention(self.mentions[0])
+        self.merge(self.mentions[:])
+        self.assertEqual(self.doc.entity_occurrences.count(), len(self.mentions))
+        for eo in self.doc.entity_occurrences.all():
+            self.assertEqual(eo.entity, original_eo.entity)
+            if eo != original_eo:
+                self.assertTrue(eo.anaphora)
+
+    def test_if_all_the_existent_EOs_are_from_anaphora_no_new_ones_are_created(self):
+        original_eo = self.create_eo_with_mention(self.mentions[0])
+        original_eo.anaphora = True
+        original_eo.save()
+        self.merge(self.mentions[:])
+        self.assertEqual(self.doc.entity_occurrences.count(), 1)
+
+    def test_if_coexist_EO_from_gazette_and_EO_from_NER_entity_of_the_later_is_used(self):
+        eo_from_gz = self.create_eo_with_mention(self.mentions[0])
+        eo_from_gz.entity.gazette = GazetteItemFactory()
+        eo_from_gz.entity.save()
+        eo_from_ner = self.create_eo_with_mention(self.mentions[1])
+        expected_entity = eo_from_ner.entity
+        self.merge(self.mentions[:])
+        self.assertEqual(self.doc.entity_occurrences.count(), len(self.mentions))
+        for eo in self.doc.entity_occurrences.all():
+            # this will reload also eo_from_gz and eo_from_ner
+            self.assertEqual(eo.entity, expected_entity)
+
+    def test_if_coexist_several_EOs_from_NER_the_entity_of_first_is_used(self):
+        eo_1 = self.create_eo_with_mention(self.mentions[0])
+        eo_2 = self.create_eo_with_mention(self.mentions[1])
+        assert eo_1.entity != eo_2.entity
+        expected_entity = eo_1.entity
+        self.merge(self.mentions[:])
+        for eo in self.doc.entity_occurrences.all():
+            # this will reload eo_1 and eo_2
+            self.assertEqual(eo.entity, expected_entity)
+
+    def test_if_coexist_several_EOs_from_GZ_the_entity_of_first_is_used(self):
+        eo_1 = self.create_eo_with_mention(self.mentions[0])
+        eo_1.entity.gazette = GazetteItemFactory()
+        eo_1.entity.save()
+        eo_2 = self.create_eo_with_mention(self.mentions[1])
+        eo_2.entity.gazette = GazetteItemFactory()
+        eo_2.entity.save()
+        expected_entity = eo_1.entity
+        self.merge(self.mentions[:])
+        for eo in self.doc.entity_occurrences.all():
+            # this will reload eo_1 and eo_2
+            self.assertEqual(eo.entity, expected_entity)

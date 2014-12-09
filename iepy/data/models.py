@@ -298,6 +298,7 @@ class EntityOccurrence(BaseModel):
 
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
+    anaphora = models.BooleanField(default=False)  # Is a Named Entity or an anaphora?
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
