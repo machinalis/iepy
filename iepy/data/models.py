@@ -58,19 +58,19 @@ class Entity(BaseModel):
 class IEDocument(BaseModel):
     human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
                                         unique=True)
-    title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
-    url = models.URLField()  # TODO: remove
+    title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)  # TODO: remove
+    url = models.URLField(blank=True)  # TODO: remove
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
-    tokens = ListField()  # strings
-    lemmas = ListField()  # strings
-    postags = ListField()  # strings
-    offsets_to_text = ListField()  # ints, character offset for tokens, lemmas and postags
-    syntactic_sentences = ListSyntacticTreeField()
+    tokens = ListField(blank=True)  # strings
+    lemmas = ListField(blank=True)  # strings
+    postags = ListField(blank=True)  # strings
+    offsets_to_text = ListField(blank=True)  # ints, character offset for tokens, lemmas and postags
+    syntactic_sentences = ListSyntacticTreeField(blank=True, editable=False)
 
-    sentences = ListField()  # ints, it's a list of token-offsets
+    sentences = ListField(blank=True)  # ints, it's a list of token-offsets
 
     # Reversed fields:
     # entity_occurrences = Reversed ForeignKey of EntityOccurrence
@@ -199,8 +199,23 @@ class IEDocument(BaseModel):
         return self
 
     def set_ner_result(self, value):
+        # Before even doing anything, basic offset validation
+        def feo_has_issues(feo):
+            return (feo.offset < 0 or feo.offset >= feo.offset_end
+                    or feo.offset > len(self.tokens))
+        invalids = [x for x in value if feo_has_issues(x)]
+        if invalids:
+            raise ValueError('Invalid FoundEvidences: {}'.format(invalids))
+
+        existents = set()
+        eo_clash_key = lambda x: (x.offset, x.offset_end, x.entity.kind.name)
+        for eo in self.entity_occurrences.all():
+            existents.add(eo_clash_key(eo))
+        # No issue, let's create them
         for found_entity in value:
             key, kind_name, alias, offset, offset_end, from_gazette = found_entity
+            if (offset, offset_end, kind_name) in existents:
+                continue
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             if from_gazette:
                 gazette_item = GazetteItem.objects.get(text=key, kind=kind)
@@ -216,13 +231,15 @@ class IEDocument(BaseModel):
                 print('Alias "%s" reduced to "%s"' % (alias, alias_))
                 alias = alias_
 
-            EntityOccurrence.objects.get_or_create(
+            obj, created = EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
                 offset=offset,
                 offset_end=offset_end,
                 alias=alias
             )
+            if created:
+                existents.add(eo_clash_key(obj))
         self.ner_done_at = datetime.now()
         return self
 
@@ -281,6 +298,7 @@ class EntityOccurrence(BaseModel):
 
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
+    anaphora = models.BooleanField(default=False)  # Is a Named Entity or an anaphora?
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']

@@ -91,6 +91,7 @@ class StanfordCoreNLP:
         self.proc.stdin.write(data.encode("utf8"))
         self.proc.stdin.flush()
 
+    @lru_cache(maxsize=1)
     def analize(self, text):
         self.send(text)
         text = self.receive()

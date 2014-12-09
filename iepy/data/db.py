@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class DocumentManager(object):
     """Wrapper to the db-access, so it's not that impossible to switch
-    from mongodb to something else if desired.
+    from current ORM to something else if desired.
     """
 
     ### Basic administration and pre-process
