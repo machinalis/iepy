@@ -1,13 +1,12 @@
 from collections import defaultdict
 from itertools import chain, groupby
 import logging
-from operator import attrgetter
 import tempfile
 
 from iepy.preprocess import corenlp
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
 from iepy.preprocess.ner.base import FoundEntity
-from iepy.data.models import Entity, EntityOccurrence, GazetteItem
+from iepy.data.models import EntityOccurrence, GazetteItem
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +118,8 @@ class StanfordPreprocess(BasePreProcessStepRunner):
 
         # NER
         found_entities = analysis.get_found_entities(
-            self.gazette_manager, document.human_identifier)
+            document.human_identifier, self.gazette_manager
+        )
         document.set_ner_result(found_entities)
 
         # Save progress so far, next step doesn't modify `document`
@@ -200,7 +200,8 @@ class StanfordPreprocess(BasePreProcessStepRunner):
 
         # NER
         found_entities = analysis.get_found_entities(
-            self.gazette_manager, document.human_identifier)
+            document.human_identifier, self.gazette_manager
+        )
         document.set_ner_result(found_entities)
 
         # Save progress so far, next step doesn't modify `document`
@@ -281,7 +282,7 @@ class StanfordAnalysis:
     def get_pos(self):
         return [x["POS"] for x in self._raw_tokens]
 
-    def get_found_entities(self, gazette_manager, entity_key_prefix):
+    def get_found_entities(self, entity_key_prefix, gazette_manager=None):
         """
         Generates FoundEntity objects for the entities found.
         For all the entities that came from a gazette, joins
@@ -291,7 +292,12 @@ class StanfordAnalysis:
         tokens = self.get_tokens()
         for i, j, kind in self.get_entity_occurrences():
             alias = " ".join(tokens[i:j])
-            from_gazette = gazette_manager.was_entry_created_by_gazette(alias, kind)
+
+            if gazette_manager is not None:
+                from_gazette = gazette_manager.was_entry_created_by_gazette(alias, kind)
+            else:
+                from_gazette = False
+
             if from_gazette:
                 kind = gazette_manager.strip_kind(kind)
                 key = alias
