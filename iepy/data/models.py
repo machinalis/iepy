@@ -5,7 +5,7 @@ from datetime import datetime
 import itertools
 import logging
 from operator import attrgetter
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from django.db import models
 
@@ -207,15 +207,27 @@ class IEDocument(BaseModel):
         if invalids:
             raise ValueError('Invalid FoundEvidences: {}'.format(invalids))
 
-        existents = set()
-        eo_clash_key = lambda x: (x.offset, x.offset_end, x.entity.kind.name)
+        existents = defaultdict(list)
+        eo_clash_key = lambda x: (x.offset, x.offset_end)
         for eo in self.entity_occurrences.all():
-            existents.add(eo_clash_key(eo))
+            existents[eo_clash_key(eo)].append(eo)
+
         # No issue, let's create them
         for found_entity in value:
             key, kind_name, alias, offset, offset_end, from_gazette = found_entity
-            if (offset, offset_end, kind_name) in existents:
-                continue
+            if (offset, offset_end) in existents.keys():
+                skip = False
+                for existent in existents[offset, offset_end]:
+                    is_from_gazette = existent.entity.gazette is not None
+                    is_same_kind = existent.entity.kind.name == kind_name
+
+                    if is_from_gazette or is_same_kind:
+                        skip = True
+                        break
+
+                if skip:
+                    continue
+
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             if from_gazette:
                 gazette_item = GazetteItem.objects.get(text=key, kind=kind)
@@ -239,7 +251,8 @@ class IEDocument(BaseModel):
                 alias=alias
             )
             if created:
-                existents.add(eo_clash_key(obj))
+                existents[eo_clash_key(obj)].append(obj)
+
         self.ner_done_at = datetime.now()
         return self
 
