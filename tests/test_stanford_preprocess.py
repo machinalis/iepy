@@ -297,7 +297,7 @@ class TestGazetteer(ManagerTestCase):
                 (11, 13, "MOVIE"),  # second occurrence of "Stuart Little"
             ]
 
-            found_entities = analysis.get_found_entities(fake_gazetter, 'random_string')
+            found_entities = analysis.get_found_entities('random_string', fake_gazetter)
             # Ok, so, Occurrences with same alias, if came from gazetter, are same Entity
             self.assertEqual(found_entities[0].key, found_entities[2].key)
             # But ofcourse, if have different aliases, not
