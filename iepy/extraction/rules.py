@@ -79,9 +79,8 @@ class Kind(refo.Predicate):
         self.arg = kind
 
     def _predicate(self, obj):
-        if hasattr(obj, "eo_kinds"):
-            obj_kind_names = [x.name for x in obj.eo_kinds]
-            return self.kind in obj_kind_names
+        if hasattr(obj, "kinds"):
+            return self.kind in obj.kinds
         return False
 
 
