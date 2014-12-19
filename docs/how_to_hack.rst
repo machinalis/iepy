@@ -50,7 +50,7 @@ provide it as a configuration parameter like this
 
     iextractor = ActiveLearningCore(
         relation, labeled_evidences,
-        performance_tradeoff=tuning_mode,
+        tradeoff=tuning_mode,
         extractor_config={},
         extractor=MyOwnRelationClassifier
     )
