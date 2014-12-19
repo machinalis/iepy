@@ -6,12 +6,14 @@ Usage:
     iepy_runner.py -h | --help | --version
 
 Options:
-  --classifier=<classifier_path>     Load an already trained classifier
-  --no-questions                     Won't generate questions to answer and will try to predict as is. Should be used with --classifier
-  -h --help                          Show this screen
-  --tune-for=<tune-for>              Predictions tuning. Options are high-prec or high-recall [default: high-prec]
-  --extractor-config=<config.json>   Sets the extractor config
-  --version                          Version number
+  --trained-extractor=<extractor_path>  Load an already trained extractor
+  --no-questions                        Won't generate questions to answer. Will predict
+                                        as is. Should be used with --trained-extractor
+  --tune-for=<tune-for>                 Predictions tuning. Options are high-prec
+                                        or high-recall [default: high-prec]
+  --extractor-config=<config.json>      Sets the extractor config
+  --version                             Version number
+  -h --help                             Show this screen
 """
 
 import os
@@ -44,7 +46,7 @@ def load_labeled_evidences(relation, evidences):
 def run_from_command_line():
     opts = docopt(__doc__, version=iepy.__version__)
     relation = opts['<relation_name>']
-    classifier_path = opts.get('--classifier')
+    extractor_path = opts.get('--trained-extractor')
 
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     logging.getLogger("featureforge").setLevel(logging.WARN)
@@ -68,17 +70,19 @@ def run_from_command_line():
     candidates = CandidateEvidenceManager.candidates_for_relation(relation)
     labeled_evidences = load_labeled_evidences(relation, candidates)
 
-    if classifier_path:
+    if extractor_path:
         try:
-            loaded_classifier = output.load_classifier(classifier_path)
+            iextractor = ActiveLearningCore.load(extractor_path,
+                                                 labeled_evidences=labeled_evidences)
         except ValueError:
-            print("Error: unable to load classifier, invalid file")
+            print("Error: unable to load extractor, invalid file")
             exit(1)
 
-        iextractor = ActiveLearningCore(
-            relation, labeled_evidences, performance_tradeoff=tuning_mode,
-            classifier=loaded_classifier
-        )
+        if iextractor.relation != relation:
+            print('The loaded extractor is not for the requested relation'
+                  ' but for relation {} instead'.format(iextractor.relation))
+            exit(1)
+        print('Extractor successfully loaded')
         was_ever_trained = True
     else:
         config_filepath = opts.get("--extractor-config")
@@ -98,12 +102,10 @@ def run_from_command_line():
                 exit(1)
 
         iextractor = ActiveLearningCore(
-            relation, labeled_evidences, extractor_config,
-            performance_tradeoff=tuning_mode
+            relation, labeled_evidences, extractor_config, tradeoff=tuning_mode
         )
         iextractor.start()
         was_ever_trained = False
-
 
     if not opts.get("--no-questions", False):
         questions_loop(iextractor, relation, was_ever_trained)
