@@ -48,10 +48,10 @@ def run_from_command_line():
     evidences = CandidateEvidenceManager.candidates_for_relation(relation)
 
     # Run the pipeline
-    iextractor = RuleBasedCore(relation, evidences, rules)
+    iextractor = RuleBasedCore(relation, rules)
     iextractor.start()
     iextractor.process()
-    predictions = iextractor.predict()
+    predictions = iextractor.predict(evidences)
     output.dump_output_loop(predictions)
 
 
