@@ -159,6 +159,7 @@ class ActiveLearningCore:
             scores = self.classifier.decision_function(to_predict)
             labels = scores >= self.threshold
         prediction = dict(zip(to_predict, map(bool, labels)))
+        prediction.update(knowns)
         return prediction
 
     def estimate_threshold(self):
