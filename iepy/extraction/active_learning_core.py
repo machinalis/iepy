@@ -138,24 +138,28 @@ class ActiveLearningCore:
         self.rank_candidate_evidence()
         self.choose_questions()
 
-    def predict(self):
+    def predict(self, candidates):
         """
-        Blocking (ie, not fast).
-        With all the labeled evidence a classifier is trained and used for automatically
-        labeling all other evidences.
+        Using the internal trained classifier, all candidate evicence are automatically
+        labeled.
         Returns a dict {evidence: True/False}, where the boolean label indicates if
         the relation is present on that evidence or not.
         """
         if not self.classifier:
-            logger.info("There is no classifier. Can't predict")
+            logger.info("There is trained no classifier. Can't predict")
             return {}
+
+        # for every already labeled candidate, instead of asking the classifier we'll use
+        # the actual label
+        knowns = copy(self.labeled_evidence)
+        to_predict = [c for c in candidates if c not in knowns]
         if self.threshold is None:
-            labels = self.classifier.predict(self.candidate_evidence)
+            labels = self.classifier.predict(to_predict)
         else:
-            scores = self.classifier.decision_function(self.candidate_evidence)
+            scores = self.classifier.decision_function(to_predict)
             labels = scores >= self.threshold
-        prediction = dict(zip(self.candidate_evidence, map(bool, labels)))
-        prediction.update(self.labeled_evidence)
+        prediction = dict(zip(to_predict, map(bool, labels)))
+        prediction.update(knowns)
         return prediction
 
     def estimate_threshold(self):
