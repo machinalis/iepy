@@ -111,7 +111,7 @@ def run_from_command_line():
         questions_loop(iextractor, relation, was_ever_trained)
 
     # Predict and store output
-    predictions = iextractor.predict()
+    predictions = iextractor.predict(candidates)  # asking predictions for EVERYTHING
     if predictions:
         output.dump_output_loop(predictions)
         output.dump_classifier_loop(iextractor)
