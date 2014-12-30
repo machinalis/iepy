@@ -363,6 +363,17 @@ class StanfordAnalysis:
         return coreferences
 
 
+def issues_merging_entities(document, entities):
+    # Checks is some general preconditions are met before proceeding to merge some
+    # entities on a fiven document
+    kinds = set(e.kind for e in entities)
+    if len(kinds) != 1:
+        return "Cannot merge entities of different kinds {!r}".format(kinds)
+    gazettes = set(e.gazette for e in entities if e.gazette)
+    if len(gazettes) > 1:
+        return "Cannot merge entities of different gazette items {!r}".format(gazettes)
+
+
 def apply_coreferences(document, coreferences):
     """
     Makes all entity ocurrences listed in `coreferences` have the same
@@ -403,9 +414,9 @@ def apply_coreferences(document, coreferences):
 
     if not pickable_as_representant:
         return
-    if len(set(e.kind for e in entities)) != 1:
-        raise CoreferenceError("Cannot merge entities of different kinds {!r}".format(
-            set(e.kind for e in entities)))
+    issues = issues_merging_entities(document, entities)
+    if issues:
+        raise CoreferenceError(issues)
 
     from_ner = [r for r in pickable_as_representant if not r.gazette]
     if from_ner:
@@ -428,6 +439,7 @@ def apply_coreferences(document, coreferences):
 
     # Finally, the merging 'per se', where all things are entity occurrences
     for entity in set(x for x in entities if x != canonical):
-        for occurrence in EntityOccurrence.objects.filter(entity=entity):
+        for occurrence in EntityOccurrence.objects.filter(entity=entity,
+                                                          document=document):
             occurrence.entity = canonical
             occurrence.save()

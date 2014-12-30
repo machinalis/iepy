@@ -396,15 +396,11 @@ class TestMergeCorreferences(ManagerTestCase):
             # this will reload eo_1 and eo_2
             self.assertEqual(eo.entity, expected_entity)
 
-    def test_if_coexist_several_EOs_from_GZ_the_entity_of_first_is_used(self):
+    def test_cant_merge_several_EOs_from_different_GZ_items(self):
         eo_1 = self.create_eo_with_mention(self.mentions[0])
         eo_1.entity.gazette = GazetteItemFactory()
         eo_1.entity.save()
         eo_2 = self.create_eo_with_mention(self.mentions[1])
         eo_2.entity.gazette = GazetteItemFactory()
         eo_2.entity.save()
-        expected_entity = eo_1.entity
-        self.merge(self.mentions[:])
-        for eo in self.doc.entity_occurrences.all():
-            # this will reload eo_1 and eo_2
-            self.assertEqual(eo.entity, expected_entity)
+        self.assertRaises(CoreferenceError, self.merge, self.mentions[:])
