@@ -191,7 +191,7 @@ class CandidateEvidenceManager(object):
             existent_ec_per_segment[ec.segment_id].append(ec)
 
         _doc_ids = list(doc_ids)
-        while doc_ids:
+        while _doc_ids:
             _id = _doc_ids.pop()
             document = IEDocument.objects.get(id=_id)
             for segment in segments_per_document[document.id]:
