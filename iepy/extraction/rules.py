@@ -138,7 +138,7 @@ def cached_segment_enriched_tokens(segment):
     return rich_tks
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8)
 def generate_tokens_to_match(evidence):
     tokens_to_match = []
     l_eo_id = evidence.left_entity_occurrence_id
