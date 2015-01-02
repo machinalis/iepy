@@ -53,7 +53,7 @@ class TestRuleBasedCore(ManagerTestCase):
         self._candidates = self.get_candidates(self.person_date_relation)
 
     def get_candidates(self, relation):
-        return CandidateEvidenceManager.candidates_for_relation(relation)
+        return list(CandidateEvidenceManager.candidates_for_relation(relation))
 
     def _create_simple_document(self, text):
         tokens = tuple(text.split())
