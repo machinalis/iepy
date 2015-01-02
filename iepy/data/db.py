@@ -189,16 +189,20 @@ class CandidateEvidenceManager(object):
         existent_ec_per_segment = defaultdict(list)
         for ec in existent_ec:
             existent_ec_per_segment[ec.segment_id].append(ec)
-        evidences = []
-        for document in IEDocument.objects.filter(pk__in=doc_ids):
+
+        _doc_ids = list(doc_ids)
+        while doc_ids:
+            _id = _doc_ids.pop()
+            document = IEDocument.objects.get(id=_id)
             for segment in segments_per_document[document.id]:
                 _existent = existent_ec_per_segment[segment.pk]
                 if construct_missing_candidates:
                     seg_ecs = segment.get_evidences_for_relation(relation, _existent)
                 else:
                     seg_ecs = _existent
-                evidences.extend([hydrate(e, document) for e in seg_ecs])
-        return evidences
+
+                for evidence in seg_ecs:
+                    yield hydrate(evidence, document)
 
     @classmethod
     def value_labeled_candidates_count_for_relation(cls, relation):
