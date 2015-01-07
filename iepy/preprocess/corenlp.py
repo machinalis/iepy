@@ -37,6 +37,9 @@ class StanfordCoreNLP:
         cmd_args = self.command_args(tokenize_with_whitespace, gazettes_filepath)
         os.chdir(_FOLDER_PATH)
         self.corenlp_cmd = [COMMAND_PATH] + cmd_args
+        self._start_proc()
+
+    def _start_proc(self):
         self.proc = subprocess.Popen(
             self.corenlp_cmd,
             stdin=subprocess.PIPE,
@@ -89,6 +92,10 @@ class StanfordCoreNLP:
     def send(self, data):
         data = data.replace("\n", " ") + "\n"
         self.proc.stdin.write(data.encode("utf8"))
+        self.proc.stdin.flush()
+
+    def quit(self):
+        self.proc.stdin.write("q\n".encode("utf8"))
         self.proc.stdin.flush()
 
     @lru_cache(maxsize=1)
