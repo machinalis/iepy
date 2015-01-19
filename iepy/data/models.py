@@ -379,9 +379,8 @@ class TextSegment(BaseModel):
 
     def get_entity_occurrences(self):
         """Returns an iterable of EntityOccurrences, sorted by offset"""
-        return map(lambda eo: eo.hydrate_for_segment(self),
-                   self.entity_occurrences.all().order_by('offset')
-                   )
+        return list(map(lambda eo: eo.hydrate_for_segment(self),
+                        self.entity_occurrences.all().order_by('offset')))
 
     def get_evidences_for_relation(self, relation, existent=None):
         # Gets or creates Labeled Evidences (when creating, label is empty)
