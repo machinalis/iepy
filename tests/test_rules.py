@@ -9,7 +9,7 @@ from .factories import EvidenceFactory
 
 class TestCachedSegmentEnrichedTokens(ManagerTestCase):
     def setUp(self):
-        rules._cache = {}
+        rules.cached_segment_enriched_tokens.cache_clear()
         self.s1 = EvidenceFactory(markup="The physicist "
                                   "{Albert Einstein|Person*} was born in "
                                   "{Germany|location} and died in the "
