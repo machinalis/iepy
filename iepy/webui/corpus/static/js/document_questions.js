@@ -59,6 +59,7 @@ function ($scope, EntityOccurrence, Entity) {
     $scope.forms = window.forms;
     $scope.relations = window.relations;
     $scope.current_tool = window.initial_tool;
+    $scope.different_kind = window.different_kind;
     $scope.question_options = window.question_options;
     $scope.other_judges_labels = window.other_judges_labels;
     $scope.arrows = {};
@@ -323,7 +324,8 @@ function ($scope, EntityOccurrence, Entity) {
                     var rel = $scope.relations[i];
                     var eo_rel_index1 = rel.relation.indexOf(eo_id1);
                     var eo_rel_index2 = rel.relation.indexOf(eo_id2);
-                    if (eo_rel_index1 >= 0 && eo_rel_index2 >= 0) {
+                    var order_check = $scope.different_kind || eo_rel_index1 < eo_rel_index2;
+                    if (eo_rel_index1 >= 0 && eo_rel_index2 >= 0 && order_check) {
                         var form_value = $scope.forms[rel.form_id];
                         var new_value = form_value ? "": $scope.current_tool;
                         $scope.forms[rel.form_id] = new_value;

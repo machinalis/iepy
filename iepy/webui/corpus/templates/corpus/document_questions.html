@@ -24,6 +24,7 @@
         var other_judges_labels = {{ other_judges_labels|safe }};
         var initial_tool = "{{ initial_tool }}";
         var eo_creation_url = "{% url 'corpus:create_entity_occurrence' %}";
+        var different_kind = {%  if different_kind %} true {% else %} false {% endif %};
     </script>
     <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
 {% endblock %}

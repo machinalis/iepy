@@ -324,6 +324,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         form_for_others = EvidenceForm(
             prefix='for_others', initial={"label": EvidenceLabel.NORELATION}
         )
+        different_kind = self.relation.left_entity_kind != self.relation.right_entity_kind
 
         ctx.update({
             'title': title,
@@ -343,6 +344,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'other_judges': list(other_judges_labels.keys()),
             "draw_navigation": True,
             'entity_kinds': EntityKind.objects.all(),
+            'different_kind': different_kind,
         })
         return ctx
 
