@@ -28,15 +28,27 @@ class EntityAdmin(admin.ModelAdmin):
 
 @admin.register(IEDocument)
 class IEDocumentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'human_identifier', 'title', 'link_to_document_navigation']
+    list_display = ['id', 'human_identifier', 'title', 'link_to_document_navigation', 'link_to_label']
     search_fields = ['text']
 
     def link_to_document_navigation(self, obj):
         return '<a href="{0}">Rich View</a>'.format(
             urlresolvers.reverse('corpus:navigate_document', args=(obj.id,))
         )
+
+    def link_to_label(self, obj):
+        html = ''
+        for rel in Relation.objects.all():
+            html += '<a href="{}">{}</a><br />'.format(
+                urlresolvers.reverse('corpus:label_evidence_for_document', args=(rel.id, obj.id)),
+                rel.name
+            )
+        return html
+
     link_to_document_navigation.short_description = 'Rich View'
     link_to_document_navigation.allow_tags = True
+    link_to_label.short_description = 'Label'
+    link_to_label.allow_tags = True
     list_per_page = 20
 
 
