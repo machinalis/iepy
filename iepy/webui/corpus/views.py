@@ -280,7 +280,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         for formset in ctx["formset"]:
             instance = formset.instance
             evidence = instance.evidence_candidate
-            for label in evidence.labels.filter(~Q(id=instance.id)):
+            for label in evidence.labels.filter(
+                Q(relation=instance.relation) & ~Q(id=instance.id)
+            ):
                 other_judges_labels[label.judge].append([
                     evidence.left_entity_occurrence.id,
                     evidence.right_entity_occurrence.id,
