@@ -66,6 +66,7 @@ function ($scope, EntityOccurrence, Entity) {
     $scope.eo_edition_modal = {};
     $scope.eo_creation_modal = {};
     $scope.metadata_visible = "pos";
+    $scope.interaction_activated = true;
 
     $(document).ready(function () {
         $scope.$segments = $(".segments");
@@ -83,7 +84,6 @@ function ($scope, EntityOccurrence, Entity) {
         });
 
         setTimeout($scope.update_relations_arrows, 300);
-        $scope.create_relations_metadata();
 
         $(".rich-token").on("click", function (event, stop) {
             stop = stop === undefined ? true : stop;
@@ -96,10 +96,19 @@ function ($scope, EntityOccurrence, Entity) {
         $(".eo-submenu").on("click", $scope.on_eo_submenu_click);
         $(".eo-submenu").mouseover($scope.highlight_eo_tokens);
         $(".eo-submenu").mouseout($scope.highlight_eo_tokens);
-        $(".judge-answers-button").mouseover($scope.draw_judge_answers);
-        $(".judge-answers-button").mouseout($scope.update_relations_arrows);
-        $(".prev-relations li").mouseover($scope.highlight_relation);
-        $(".prev-relations li").mouseout($scope.highlight_relation);
+
+        $(".judge-answers-wrapper").change(function(){
+            var $this = $(this);
+            var selected = $this.val();
+            if(selected === "me"){
+                $scope.interaction_activated = true;
+                $scope.update_relations_arrows();
+            } else {
+                $scope.interaction_activated = false;
+                $scope.draw_judge_answers(selected);
+            }
+        });
+
         $(".entity-occurrence").mouseover(function () {
             var $eo = $(this);
             $scope.on_eo_mouseover($eo, false);
@@ -141,39 +150,6 @@ function ($scope, EntityOccurrence, Entity) {
     });
 
     // ### Methods ###
-
-    $scope.create_relations_metadata = function () {
-        // NOTE: update_relations_arrows must be run before
-
-        var $holder = $(".prev-relations");
-        var $holder_wrapper = $(".prev-relations-wrapper");
-
-        for(var i in $scope.relations) {
-            if ($scope.relations.hasOwnProperty(i)) {
-                var relation = $scope.relations[i];
-                var info = relation.info;
-                var form_value = $scope.forms[relation.form_id];
-
-                if (form_value !== null && info !== undefined) {
-                    var $element = $("<li>");
-                    var $arrow = $("<i>");
-                    var $text = $("<span>");
-
-                    $arrow.addClass("fi-arrow-right");
-                    $arrow.addClass("prev-arrow prev-arrow-{0}".format(form_value));
-                    $text.text(info);
-
-                    $element.addClass("prev-relation-{0}".format(relation.form_id));
-                    $element.data("relation-id", relation.form_id);
-                    $element.append($arrow);
-                    $element.append($text);
-                    $holder.append($element);
-
-                    $holder_wrapper.fadeIn();
-                }
-            }
-        }
-    };
 
     $scope.clean_all_arrows = function () {
         // Remove all arrows before re-drawing
@@ -241,6 +217,14 @@ function ($scope, EntityOccurrence, Entity) {
         // Not selectable
         if (!eo || !eo.selectable) { return; }
 
+        // If interaction disabled, do nothing
+        if (!$scope.interaction_activated) {
+            var $wrapper = $(".judge-answers-wrapper");
+            $wrapper.addClass("shake shake-constant shake-rotate");
+            setTimeout(function(){ $wrapper.removeClass("shake"); }, 800);
+            return;
+        }
+
         if ($scope.eo_selected === undefined) {
             // Marking as selected
             $scope.eo_first_click(id);
@@ -250,6 +234,9 @@ function ($scope, EntityOccurrence, Entity) {
     };
 
     $scope.on_eo_mouseover = function ($eo, mouseout) {
+        // If interaction disabled, do nothing
+        if (!$scope.interaction_activated) { return; }
+
         var eo_id = $eo.data("eo-id");
         mouseout = mouseout || false;
 
@@ -682,11 +669,8 @@ function ($scope, EntityOccurrence, Entity) {
         });
     };
 
-    $scope.draw_judge_answers = function (event) {
+    $scope.draw_judge_answers = function (judge) {
         event.preventDefault();
-
-        var $this = $(this);
-        var judge = $this.data("judge");
         var data = $scope.other_judges_labels[judge];
         $scope.clean_all_arrows();
         for (var i in data) {
