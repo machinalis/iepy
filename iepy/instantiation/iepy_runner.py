@@ -2,18 +2,21 @@
 Run IEPY active-learning extractor
 
 Usage:
-    iepy_runner.py [options] <relation_name>
+    iepy_runner.py [options] <relation_name> <output>
+    iepy_runner.py [options] --db-store <relation_name>
     iepy_runner.py -h | --help | --version
 
 Options:
-  --trained-extractor=<extractor_path>  Load an already trained extractor
-  --no-questions                        Won't generate questions to answer. Will predict
-                                        as is. Should be used with --trained-extractor
-  --tune-for=<tune-for>                 Predictions tuning. Options are high-prec
-                                        or high-recall [default: high-prec]
-  --extractor-config=<config.json>      Sets the extractor config
-  --version                             Version number
-  -h --help                             Show this screen
+  --store-classifier=<classifier_output>   Stores the trained classifier
+  --trained-extractor=<extractor_path>     Load an already trained extractor
+  --db-store                               Stores the predictions on the database
+  --no-questions                           Won't generate questions to answer. Will predict
+                                           as is. Should be used with --trained-extractor
+  --tune-for=<tune-for>                    Predictions tuning. Options are high-prec
+                                           or high-recall [default: high-prec]
+  --extractor-config=<config.json>         Sets the extractor config
+  --version                                Version number
+  -h --help                                Show this screen
 """
 
 import os
@@ -131,9 +134,20 @@ def run_from_command_line():
 
     # Predict and store output
     predictions = iextractor.predict(candidates)  # asking predictions for EVERYTHING
-    if predictions:
-        output.dump_output_loop(predictions)
-        output.dump_classifier_loop(iextractor)
+    if not predictions:
+        print("Nothing was predicted")
+        exit(1)
+
+    if opts.get("--db-store"):
+        output.dump_predictions_to_database(relation, predictions)
+
+    output_file = opts.get("<output>")
+    if output_file:
+        output.dump_runner_output_to_csv(predictions, output_file)
+
+    classifier_output = opts.get("--classifier_output")
+    if classifier_output:
+        iextractor.save(classifier_output)
 
 
 def questions_loop(iextractor, relation, was_ever_trained):

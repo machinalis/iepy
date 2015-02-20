@@ -1,5 +1,8 @@
 import os
 import csv
+from datetime import datetime
+
+from iepy.data.models import EvidenceLabel
 
 
 def dump_runner_output_to_csv(results, filepath):
@@ -19,6 +22,13 @@ def dump_runner_output_to_csv(results, filepath):
         for prediction, value in results.items():
             prediction_id = prediction.id
             csv_writer.writerow([prediction_id, value])
+
+
+def dump_predictions_to_database(relation, predictions):
+    judge = "iepy-run on {}".format(datetime.now().strftime("%Y-%m-%d %H:%M"))
+    for evidence, relation_is_present in predictions.items():
+        label = EvidenceLabel.YESRELATION if relation_is_present else EvidenceLabel.NORELATION
+        evidence.set_label(relation, label, judge, labeled_by_machine=True)
 
 
 def dump_output_loop(predictions):
