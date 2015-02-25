@@ -567,7 +567,9 @@ class Relation(BaseModel):
         never_considered_ev = evidences.filter(labels__isnull=True)
 
         existent_labels = EvidenceLabel.objects.filter(
-            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+            evidence_candidate__in=evidences,
+            labeled_by_machine=False
+        ).order_by('evidence_candidate__segment_id')
         none_labels = existent_labels.filter(label__isnull=True)
         own_none_labels = none_labels.filter(judge=judge)
 
