@@ -669,7 +669,7 @@ class EvidenceLabel(BaseModel):
         max_length=2, choices=LABEL_CHOICES,
         default=SKIP, null=True, blank=False
     )
-    relation = models.ForeignKey('Relation', related_name='relation_labels')
+    relation = models.ForeignKey('Relation', related_name='relation_labels', null=True, blank=True)
 
     modification_date = models.DateTimeField(auto_now=True)
 
