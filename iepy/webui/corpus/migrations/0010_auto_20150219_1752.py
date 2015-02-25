@@ -11,22 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='evidencecandidate',
-            options={'ordering': ['left_entity_occurrence', 'right_entity_occurrence', 'segment_id']},
-        ),
         migrations.AddField(
             model_name='evidencelabel',
             name='relation',
-            field=models.ForeignKey(related_name='relation_labels', default=None, to='corpus.Relation'),
+            field=models.ForeignKey(related_name='relation_labels', default=None, to='corpus.Relation', null=True, blank=True),
             preserve_default=False,
         ),
-        migrations.AlterUniqueTogether(
-            name='evidencecandidate',
-            unique_together=set([('left_entity_occurrence', 'right_entity_occurrence', 'segment')]),
-        ),
-        migrations.AlterUniqueTogether(
-            name='evidencelabel',
-            unique_together=set([('evidence_candidate', 'label', 'judge', 'relation')]),
-        )
     ]
