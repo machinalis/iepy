@@ -147,14 +147,14 @@ class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
         evidences = list(self.segment.get_evidences_for_relation(self.relation))
         for ev in evidences:
-            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+            ev.get_or_create_label_for_judge(self.relation, self.judge)  # creating EvidenceLabels
         return self.segment, self.relation
 
     def get_queryset(self):
         segment, relation = self.get_segment_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment=self.segment,
-            evidence_candidate__relation=self.relation
+            relation=self.relation
         )
 
     def get_success_url(self):
@@ -280,7 +280,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         for formset in ctx["formset"]:
             instance = formset.instance
             evidence = instance.evidence_candidate
-            for label in evidence.labels.filter(~Q(id=instance.id)):
+            for label in evidence.labels.filter(
+                Q(relation=instance.relation) & ~Q(id=instance.id)
+            ):
                 other_judges_labels[label.judge].append([
                     evidence.left_entity_occurrence.id,
                     evidence.right_entity_occurrence.id,
@@ -359,7 +361,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 list(segment.get_evidences_for_relation(self.relation))
             )
         for ev in evidences:
-            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+            ev.get_or_create_label_for_judge(self.relation, self.judge)  # creating EvidenceLabels
 
         return self.document, self.relation
 
@@ -367,7 +369,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         document, relation = self.get_document_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment__document_id=document,
-            evidence_candidate__relation=relation
+            relation=relation
         )
 
     def get_success_url(self):

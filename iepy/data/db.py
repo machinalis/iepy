@@ -180,7 +180,9 @@ class CandidateEvidenceManager(object):
             segments_per_document[s.document_id].append(s)
         doc_ids = segments_per_document.keys()
         existent_ec = EvidenceCandidate.objects.filter(
-            relation=relation, segment__in=raw_segments.keys()
+            left_entity_occurrence__entity__kind=relation.left_entity_kind,
+            right_entity_occurrence__entity__kind=relation.right_entity_kind,
+            segment__in=raw_segments.keys()
         ).select_related(
             'left_entity_occurrence', 'right_entity_occurrence', 'segment'
         )
@@ -206,9 +208,10 @@ class CandidateEvidenceManager(object):
     def value_labeled_candidates_count_for_relation(cls, relation):
         """Returns the count of labels for the given relation that provide actual
         information/value: YES or NO"""
-        labels = EvidenceLabel.objects.filter(evidence_candidate__relation=relation,
-                                              label__in=[EvidenceLabel.NORELATION,
-                                                         EvidenceLabel.YESRELATION])
+        labels = EvidenceLabel.objects.filter(
+            relation=relation,
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION]
+        )
         return labels.count()
 
     @classmethod
@@ -219,10 +222,10 @@ class CandidateEvidenceManager(object):
         candidates = {e: None for e in evidences}
 
         logger.info("Getting labels from DB")
-        labels = EvidenceLabel.objects.filter(evidence_candidate__relation=relation,
-                                              label__in=[EvidenceLabel.NORELATION,
-                                                         EvidenceLabel.YESRELATION,
-                                                         EvidenceLabel.NONSENSE])
+        labels = EvidenceLabel.objects.filter(
+            relation=relation,
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION, EvidenceLabel.NONSENSE]
+        )
         logger.info("Sorting labels them by evidence")
         labels_per_ev = defaultdict(list)
         for l in labels:

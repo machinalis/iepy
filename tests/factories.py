@@ -121,15 +121,12 @@ def NamedTemporaryFile23(*args, **kwargs):
 class EvidenceCandidateFactory(BaseFactory):
     FACTORY_FOR = EvidenceCandidate
     segment = factory.SubFactory(TextSegmentFactory)
-    relation = factory.SubFactory(RelationFactory)
     left_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
     right_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
 
@@ -149,16 +146,13 @@ class EvidenceFactory(BaseFactory):
     died in the {United States|location**} ."
     """
     FACTORY_FOR = EvidenceCandidate
-    relation = factory.SubFactory(RelationFactory)
     segment = factory.SubFactory(TextSegmentFactory)
     right_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
     left_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
 
@@ -195,13 +189,11 @@ class EvidenceFactory(BaseFactory):
                             {'left_entity_occurrence__%s' % k: v
                              for k, v in eo_args_.items()}
                         )
-                        args["relation__left_entity_kind__name"] = eokind
                     elif eo_flags == 1:
                         args.update(
                             {'right_entity_occurrence__%s' % k: v
                              for k, v in eo_args_.items()}
                         )
-                        args["relation__right_entity_kind__name"] = eokind
                     else:
                         e_occurrences.append((eotokens, len(tokens), eokind))
                     tokens += eotokens

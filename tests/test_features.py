@@ -19,7 +19,7 @@ from iepy.extraction.features import (
     parse_features, in_between_offsets,
 )
 
-from .factories import EvidenceFactory
+from .factories import EvidenceFactory, RelationFactory
 from .manager_case import ManagerTestCase
 
 
@@ -460,7 +460,9 @@ class TestCustomFeatures(ManagerTestCase):
         with mock.patch("importlib.import_module") as mock_import:
             mocked_module = MockedModule()
             mock_import.return_value = mocked_module
+            relation = RelationFactory()
             evidence = _e("test")
+            evidence.relation = relation
 
             fs = parse_features(["app.rules.custom_rule_feature"])
             self.assertEqual(fs[0](evidence), 1)

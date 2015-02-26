@@ -192,6 +192,7 @@ class ActiveLearningCore:
         self.candidate_evidence = []
         self.labeled_evidence = {}
         for e, lbl in labeled_evidences.items():
+            e.relation = self.relation
             if lbl is None:
                 self.candidate_evidence.append(e)
             else:
