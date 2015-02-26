@@ -154,7 +154,8 @@ class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
         segment, relation = self.get_segment_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment=self.segment,
-            relation=self.relation
+            relation=self.relation,
+            labeled_by_machine=False,
         )
 
     def get_success_url(self):
@@ -369,7 +370,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         document, relation = self.get_document_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment__document_id=document,
-            relation=relation
+            relation=relation,
+            labeled_by_machine=False,
         )
 
     def get_success_url(self):

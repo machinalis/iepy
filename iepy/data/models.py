@@ -567,7 +567,9 @@ class Relation(BaseModel):
         never_considered_ev = evidences.filter(labels__isnull=True)
 
         existent_labels = EvidenceLabel.objects.filter(
-            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+            evidence_candidate__in=evidences,
+            labeled_by_machine=False
+        ).order_by('evidence_candidate__segment_id')
         none_labels = existent_labels.filter(label__isnull=True)
         own_none_labels = none_labels.filter(judge=judge)
 
@@ -635,11 +637,12 @@ class EvidenceCandidate(BaseModel):
             labeled_by_machine=False, defaults={'label': None})
         return obj
 
-    def set_label(self, relation, label, judge):
+    def set_label(self, relation, label, judge, labeled_by_machine=False):
         evidence_label, created = EvidenceLabel.objects.get_or_create(
             relation=relation,
             evidence_candidate=self,
             judge=judge,
+            labeled_by_machine=labeled_by_machine
         )
         evidence_label.label = label
         evidence_label.save()

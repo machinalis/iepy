@@ -210,7 +210,8 @@ class CandidateEvidenceManager(object):
         information/value: YES or NO"""
         labels = EvidenceLabel.objects.filter(
             relation=relation,
-            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION]
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION],
+            labeled_by_machine=False
         )
         return labels.count()
 
@@ -224,7 +225,8 @@ class CandidateEvidenceManager(object):
         logger.info("Getting labels from DB")
         labels = EvidenceLabel.objects.filter(
             relation=relation,
-            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION, EvidenceLabel.NONSENSE]
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION, EvidenceLabel.NONSENSE],
+            labeled_by_machine=False
         )
         logger.info("Sorting labels them by evidence")
         labels_per_ev = defaultdict(list)
