@@ -34,7 +34,7 @@ Run the active learning core by doing:
 
 .. code-block:: bash
 
-    python bin/iepy_runner.py <relation_name>
+    python bin/iepy_runner.py <relation_name> <output>
 
 And add ``--tune-for=high-prec`` or ``--tune-for=high-recall`` before the relation name to switch
 between modes. The default is **high precision**.
@@ -48,7 +48,17 @@ continue the execution by typing **run**.
 
 That will cycle again and repeat the process.
 
-To terminate the process, type **STOP** and the output will be provided.
+Run the active learning core in the command line and ask it to **STOP**.
+It'll save a csv with the automatic classifications for all evidences in the database.
+
+Also, note that you can only predict a relation for a text that has been inserted into the database.
+The csv output file has the primary key of an object in the database that represents the evidence that 
+was classified as "relation present" or "relation not present". An evidence object in the database is a
+rich-in-information object containing the entities and circumstances surrounding the prediction that 
+is too complex to put in a single csv file.
+
+In order to access the entities and other details you'll need to write a script 
+to talk with the database (see iepy/data/models.py).
 
 
 Fine tuning
