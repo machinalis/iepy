@@ -54,12 +54,18 @@ class Entity(BaseModel):
     def __str__(self):
         return '%s (%s)' % (self.key, self.kind.name)
 
+class IEDocumentMetadata(BaseModel):
+    document = models.OneToOneField('IEDocument', related_name='metadata')
+    title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)
+    url = models.URLField(blank=True)
+    metadata = jsonfield.JSONField(blank=True)
+
 
 class IEDocument(BaseModel):
-    human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
-                                        unique=True)
-    title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)  # TODO: remove
-    url = models.URLField(blank=True)  # TODO: remove
+    human_identifier = models.CharField(
+        max_length=CHAR_MAX_LENGHT,
+        unique=True
+    )
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
@@ -84,9 +90,6 @@ class IEDocument(BaseModel):
     ner_done_at = models.DateTimeField(null=True, blank=True)
     segmentation_done_at = models.DateTimeField(null=True, blank=True)
     syntactic_parsing_done_at = models.DateTimeField(null=True, blank=True)
-
-    # anything else you want to store in here that can be useful
-    metadata = jsonfield.JSONField(blank=True)
 
     class Meta(BaseModel.Meta):
         ordering = ['id', ]

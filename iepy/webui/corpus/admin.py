@@ -28,7 +28,7 @@ class EntityAdmin(admin.ModelAdmin):
 
 @admin.register(IEDocument)
 class IEDocumentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'human_identifier', 'title', 'link_to_document_navigation']
+    list_display = ['id', 'human_identifier', 'link_to_document_navigation']
     search_fields = ['text']
 
     def link_to_document_navigation(self, obj):
