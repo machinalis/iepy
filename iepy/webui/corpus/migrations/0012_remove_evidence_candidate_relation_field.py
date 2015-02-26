@@ -23,8 +23,4 @@ class Migration(migrations.Migration):
             model_name='evidencecandidate',
             name='relation',
         ),
-        migrations.AlterUniqueTogether(
-            name='evidencelabel',
-            unique_together=set([('evidence_candidate', 'label', 'judge', 'relation')]),
-        )
     ]

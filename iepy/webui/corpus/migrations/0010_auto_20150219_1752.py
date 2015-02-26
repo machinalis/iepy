@@ -17,4 +17,8 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='relation_labels', default=None, to='corpus.Relation', null=True, blank=True),
             preserve_default=False,
         ),
+        migrations.AlterUniqueTogether(
+            name='evidencelabel',
+            unique_together=set([('evidence_candidate', 'label', 'judge', 'relation')]),
+        )
     ]
