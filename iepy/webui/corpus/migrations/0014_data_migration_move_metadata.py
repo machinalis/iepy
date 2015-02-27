@@ -44,7 +44,7 @@ def move_metadata(apps, schema_editor):
         if i % BULK_SIZE == 0:
             logger.info("Updated {} out of {}".format(i, total))
         IEDocument.objects.filter(pk=doc_mtd.document_tmp_id).update(metadata_fk=doc_mtd.id)
-    logger.info("Updated {} out of {}".format(i+1, total))
+    logger.info("Updated {} out of {}".format(total, total))
 
 
 class Migration(migrations.Migration):

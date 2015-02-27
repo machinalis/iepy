@@ -27,6 +27,11 @@ logging.getLogger("factory").setLevel(logging.WARN)
 BaseFactory = factory.django.DjangoModelFactory
 
 
+class IEDocumentMetadataFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.IEDocumentMetadata'
+
+
 class EntityKindFactory(BaseFactory):
     class Meta:
         model = 'corpus.EntityKind'
@@ -52,6 +57,7 @@ class EntityOccurrenceFactory(BaseFactory):
 
 class IEDocFactory(BaseFactory):
     FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
@@ -65,6 +71,7 @@ class TextSegmentFactory(BaseFactory):
 
 class SentencedIEDocFactory(IEDocFactory):
     FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
     text = factory.Sequence(lambda n: 'Lorem ipsum. Yaba daba du! %i' % n)
 
     @factory.post_generation
@@ -82,6 +89,7 @@ class SentencedIEDocFactory(IEDocFactory):
 
 class SyntacticParsedIEDocFactory(IEDocFactory):
     FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
 
     # This factory will always return
     # the same sentences and trees

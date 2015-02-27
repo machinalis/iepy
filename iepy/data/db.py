@@ -55,19 +55,22 @@ class DocumentManager(object):
         result exist will be preserved untouched, delegating the responsability
         of deciding what to do to the caller of this method).
         """
-        doc, created = IEDocument.objects.get_or_create(
-            human_identifier=identifier, defaults={'text': text}
-        )
+        if metadata is None:
+            metadata = {}
 
-        if metadata:
-            metadata_obj, metadata_created = IEDocumentMetadata.objects.get_or_create(document=doc)
-            if metadata_created or update_mode:
-                metadata_obj.items = metadata
-                metadata_obj.save()
-
-        if not created and update_mode:
+        filter_query = IEDocument.objects.filter(human_identifier=identifier)
+        if not filter_query.exists():
+            mtd_obj = IEDocumentMetadata.objects.create(items=metadata)
+            doc = IEDocument.objects.create(human_identifier=identifier, text=text,
+                                            metadata=mtd_obj)
+        else:
+            doc = filter_query.get()
+        if update_mode:
             doc.text = text
+            doc.metadata.items = metadata
+            doc.metadata.save()
             doc.save()
+
         return doc
 
     def __iter__(self):
