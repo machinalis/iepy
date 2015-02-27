@@ -109,3 +109,24 @@ These can be added as `sparse` adding them into the
 
 The features in the sparse section will go through a stage of linear dimension reduction
 and the dense features, by default, will be used with a non-linear classifier.
+
+
+Viewing predictions on the web user interface
+---------------------------------------------
+
+If you prefer to review the predictions using the web interface is possible to run the
+active learning core in a way that stores the results on the database and they are accesible
+through the web.
+
+To do so, you'll have to run the core like this:
+
+.. code-block:: bash
+
+    python bin/iepy_runner.py --db-store <relation_name> 
+
+We do not have an specialized interface to review predictions but you can still view them
+by using the :doc:`interface to create a reference corpus <corpus_labeling>`.
+
+This way, you'll get labels as a new **judge** called iepy-run and a date.
+
+.. image:: labels_by_iepy.png
