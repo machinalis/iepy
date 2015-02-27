@@ -14,7 +14,8 @@ import iepy
 iepy.setup()
 
 from iepy.data.models import (
-    IEDocument, TextSegment, Relation,
+    IEDocument, IEDocumentMetadata,
+    TextSegment, Relation,
     Entity, EntityKind, EntityOccurrence,
     EvidenceLabel, EvidenceCandidate
 )
@@ -54,14 +55,18 @@ class DocumentManager(object):
         result exist will be preserved untouched, delegating the responsability
         of deciding what to do to the caller of this method).
         """
-        if metadata is None:
-            metadata = {}
         doc, created = IEDocument.objects.get_or_create(
-            human_identifier=identifier, defaults={'text': text, 'metadata': metadata}
+            human_identifier=identifier, defaults={'text': text}
         )
+
+        if metadata:
+            metadata_obj, metadata_created = IEDocumentMetadata.objects.get_or_create(document=doc)
+            if metadata_created or update_mode:
+                metadata_obj.metadata = metadata
+                metadata_obj.save()
+
         if not created and update_mode:
             doc.text = text
-            doc.metadata = metadata
             doc.save()
         return doc
 
