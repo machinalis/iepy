@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('title', models.CharField(max_length=256, blank=True)),
                 ('url', models.URLField(blank=True)),
-                ('metadata', jsonfield.fields.JSONField(blank=True)),
+                ('items', jsonfield.fields.JSONField(blank=True)),
                 ('document', models.OneToOneField(to='corpus.IEDocument')),
             ],
             options={

@@ -62,7 +62,7 @@ class DocumentManager(object):
         if metadata:
             metadata_obj, metadata_created = IEDocumentMetadata.objects.get_or_create(document=doc)
             if metadata_created or update_mode:
-                metadata_obj.metadata = metadata
+                metadata_obj.items = metadata
                 metadata_obj.save()
 
         if not created and update_mode:
