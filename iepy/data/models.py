@@ -58,7 +58,7 @@ class IEDocumentMetadata(BaseModel):
     document = models.OneToOneField('IEDocument', related_name='metadata')
     title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)
     url = models.URLField(blank=True)
-    metadata = jsonfield.JSONField(blank=True)
+    items = jsonfield.JSONField(blank=True)
 
 
 class IEDocument(BaseModel):

@@ -18,7 +18,7 @@ def move_metadata(apps, schema_editor):
         metadata = IEDocumentMetadata(
             title=document.title,
             url=document.url,
-            metadata=document.metadata,
+            items=document.metadata,
             document=document
         )
         metadata.save()
