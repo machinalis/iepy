@@ -1,7 +1,13 @@
-<to be defined>
+0.9.3
     - Added grammatical parsing to the preprocess flow of documents
     - Added support for Spanish preprocess
     - Restricted each iepy-instance to a single language
+    - Gazetter support
+    - Labeling UI improvements
+    - Performance and memory usage improvements
+    - Model simplifications (labels, metadata)
+    - Storage & view of predictions
+
 
 0.9.2
     - Add ability to use custom features (http://iepy.rtfd.org/en/latest/how_to_hack.html#implementing-your-own-features)
