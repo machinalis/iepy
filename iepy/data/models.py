@@ -54,14 +54,15 @@ class Entity(BaseModel):
     def __str__(self):
         return '%s (%s)' % (self.key, self.kind.name)
 
+
 class IEDocumentMetadata(BaseModel):
-    document = models.OneToOneField('IEDocument', related_name='metadata')
     title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)
     url = models.URLField(blank=True)
     items = jsonfield.JSONField(blank=True)
 
 
 class IEDocument(BaseModel):
+    metadata = models.OneToOneField('IEDocumentMetadata', related_name='document')
     human_identifier = models.CharField(
         max_length=CHAR_MAX_LENGHT,
         unique=True

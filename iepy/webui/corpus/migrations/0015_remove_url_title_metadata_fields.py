@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -17,6 +16,10 @@ class Migration(migrations.Migration):
             name='metadata',
         ),
         migrations.RemoveField(
+            model_name='iedocumentmetadata',
+            name='document_tmp',
+        ),
+        migrations.RemoveField(
             model_name='iedocument',
             name='title',
         ),
@@ -25,9 +28,9 @@ class Migration(migrations.Migration):
             name='url',
         ),
         migrations.AlterField(
-            model_name='iedocumentmetadata',
-            name='document',
-            field=models.OneToOneField(to='corpus.IEDocument', related_name='metadata'),
+            model_name='iedocument',
+            name='metadata_fk',
+            field=models.OneToOneField(to='corpus.IEDocumentMetadata', related_name='document'),
             preserve_default=True,
         ),
     ]

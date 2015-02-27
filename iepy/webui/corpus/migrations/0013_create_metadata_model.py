@@ -19,11 +19,17 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=256, blank=True)),
                 ('url', models.URLField(blank=True)),
                 ('items', jsonfield.fields.JSONField(blank=True)),
-                ('document', models.OneToOneField(to='corpus.IEDocument')),
+                ('document_tmp', models.ForeignKey(to='corpus.IEDocument')),
             ],
             options={
                 'abstract': False,
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='iedocument',
+            name='metadata_fk',
+            field=models.OneToOneField(related_name='document', null=True, to='corpus.IEDocumentMetadata'),
+            preserve_default=True,
         ),
     ]
