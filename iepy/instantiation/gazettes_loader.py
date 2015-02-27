@@ -3,7 +3,6 @@ IEPY gazettes loader
 
 Usage:
     gazettes_loader.py <filename>
-    gazettes_loader.py --freebase_type=<freebase_type> <KIND>
 
 
 The <filename> argument can be a .csv file or a .csv.gz file containing the
@@ -26,7 +25,6 @@ from docopt import docopt
 import iepy
 iepy.setup(__file__)
 from iepy.data.models import EntityKind, GazetteItem
-from iepy.preprocess.ner.literal import download_freebase_type
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -48,7 +46,7 @@ def add_gazettes_from_csv(filepath):
     )
 
 
-def _create_gazette_entries(entries_list, from_freebase=None):
+def _create_gazette_entries(entries_list):
     kind_cache = {}
     created = 0
     for literal, kind_name in entries_list:
@@ -59,8 +57,6 @@ def _create_gazette_entries(entries_list, from_freebase=None):
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
             kind_cache[kind_name] = kind
         gazette = GazetteItem(text=literal, kind=kind)
-        if from_freebase:
-            gazette.from_freebase = from_freebase
 
         try:
             gazette.save()
@@ -77,18 +73,4 @@ def _create_gazette_entries(entries_list, from_freebase=None):
 if __name__ == "__main__":
     opts = docopt(__doc__, version=iepy.__version__)
     fname = opts["<filename>"]
-    if fname:
-        add_gazettes_from_csv(fname)
-    else:
-        kind = opts['<KIND>']
-        fb_type = opts['--freebase_type']
-        if not fb_type.startswith('/'):
-            fb_type = '/' + fb_type
-        try:
-            gazettes = download_freebase_type(fb_type)
-        except Exception as error:
-            sys.exit("Error while connecting to freebase: {}".format(error))
-        print('Downloaded {} entries from freebase "{}".'.format(len(gazettes), fb_type))
-        if gazettes:
-            print('Uploading to database...')
-        _create_gazette_entries(zip(gazettes, [kind]*len(gazettes)), fb_type)
+    add_gazettes_from_csv(fname)

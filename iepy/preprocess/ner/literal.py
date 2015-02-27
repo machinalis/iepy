@@ -1,6 +1,3 @@
-import json
-from urllib.parse import urlencode
-from urllib.request import urlopen
 import codecs
 
 from iepy.preprocess.ner.base import BaseNERRunner
@@ -107,41 +104,6 @@ class LiteralNERRunner(BaseNERRunner):
 
             sent_offset += len(sent)
         return entities
-
-
-def download_freebase_type(type_name, normalizer=None, aliases=False):
-    if not normalizer:
-        normalizer = lambda x: x
-
-    result = []
-
-    service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
-    query = [{'type': type_name, 'name': None}]
-    if aliases:
-        query[0]['/common/topic/alias'] = []
-
-    print('Downloading...')
-    page = 1
-    cursor = ''
-    while cursor or page == 1:
-        if page > 1:
-            print('Downloading page {} of entries...'.format(page))
-        page += 1
-        params = {'query': json.dumps(query), 'cursor': cursor}
-        url = service_url + '?' + urlencode(params)
-        response = json.loads(urlopen(url).read().decode('utf-8'))
-        cursor = response['cursor']
-
-        # extract & format results
-        for item in response['result']:
-            name = normalizer(item['name'])
-            result.append(name)
-            if aliases:
-                for name in item['/common/topic/alias']:
-                    name = normalizer(name)
-                    result.append(name)
-
-    return result
 
 
 def to_lower_normalizer(name):

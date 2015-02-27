@@ -32,39 +32,6 @@ For example, a gazettes csv file could be:
     Headache,SYMPTOMS
 
 
-Loading from Freebase
----------------------
-
-.. note::
-
-    Freebase is a large collaborative knowledge base. Learn more about 
-    it on `www.freebase.com <http://www.freebase.com/>`__
-
-If you desire to generate a set of gazettes automatically using data from freebase, you can use the following option
-of the gazettes loader:
-
-::
-
-    gazettes_loader.py --freebase_type=<freebase_type> <KIND>
-
-This will query freebase and find instances of the type that you specified. Then it will create a gazette for each
-of those instances, use the name and the kind that you gave.
-Make sure that ``<freebase_type>`` it's a freebase path to a type.
-
-Lets see an example, running:
-
-::
-
-   python bin/gazettes_loader.py --freebase_type=/location/country COUNTRY 
-
-would generate a `list of countries <http://www.freebase.com/location/country?instances=>`__ and load your gazettes with them.
-
-.. note::
-
-    Freebase is in constant change so running this script in different moments may generate
-    different output.
-
-
 Removing elements
 -----------------
 
