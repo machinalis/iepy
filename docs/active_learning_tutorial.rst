@@ -130,3 +130,22 @@ by using the :doc:`interface to create a reference corpus <corpus_labeling>`.
 This way, you'll get labels as a new **judge** called iepy-run and a date.
 
 .. image:: labels_by_iepy.png
+
+
+Saving predictor for later use
+------------------------------
+
+Since training could be a slow process, you might want to save your trained predictor and
+re-use it several times without the need to train again.
+
+You can save it this by doing:
+
+.. code-block:: bash
+
+    python bin/iepy_runner.py --store-extractor=myextractor.pickle <relation_name> <output>
+
+And re use it like this:
+
+.. code-block:: bash
+
+    python bin/iepy_runner.py --trained-extractor=myextractor.pickle <relation_name> <output>
