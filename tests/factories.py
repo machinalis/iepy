@@ -53,7 +53,6 @@ class EntityOccurrenceFactory(BaseFactory):
 class IEDocFactory(BaseFactory):
     FACTORY_FOR = IEDocument
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
-    title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
