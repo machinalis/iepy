@@ -4,10 +4,10 @@ How to Hack
 There are several places where you can incorporate your own ideas and needs into IEPY.
 Here you'll see how to modify different parts of the iepy core.
 
-Altering how to corpus is created
----------------------------------
+Altering how the corpus is created
+----------------------------------
 
-On `preprocess <preprocess.html#how-to-customize>`_ section was already mentioned that you can customize how the corpus is created.
+On the `preprocess <preprocess.html#how-to-customize>`_ section was already mentioned that you can customize how the corpus is created.
 
 
 Using your own classifier
