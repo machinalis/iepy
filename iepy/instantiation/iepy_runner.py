@@ -7,7 +7,7 @@ Usage:
     iepy_runner.py -h | --help | --version
 
 Options:
-  --store-classifier=<classifier_output>   Stores the trained classifier
+  --store-extractor=<extractor_output>   Stores the trained classifier
   --trained-extractor=<extractor_path>     Load an already trained extractor
   --db-store                               Stores the predictions on the database
   --no-questions                           Won't generate questions to answer. Will predict
@@ -124,6 +124,7 @@ def run_from_command_line():
     if opts.get('--trained-extractor'):
         iextractor = _load_extractor(opts, relation, labeled_evidences)
         was_ever_trained = True
+        opts["--no-questions"] = True
     else:
         iextractor = _construct_extractor(opts, relation, labeled_evidences, tuning_mode)
         iextractor.start()
@@ -145,7 +146,7 @@ def run_from_command_line():
     if output_file:
         output.dump_runner_output_to_csv(predictions, output_file)
 
-    classifier_output = opts.get("--classifier_output")
+    classifier_output = opts.get("--store-extractor")
     if classifier_output:
         iextractor.save(classifier_output)
 
