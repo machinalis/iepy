@@ -27,11 +27,13 @@ First, define your own custom classifier, like this:
 
 
     class MyOwnRelationClassifier:
-        def fit(self, X, y):
+        def __init__(self, **config):
             vectorizer = CountVectorizer(
                 preprocessor=lambda evidence: evidence.segment.text)
             classifier = SGDClassifier()
             self.pipeline = make_pipeline(vectorizer, classifier)
+
+        def fit(self, X, y):
             self.pipeline.fit(X, y)
             return self
 
