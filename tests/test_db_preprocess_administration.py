@@ -22,7 +22,7 @@ class TestDocumentCreationThruManager(ManagerTestCase):
                                               self.sample_metadata)
         self.assertEqual(doc.human_identifier, self.sample_id)
         self.assertEqual(doc.text, self.sample_text)
-        self.assertEqual(doc.metadata, self.sample_metadata)
+        self.assertEqual(doc.metadata.metadata, self.sample_metadata)
         self.assertEqual(IEDocument.objects.count(), 1)
 
     def test_create_existent_does_nothing(self):
@@ -42,12 +42,12 @@ class TestDocumentCreationThruManager(ManagerTestCase):
                                               new_metadata)
         self.assertNotEqual(doc.text, new_text)
         self.assertEqual(doc.text, self.sample_text)
-        self.assertNotEqual(doc.metadata, new_metadata)
-        self.assertEqual(doc.metadata, self.sample_metadata)
+        self.assertNotEqual(doc.metadata.metadata, new_metadata)
+        self.assertEqual(doc.metadata.metadata, self.sample_metadata)
         doc = self.docmanager.create_document(self.sample_id, new_text,
                                               new_metadata, update_mode=True)
         self.assertEqual(doc.text, new_text)
-        self.assertEqual(doc.metadata, new_metadata)
+        self.assertEqual(doc.metadata.metadata, new_metadata)
 
 
 class TestDocumentsPreprocessMetadata(ManagerTestCase):
