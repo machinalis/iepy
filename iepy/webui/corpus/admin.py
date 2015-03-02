@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.core import urlresolvers
+from django.db.models import Q
 
 from corpus.models import (
-    IEDocument, Entity, EntityKind, Relation,
+    IEDocument, IEDocumentMetadata, Entity, EntityKind, Relation,
     EntityOccurrence, GazetteItem
 )
 
@@ -26,10 +27,54 @@ class EntityAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 
+from relatedwidget import RelatedWidgetWrapperBase
+
+
+@admin.register(IEDocumentMetadata)
+class IEDocumentMetadataAdmin(admin.ModelAdmin):
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(IEDocument)
-class IEDocumentAdmin(admin.ModelAdmin):
+class IEDocumentAdmin(RelatedWidgetWrapperBase, admin.ModelAdmin):
+    change_form_template = 'relatives/change_form.html'
     list_display = ['id', 'human_identifier', 'link_to_document_navigation']
     search_fields = ['text']
+    fieldsets = [
+        (None, {'fields': ['human_identifier', 'text', 'metadata']}),
+        ('Preprocess output',
+         {'classes': ['collapse'],
+          'fields': ['tokens', 'offsets_to_text', 'tokenization_done_at',
+                     'sentences', 'sentencer_done_at',
+                     'lemmas', 'lemmatization_done_at',
+                     'postags', 'tagging_done_at',
+                     'ner_done_at', 'segmentation_done_at', 'syntactic_parsing_done_at'],
+          })]
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        metadata_field = form.base_fields['metadata']
+        if obj is None:
+            metadata_field.queryset = metadata_field.queryset.filter(
+                document__isnull=True)
+            # let's make this field not required during creating.
+            # This means that on save_model we'll create an empty metadata obj if needed
+            metadata_field.required = False
+        else:
+            metadata_field.queryset = metadata_field.queryset.filter(
+                Q(document__id=obj.id) | Q(document__isnull=True))
+        return form
+
+    def save_model(self, request, obj, form, change):
+        if obj.id is None and not change:  # ie, creation
+            try:
+                obj.metadata
+            except IEDocumentMetadata.DoesNotExist:
+                obj.metadata = IEDocumentMetadata.objects.create()
+
+        return super().save_model(request, obj, form, change)
 
     def link_to_document_navigation(self, obj):
         return '<a href="{0}">Rich View</a>'.format(

@@ -60,9 +60,17 @@ class IEDocumentMetadata(BaseModel):
     url = models.URLField(blank=True)
     items = jsonfield.JSONField(blank=True)
 
+    def __str__(self):
+        try:
+            doc_id = self.document.id
+        except IEDocument.DoesNotExist:
+            doc_id = 'None'
+        return '<Metadata of IEDocument {0}>'.format(doc_id)
+
 
 class IEDocument(BaseModel):
-    metadata = models.OneToOneField('IEDocumentMetadata', related_name='document')
+    metadata = models.OneToOneField('IEDocumentMetadata', related_name='document',
+                                    on_delete=models.PROTECT)
     human_identifier = models.CharField(
         max_length=CHAR_MAX_LENGHT,
         unique=True
