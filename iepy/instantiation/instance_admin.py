@@ -153,7 +153,7 @@ class InstanceManager:
                 # vainilla old version or not
                 old_version_filepath = os.path.join(
                     self.old_version_path, 'iepy', 'instantiation', filename)
-                if filecmp.cmp(old_version_filepath, destination):
+                if os.path.exists(old_version_filepath) and filecmp.cmp(old_version_filepath, destination):
                     # vainilla old version. Let's simply upgrade it
                     do_it()
                 else:
