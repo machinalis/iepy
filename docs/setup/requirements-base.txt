@@ -10,7 +10,7 @@ appdirs==1.2.0
 wget==2.0
 colorama==0.2.7
 featureforge==0.1.5
-Django==1.7.1
+Django==1.7.5
 django-relatives==0.3.1
 django-relatedadminwidget==0.0.3
 six==1.5.2
