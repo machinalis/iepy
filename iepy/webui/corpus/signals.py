@@ -42,3 +42,16 @@ def on_gazette_delete(sender, instance, **kwargs):
 def on_entity_delete(sender, instance, **kwargs):
     if instance.gazette:
         instance.gazette.delete()
+
+
+@receiver(pre_delete, sender=models.IEDocument)
+def pre_iedocument_delete(sender, instance, **kwargs):
+    to_delete = [instance.metadata]
+    sender.to_delete = to_delete
+
+
+@receiver(post_delete, sender=models.IEDocument)
+def on_iedocument_delete(sender, instance, **kwargs):
+    if hasattr(sender, "to_delete"):
+        for item in sender.to_delete:
+            item.delete()

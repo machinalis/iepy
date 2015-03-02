@@ -41,6 +41,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djangular',
     'corpus',
+    'relatives',
+    'relatedwidget',
 )
 
 MIDDLEWARE_CLASSES = (
