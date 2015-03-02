@@ -39,10 +39,8 @@ app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
         element.bind('contextmenu', function (event) {
-            $scope.$apply(function () {
-                event.preventDefault();
-                fn($scope, {$event: event});
-            });
+            event.preventDefault();
+            fn($scope, {$event: event});
         });
     };
 });
@@ -194,6 +192,9 @@ function ($scope, EntityOccurrence, Entity) {
     };
 
     $scope.eo_click = function (ids) {
+        // Handles only left click
+        if(event.button !== 0) { return; }
+
         // Handles only the case of 1 id, if it has
         // more than one, it shows the menu
         if (ids.length === 1) {
@@ -407,6 +408,7 @@ function ($scope, EntityOccurrence, Entity) {
         var $token = $(".rich-token-" + token_id);
         var $modify_eo_item = $dropdown.find("#modify-eo-item");
         var $create_eo_item = $dropdown.find("#create-eo-item");
+        $create_eo_item.unbind("click");
         $create_eo_item.on("click", function (event) {
             event.preventDefault();
             $scope.display_creation_modal($token);
@@ -416,6 +418,7 @@ function ($scope, EntityOccurrence, Entity) {
         if ($token.hasClass("entity-occurrence")) {
             var segment_id = $token.parents(".segment").data("segment-id");
             var entity_id = $token.data("eo-id");
+            $modify_eo_item.unbind("click");
             $modify_eo_item.on("click", function (event) {
                 event.preventDefault();
                 $scope.display_edition_modal(entity_id, segment_id);
