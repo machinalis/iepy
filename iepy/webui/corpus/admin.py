@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.core import urlresolvers
 from django.db.models import Q
 
+from relatedwidget import RelatedWidgetWrapperBase
+
 from corpus.models import (
     IEDocument, IEDocumentMetadata, Entity, EntityKind, Relation,
     EntityOccurrence, GazetteItem
@@ -25,9 +27,6 @@ class EntityOccurrenceAdmin(admin.ModelAdmin):
 @admin.register(Entity)
 class EntityAdmin(admin.ModelAdmin):
     list_per_page = 20
-
-
-from relatedwidget import RelatedWidgetWrapperBase
 
 
 @admin.register(IEDocumentMetadata)
