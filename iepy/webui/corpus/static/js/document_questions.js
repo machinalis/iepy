@@ -39,10 +39,8 @@ app.directive('ngRightClick', function ($parse) {
     return function ($scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
         element.bind('contextmenu', function (event) {
-            $scope.$apply(function () {
-                event.preventDefault();
-                fn($scope, {$event: event});
-            });
+            event.preventDefault();
+            fn($scope, {$event: event});
         });
     };
 });
@@ -194,6 +192,9 @@ function ($scope, EntityOccurrence, Entity) {
     };
 
     $scope.eo_click = function (ids) {
+        // Handles only left click
+        if(event.button !== 0) { return; }
+
         // Handles only the case of 1 id, if it has
         // more than one, it shows the menu
         if (ids.length === 1) {
