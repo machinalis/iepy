@@ -25,10 +25,14 @@ You need to install the following packages:
 
     sudo apt-get install build-essential python3-dev liblapack-dev libatlas-dev gfortran openjdk-7-jre
 
-They are needed for python scipy & numpy installation, and for running
-some java processes. If anything fails during the IEPY installation below,
-don't hesitate on checking fully installation notes for
-SciPy `here <http://www.scipy.org/install.html>`__
+They are needed for python Numpy installation, and for running
+some java processes.
+
+Once this is done, install numpy by doing:
+
+.. code-block:: bash
+
+    pip install numpy
 
 
 Install IEPY package
@@ -58,20 +62,4 @@ binaries.
 
     iepy --download-third-party-data
 
-32 bit architecture issues
---------------------------
 
-We've experience some memory issues when using a computer with 32 bit architecture. This is because by default we use the
-Stanford CoreNLP, which uses java and has some notes about the memory. Read them more in detail `here <http://nlp.stanford.edu/software/tagger.shtml>`__
-
-We quote:
-
-    The system requires Java 1.8+ to be installed. Depending on whether you're running 32 or 64 bit Java and the complexity of the tagger model, you'll need somewhere between 60 and 200 MB of memory to run a trained tagger (i.e., you may need to give java an option like java -mx200m)
-
-What have worked for us is adding the following environment variable before running iepy:
-
-.. code-block:: bash
-
-    export _JAVA_OPTIONS='-Xms1024M -Xmx1024m'
-
-You can modify those numbers to your convenience.

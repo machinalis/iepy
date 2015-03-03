@@ -1,6 +1,4 @@
 """
-Django settings for webui project.
-
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
 
@@ -11,6 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 from iepy.webui.webui.settings import *
 
 IEPY_VERSION = '{IEPY_VERSION}'
+IEPY_LANG = '{LANG}'
 SECRET_KEY = '{SECRET_KEY}'
 DEBUG = True
 TEMPLATE_DEBUG = True

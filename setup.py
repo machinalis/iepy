@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
+from pip.download import PipSession
 from pip.req import parse_requirements
 from os import path
 
@@ -11,16 +12,17 @@ with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
 with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
+pip_session = PipSession()
 requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
-base_reqs = [str(x.req) for x in parse_requirements(requirements_path)]
+base_reqs = [str(x.req) for x in parse_requirements(requirements_path, session=pip_session)]
 dev_requirements_path = path.join(HERE, "docs", "setup", "requirements-development.txt")
-dev_reqs = [str(x.req) for x in parse_requirements(dev_requirements_path)]
+dev_reqs = [str(x.req) for x in parse_requirements(dev_requirements_path, session=pip_session)]
 
 setup(
     name='iepy',
     version=iepy_version,
     zip_safe=False,
-    description='',
+    description='Information Extraction framework in Python',
     long_description=long_description,
     url='https://github.com/machinalis/iepy',
 
@@ -54,6 +56,7 @@ setup(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3 :: Only',
     ],
 
     # What does your project relate to?

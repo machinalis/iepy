@@ -6,7 +6,8 @@ from refo.patterns import Pattern
 from refo import Question, Star, Any
 
 from iepy.data.db import CandidateEvidenceManager
-from iepy.extraction.rules_core import rule, RuleBasedCore, Token
+from iepy.extraction.rules import rule, Token
+from iepy.extraction.rules_core import RuleBasedCore
 from .factories import (
     EntityKindFactory, RelationFactory, TextSegmentFactory,
     IEDocFactory, EntityOccurrenceFactory, EntityFactory,
@@ -52,14 +53,16 @@ class TestRuleBasedCore(ManagerTestCase):
         self._candidates = self.get_candidates(self.person_date_relation)
 
     def get_candidates(self, relation):
-        return CandidateEvidenceManager.candidates_for_relation(relation)
+        return list(CandidateEvidenceManager.candidates_for_relation(relation))
 
     def _create_simple_document(self, text):
         tokens = tuple(text.split())
+        lemmas = [""] * len(tokens)
         postags = ["POSTAG"] * len(tokens)
         indexes = tuple(list(range(len(tokens))))
         document = IEDocFactory(text=text)
         document.set_tokenization_result(list(zip(indexes, tokens)))
+        document.set_lemmatization_result(lemmas)
         document.set_tagging_result(postags)
         document.save()
         return document
@@ -71,11 +74,10 @@ class TestRuleBasedCore(ManagerTestCase):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
 
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [test_rule])
+        pipeline = RuleBasedCore(self.person_date_relation, [test_rule])
         pipeline.start()
         pipeline.process()
-        facts = pipeline.predict()
+        facts = pipeline.predict(self._candidates)
         candidate = self._candidates[0]
         self.assertTrue(facts[candidate])
 
@@ -85,31 +87,28 @@ class TestRuleBasedCore(ManagerTestCase):
         def test_rule(Subject, Object):
             return Subject + Object + Token("something here")
 
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [test_rule])
+        pipeline = RuleBasedCore(self.person_date_relation, [test_rule])
         pipeline.start()
         pipeline.process()
-        facts = pipeline.predict()
+        facts = pipeline.predict(self._candidates)
         candidate = self._candidates[0]
         self.assertFalse(facts[candidate])
 
     def test_empty_rules(self):
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [])
+        pipeline = RuleBasedCore(self.person_date_relation, [])
         pipeline.start()
         pipeline.process()
-        facts = pipeline.predict()
+        facts = pipeline.predict(self._candidates)
         self.assertEqual(len([x for x in facts if facts[x]]), 0)
 
     def test_match_run_on_every_rule(self):
         mocked_rules = [
             rule(True)(mock.MagicMock(return_value=Token("asd")))
         ] * 10
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  mocked_rules)
+        pipeline = RuleBasedCore(self.person_date_relation, mocked_rules)
         pipeline.start()
         pipeline.process()
-        pipeline.predict()
+        pipeline.predict(self._candidates)
 
         for mock_rule in mocked_rules:
             self.assertTrue(mock_rule.called)
@@ -118,20 +117,29 @@ class TestRuleBasedCore(ManagerTestCase):
 
     def test_rule_priority(self):
 
-        def rule_match(Subject, Object):
-            anything = Question(Star(Any()))
-            return Subject + Token("(") + Object + Token("-") + anything
+        matcher = lambda *args: True
+        not_matcher = lambda *args: None
 
-        rule_should_run = rule(True, priority=1)(mock.MagicMock(side_effect=rule_match))
-        rule_should_not_run = rule(True, priority=0)(mock.MagicMock(side_effect=rule_match))
+        rule_should_run = rule(True, priority=1)(mock.MagicMock(return_value=matcher))
+        rule_should_not_run = rule(True, priority=0)(
+            mock.MagicMock(return_value=not_matcher))
 
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [rule_should_not_run, rule_should_run])
+        pipeline = RuleBasedCore(self.person_date_relation,
+                                 [rule_should_not_run, rule_should_run])
         pipeline.start()
-        pipeline.process()
-        pipeline.predict()
+        # All rules are compiled on start
         self.assertTrue(rule_should_run.called)
-        self.assertFalse(rule_should_not_run.called)
+        self.assertTrue(rule_should_not_run.called)
+        pipeline.process()
+        import refo
+        with mock.patch.object(refo, 'match') as fake_refo_match:
+            fake_refo_match.side_effect = lambda regex, evidence: regex()
+            pipeline.predict(self._candidates)
+            self.assertEqual(fake_refo_match.call_count, len(self._candidates))
+            # check that on every call, the called is rule_match
+            for c_args in fake_refo_match.call_args_list:
+                args, kwargs = c_args
+                self.assertEqual(args[0], matcher)
 
     def test_rule_incorrect_answer(self):
         with self.assertRaises(ValueError):
@@ -146,10 +154,9 @@ class TestRuleBasedCore(ManagerTestCase):
             anything = Question(Star(Any()))
             return Subject + Token("(") + Object + Token("-") + anything
 
-        pipeline = RuleBasedCore(self.person_date_relation, self._candidates,
-                                  [test_rule])
+        pipeline = RuleBasedCore(self.person_date_relation, [test_rule])
         pipeline.start()
         pipeline.process()
-        facts = pipeline.predict()
+        facts = pipeline.predict(self._candidates)
         candidate = self._candidates[0]
         self.assertFalse(facts[candidate])

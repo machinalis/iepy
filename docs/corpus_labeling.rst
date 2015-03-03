@@ -81,13 +81,25 @@ On top you have navigation controls and on the far right you have link to switch
 for one by document.
 
 
-Fixing entities mistagged
--------------------------
+Fixing mistagged entity occurrences
+-----------------------------------
 
 It is possible that the automatic process that detects entities have been mistaken.
 This leads to an entity tagged partially or incorrectly. In this case, we provide a tool to fix this problems.
-You can access this tool by right clicking in the problematic entity. 
+You can access this tool by right clicking in the problematic entity and choosing **Modify entity occurrence** 
 
 .. image:: label_by_document_entity_edition.png
 
 There you can completely remove the entity or change the limits so it holds more (or less) tokens.
+
+
+Creating new occurrences
+------------------------
+
+If an entity occurrence wasn't detected automatically, you can add it manually. To do so, right click on
+any token and choose **Create entity occurrence**. 
+
+.. image:: create_eo.png
+
+You can modify the limits of the tokens and the entity kind there. After this operation, new *evidence candidates*
+will be created if needed.

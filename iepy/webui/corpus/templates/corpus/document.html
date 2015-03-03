@@ -1,0 +1,55 @@
+{% extends "corpus/base.html" %}
+{% load static %}
+{% load iepy_tags %}
+
+{% block content_title %}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/vendor/jquery-ui.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
+
+    <script type="text/javascript">
+        var eo_creation_url = "{% url 'corpus:create_entity_occurrence' %}";
+    </script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+{% endblock %}
+
+{% block navigation %} 
+    <a href="{% url 'corpus:navigate_documents' document.pk 'back' %}">
+        &lsaquo; Previous document
+    </a>|
+    <a href="{% url 'corpus:navigate_documents' document.pk 'forth' %}">
+        Next document &rsaquo;
+    </a>
+{% endblock %}
+
+{% block inner_content %}
+    <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
+        <div class="row">
+            <div class="large-2 columns">
+                <label>Display metadata</label>
+                <input type="radio" name="metadata_visible" value="pos" ng-model="metadata_visible" id="postag-option">
+                <label for="postag-option">POS tag</label> <br />
+                <input type="radio" name="metadata_visible" value="lemma" ng-model="metadata_visible" id="lemma-option">
+                <label for="lemma-option">Lemma</label> <br />
+                <input type="radio" name="metadata_visible" value="none" ng-model="metadata_visible" id="none-option">
+                <label for="none-option">None</label> <br />
+            </div>
+            <div class="large-10 columns document" data-document-id="{{ document.id }}">
+                {% include "corpus/segments_render.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% include "corpus/eo_edition_modal.html" %}
+    {% include "corpus/eo_creation_modal.html" %}
+{% endblock %}

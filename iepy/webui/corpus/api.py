@@ -3,7 +3,7 @@ from django.forms.models import modelform_factory
 from django.utils.decorators import method_decorator
 
 from djangular.views.crud import NgCRUDView
-from corpus.models import EntityOccurrence, TextSegment
+from corpus.models import EntityOccurrence, Entity
 
 
 class LoginNgCrudView(NgCRUDView):
@@ -13,17 +13,17 @@ class LoginNgCrudView(NgCRUDView):
 
 
 class EOCRUDView(LoginNgCrudView):
+    serializer_name = 'underscore_resolution'
     model = EntityOccurrence
-    fields = ['offset', 'offset_end', 'entity']
+    fields = ['offset', 'offset_end', 'entity', 'entity__kind__name']
 
     def get_form_class(self):
         """
         Build ModelForm from model
         """
-        return modelform_factory(self.model, fields=self.fields[:])
+        fields = [x for x in self.fields if not x.count("__")]
+        return modelform_factory(self.model, fields=fields)
 
 
-class SegmentCRUDView(LoginNgCrudView):
-    serializer_name = 'hydrated_python'
-    model = TextSegment
-    fields = ['offset', 'tokens']
+class EntityCRUDView(LoginNgCrudView):
+    model = Entity

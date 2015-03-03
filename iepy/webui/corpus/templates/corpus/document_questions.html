@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/segment_questions.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/document_questions.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/csshake.min.css' %}" />
 {% endblock %}
 
 {% block extra_js %}
@@ -15,7 +16,7 @@
     <script type="text/javascript" src="{% static 'js/vendor/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-resource.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/angular-cookies.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
+
     <script type="text/javascript">
         var eos = {{ eos_propperties|safe }};
         var relations = {{ relations_list|safe }};
@@ -23,7 +24,10 @@
         var question_options = {{ question_options|safe }};
         var other_judges_labels = {{ other_judges_labels|safe }};
         var initial_tool = "{{ initial_tool }}";
+        var eo_creation_url = "{% url 'corpus:create_entity_occurrence' %}";
+        var different_kind = {%  if different_kind %} true {% else %} false {% endif %};
     </script>
+    <script type="text/javascript" src="{% static 'js/document_questions.js' %}"></script>
 {% endblock %}
 
 {% block label_mode_switch %}
@@ -53,7 +57,7 @@
 {% block inner_content %}
     <div class="wrapper" ng-app="labelingApp" ng-controller="QuestionsController">
         <div class="row">
-            <div class="large-12 columns">
+            <div class="large-12 columns document" data-document-id="{{ document.id }}">
                 {% if not segments %}
                     <br />
                     <div data-alert class="alert-box info radius">
@@ -64,11 +68,26 @@
         </div>
         <br />
         <div class="row">
-            <div class="large-3 columns">
+            <div class="large-3 medium-3 columns">
+                <label>Display metadata</label>
+                <input type="radio" name="metadata_visible" value="pos" ng-model="metadata_visible" id="postag-option">
+                <label for="postag-option">POS tag</label>
+
+                <input type="radio" name="metadata_visible" value="lemma" ng-model="metadata_visible" id="lemma-option">
+                <label for="lemma-option">Lemma</label>
+
+                <input type="radio" name="metadata_visible" value="none" ng-model="metadata_visible" id="none-option">
+                <label for="none-option">None</label>
+                <hr />
+
                 {% if form_toolbox %}
                     <div class="toolbox">
                         Tag using this answer:
                         {{ form_toolbox }}
+
+                        <span class="secondary label">
+                            Use the number keys to switch between options
+                        </span>
                     </div>
                 {% endif %}
                 {% if formset %}
@@ -80,7 +99,7 @@
                         <input type="hidden" id="partial-save" name="partial_save" value="" />
 
                         <div class="row">
-                            <div class="large-12 columns">
+                            <div class="large-12 columns non-selected-relations">
                                 {{form_for_others}}
                             </div>
                         </div>
@@ -99,30 +118,23 @@
 
                 {% if segments %}
                     <div class="prev-relations-wrapper">
-                        Previous relations:
-                        <ul class="judge-answers-wrapper">
+                        View labels by:
+                        <select class="judge-answers-wrapper">
+                            <option value="me">
+                                Me
+                            </option>
                             {% for judge in other_judges %}
-                                <li class="judge-answers-button has-tip" data-judge="{{ judge }}"
-                                    data-tooltip title="Labels done by '{{ judge }}' are displayed using dashed lines"
-                                >
-                                    view <strong>{{ judge }}'s</strong> relations
-                                </li>
+                                <option value="{{ judge }}">
+                                    {{ judge }}
+                                </option>
                             {% endfor %}
-                        </ul>
-
-                        by <strong> you: </strong>
-                        <div class="row">
-                            <div class="large-12 columns">
-                                <ul class="prev-relations">
-                                </ul>
-                            </div>
-                        </div>
+                        </select>
                     </div>
                 {% endif %}
             </div>
 
 
-            <div class="large-9 columns">
+            <div class="large-9 medium-9 columns">
                 {% if subtitle %} <div class="title"> {{subtitle}} </div> {% endif %}
                 <svg xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -136,88 +148,12 @@
 
                 <div class="segments">
                 <br />
-                {% for segment in segments %}
-                    <div class="segment {% cycle 'odd' 'even' %} segment-id-{{segment.id}}">
-                        {% for rich_token in segment.rich_tokens %}
-                            {% if rich_token.eo_ids %}
-                                <span class="rich-token entity-occurrence {% for eo_id in rich_token.eo_ids %} eo-{{ eo_id }} {% endfor %}"
-                                    ng-click="eo_click({{ rich_token.eo_ids }})"
-                                    ng-class="{
-                                        selectable: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selectable
-                                                {% if not forloop.last %} && {% endif %}
-                                            {% endfor %},
-                                        selected: {% for eo_id in rich_token.eo_ids %}
-                                            eos[{{ eo_id }}].selected
-                                                {% if not forloop.last %} || {% endif %}
-                                            {% endfor %}
-                                    }"
-                                    {% if rich_token.eo_ids|length > 1 %}
-                                        data-dropdown="eo-hover-{{ forloop.counter }}" data-options="is_hover:true"
-                                    {% else %}
-                                        ng-right-click="manage_eo({{ rich_token.eo_ids.0 }}, {{segment.id}})"
-                                        data-eo-id="{{ rich_token.eo_ids.0 }}"
-                                    {% endif %}
-                                >
-                            {% else %}
-                                <span class="rich-token">
-                            {% endif %}
-                                {% if rich_token.eo_ids|length > 1 %}
-                                    <div class="multiple-marker"> [{{ rich_token.eo_ids|length }}] </div>
-                                {% endif %}
-
-                                <span class="pos-tag"> {{ rich_token.pos }} </span>
-                                <span class="token"> {{ rich_token.token }} </span>
-                            </span>
-
-                            {% if rich_token.eo_ids|length > 1 %}
-                                <ul id="eo-hover-{{ forloop.counter }}" class="f-dropdown" data-dropdown-content>
-                                    {% for eo_id, eo_kind in rich_token.eo_ids|zip:rich_token.eo_kinds %}
-                                        <li>
-                                        <a href="#" class="eo-submenu" data-eo-id="{{ eo_id }}"
-                                            ng-right-click="manage_eo({{ eo_id }}, {{segment.id}})"
-                                        >
-                                                #{{ forloop.counter }} - {{ eo_kind }}
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endfor %}
+                    {% include "corpus/segments_render.html" %}
                 </div>
             </div>
         </div>
-
-        <div id="eoModal" class="reveal-modal large" data-reveal>
-            <h2>Manage Entity Occurrence</h2>
-            <div class="entity_id">Entity id: <span/></div>
-                <div class="message"></div>
-                <div class="delete">
-                    <a class="remove-eo-ask">Delete</a>
-                    <div class="remove-confirm-wrapper">
-                        Are you sure to delete the occurrence? 
-                        <small> This will have an impact on the possible relations </small>
-                        <br />
-                        <div class="remove-buttons">
-                            <a class="remove-eo-cancel">Cancel</a>
-                            <a class="remove-eo-confirm">Yes, i'm sure</a>
-                        </div>
-                    </div>
-                </div>
-                <br />
-                <div class="offsets">
-                    <p>Move occurrence limits:</p>
-                    <div class="segment">
-                    </div>
-                </div>
-                <a class="close-reveal-modal">&#215;</a>
-                <div class="controls">
-                    <a class="button alert cancel">Cancel</a>
-                    <a class="button save">Save</a>
-                </div>
-            </div>
-
     </div>
+
+    {% include "corpus/eo_edition_modal.html" %}
+    {% include "corpus/eo_creation_modal.html" %}
 {% endblock %}

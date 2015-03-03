@@ -10,6 +10,9 @@ class EvidenceForm(forms.ModelForm):
     class Meta:
         model = EvidenceLabel
         fields = ["label"]
+        widgets = {
+            'label': forms.RadioSelect
+        }
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)

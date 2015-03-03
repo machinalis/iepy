@@ -27,3 +27,25 @@
     font-style: italic;
     font-weight: bold;
 }
+
+.question-form-wrapper ul{
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+.question-form-wrapper ul li{
+    list-style: none;
+    height: 25px;
+}
+
+.question-form-wrapper ul li input{
+    margin: 0;
+}
+
+.context-menu-holder{
+    width: 1px;
+    height: 10px;
+    background: transparent;
+    position: absolute;
+    top: 20px;
+    z-index: -1024;
+}

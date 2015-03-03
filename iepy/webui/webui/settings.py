@@ -41,6 +41,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djangular',
     'corpus',
+    'relatives',
+    'relatedwidget',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -54,7 +56,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 SERIALIZATION_MODULES = {
-    "hydrated_python": "corpus.serializer",
+    "underscore_resolution": "corpus.serializer",
 }
 
 
@@ -109,3 +111,6 @@ LOGGING = {
         },
     },
 }
+
+
+IEPY_LANG = 'en'

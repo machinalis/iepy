@@ -46,6 +46,7 @@ class TestEntityOccurrences(ManagerTestCase):
         self.assertEqual(len(list(evidences_before)), 1)
         eo = eos[0]
         eo.delete()
+        del segment._hydrated_eos  # Erase segment cache
         evidences_after = segment.get_evidences_for_relation(self.person_location_relation)
         self.assertEqual(len(list(evidences_after)), 0)
 
@@ -57,6 +58,7 @@ class TestEntityOccurrences(ManagerTestCase):
         self.assertEqual(len(list(evidences_before)), 4)  # each person with each location
         eo = eos[0]
         eo.delete()
+        del segment._hydrated_eos  # Erase segment cache
         evidences_after = segment.get_evidences_for_relation(self.person_location_relation)
         self.assertEqual(len(list(evidences_after)), 2)  # only bob with each location
 

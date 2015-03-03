@@ -1,12 +1,14 @@
 """
-Birthdate corpus preprocessing script
+Corpus preprocessing script
 
 Usage:
     preprocess.py
+    preprocess.py --increment-ner
     preprocess.py -h | --help | --version
 
 Options:
   -h --help             Show this screen
+  --increment-ner       Re run NER and Gazetter for every document. If a document lacked any of the previous steps, will be preprocessed entirely.
   --version             Version number
 """
 import logging
@@ -27,8 +29,10 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     opts = docopt(__doc__, version=iepy.__version__)
     docs = DocumentManager()
+    increment_ner = opts['--increment-ner']
+
     pipeline = PreProcessPipeline([
-        StanfordPreprocess(),
+        StanfordPreprocess(increment_ner),
         SyntacticSegmenterRunner(increment=True)
     ], docs)
     pipeline.process_everything()

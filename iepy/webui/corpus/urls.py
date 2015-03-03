@@ -45,7 +45,17 @@ urlpatterns = patterns(
         views.human_in_the_loop,
         name='human_in_the_loop'),
 
+    # Document navigation
+    url(r'^navigate_documents/(?P<document_id>\d+)/(?P<direction>\w+)/',
+        views.navigate_documents,
+        name='navigate_documents'),
+    url(r'^navigate_document/(?P<document_id>\d+)/',
+        views.DocumentNavigation.as_view(),
+        name='navigate_document'),
+
     # CRUD Angular EOs
     url(r'^crud/entity_occurrence/?$', api.EOCRUDView.as_view(), name='eo_crud_view'),
-    url(r'^crud/text_segment/?$', api.SegmentCRUDView.as_view(), name='segm_crud_view'),
+    url(r'^crud/entity/?$', api.EntityCRUDView.as_view(), name='entity_crud_view'),
+
+    url(r'^create_eo/?$', views.create_entity_occurrence, name='create_entity_occurrence'),
 )
