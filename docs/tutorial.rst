@@ -43,7 +43,7 @@ provided in your application folder to do it.
 This will load **data.csv** into the database and from now on, you will work accessing
 the data from there.
 
-See `here <instantiation.html#csv-importer>`_ for format details.
+Learn more about the file format `here <instantiation.html#csv-importer>`_.
 
 
 .. note::
