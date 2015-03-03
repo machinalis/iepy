@@ -5,7 +5,7 @@ We call a gazette a mapping between a list of tokens and an entity kind. If that
 matches exactly on your text, then that would be tagged as an entity. 
 
 All the entities occurrences that where detected by a gazette and share the same set of tokens, will share the same entity.
-This means that if you have a gazette that finds ``Dr. House`` and taggs it as a ``PERSON``, all the occurrences in the text
+This means that if you have a gazette that finds ``Dr. House`` and tags it as a ``PERSON``, all the occurrences in the text
 that matches those tokens, will belong to the same entity.
 
 Basic usage: Loading from csv

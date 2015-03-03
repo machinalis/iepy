@@ -38,13 +38,13 @@ First you have to specify that your function is in fact a rule by using the **de
 
 As you can see in the first line, this is added on top of the function.
 In this decorator you have to define if the rule is going to be *positive* or *negative*. A positive
-function that matches will label the relations as present and a negative one will label it as not present.
+rule that matches will label the relations as present and a negative one will label it as not present.
 You can define this by passing the True or False parameter to the rule decorator.
 
 Then it comes the definition of the function. This functions takes two parameters: the **Subject** and the **Object**.
 This are patterns that will be part of the regex that the function has to return.
 
-After that it comes the body of the function. Here it is constructed a regular expression. That needs to be
+After that it comes the body of the function. Here it has to be constructed the regular expression and needs to be
 returned by the function.  This is not an ordinary regular expression, it
 uses `ReFO <https://github.com/machinalis/refo>`_.
 In ReFO you have to operate with objects that does some kind of check to the text segment.
