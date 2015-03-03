@@ -5,12 +5,12 @@ from datetime import datetime
 import itertools
 import logging
 from operator import attrgetter
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from django.db import models
 
 from iepy.utils import unzip
-from corpus.fields import ListField
+from corpus.fields import ListField, ListSyntacticTreeField
 import jsonfield
 
 CHAR_MAX_LENGHT = 256
@@ -42,6 +42,10 @@ class Entity(BaseModel):
     # Entity Occurrences
     key = models.CharField(max_length=CHAR_MAX_LENGHT)
     kind = models.ForeignKey(EntityKind)
+    gazette = models.ForeignKey(
+        "GazetteItem", on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
 
     class Meta(BaseModel.Meta):
         ordering = ['kind', 'key']
@@ -51,21 +55,37 @@ class Entity(BaseModel):
         return '%s (%s)' % (self.key, self.kind.name)
 
 
+class IEDocumentMetadata(BaseModel):
+    title = models.CharField(max_length=CHAR_MAX_LENGHT, blank=True)
+    url = models.URLField(blank=True)
+    items = jsonfield.JSONField(blank=True)
+
+    def __str__(self):
+        try:
+            doc_id = self.document.id
+        except IEDocument.DoesNotExist:
+            doc_id = 'None'
+        return '<Metadata of IEDocument {0}>'.format(doc_id)
+
+
 class IEDocument(BaseModel):
-    human_identifier = models.CharField(max_length=CHAR_MAX_LENGHT,
-                                        unique=True)
-    title = models.CharField(max_length=CHAR_MAX_LENGHT)  # TODO: remove
-    url = models.URLField()  # TODO: remove
+    metadata = models.OneToOneField('IEDocumentMetadata', related_name='document',
+                                    on_delete=models.PROTECT)
+    human_identifier = models.CharField(
+        max_length=CHAR_MAX_LENGHT,
+        unique=True
+    )
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The following 3 lists have 1 item per token
-    tokens = ListField()  # strings
-    lemmas = ListField()  # strings
-    postags = ListField()  # strings
-    offsets_to_text = ListField()  # ints, character offset for tokens, lemmas and postags
+    tokens = ListField(blank=True)  # strings
+    lemmas = ListField(blank=True)  # strings
+    postags = ListField(blank=True)  # strings
+    offsets_to_text = ListField(blank=True)  # ints, character offset for tokens, lemmas and postags
+    syntactic_sentences = ListSyntacticTreeField(blank=True, editable=False)
 
-    sentences = ListField()  # ints, it's a list of token-offsets
+    sentences = ListField(blank=True)  # ints, it's a list of token-offsets
 
     # Reversed fields:
     # entity_occurrences = Reversed ForeignKey of EntityOccurrence
@@ -78,9 +98,7 @@ class IEDocument(BaseModel):
     tagging_done_at = models.DateTimeField(null=True, blank=True)
     ner_done_at = models.DateTimeField(null=True, blank=True)
     segmentation_done_at = models.DateTimeField(null=True, blank=True)
-
-    # anything else you want to store in here that can be useful
-    metadata = jsonfield.JSONField(blank=True)
+    syntactic_parsing_done_at = models.DateTimeField(null=True, blank=True)
 
     class Meta(BaseModel.Meta):
         ordering = ['id', ]
@@ -183,24 +201,70 @@ class IEDocument(BaseModel):
         self.tagging_done_at = datetime.now()
         return self
 
+    def set_syntactic_parsing_result(self, parsed_sentences):
+        if len(parsed_sentences) != len(list(self.get_sentences())):
+            raise ValueError(
+                'Syntactic parsing must have same cardinality than sentences'
+            )
+        self.syntactic_sentences = parsed_sentences
+        self.syntactic_parsing_done_at = datetime.now()
+        return self
+
     def set_ner_result(self, value):
+        # Before even doing anything, basic offset validation
+        def feo_has_issues(feo):
+            return (feo.offset < 0 or feo.offset >= feo.offset_end
+                    or feo.offset > len(self.tokens))
+        invalids = [x for x in value if feo_has_issues(x)]
+        if invalids:
+            raise ValueError('Invalid FoundEvidences: {}'.format(invalids))
+
+        existents = defaultdict(list)
+        eo_clash_key = lambda x: (x.offset, x.offset_end)
+        for eo in self.entity_occurrences.all():
+            existents[eo_clash_key(eo)].append(eo)
+
+        # No issue, let's create them
         for found_entity in value:
-            key, kind_name, alias, offset, offset_end = found_entity
+            key, kind_name, alias, offset, offset_end, from_gazette = found_entity
+            if (offset, offset_end) in existents.keys():
+                skip = False
+                for existent in existents[offset, offset_end]:
+                    is_from_gazette = existent.entity.gazette is not None
+                    is_same_kind = existent.entity.kind.name == kind_name
+
+                    if is_from_gazette or is_same_kind:
+                        skip = True
+                        break
+
+                if skip:
+                    continue
+
             kind, _ = EntityKind.objects.get_or_create(name=kind_name)
-            entity, created = Entity.objects.get_or_create(
-                key=key,
-                kind=kind)
+            if from_gazette:
+                gazette_item = GazetteItem.objects.get(text=key, kind=kind)
+                entity, created = Entity.objects.get_or_create(
+                    key=key, kind=kind,
+                    gazette=gazette_item
+                )
+            else:
+                entity, created = Entity.objects.get_or_create(key=key, kind=kind)
+
             if len(alias) > CHAR_MAX_LENGHT:
                 alias_ = alias[:CHAR_MAX_LENGHT]
                 print('Alias "%s" reduced to "%s"' % (alias, alias_))
                 alias = alias_
-            EntityOccurrence.objects.get_or_create(
+
+            obj, created = EntityOccurrence.objects.get_or_create(
                 document=self,
                 entity=entity,
                 offset=offset,
                 offset_end=offset_end,
                 alias=alias
             )
+            if created:
+                existents[eo_clash_key(obj)].append(obj)
+
         self.ner_done_at = datetime.now()
         return self
 
@@ -259,6 +323,7 @@ class EntityOccurrence(BaseModel):
 
     # Text of the occurrence, so if it's different than canonical_form, it's easy to see
     alias = models.CharField(max_length=CHAR_MAX_LENGHT)
+    anaphora = models.BooleanField(default=False)  # Is a Named Entity or an anaphora?
 
     class Meta(BaseModel.Meta):
         ordering = ['document', 'offset', 'offset_end']
@@ -320,14 +385,18 @@ class TextSegment(BaseModel):
             self.text = ""
         self.sentences = [i - self.offset for i in doc.sentences
                           if i >= self.offset and i < self.offset_end]
+        self.syntactic_sentences = [doc.syntactic_sentences[s] for s in self.sentences]
         self._hydrated = True
         return self
 
     def get_entity_occurrences(self):
         """Returns an iterable of EntityOccurrences, sorted by offset"""
-        return map(lambda eo: eo.hydrate_for_segment(self),
-                   self.entity_occurrences.all().order_by('offset')
-                   )
+        eos = getattr(self, '_hydrated_eos', None)
+        if eos is None:
+            eos = [eo.hydrate_for_segment(self) for eo in
+                   self.entity_occurrences.all().order_by('offset')]
+            self._hydrated_eos = eos
+        return eos
 
     def get_evidences_for_relation(self, relation, existent=None):
         # Gets or creates Labeled Evidences (when creating, label is empty)
@@ -336,7 +405,7 @@ class TextSegment(BaseModel):
         # For performance sake, first grabs all existent, and if later some missing, they
         # are created
         if existent is None:
-            existent = EvidenceCandidate.objects.filter(segment=self, relation=relation)
+            existent = EvidenceCandidate.objects.filter(segment=self, labels__relation=relation)
             existent = existent.select_related(
                 'left_entity_occurrence', 'right_entity_occurrence')
         existent = {
@@ -350,7 +419,6 @@ class TextSegment(BaseModel):
             obj, created = EvidenceCandidate.objects.get_or_create(
                 left_entity_occurrence=l_eo,
                 right_entity_occurrence=r_eo,
-                relation=relation,
                 segment=self,
             )
             yield obj
@@ -453,30 +521,23 @@ class Relation(BaseModel):
             - If asking "next" and obj is currently the last, his id will be returned.
             - If asking "prev" and obj is currently the first, his id will be returned.
         """
+
+        filters = dict(
+            judge__isnull=False,
+            label__isnull=False,
+            relation=self,
+        )
+        if judge is not None:
+            filters["judge"] = judge
+        judge_labels = EvidenceLabel.objects.filter(**filters)
+
         if isinstance(obj, TextSegment):
             segments = self._matching_text_segments()
-            segments = segments.filter(evidence_relations__relation=self)
-
-            filters = dict(
-                judge__isnull=False,
-                label__isnull=False,
-                evidence_candidate__segment__in=segments,
-            )
-            if judge is not None:
-                filters["judge"] = judge
-            judge_labels = EvidenceLabel.objects.filter(**filters)
+            segments = segments.filter(evidence_relations__labels__relation=self)
             candidates_with_label = judge_labels.values_list("evidence_candidate__segment", flat=True)
             segments = segments.filter(id__in=candidates_with_label).distinct()
             ids = list(segments.values_list('id', flat=True).order_by('id'))
         elif isinstance(obj, IEDocument):
-            filters = dict(
-                judge__isnull=False,
-                label__isnull=False,
-                evidence_candidate__relation=self,
-            )
-            if judge is not None:
-                filters["judge"] = judge
-            judge_labels = EvidenceLabel.objects.filter(**filters)
             ids = sorted(set(judge_labels.values_list(
                 'evidence_candidate__segment__document_id', flat=True)
             ))
@@ -510,15 +571,17 @@ class Relation(BaseModel):
         # Segments never considered (ie, that doest have any question created).
         # Finally, those with answers in place, but with some answers "ASK-ME-LATER"
         segments = self._matching_text_segments().order_by('id')
-        never_considered_segm = segments.exclude(evidence_relations__relation=self)
+        never_considered_segm = segments.exclude(evidence_relations__labels__relation=self)
 
         evidences = EvidenceCandidate.objects.filter(
-            relation=self
+            labels__relation=self
         ).order_by('segment_id')
         never_considered_ev = evidences.filter(labels__isnull=True)
 
         existent_labels = EvidenceLabel.objects.filter(
-            evidence_candidate__in=evidences).order_by('evidence_candidate__segment_id')
+            evidence_candidate__in=evidences,
+            labeled_by_machine=False
+        ).order_by('evidence_candidate__segment_id')
         none_labels = existent_labels.filter(label__isnull=True)
         own_none_labels = none_labels.filter(judge=judge)
 
@@ -561,36 +624,37 @@ class EvidenceCandidate(BaseModel):
         'EntityOccurrence',
         related_name='right_evidence_relations'
     )
-    relation = models.ForeignKey('Relation', related_name='evidence_relations')
     segment = models.ForeignKey('TextSegment', related_name='evidence_relations')
 
     class Meta(BaseModel.Meta):
         ordering = [
-            'segment_id', 'relation_id',
             'left_entity_occurrence', 'right_entity_occurrence',
+            'segment_id',
         ]
         unique_together = [
             'left_entity_occurrence', 'right_entity_occurrence',
-            'relation', 'segment'
+            'segment',
         ]
 
     def __str__(self):
-        s = "Candidate evidence for the relation '{}' (id {})"
+        s = "Candidate evidence (id {})"
         return s.format(
-            self.relation.name,
             self.pk
         )
 
-    def get_or_create_label_for_judge(self, judge):
+    def get_or_create_label_for_judge(self, relation, judge):
         obj, created = EvidenceLabel.objects.get_or_create(
+            relation=relation,
             evidence_candidate=self, judge=judge,
             labeled_by_machine=False, defaults={'label': None})
         return obj
 
-    def set_label(self, label, judge):
+    def set_label(self, relation, label, judge, labeled_by_machine=False):
         evidence_label, created = EvidenceLabel.objects.get_or_create(
+            relation=relation,
             evidence_candidate=self,
             judge=judge,
+            labeled_by_machine=labeled_by_machine
         )
         evidence_label.label = label
         evidence_label.save()
@@ -620,6 +684,7 @@ class EvidenceLabel(BaseModel):
         max_length=2, choices=LABEL_CHOICES,
         default=SKIP, null=True, blank=False
     )
+    relation = models.ForeignKey('Relation', related_name='relation_labels', null=True, blank=True)
 
     modification_date = models.DateTimeField(auto_now=True)
 
@@ -630,7 +695,7 @@ class EvidenceLabel(BaseModel):
     labeled_by_machine = models.BooleanField(default=True)
 
     class Meta(BaseModel.Meta):
-        unique_together = ['evidence_candidate', 'label', 'judge']
+        unique_together = ['evidence_candidate', 'label', 'judge', 'relation']
 
     def __str__(self):
         s = "'{}' by '{}' in '{}'"
@@ -649,3 +714,12 @@ class SegmentToTag(BaseModel):
 
     class Meta(BaseModel.Meta):
         unique_together = ['segment', 'relation']
+
+
+class GazetteItem(BaseModel):
+    kind = models.ForeignKey(EntityKind)
+    text = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False, unique=True)
+    from_freebase = models.CharField(max_length=CHAR_MAX_LENGHT, blank=False)
+
+    def __str__(self):
+        return "'{}' ({})".format(self.text, self.kind.name)

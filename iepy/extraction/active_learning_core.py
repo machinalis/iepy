@@ -1,5 +1,9 @@
+from copy import copy
+import inspect
 import logging
+import pickle
 import random
+import os.path
 
 import numpy
 from sklearn.cross_validation import StratifiedKFold
@@ -38,20 +42,52 @@ class ActiveLearningCore:
     #
 
     def __init__(self, relation, labeled_evidences, extractor_config=None,
-                 performance_tradeoff=None, extractor=None, classifier=None):
+                 tradeoff=None, extractor=None, classifier=None):
         if extractor is None:
             extractor = RelationExtractionClassifier
         self.extractor = extractor
         self.relation = relation
-        self.relation_classifier = classifier
+        self.classifier = classifier
         self._setup_labeled_evidences(labeled_evidences)
         self._questions = list(self.candidate_evidence)
         if extractor_config is None:
             extractor_config = defaults.extractor_config
         self.extractor_config = extractor_config
-        self.tradeoff = performance_tradeoff
+        self.tradeoff = tradeoff
         self.aimed_tradeoff = None
         self.threshold = None
+
+    _DUMPED_ATTRS = ['relation', 'extractor', 'extractor_config', 'classifier',
+                     'tradeoff', 'aimed_tradeoff', 'threshold']
+
+    def save(self, file_path):
+        if os.path.exists(file_path):
+            raise ValueError("Output file path already exists")
+        to_dump = [getattr(self, attr) for attr in self._DUMPED_ATTRS]
+        with open(file_path, 'wb') as filehandler:
+            pickle.dump(to_dump, filehandler)
+
+    @classmethod
+    def load(cls, file_path, **kwargs):
+        if not os.path.exists(file_path):
+            raise ValueError("File does not exists")
+        with open(file_path, 'rb') as filehandler:
+            data = pickle.load(filehandler)
+        loading_kwargs = copy(kwargs)
+        if 'labeled_evidences' not in kwargs:
+            loading_kwargs['labeled_evidences'] = {}
+        after = {}
+        specs = inspect.getargspec(cls)
+        for attr, value in zip(cls._DUMPED_ATTRS, data):
+            if attr in specs.args:
+                loading_kwargs[attr] = value
+            else:
+                after[attr] = value
+        self = cls(**loading_kwargs)
+        for after_attr, value in after.items():
+            print ('Setting ' + after_attr)
+            setattr(self, after_attr, value)
+        return self
 
     def start(self):
         """
@@ -102,24 +138,28 @@ class ActiveLearningCore:
         self.rank_candidate_evidence()
         self.choose_questions()
 
-    def predict(self):
+    def predict(self, candidates):
         """
-        Blocking (ie, not fast).
-        With all the labeled evidence a classifier is trained and used for automatically
-        labeling all other evidences.
+        Using the internal trained classifier, all candidate evicence are automatically
+        labeled.
         Returns a dict {evidence: True/False}, where the boolean label indicates if
         the relation is present on that evidence or not.
         """
-        if not self.relation_classifier:
-            logger.info("There is no classifier. Can't predict")
+        if not self.classifier:
+            logger.info("There is trained no classifier. Can't predict")
             return {}
+
+        # for every already labeled candidate, instead of asking the classifier we'll use
+        # the actual label
+        knowns = copy(self.labeled_evidence)
+        to_predict = [c for c in candidates if c not in knowns]
         if self.threshold is None:
-            labels = self.relation_classifier.predict(self.candidate_evidence)
+            labels = self.classifier.predict(to_predict)
         else:
-            scores = self.relation_classifier.decision_function(self.candidate_evidence)
+            scores = self.classifier.decision_function(to_predict)
             labels = scores >= self.threshold
-        prediction = dict(zip(self.candidate_evidence, map(bool, labels)))
-        prediction.update(self.labeled_evidence)
+        prediction = dict(zip(to_predict, map(bool, labels)))
+        prediction.update(knowns)
         return prediction
 
     def estimate_threshold(self):
@@ -152,6 +192,7 @@ class ActiveLearningCore:
         self.candidate_evidence = []
         self.labeled_evidence = {}
         for e, lbl in labeled_evidences.items():
+            e.relation = self.relation
             if lbl is None:
                 self.candidate_evidence.append(e)
             else:
@@ -168,8 +209,8 @@ class ActiveLearningCore:
             X.append(evidence)
             y.append(int(score))
             assert y[-1] in (True, False)
-        self.relation_classifier = self.extractor(**self.extractor_config)
-        self.relation_classifier.fit(X, y)
+        self.classifier = self.extractor(**self.extractor_config)
+        self.classifier.fit(X, y)
 
     def rank_candidate_evidence(self):
         if not self.candidate_evidence:
@@ -179,7 +220,7 @@ class ActiveLearningCore:
         N = min(10 * len(self.labeled_evidence), len(self.candidate_evidence))
         logger.info("Ranking a sample of {} candidate evidence".format(N))
         sample = random.sample(self.candidate_evidence, N)
-        ranks = self.relation_classifier.decision_function(sample)
+        ranks = self.classifier.decision_function(sample)
         self.ranked_candidate_evidence = dict(zip(sample, ranks))
         ranks = [abs(x) for x in ranks]
         logger.info("Ranking completed, lowest absolute rank={}, "

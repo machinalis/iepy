@@ -11,9 +11,9 @@ class ActiveLearningTestMixin:
     def setUp(self):
         self.relation = RelationFactory(left_entity_kind__name='person',
                                         right_entity_kind__name='location')
-        self.ev1 = EvidenceCandidateFactory(relation=self.relation)
-        self.ev2 = EvidenceCandidateFactory(relation=self.relation)
-        self.ev3 = EvidenceCandidateFactory(relation=self.relation)
+        self.ev1 = EvidenceCandidateFactory()
+        self.ev2 = EvidenceCandidateFactory()
+        self.ev3 = EvidenceCandidateFactory()
 
     def lbl_evs(self, values):
         return dict(zip(EvidenceCandidate.objects.all().order_by('id'), values))

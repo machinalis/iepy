@@ -16,14 +16,13 @@ class RuleBasedCore(object):
 
     From the user's point of view this class is meant to be used like this::
 
-        extractor = RuleBasedCore(relation, evidences, [<rule-1>, ..., <rule-n>])
+        extractor = RuleBasedCore(relation, [<rule-1>, ..., <rule-n>])
         extractor.start()
-        predictions = extractor.predict()  # profit
+        predictions = extractor.predict(candidates)  # profit
     """
-    def __init__(self, relation, evidences, rules, verbosity=0):
+    def __init__(self, relation, rules, verbosity=0):
         self.relation = relation
         self.rules = sorted(rules, key=attrgetter("priority"), reverse=True)
-        self.evidences = evidences
         self.learnt = {}
         self.verbosity = verbosity
 
@@ -39,7 +38,7 @@ class RuleBasedCore(object):
             (compile_rule(rule, self.relation), rule.answer) for rule in self.rules
         ]
 
-    def predict(self):
+    def predict(self, candidates):
         """
         Using the provided rules, on the given order, applies them to each evidence
         candidate, verifying if they match or not.
@@ -48,7 +47,7 @@ class RuleBasedCore(object):
         """
         logger.info('Predicting using rule based core')
         predicted = {}
-        for i, evidence in enumerate(self.evidences):
+        for i, evidence in enumerate(candidates):
             match = self.match(evidence)
             predicted[evidence] = match if match is not None else False
             if self.verbosity > 0:

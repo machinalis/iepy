@@ -42,14 +42,3 @@ class TestTaggerRunner(ManagerTestCase):
         tag(doc)
         self.assertTrue(all(x == 'B' for x in doc.postags))
 
-
-class TestStanfordTaggerRunner(ManagerTestCase):
-    ManagerClass = IEDocument
-
-    def test_stanford_tagger_is_called_if_found(self):
-        doc = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
-        expected_postags = ['DT', 'NN', '.', 'CC', 'DT', 'JJ', '.', 'RB', '.']
-        tag = StanfordTaggerRunner()
-        tag(doc)
-        self.assertTrue(doc.was_preprocess_step_done(PreProcessSteps.tagging))
-        self.assertEqual(doc.postags, expected_postags)

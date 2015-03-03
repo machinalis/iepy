@@ -24,6 +24,7 @@ class InstanceManager:
         "iepy_rules_runner.py",
         "rules_verifier.py",
         "manage.py",
+        "gazettes_loader.py",
     ]
     steps = [
         'create_folders',
@@ -38,10 +39,11 @@ class InstanceManager:
         'greetings',
     ]
 
-    def __init__(self, folder_path):
+    def __init__(self, folder_path, lang='en'):
         self.folder_path = folder_path
         self.abs_folder_path = os.path.abspath(self.folder_path)
         self.creating = True
+        self.lang = lang
 
     def _run_steps(self):
         for step_name in self.steps:
@@ -151,7 +153,7 @@ class InstanceManager:
                 # vainilla old version or not
                 old_version_filepath = os.path.join(
                     self.old_version_path, 'iepy', 'instantiation', filename)
-                if filecmp.cmp(old_version_filepath, destination):
+                if os.path.exists(old_version_filepath) and filecmp.cmp(old_version_filepath, destination):
                     # vainilla old version. Let's simply upgrade it
                     do_it()
                 else:
@@ -198,7 +200,7 @@ class InstanceManager:
             if not database_name:
                 database_name = folder_name
             database_path = os.path.join(self.abs_folder_path, database_name)
-            settings_data = get_settings_string(database_path)
+            settings_data = get_settings_string(database_path, self.lang)
             with open(settings_filepath, "w") as filehandler:
                 filehandler.write(settings_data)
         if self.creating:
@@ -232,7 +234,7 @@ class InstanceManager:
         print("\n IEPY instance ready to use at '{}'".format(self.abs_folder_path))
 
 
-def get_settings_string(database_path):
+def get_settings_string(database_path, lang):
     template_settings_filepath = os.path.join(THIS_FOLDER, "settings.py.template")
     with open(template_settings_filepath) as filehandler:
         settings_data = filehandler.read()
@@ -245,5 +247,6 @@ def get_settings_string(database_path):
     settings_data = settings_data.replace("{SECRET_KEY}", secret_key)
     settings_data = settings_data.replace("{DATABASE_PATH}", database_path)
     settings_data = settings_data.replace("{IEPY_VERSION}", iepy.__version__)
+    settings_data = settings_data.replace("{LANG}", lang)
 
     return settings_data

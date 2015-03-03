@@ -22,7 +22,7 @@ class TestDocumentCreationThruManager(ManagerTestCase):
                                               self.sample_metadata)
         self.assertEqual(doc.human_identifier, self.sample_id)
         self.assertEqual(doc.text, self.sample_text)
-        self.assertEqual(doc.metadata, self.sample_metadata)
+        self.assertEqual(doc.metadata.items, self.sample_metadata)
         self.assertEqual(IEDocument.objects.count(), 1)
 
     def test_create_existent_does_nothing(self):
@@ -42,12 +42,12 @@ class TestDocumentCreationThruManager(ManagerTestCase):
                                               new_metadata)
         self.assertNotEqual(doc.text, new_text)
         self.assertEqual(doc.text, self.sample_text)
-        self.assertNotEqual(doc.metadata, new_metadata)
-        self.assertEqual(doc.metadata, self.sample_metadata)
+        self.assertNotEqual(doc.metadata.items, new_metadata)
+        self.assertEqual(doc.metadata.items, self.sample_metadata)
         doc = self.docmanager.create_document(self.sample_id, new_text,
                                               new_metadata, update_mode=True)
         self.assertEqual(doc.text, new_text)
-        self.assertEqual(doc.metadata, new_metadata)
+        self.assertEqual(doc.metadata.items, new_metadata)
 
 
 class TestDocumentsPreprocessMetadata(ManagerTestCase):
@@ -55,7 +55,7 @@ class TestDocumentsPreprocessMetadata(ManagerTestCase):
     def test_preprocess_steps(self):
         self.assertEqual(
             [p.name for p in PreProcessSteps],
-            ['tokenization', 'lemmatization', 'sentencer', 'tagging', 'ner', 'segmentation'])
+            ['tokenization', 'lemmatization', 'sentencer', 'tagging', 'ner', 'segmentation', 'syntactic_parsing'])
 
     def test_just_created_document_has_no_preprocess_done(self):
         doc = IEDocFactory()
@@ -115,8 +115,9 @@ class TestStorePreprocessOutputSideEffects(ManagerTestCase):
             (PreProcessSteps.lemmatization, ['hello', 'world', '.']),
             (PreProcessSteps.sentencer, [0, 3]),
             (PreProcessSteps.tagging, ['NN', 'NN', '.']),
-            (PreProcessSteps.ner, [FoundEntity('world', 'LOCATION', 'world', 1, 2)]),
+            (PreProcessSteps.ner, [FoundEntity('world', 'LOCATION', 'world', 1, 2, False)]),
             (PreProcessSteps.segmentation, [RawSegment(0, 3, None)]),
+            (PreProcessSteps.syntactic_parsing, ["(ROOT (NP (JJ Hello) (NN world) (. .)))]"]),
         ]
         for step, value in sample_values:
             if step == desired_step:

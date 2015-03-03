@@ -26,4 +26,7 @@ if __name__ == '__main__':
         normalizer = to_lower_normalizer
     else:
         normalizer = None
-    download_freebase_type(freebase_type_name, output_file, normalizer, aliases)
+    entries = download_freebase_type(freebase_type_name, normalizer, aliases)
+    f = open(output_file, 'w')
+    f.write('\n'.join(entries))
+    f.close()

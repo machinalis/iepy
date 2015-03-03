@@ -2,16 +2,21 @@
 Run IEPY active-learning extractor
 
 Usage:
-    iepy_runner.py [options] <relation_name>
+    iepy_runner.py [options] <relation_name> <output>
+    iepy_runner.py [options] --db-store <relation_name>
     iepy_runner.py -h | --help | --version
 
 Options:
-  --classifier=<classifier_path>     Load an already trained classifier
-  --no-questions                     Won't generate questions to answer and will try to predict as is. Should be used with --classifier
-  -h --help                          Show this screen
-  --tune-for=<tune-for>              Predictions tuning. Options are high-prec or high-recall [default: high-prec]
-  --extractor-config=<config.json>   Sets the extractor config
-  --version                          Version number
+  --store-extractor=<extractor_output>   Stores the trained classifier
+  --trained-extractor=<extractor_path>     Load an already trained extractor
+  --db-store                               Stores the predictions on the database
+  --no-questions                           Won't generate questions to answer. Will predict
+                                           as is. Should be used with --trained-extractor
+  --tune-for=<tune-for>                    Predictions tuning. Options are high-prec
+                                           or high-recall [default: high-prec]
+  --extractor-config=<config.json>         Sets the extractor config
+  --version                                Version number
+  -h --help                                Show this screen
 """
 
 import os
@@ -41,14 +46,7 @@ def load_labeled_evidences(relation, evidences):
     return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
 
 
-def run_from_command_line():
-    opts = docopt(__doc__, version=iepy.__version__)
-    relation = opts['<relation_name>']
-    classifier_path = opts.get('--classifier')
-
-    logging.basicConfig(level=logging.INFO, format='%(message)s')
-    logging.getLogger("featureforge").setLevel(logging.WARN)
-
+def _get_tuning_mode(opts):
     if opts['--tune-for'] == 'high-prec':
         tuning_mode = HIPREC
     elif opts['--tune-for'] == 'high-recall':
@@ -57,62 +55,100 @@ def run_from_command_line():
         print ('Invalid tuning mode')
         print (__doc__)
         exit(1)
+    return tuning_mode
 
+
+def _get_relation(opts):
+    relation_name = opts['<relation_name>']
     try:
-        relation = Relation.objects.get(name=relation)
+        relation = Relation.objects.get(name=relation_name)
     except Relation.DoesNotExist:
-        print("Relation {!r} non existent".format(relation))
+        print("Relation {!r} non existent".format(relation_name))
         print_all_relations()
         exit(1)
+    return relation
+
+
+def _load_extractor(opts, relation, labeled_evidences):
+    extractor_path = opts.get('--trained-extractor')
+    try:
+        iextractor = ActiveLearningCore.load(extractor_path,
+                                             labeled_evidences=labeled_evidences)
+    except ValueError:
+        print("Error: unable to load extractor, invalid file")
+        exit(1)
+
+    if iextractor.relation != relation:
+        print('The loaded extractor is not for the requested relation'
+              ' but for relation {} instead'.format(iextractor.relation))
+        exit(1)
+    print('Extractor successfully loaded')
+    return iextractor
+
+
+def _construct_extractor(opts, relation, labeled_evidences, tuning_mode):
+    config_filepath = opts.get("--extractor-config")
+    if not config_filepath:
+        config_filepath = os.path.join(INSTANCE_PATH, "extractor_config.json")
+
+    if not os.path.exists(config_filepath):
+        print("Error: extractor config does not exists, please create the "
+              "file extractor_config.json or use the --extractor-config")
+        exit(1)
+
+    with open(config_filepath) as filehandler:
+        try:
+            extractor_config = json.load(filehandler)
+        except Exception as error:
+            print("Error: unable to load extractor config: {}".format(error))
+            exit(1)
+
+    iextractor = ActiveLearningCore(
+        relation, labeled_evidences, extractor_config, tradeoff=tuning_mode
+    )
+    return iextractor
+
+
+def run_from_command_line():
+    opts = docopt(__doc__, version=iepy.__version__)
+
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    logging.getLogger("featureforge").setLevel(logging.WARN)
+
+    tuning_mode = _get_tuning_mode(opts)
+    relation = _get_relation(opts)
 
     candidates = CandidateEvidenceManager.candidates_for_relation(relation)
     labeled_evidences = load_labeled_evidences(relation, candidates)
 
-    if classifier_path:
-        try:
-            loaded_classifier = output.load_classifier(classifier_path)
-        except ValueError:
-            print("Error: unable to load classifier, invalid file")
-            exit(1)
-
-        iextractor = ActiveLearningCore(
-            relation, labeled_evidences, performance_tradeoff=tuning_mode,
-            classifier=loaded_classifier
-        )
+    if opts.get('--trained-extractor'):
+        iextractor = _load_extractor(opts, relation, labeled_evidences)
         was_ever_trained = True
+        opts["--no-questions"] = True
     else:
-        config_filepath = opts.get("--extractor-config")
-        if not config_filepath:
-            config_filepath = os.path.join(INSTANCE_PATH, "extractor_config.json")
-
-        if not os.path.exists(config_filepath):
-            print("Error: extractor config does not exists, please create the "
-                  "file extractor_config.json or use the --extractor-config")
-            exit(1)
-
-        with open(config_filepath) as filehandler:
-            try:
-                extractor_config = json.load(filehandler)
-            except Exception as error:
-                print("Error: unable to load extractor config: {}".format(error))
-                exit(1)
-
-        iextractor = ActiveLearningCore(
-            relation, labeled_evidences, extractor_config,
-            performance_tradeoff=tuning_mode
-        )
+        iextractor = _construct_extractor(opts, relation, labeled_evidences, tuning_mode)
         iextractor.start()
         was_ever_trained = False
-
 
     if not opts.get("--no-questions", False):
         questions_loop(iextractor, relation, was_ever_trained)
 
     # Predict and store output
-    predictions = iextractor.predict()
-    if predictions:
-        output.dump_output_loop(predictions)
-        output.dump_classifier_loop(iextractor)
+    predictions = iextractor.predict(candidates)  # asking predictions for EVERYTHING
+    if not predictions:
+        print("Nothing was predicted")
+        exit(1)
+
+    if opts.get("--db-store"):
+        output.dump_predictions_to_database(relation, predictions)
+
+    output_file = opts.get("<output>")
+    if output_file:
+        output.dump_runner_output_to_csv(predictions, output_file)
+
+    classifier_output = opts.get("--store-extractor")
+    if classifier_output:
+        iextractor.save(classifier_output)
 
 
 def questions_loop(iextractor, relation, was_ever_trained):

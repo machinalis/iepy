@@ -4,10 +4,10 @@ How to Hack
 There are several places where you can incorporate your own ideas and needs into IEPY.
 Here you'll see how to modify different parts of the iepy core.
 
-Altering how to corpus is created
----------------------------------
+Altering how the corpus is created
+----------------------------------
 
-On `preprocess <preprocess.html#how-to-customize>`_ section was already mentioned that you can customize how the corpus is created.
+On the `preprocess <preprocess.html#how-to-customize>`_ section was already mentioned that you can customize how the corpus is created.
 
 
 Using your own classifier
@@ -27,11 +27,13 @@ First, define your own custom classifier, like this:
 
 
     class MyOwnRelationClassifier:
-        def fit(self, X, y):
+        def __init__(self, **config):
             vectorizer = CountVectorizer(
                 preprocessor=lambda evidence: evidence.segment.text)
             classifier = SGDClassifier()
             self.pipeline = make_pipeline(vectorizer, classifier)
+
+        def fit(self, X, y):
             self.pipeline.fit(X, y)
             return self
 
@@ -50,7 +52,7 @@ provide it as a configuration parameter like this
 
     iextractor = ActiveLearningCore(
         relation, labeled_evidences,
-        performance_tradeoff=tuning_mode,
+        tradeoff=tuning_mode,
         extractor_config={},
         extractor=MyOwnRelationClassifier
     )
@@ -171,3 +173,20 @@ To use this you have to add this single feature to your config like this:
         "born_date.custom_features.rules_match",
         ...
     ],
+
+
+
+Documents Metadata
+------------------
+
+While building your application, you might want to store some extra information about your documents.
+To avoid loading this data every time when predicting, we've separated the place to put this 
+information into another model called **IEDocumentMetadata** that is accessible through the **metadata** attribute.
+
+IEDocumentMetadata has 3 fields:
+
+    * title: for storing document's title
+    * url: to save the source url if the document came from a web page
+    * itmes: a dictionary that you can use to store anything you want.
+
+By default, the **csv importer** uses the document's metadata to save the filepath of the csv file on the *items* field.

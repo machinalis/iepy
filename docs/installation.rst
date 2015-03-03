@@ -25,10 +25,14 @@ You need to install the following packages:
 
     sudo apt-get install build-essential python3-dev liblapack-dev libatlas-dev gfortran openjdk-7-jre
 
-They are needed for python scipy & numpy installation, and for running
-some java processes. If anything fails during the IEPY installation below,
-don't hesitate on checking fully installation notes for
-SciPy `here <http://www.scipy.org/install.html>`__
+They are needed for python Numpy installation, and for running
+some java processes.
+
+Once this is done, install numpy by doing:
+
+.. code-block:: bash
+
+    pip install numpy
 
 
 Install IEPY package

@@ -79,9 +79,8 @@ class Kind(refo.Predicate):
         self.arg = kind
 
     def _predicate(self, obj):
-        if hasattr(obj, "eo_kinds"):
-            obj_kind_names = [x.name for x in obj.eo_kinds]
-            return self.kind in obj_kind_names
+        if hasattr(obj, "kinds"):
+            return self.kind in obj.kinds
         return False
 
 
@@ -125,21 +124,12 @@ def generate_subject_and_object(relation):
     return Subject, Object
 
 
-_cache = {}
+@lru_cache(maxsize=8)
 def cached_segment_enriched_tokens(segment):
-    # Not using lru_cache because segment.get_enriched_tokens returns a
-    # consumable, so next call will get an empty generator.
-    if segment.id in _cache:
-        # This falls into the dict.setdefault pattern, but the bad is
-        # that the call to segment.get_enriched_tokens is computed allways.
-        rich_tks = _cache[segment.id]
-    else:
-        rich_tks = list(segment.get_enriched_tokens())
-        _cache[segment.id] = rich_tks
-    return rich_tks
+    return list(segment.get_enriched_tokens())
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=8)
 def generate_tokens_to_match(evidence):
     tokens_to_match = []
     l_eo_id = evidence.left_entity_occurrence_id

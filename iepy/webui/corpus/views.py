@@ -9,14 +9,17 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.decorators import method_decorator
 from django.utils import formats
 from django.views.generic.base import TemplateView
+from django.http import HttpResponse, HttpResponseBadRequest
 
 from extra_views import ModelFormSetView
 
 from corpus.forms import EvidenceForm, EvidenceOnDocumentForm, EvidenceToolboxForm
 from corpus.models import (
     Relation, TextSegment, IEDocument,
-    EvidenceLabel, SegmentToTag,
+    EvidenceLabel, SegmentToTag, EntityKind
 )
+
+from iepy.data.db import EntityOccurrenceManager
 
 
 def _judge(request):
@@ -144,14 +147,15 @@ class LabelEvidenceOnSegmentBase(_BaseLabelEvidenceView):
         self.relation = get_object_or_404(Relation, pk=self.kwargs['relation_id'])
         evidences = list(self.segment.get_evidences_for_relation(self.relation))
         for ev in evidences:
-            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+            ev.get_or_create_label_for_judge(self.relation, self.judge)  # creating EvidenceLabels
         return self.segment, self.relation
 
     def get_queryset(self):
         segment, relation = self.get_segment_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment=self.segment,
-            evidence_candidate__relation=self.relation
+            relation=self.relation,
+            labeled_by_machine=False,
         )
 
     def get_success_url(self):
@@ -254,6 +258,11 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                  'rich_tokens': list(segment.get_enriched_tokens())}
             )
 
+        if self.document.syntactic_sentences:
+            parsed_sentences = [x.pprint() for x in self.document.syntactic_sentences]
+        else:
+            parsed_sentences = [""] * len(segments_with_rich_tokens)
+
         if not segments_with_rich_tokens:
             ctx = {
                 'title': title,
@@ -263,6 +272,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 'relations_list': [],
                 'forms_values': [],
                 'draw_navigation': True,
+                'entity_kinds': EntityKind.objects.all(),
             }
             return ctx
 
@@ -271,7 +281,9 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         for formset in ctx["formset"]:
             instance = formset.instance
             evidence = instance.evidence_candidate
-            for label in evidence.labels.filter(~Q(id=instance.id)):
+            for label in evidence.labels.filter(
+                Q(relation=instance.relation) & ~Q(id=instance.id)
+            ):
                 other_judges_labels[label.judge].append([
                     evidence.left_entity_occurrence.id,
                     evidence.right_entity_occurrence.id,
@@ -315,12 +327,14 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         form_for_others = EvidenceForm(
             prefix='for_others', initial={"label": EvidenceLabel.NORELATION}
         )
+        different_kind = self.relation.left_entity_kind != self.relation.right_entity_kind
 
         ctx.update({
             'title': title,
             'subtitle': subtitle,
             'document': self.document,
             'segments': segments_with_rich_tokens,
+            'parsed_sentences': parsed_sentences,
             'relation': self.relation,
             'form_for_others': form_for_others,
             'form_toolbox': form_toolbox,
@@ -332,6 +346,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
             'other_judges_labels': json.dumps(other_judges_labels),
             'other_judges': list(other_judges_labels.keys()),
             "draw_navigation": True,
+            'entity_kinds': EntityKind.objects.all(),
+            'different_kind': different_kind,
         })
         return ctx
 
@@ -346,7 +362,7 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
                 list(segment.get_evidences_for_relation(self.relation))
             )
         for ev in evidences:
-            ev.get_or_create_label_for_judge(self.judge)  # creating EvidenceLabels
+            ev.get_or_create_label_for_judge(self.relation, self.judge)  # creating EvidenceLabels
 
         return self.document, self.relation
 
@@ -354,7 +370,8 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         document, relation = self.get_document_and_relation()
         return super().get_queryset().filter(
             judge=self.judge, evidence_candidate__segment__document_id=document,
-            evidence_candidate__relation=relation
+            relation=relation,
+            labeled_by_machine=False,
         )
 
     def get_success_url(self):
@@ -438,14 +455,22 @@ class LabelEvidenceOnDocumentView(_BaseLabelEvidenceView):
         return kwargs
 
 
-def navigate_documents(context, document_id, direction):
+def navigate_documents(request, document_id, direction):
     if direction == "back":
         documents = IEDocument.objects.filter(id__lt=document_id).order_by("-id")
     else:
         documents = IEDocument.objects.filter(id__gt=document_id).order_by("id")
 
-    document = documents[0]
-    return redirect('corpus:navigate_document', document.id)
+    if documents:
+        document_id = documents[0].id
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            'No more documents to show'
+        )
+
+    return redirect('corpus:navigate_document', document_id)
+
 
 class DocumentNavigation(TemplateView):
     template_name = 'corpus/document.html'
@@ -454,8 +479,31 @@ class DocumentNavigation(TemplateView):
         context = super().get_context_data(**kwargs)
         document = get_object_or_404(IEDocument, pk=self.kwargs['document_id'])
         sentences = [{"rich_tokens": x, "id": i} for i, x in enumerate(document.get_sentences(enriched=True))]
+        if document.syntactic_sentences:
+            parsed_sentences = [x.pprint() for x in document.syntactic_sentences]
+        else:
+            parsed_sentences = [""] * len(sentences)
 
+        context["entity_kinds"] = EntityKind.objects.all()
         context["document"] = document
         context["segments"] = sentences
+        context["parsed_sentences"] = parsed_sentences
         context["draw_navigation"] = True
         return context
+
+
+def create_entity_occurrence(request):
+    kind = get_object_or_404(EntityKind, id=request.POST.get("kind"))
+    document = get_object_or_404(IEDocument, id=request.POST.get("doc_id"))
+
+    if "offset" not in request.POST or "offset_end" not in request.POST:
+        raise HttpResponseBadRequest("Invalid offsets")
+    try:
+        offset = int(request.POST["offset"])
+        offset_end = int(request.POST["offset_end"])
+    except ValueError:
+        raise HttpResponseBadRequest("Invalid offsets")
+
+    EntityOccurrenceManager.create_with_entity(kind, document, offset, offset_end)
+    result = json.dumps({"success": True})
+    return HttpResponse(result, content_type='application/json')

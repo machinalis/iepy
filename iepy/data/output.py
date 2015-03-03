@@ -1,6 +1,8 @@
 import os
 import csv
-import pickle
+from datetime import datetime
+
+from iepy.data.models import EvidenceLabel
 
 
 def dump_runner_output_to_csv(results, filepath):
@@ -22,28 +24,11 @@ def dump_runner_output_to_csv(results, filepath):
             csv_writer.writerow([prediction_id, value])
 
 
-def dump_classifier(extractor, filepath):
-    """
-    Takes an extractor and stores the classifier into filepath.
-    """
-
-    if os.path.exists(filepath):
-        raise ValueError("Output file path already exists")
-
-    with open(filepath, 'wb') as filehandler:
-        pickle.dump(extractor.relation_classifier, filehandler)
-
-
-def load_classifier(filepath):
-    """
-    Takes an extractor and stores the classifier into filepath.
-    """
-
-    if not os.path.exists(filepath):
-        raise ValueError("File does not exists")
-
-    with open(filepath, 'rb') as filehandler:
-        return pickle.load(filehandler)
+def dump_predictions_to_database(relation, predictions):
+    judge = "iepy-run on {}".format(datetime.now().strftime("%Y-%m-%d %H:%M"))
+    for evidence, relation_is_present in predictions.items():
+        label = EvidenceLabel.YESRELATION if relation_is_present else EvidenceLabel.NORELATION
+        evidence.set_label(relation, label, judge, labeled_by_machine=True)
 
 
 def dump_output_loop(predictions):
@@ -80,11 +65,9 @@ def dump_classifier_loop(extractor):
         while True:
             output_filepath = input("\nChoose the filename of the output: ")
             try:
-                dump_classifier(extractor, output_filepath)
+                extractor.save(output_filepath)
                 break
             except ValueError:
                 print("Error: file already exists, try another one.\n")
             except FileNotFoundError:
                 print("Error: couldn't open the file, try another one.\n")
-
-

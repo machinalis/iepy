@@ -62,6 +62,8 @@ You can change the engine to use, for example, PostgreSQL like this:
         }
     }
 
+Remember that you'll need to install ``psycopg2`` first with a simple ``pip install psycopg2``
+
 Take a look at the `django database configuration documentation <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ for more detail.
 
 .. note::

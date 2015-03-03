@@ -1,5 +1,6 @@
 .segment{
     line-height: 45px;
+    position: relative;
 }
 
 .rich-token{
@@ -57,4 +58,13 @@
 .rich-token.entity-occurrence.hover,
 .rich-token.entity-occurrence:hover{
     background: rgba(255, 182, 0, 0.17);
+}
+
+.parse-tree-button-wrapper{
+    position: absolute;
+    right: 10px;
+    top: -8px;
+}
+.parse-tree-button{
+    color: #bbb;
 }

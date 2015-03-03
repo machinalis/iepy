@@ -14,8 +14,13 @@ import iepy
 iepy.setup()
 
 from iepy.data.models import (
-    IEDocument, TextSegment, Entity, EntityKind, Relation, EvidenceLabel,
-    EvidenceCandidate)
+    IEDocument, IEDocumentMetadata,
+    TextSegment, Relation,
+    Entity, EntityKind, EntityOccurrence,
+    EvidenceLabel, EvidenceCandidate
+)
+
+from iepy.preprocess import segmenter
 from iepy.preprocess.pipeline import PreProcessSteps
 
 
@@ -29,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class DocumentManager(object):
     """Wrapper to the db-access, so it's not that impossible to switch
-    from mongodb to something else if desired.
+    from current ORM to something else if desired.
     """
 
     ### Basic administration and pre-process
@@ -52,13 +57,20 @@ class DocumentManager(object):
         """
         if metadata is None:
             metadata = {}
-        doc, created = IEDocument.objects.get_or_create(
-            human_identifier=identifier, defaults={'text': text, 'metadata': metadata}
-        )
-        if not created and update_mode:
+
+        filter_query = IEDocument.objects.filter(human_identifier=identifier)
+        if not filter_query.exists():
+            mtd_obj = IEDocumentMetadata.objects.create(items=metadata)
+            doc = IEDocument.objects.create(human_identifier=identifier, text=text,
+                                            metadata=mtd_obj)
+        else:
+            doc = filter_query.get()
+        if update_mode:
             doc.text = text
-            doc.metadata = metadata
+            doc.metadata.items = metadata
+            doc.metadata.save()
             doc.save()
+
         return doc
 
     def __iter__(self):
@@ -107,6 +119,29 @@ class EntityManager(object):
         return Entity.objects.get(**kw)
 
 
+class EntityOccurrenceManager:
+
+    @classmethod
+    def create_with_entity(cls, kind, document, offset, offset_end):
+        entity, _ = Entity.objects.get_or_create(
+            key="{} {} {} {}".format(
+                document.human_identifier,
+                kind, offset, offset_end
+            ),
+            kind=kind
+        )
+        entity_occurrence = EntityOccurrence(
+            entity=entity,
+            document=document,
+            offset=offset,
+            offset_end=offset_end,
+            alias=" ".join(document.tokens[offset:offset_end]),
+        )
+        entity_occurrence.save()
+        segmenter_runner = segmenter.SyntacticSegmenterRunner(override=True)
+        segmenter_runner(document)
+
+
 class RelationManager(object):
     @classmethod
     def get_relation(cls, pk):
@@ -124,10 +159,8 @@ class CandidateEvidenceManager(object):
         ev.evidence = ev.segment.hydrate(document)
         ev.right_entity_occurrence.hydrate_for_segment(ev.segment)
         ev.left_entity_occurrence.hydrate_for_segment(ev.segment)
-        all_eos = [eo.hydrate_for_segment(ev.segment)
-                   for eo in ev.segment.entity_occurrences.all()]
         # contains a duplicate of left and right eo. Not big deal
-        ev.all_eos = all_eos
+        ev.all_eos = ev.segment.get_entity_occurrences()
         return ev
 
     @classmethod
@@ -155,31 +188,39 @@ class CandidateEvidenceManager(object):
             segments_per_document[s.document_id].append(s)
         doc_ids = segments_per_document.keys()
         existent_ec = EvidenceCandidate.objects.filter(
-            relation=relation, segment__in=raw_segments.keys()
+            left_entity_occurrence__entity__kind=relation.left_entity_kind,
+            right_entity_occurrence__entity__kind=relation.right_entity_kind,
+            segment__in=raw_segments.keys()
         ).select_related(
             'left_entity_occurrence', 'right_entity_occurrence', 'segment'
         )
         existent_ec_per_segment = defaultdict(list)
         for ec in existent_ec:
             existent_ec_per_segment[ec.segment_id].append(ec)
-        evidences = []
-        for document in IEDocument.objects.filter(pk__in=doc_ids):
+
+        _doc_ids = list(doc_ids)
+        while _doc_ids:
+            _id = _doc_ids.pop()
+            document = IEDocument.objects.get(id=_id)
             for segment in segments_per_document[document.id]:
                 _existent = existent_ec_per_segment[segment.pk]
                 if construct_missing_candidates:
                     seg_ecs = segment.get_evidences_for_relation(relation, _existent)
                 else:
                     seg_ecs = _existent
-                evidences.extend([hydrate(e, document) for e in seg_ecs])
-        return evidences
+
+                for evidence in seg_ecs:
+                    yield hydrate(evidence, document)
 
     @classmethod
     def value_labeled_candidates_count_for_relation(cls, relation):
         """Returns the count of labels for the given relation that provide actual
         information/value: YES or NO"""
-        labels = EvidenceLabel.objects.filter(evidence_candidate__relation=relation,
-                                              label__in=[EvidenceLabel.NORELATION,
-                                                         EvidenceLabel.YESRELATION])
+        labels = EvidenceLabel.objects.filter(
+            relation=relation,
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION],
+            labeled_by_machine=False
+        )
         return labels.count()
 
     @classmethod
@@ -190,10 +231,11 @@ class CandidateEvidenceManager(object):
         candidates = {e: None for e in evidences}
 
         logger.info("Getting labels from DB")
-        labels = EvidenceLabel.objects.filter(evidence_candidate__relation=relation,
-                                              label__in=[EvidenceLabel.NORELATION,
-                                                         EvidenceLabel.YESRELATION,
-                                                         EvidenceLabel.NONSENSE])
+        labels = EvidenceLabel.objects.filter(
+            relation=relation,
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION, EvidenceLabel.NONSENSE],
+            labeled_by_machine=False
+        )
         logger.info("Sorting labels them by evidence")
         labels_per_ev = defaultdict(list)
         for l in labels:

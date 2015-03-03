@@ -27,6 +27,11 @@ logging.getLogger("factory").setLevel(logging.WARN)
 BaseFactory = factory.django.DjangoModelFactory
 
 
+class IEDocumentMetadataFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.IEDocumentMetadata'
+
+
 class EntityKindFactory(BaseFactory):
     class Meta:
         model = 'corpus.EntityKind'
@@ -52,8 +57,8 @@ class EntityOccurrenceFactory(BaseFactory):
 
 class IEDocFactory(BaseFactory):
     FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
     human_identifier = factory.Sequence(lambda n: 'doc_%i' % n)
-    title = factory.Sequence(lambda n: 'Title for doc %i' % n)
     text = factory.Sequence(lambda n: 'Lorem ipsum yaba daba du! %i' % n)
 
 
@@ -66,6 +71,7 @@ class TextSegmentFactory(BaseFactory):
 
 class SentencedIEDocFactory(IEDocFactory):
     FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
     text = factory.Sequence(lambda n: 'Lorem ipsum. Yaba daba du! %i' % n)
 
     @factory.post_generation
@@ -79,6 +85,29 @@ class SentencedIEDocFactory(IEDocFactory):
 
         self.set_tokenization_result(tokens)
         self.set_sentencer_result(sentences)
+
+
+class SyntacticParsedIEDocFactory(IEDocFactory):
+    FACTORY_FOR = IEDocument
+    metadata = factory.SubFactory(IEDocumentMetadataFactory)
+
+    # This factory will always return
+    # the same sentences and trees
+
+    @factory.post_generation
+    def init(self, create, extracted, **kwargs):
+        sentences_amount = 20
+
+        tokens = []
+        sentences = [0]
+        for sent_tokens in nltk.corpus.treebank.sents()[:sentences_amount]:
+            tokens.extend(list(enumerate(sent_tokens)))
+            sentences.append(sentences[-1] + len(sent_tokens))
+
+        self.set_tokenization_result(tokens)
+        self.set_sentencer_result(sentences)
+        tree_strings = [x.pprint() for x in nltk.corpus.treebank.parsed_sents()[:sentences_amount]]
+        self.set_syntactic_parsing_result(tree_strings)
 
 
 class RelationFactory(BaseFactory):
@@ -99,15 +128,12 @@ def NamedTemporaryFile23(*args, **kwargs):
 class EvidenceCandidateFactory(BaseFactory):
     FACTORY_FOR = EvidenceCandidate
     segment = factory.SubFactory(TextSegmentFactory)
-    relation = factory.SubFactory(RelationFactory)
     left_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
     right_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
 
@@ -127,16 +153,13 @@ class EvidenceFactory(BaseFactory):
     died in the {United States|location**} ."
     """
     FACTORY_FOR = EvidenceCandidate
-    relation = factory.SubFactory(RelationFactory)
     segment = factory.SubFactory(TextSegmentFactory)
     right_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.right_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
     left_entity_occurrence = factory.SubFactory(
         EntityOccurrenceFactory,
-        entity__kind=factory.SelfAttribute('...relation.left_entity_kind'),
         document=factory.SelfAttribute('..segment.document')
     )
 
@@ -173,13 +196,11 @@ class EvidenceFactory(BaseFactory):
                             {'left_entity_occurrence__%s' % k: v
                              for k, v in eo_args_.items()}
                         )
-                        args["relation__left_entity_kind__name"] = eokind
                     elif eo_flags == 1:
                         args.update(
                             {'right_entity_occurrence__%s' % k: v
                              for k, v in eo_args_.items()}
                         )
-                        args["relation__right_entity_kind__name"] = eokind
                     else:
                         e_occurrences.append((eotokens, len(tokens), eokind))
                     tokens += eotokens
@@ -194,6 +215,12 @@ class EvidenceFactory(BaseFactory):
             args["segment__offset"] = 0
             args["segment__offset_end"] = len(tokens)
             args["e_occurrences"] = e_occurrences
+            if "syntactic_sentence" in kwargs:
+                syntactic_sentence = kwargs.pop("syntactic_sentence")
+                if isinstance(syntactic_sentence, str):
+                    syntactic_sentence = nltk.tree.Tree.fromstring(syntactic_sentence)
+                args["segment__document__sentences"] = [0]
+                args["segment__document__syntactic_sentences"] = [syntactic_sentence]
 
         args.update(kwargs)
         return super(EvidenceFactory, cls).create(**args)
@@ -216,3 +243,10 @@ class EvidenceFactory(BaseFactory):
             offset__gte=self.segment.offset,
             offset_end__lte=self.segment.offset_end
         )
+
+
+class GazetteItemFactory(BaseFactory):
+    class Meta:
+        model = 'corpus.GazetteItem'
+    kind = factory.SubFactory(EntityKindFactory)
+    text = factory.Sequence(lambda n: 'gazette_item_%i' % n)
