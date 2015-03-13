@@ -158,3 +158,56 @@ For example, take this pseudo-code to guide you:
 
 Each one of those steps will be called with each one of the documents, meaning that every step will be called
 with all the documents, after finishing with that the next step will be called with each one of the documents.
+
+
+Running in multiple cores
+-------------------------
+
+Preprocessing might take a lot of time. To handle this you can run the preprocessing on several cores of the
+same machine or even run it on differents machines to accelerate the processing.
+
+To run it on the same machine using multiple cores, all you need to do is run:
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --multiple-cores=all
+
+This will use all the available cores. You can also specify a number if you want to 
+use less than that, like this:
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --multiple-cores=2
+
+Running in multiple machines
+----------------------------
+
+Running the preprocess on different machines it's a bit tricky, here's what you'll need:
+
+    * A iepy instance with a database that allows remote access (such as postgres)
+    * One iepy instance on each extra machine that has the database setting pointing to the main one.
+
+Then you'll need to decide on how many parts do you want to split the document set
+and run each part on a different machine. For example, you could split the documents in 4 and run 2 processes
+on one machine and 2 on another one. To do this you'll run:
+
+
+On one of the machines, in two different consoles run:
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --split-in=4 --run-part=1
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --split-in=4 --run-part=2
+
+And on the other machine:
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --split-in=4 --run-part=3
+
+.. code-block:: bash
+
+    $ python bin/preprocess.py --split-in=4 --run-part=4
