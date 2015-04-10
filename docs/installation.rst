@@ -3,11 +3,11 @@ IEPY installation
 ==================
 
 IEPY runs on *python 3*, and it's fully tested with version *3.4*.
-This installation notes assume that you have a fresh just installed *ubuntu 14.04*.
-If you are running this installation on a different platform, some details
+These installation notes assume that you have a fresh installation of *Ubuntu 14.04*.
+If you are installing IEPY on a different platform, some details
 or software versions may be slightly different.
 
-Because of some of it's dependencies, IEPY installation it's not a single
+Because of some of its dependencies, IEPY installation is not a single
 pip install, but it's actually not that hard.
 
 Outline:
@@ -48,14 +48,14 @@ Install IEPY package
 
 3. Configure java & NLTK
 
-    In order to be able to run documents preprocess, it's needed to have defined an
+    In order to preprocess documents, set the
     environment variable JAVAHOME=/usr/bin/java (or the path where java was installed)
-    Make sure of making somehow persistent this configuration (your shell rc file, for example).
+    To make this configuration persistent, add it to your shell rc file.
 
 Download the third party data and tools
 ---------------------------------------
 
-You should have now a command named "*iepy*", use it like this for getting some needed
+You should have now a command named "*iepy*". Use it like this to get some required
 binaries.
 
 .. code-block:: bash
