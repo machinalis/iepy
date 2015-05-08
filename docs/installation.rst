@@ -23,16 +23,27 @@ You need to install the following packages:
 
 .. code-block:: bash
 
-    sudo apt-get install build-essential python3-dev liblapack-dev libatlas-dev gfortran openjdk-7-jre
+    sudo apt-get install build-essential python3-dev liblapack-dev libatlas-dev gfortran
 
-They are needed for python Numpy installation, and for running
-some java processes.
-
-Once this is done, install numpy by doing:
+They are needed for python Numpy installation. Once this is done, install numpy by doing:
 
 .. code-block:: bash
 
     pip install numpy
+
+
+And later, for been able to run some java processes:
+
+.. code-block:: bash
+
+    sudo apt-get install openjdk-7-jre
+
+.. note::
+
+    Instead of openjdk-7-jre you can use any other java (version 1.6 or higher) you
+    may have.
+
+    **Java 1.8** will allow you to use the **newest preprocess models**.
 
 
 Install IEPY package
@@ -62,4 +73,7 @@ binaries.
 
     iepy --download-third-party-data
 
+.. note::
 
+    If the java binary pointed by your JAVAHOME is 1.8, newest preprocess models will
+    be acquired and used.
