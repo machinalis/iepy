@@ -90,7 +90,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # Lemmatization was added after the first so we need to support
         # that a document has all the steps done but lemmatization
 
-        analysis = StanfordAnalysis(self.corenlp.analize(document.text))
+        analysis = StanfordAnalysis(self.corenlp.analyse(document.text))
         tokens = analysis.get_tokens()
         if document.tokens != tokens:
             raise ValueError(
@@ -105,7 +105,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         # syntactic parsing was added after the first release, so we need to
         # provide the ability of doing just this on documents that
         # have all the steps done but syntactic parsing
-        analysis = StanfordAnalysis(self.corenlp.analize(document.text))
+        analysis = StanfordAnalysis(self.corenlp.analyse(document.text))
         parse_trees = analysis.get_parse_trees()
         document.set_syntactic_parsing_result(parse_trees)
         document.save()
@@ -114,7 +114,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
         """
         Runs NER steps (basic NER and also Gazetter), adding the new found NE.
         """
-        analysis = StanfordAnalysis(self.corenlp.analize(document.text))
+        analysis = StanfordAnalysis(self.corenlp.analyse(document.text))
 
         # NER
         found_entities = analysis.get_found_entities(
@@ -179,7 +179,7 @@ class StanfordPreprocess(BasePreProcessStepRunner):
                 )
 
     def run_everything(self, document):
-        analysis = StanfordAnalysis(self.corenlp.analize(document.text))
+        analysis = StanfordAnalysis(self.corenlp.analyse(document.text))
 
         # Tokenization
         tokens = analysis.get_tokens()

@@ -99,7 +99,7 @@ class StanfordCoreNLP:
         self.proc.stdin.flush()
 
     @lru_cache(maxsize=1)
-    def analize(self, text):
+    def analyse(self, text):
         self.send(text)
         text = self.receive()
         i = text.index("<?xml version")
