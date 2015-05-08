@@ -17,7 +17,6 @@ scikit-learn==0.15.2
 REfO==0.13
 docopt==0.6.1
 future==0.11.4
-enum34==0.9.23
 appdirs==1.2.0
 wget==2.0
 colorama==0.2.7

@@ -8,9 +8,6 @@ are the following ones,
     - mock (BSD)
     - docopt (MIT)
     - future (MIT)
-    - mongoengine (MIT)
-    - pymongo (Apache License)
-    - enum34 (BSD)
     - appdirs (MIT)
     - wget (Public Domain)
     - colorama (BSD)
@@ -21,8 +18,6 @@ The development tools we are using:
     - nose (LGPL)
     - factory-boy (MIT)
 
-The file "average_precision.py" in the experimentation/loop folder comes from the Metrics project (https://github.com/benhamner/Metrics) and it's license can be found in LICENSE.Metrics.txt
-
 Additionally, in order to be able to create your own iepy-ready corpus with our
 preprocessing tools, you'll need to download the following things that are not
 provided by this software
@@ -31,7 +26,5 @@ provided by this software
                        download_third_party_data script)
     - wordnet (acquirable with the NLTK downloader or the
                download_third_party_data script)
-    - GPL Stanford POS Tagger (acquirable with download_third_party_data script)
-    - GPL Stanford NER Tagger (acquirable with download_third_party_data script)
-
-    The wrappers for this 3 third party tools are provided by NLTK.
+    - GPL Stanford CoreNLP (acquirable with download_third_party_data script)
+    - GPL Stanford Spanish Models (acquirable with download_third_party_data script)
