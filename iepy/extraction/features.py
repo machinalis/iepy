@@ -6,6 +6,7 @@ import refo
 from featureforge.feature import output_schema
 
 from iepy.extraction.rules import generate_tokens_to_match, compile_rule
+from iepy.data.models import Relation
 
 punct_set = set(punctuation)
 
@@ -39,10 +40,10 @@ def load_module(module_name):
     return module
 
 
-def rule_wrapper(rule_feature):
+def rule_wrapper(rule_feature, relation):
     @output_schema(int, binary_values)
     def inner(evidence):
-        regex = compile_rule(rule_feature, evidence.relation)
+        regex = compile_rule(rule_feature, relation)
         tokens_to_match = generate_tokens_to_match(evidence)
         return int(bool(refo.match(regex, tokens_to_match)))
     return inner
@@ -70,7 +71,8 @@ def parse_features(feature_names):
                 )
 
             if feature_module.endswith(".rules"):
-                feature = rule_wrapper(feature)
+                relation = Relation.objects.get(name=module.RELATION)
+                feature = rule_wrapper(feature, relation)
         else:
             try:
                 feature = globals()[fname]

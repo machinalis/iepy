@@ -12,13 +12,38 @@ from iepy.utils import DIRS, unzip_from_url
 
 logger = logging.getLogger(__name__)
 
-# Stanford Core NLP 3.4.1
-# Pitifully Stanford folks have a public name ("version") of their releases that is
-# not used on their download urls. So, 3.4.1 is also "stanford-corenlp-full-2014-08-27"
-_CORENLP_VERSION = "stanford-corenlp-full-2014-08-27"
+
+def detect_java_version():
+    java_cmd = os.getenv('JAVAHOME')
+    if not java_cmd:
+        print('Environment variable JAVAHOME not defined.')
+        sys.exit(-1)
+
+    here = os.path.dirname(os.path.realpath(__file__))
+    jar = os.path.join(here, 'utils', 'get-java-version.jar')
+    jversion = subprocess.check_output([java_cmd, "-jar", jar], stderr=subprocess.STDOUT)
+    return int(jversion.strip())
+
+
+JAVA_VERSION = detect_java_version()
+
+
 _STANFORD_BASE_URL = "http://nlp.stanford.edu/software/"
+if JAVA_VERSION < 8:
+    # Stanford Core NLP 3.4.1 - Last version to support Java 6 and Java 7
+    # Pitifully Stanford folks have a public name ("version") of their releases that isn't
+    # used on their download urls. So, 3.4.1 is "stanford-corenlp-full-2014-08-27"
+    _CORENLP_VERSION = "stanford-corenlp-full-2014-08-27"
+    DOWNLOAD_URL = _STANFORD_BASE_URL + _CORENLP_VERSION + ".zip"
+    DOWNLOAD_URL_ES = _STANFORD_BASE_URL + 'stanford-spanish-corenlp-2014-08-26-models.jar'
+    _FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
+    COMMAND_PATH = os.path.join(_FOLDER_PATH, "corenlp.sh")
+else:
+    # Stanford Core NLP 3.5.2
+    _CORENLP_VERSION = "stanford-corenlp-full-2015-04-20"
+    DOWNLOAD_URL_ES = _STANFORD_BASE_URL + 'stanford-spanish-corenlp-2015-01-08-models.jar'
+
 DOWNLOAD_URL = _STANFORD_BASE_URL + _CORENLP_VERSION + ".zip"
-DOWNLOAD_URL_ES = _STANFORD_BASE_URL + '/stanford-spanish-corenlp-2014-08-26-models.jar'
 _FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
 COMMAND_PATH = os.path.join(_FOLDER_PATH, "corenlp.sh")
 
@@ -99,7 +124,7 @@ class StanfordCoreNLP:
         self.proc.stdin.flush()
 
     @lru_cache(maxsize=1)
-    def analize(self, text):
+    def analyse(self, text):
         self.send(text)
         text = self.receive()
         i = text.index("<?xml version")
@@ -115,13 +140,19 @@ def download(lang='en'):
         print("Downloading Stanford CoreNLP...")
         unzip_from_url(DOWNLOAD_URL, DIRS.user_data_dir)
 
+        # Zip acquired. Make sure right Java is used, and file is executable
         for directory in os.listdir(DIRS.user_data_dir):
             if directory.startswith("stanford-corenlp-full"):
                 stanford_directory = os.path.join(DIRS.user_data_dir, directory)
                 if os.path.isdir(stanford_directory):
-                    corenlp = os.path.join(stanford_directory, "corenlp.sh")
-                    st = os.stat(corenlp)
-                    os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
+                    runner_path = os.path.join(stanford_directory, "corenlp.sh")
+                    st = os.stat(runner_path)
+                    _content = open(runner_path).read()
+                    _content = _content.replace('java', '$JAVAHOME')
+                    with open(runner_path, 'w') as runner_file:
+                        runner_file.write(_content)
+
+                    os.chmod(runner_path, st.st_mode | stat.S_IEXEC)
                     break
 
     # Download extra data for specific language

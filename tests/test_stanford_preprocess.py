@@ -191,18 +191,18 @@ class TestPreProcessCall(ManagerTestCase):
     def test_if_all_steps_are_done_then_no_step_is_run(self):
         doc = self._doc_creator(mark_as_done=self._all_steps)
         self.stanfordpp(doc)
-        self.assertFalse(self.mock_analizer.analize.called)
+        self.assertFalse(self.mock_analizer.analyse.called)
 
     def test_if_all_steps_are_done_but_in_override_mode_then_all_are_run_again(self):
         doc = self._doc_creator(mark_as_done=self._all_steps[:])
-        self.mock_analizer.analize.return_value = {}
+        self.mock_analizer.analyse.return_value = {}
         self.stanfordpp.override = True
         self.stanfordpp(doc)
-        self.assertTrue(self.mock_analizer.analize.called)
+        self.assertTrue(self.mock_analizer.analyse.called)
 
     def test_for_new_doc_all_steps_are_done_when_preprocessed(self):
         doc = IEDocFactory()
-        self.mock_analizer.analize.return_value = {}
+        self.mock_analizer.analyse.return_value = {}
         self.stanfordpp(doc)
         for step in self._all_steps:
             self.assertTrue(doc.was_preprocess_step_done(step))

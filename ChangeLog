@@ -1,3 +1,7 @@
+0.9.4
+    - Added multicore preprocess
+    - Added support for Stanford 3.5.2 preprocess models
+
 0.9.3
     - Added grammatical parsing to the preprocess flow of documents
     - Added support for Spanish preprocess
@@ -7,7 +11,6 @@
     - Performance and memory usage improvements
     - Model simplifications (labels, metadata)
     - Storage & view of predictions
-
 
 0.9.2
     - Add ability to use custom features (http://iepy.rtfd.org/en/latest/how_to_hack.html#implementing-your-own-features)

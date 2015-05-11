@@ -1,6 +1,4 @@
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
-from pip.download import PipSession
-from pip.req import parse_requirements
 from os import path
 
 HERE = path.abspath(path.dirname(__file__))
@@ -12,11 +10,28 @@ with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
 with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
-pip_session = PipSession()
-requirements_path = path.join(HERE, "docs", "setup", "requirements-base.txt")
-base_reqs = [str(x.req) for x in parse_requirements(requirements_path, session=pip_session)]
-dev_requirements_path = path.join(HERE, "docs", "setup", "requirements-development.txt")
-dev_reqs = [str(x.req) for x in parse_requirements(dev_requirements_path, session=pip_session)]
+base_reqs = """nltk==3.0.0
+numpy==1.8.0
+scipy==0.13.3
+scikit-learn==0.15.2
+REfO==0.13
+docopt==0.6.1
+future==0.11.4
+appdirs==1.2.0
+wget==2.0
+colorama==0.2.7
+featureforge==0.1.5
+Django==1.7.6
+django-relatives==0.3.1
+django-relatedadminwidget==0.0.3
+six==1.5.2
+django-extra-views==0.6.5
+jsonfield==1.0.0
+django-angular==0.7.8
+nose==1.3.0
+factory-boy==2.4.1
+xmltodict==0.8.6""".splitlines()
+
 
 setup(
     name='iepy',
@@ -72,11 +87,6 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=base_reqs,
-
-    # List additional groups of dependencies here (e.g. development dependencies).
-    # You can install these using the following syntax, for example:
-    # $ pip install -e .[dev,test]
-    extras_require = {'dev': dev_reqs},
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
