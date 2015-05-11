@@ -6,6 +6,7 @@ include ChangeLog
 include iepy/version.txt
 
 recursive-include iepy/instantiation *.template
+recursive-include iepy/preprocess/utils *.jar
 recursive-include iepy/webui/corpus/static *
 recursive-include iepy/webui/corpus/templates *
 recursive-include docs/setup requirements*.txt
