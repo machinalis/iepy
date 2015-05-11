@@ -140,13 +140,19 @@ def download(lang='en'):
         print("Downloading Stanford CoreNLP...")
         unzip_from_url(DOWNLOAD_URL, DIRS.user_data_dir)
 
+        # Zip acquired. Make sure right Java is used, and file is executable
         for directory in os.listdir(DIRS.user_data_dir):
             if directory.startswith("stanford-corenlp-full"):
                 stanford_directory = os.path.join(DIRS.user_data_dir, directory)
                 if os.path.isdir(stanford_directory):
-                    corenlp = os.path.join(stanford_directory, "corenlp.sh")
-                    st = os.stat(corenlp)
-                    os.chmod(corenlp, st.st_mode | stat.S_IEXEC)
+                    runner_path = os.path.join(stanford_directory, "corenlp.sh")
+                    st = os.stat(runner_path)
+                    _content = open(runner_path).read()
+                    _content = _content.replace('java', '$JAVAHOME')
+                    with open(runner_path, 'w') as runner_file:
+                        runner_file.write(_content)
+
+                    os.chmod(runner_path, st.st_mode | stat.S_IEXEC)
                     break
 
     # Download extra data for specific language
