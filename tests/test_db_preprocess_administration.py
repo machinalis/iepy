@@ -195,6 +195,24 @@ class TestDocumentManagerFiltersForPreprocess(ManagerTestCase):
         self.assertIn(doc2, unsentenced)
         self.assertNotIn(doc3, unsentenced)
 
+    def test_can_get_both_unsegmented_or_unsynparsed_documents(self):
+        doc1 = SentencedIEDocFactory(text='Something nice.')
+        doc2 = SentencedIEDocFactory(text='Something even nicer.')
+        doc3 = SentencedIEDocFactory(text='Some sentence. And some other. Indeed!')
+        def filter():
+            return self.manager.get_documents_lacking_preprocess(
+                [PreProcessSteps.segmentation, PreProcessSteps.syntactic_parsing]
+            )
+        docs = [doc1, doc2, doc3]
+        self.assertEqual(list(filter()), docs)
+        for d in docs:
+            d.set_segmentation_result([RawSegment(0, 3, None)])
+            d.save()
+        self.assertEqual(list(filter()), docs)
+        doc1.set_syntactic_parsing_result(["(ROOT (NP (JJ Hello) (NN world) (. .)))]"])
+        doc1.save()
+        self.assertEqual(list(filter()), [doc2, doc3])
+
 
 class TestDocumentSentenceIterator(TestCase):
 
