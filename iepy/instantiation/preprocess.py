@@ -49,7 +49,8 @@ if __name__ == '__main__':
     increment_ner = opts['--increment-ner']
 
     dm = ParallelDocManager()
-    all_docs = dm.get_documents_lacking_preprocess(PreProcessSteps.segmentation)
+    all_docs = dm.get_documents_lacking_preprocess(
+        [PreProcessSteps.segmentation, PreProcessSteps.syntactic_parsing])
 
     multiple_cores = opts.get('--multiple-cores')
     split_in = opts.get("--split-in")
