@@ -2,8 +2,8 @@
 Run IEPY exporters
 
 Usage:
-    iepy_exporter.py [options] <relation_name> <output>
-    iepy_exporter.py -h | --help | --version
+    exporter.py [options] <relation_name> <output>
+    exporter.py -h | --help | --version
 
 Options:
   --version                                Version number
