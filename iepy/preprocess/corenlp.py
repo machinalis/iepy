@@ -21,7 +21,7 @@ def detect_java_version():
 
     here = os.path.dirname(os.path.realpath(__file__))
     jar = os.path.join(here, 'utils', 'get-java-version.jar')
-    jversion = subprocess.check_output([java_cmd, "-jar", jar], stderr=subprocess.STDOUT)
+    jversion = subprocess.check_output([java_cmd, "-jar", jar], stderr=subprocess.PIPE)
     return int(jversion.strip())
 
 
