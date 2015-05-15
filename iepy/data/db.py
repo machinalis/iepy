@@ -182,12 +182,15 @@ class CandidateEvidenceManager(object):
 
     @classmethod
     def candidates_for_relation(cls, relation, construct_missing_candidates=True,
-                                seg_limit=-1, shuffle_segs=False):
+                                seg_limit=-1, shuffle_segs=False, skip_hydration=False):
         # Wraps the actual database lookup of evidence, hydrating them so
         # in theory, no extra db access shall be done
         # The idea here is simple, but with some tricks for improving performance
         logger.info("Loading candidate evidence from database...")
-        hydrate = cls.hydrate
+        if skip_hydration:
+            hydrate = lambda ev, doc: ev
+        else:
+            hydrate = cls.hydrate
         segments_per_document = defaultdict(list)
 
         raw_segments = {}

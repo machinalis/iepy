@@ -2,12 +2,14 @@
 Run IEPY exporters
 
 Usage:
-    exporter.py brat-format <relation_name> <output-folder>
+    exporter.py brat-format <output-folder> [options]
     exporter.py -h | --help | --version
 
 Options:
-  --version                                Version number
-  -h --help                                Show this screen
+  --relations=<r-names>     Names of relations to export. May be more than one,
+                            comma separated.
+  --version                 Version number
+  -h --help                 Show this screen
 """
 
 import logging
@@ -33,15 +35,20 @@ def load_labeled_evidences(relation, evidences):
     return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
 
 
-def _get_relation(opts):
-    relation_name = opts['<relation_name>']
-    try:
-        relation = Relation.objects.get(name=relation_name)
-    except Relation.DoesNotExist:
-        print("Relation {!r} non existent".format(relation_name))
-        print_all_relations()
-        exit(1)
-    return relation
+def _get_relations(opts):
+    k = '--relations'
+    result = []
+    if k not in opts:
+        return result
+    relation_names = opts.get(k).split(',')
+    for r_name in relation_names:
+        try:
+            result.append(Relation.objects.get(name=r_name))
+        except Relation.DoesNotExist:
+            print("Relation {!r} non existent".format(r_name))
+            print_all_relations()
+            exit(1)
+    return result
 
 
 def run_from_command_line():
@@ -50,10 +57,12 @@ def run_from_command_line():
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     logging.getLogger("featureforge").setLevel(logging.WARN)
 
-    relation = _get_relation(opts)
     if 'brat-format' in opts:
-        Brat().run(opts['<output-folder>'],
-                   DocumentManager().get_preprocessed_documents()[:10])
+        exporter = Brat()
+        relations = _get_relations(opts)
+        docs = DocumentManager().get_preprocessed_documents()[:10]
+        exporter.run(opts['<output-folder>'], docs, relations)
+
 
 if __name__ == u'__main__':
     run_from_command_line()
