@@ -2,7 +2,7 @@
 Run IEPY exporters
 
 Usage:
-    exporter.py [options] <relation_name> <output>
+    exporter.py brat-format <relation_name> <output-folder>
     exporter.py -h | --help | --version
 
 Options:
@@ -10,8 +10,6 @@ Options:
   -h --help                                Show this screen
 """
 
-import os
-import json
 import logging
 from docopt import docopt
 from sys import exit
@@ -19,11 +17,9 @@ from sys import exit
 import iepy
 INSTANCE_PATH = iepy.setup(__file__)
 
-from iepy.extraction.active_learning_core import ActiveLearningCore, HIPREC, HIREC
-from iepy.data.db import CandidateEvidenceManager
+from iepy.data.db import DocumentManager, CandidateEvidenceManager
 from iepy.data.models import Relation
-from iepy.extraction.terminal import TerminalAdministration
-from iepy.data import output
+from iepy.data.export import Brat
 
 
 def print_all_relations():
@@ -35,6 +31,7 @@ def print_all_relations():
 def load_labeled_evidences(relation, evidences):
     CEM = CandidateEvidenceManager  # shorcut
     return CEM.labels_for(relation, evidences, CEM.conflict_resolution_newest_wins)
+
 
 def _get_relation(opts):
     relation_name = opts['<relation_name>']
@@ -54,13 +51,9 @@ def run_from_command_line():
     logging.getLogger("featureforge").setLevel(logging.WARN)
 
     relation = _get_relation(opts)
-
-    candidates = CandidateEvidenceManager.candidates_for_relation(relation)
-    labeled_evidences = load_labeled_evidences(relation, candidates)
-
-    for le in labeled_evidences:
-        print (le)
-
+    if 'brat-format' in opts:
+        Brat().run(opts['<output-folder>'],
+                   DocumentManager().get_preprocessed_documents()[:10])
 
 if __name__ == u'__main__':
     run_from_command_line()

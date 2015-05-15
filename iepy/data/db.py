@@ -82,6 +82,10 @@ class DocumentManager(object):
         """
         return IEDocument.objects.filter(text='')
 
+    def get_preprocessed_documents(self):
+        return IEDocument.objects.filter(
+            segmentation_done_at__isnull=False).order_by('id')
+
     def get_documents_lacking_preprocess(self, step_or_steps):
         """Returns an iterator of documents that shall be processed on the given
         step."""
