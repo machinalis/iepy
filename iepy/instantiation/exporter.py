@@ -60,7 +60,7 @@ def run_from_command_line():
     if 'brat-format' in opts:
         exporter = Brat()
         relations = _get_relations(opts)
-        docs = DocumentManager().get_preprocessed_documents()[:10]
+        docs = DocumentManager().get_preprocessed_documents()
         exporter.run(opts['<output-folder>'], docs, relations)
 
 
