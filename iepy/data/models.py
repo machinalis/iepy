@@ -485,7 +485,7 @@ class Relation(BaseModel):
     right_entity_kind = models.ForeignKey('EntityKind', related_name='right_relations')
 
     # Reversed fields:
-    # evidence_relations = Reversed ForeignKey of EvidenceCandidate
+    # evidence_labels = Reversed ForeignKey of EvidenceLabel
 
     class Meta(BaseModel.Meta):
         ordering = ['name', 'left_entity_kind', 'right_entity_kind']
@@ -684,7 +684,8 @@ class EvidenceLabel(BaseModel):
         max_length=2, choices=LABEL_CHOICES,
         default=SKIP, null=True, blank=False
     )
-    relation = models.ForeignKey('Relation', related_name='relation_labels', null=True, blank=True)
+    relation = models.ForeignKey('Relation', related_name='relation_labels',
+                                 null=True, blank=True)
 
     modification_date = models.DateTimeField(auto_now=True)
 
