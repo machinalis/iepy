@@ -22,3 +22,11 @@ DATABASES = {
         'NAME': '{DATABASE_PATH}',
     }
 }
+
+# For changing tokenization options, read here.
+# http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/process/PTBTokenizer.html
+# You can use as key any of the "known options" listed on that page, and as value,
+# use True or False (python names) for booleans, or strings when option requires a text
+# CORENLP_TKN_OPTS = {
+#     'latexQuotes': False
+# }
