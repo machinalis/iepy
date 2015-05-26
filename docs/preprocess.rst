@@ -24,6 +24,24 @@ to the original document text.
 
 The one used by default it's the one that the `Stanford CoreNLP <http://nlp.stanford.edu/software/corenlp.shtml>`_ provides.
 
+.. note::
+
+    While using the Stanford tokenizer, you can customize some of tokenization options.
+
+    First read here: `tokenizer options <http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/process/PTBTokenizer.html>`_
+
+    On your instance *settings.py* file, add options as keys on the CORENLP_TKN_OPTS dict.
+    You can use as key any of the "known options", and as value,
+    use True or False for booleans, or just strings when option requires a text.
+    Example:
+
+    .. code-block:: python
+
+        CORENLP_TKN_OPTS = {
+            'latexQuotes': False
+        }
+
+
 Lemmatization
 -------------
 
@@ -172,7 +190,7 @@ To run it on the same machine using multiple cores, all you need to do is run:
 
     $ python bin/preprocess.py --multiple-cores=all
 
-This will use all the available cores. You can also specify a number if you want to 
+This will use all the available cores. You can also specify a number if you want to
 use less than that, like this:
 
 .. code-block:: bash
