@@ -1,3 +1,6 @@
+<next>
+    - Tokenization options can be handled from instance settings file
+
 0.9.4
     - Added multicore preprocess
     - Added support for Stanford 3.5.2 preprocess models
