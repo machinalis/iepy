@@ -1,4 +1,6 @@
-<next>
+0.9.5
+    - Bug fix on TokenizerSentencerRunner (thanks ezesalta)
+    - Fix on installation dependencies
     - Tokenization options can be handled from instance settings file
 
 0.9.4
