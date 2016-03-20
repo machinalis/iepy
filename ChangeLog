@@ -2,6 +2,12 @@
     - Bug fix on TokenizerSentencerRunner (thanks ezesalta)
     - Fix on installation dependencies
     - Tokenization options can be handled from instance settings file
+    - Github Bugs fixed:
+        - https://github.com/machinalis/iepy/issues/75
+        - https://github.com/machinalis/iepy/issues/76
+        - https://github.com/machinalis/iepy/issues/77
+        - https://github.com/machinalis/iepy/issues/86
+        - https://github.com/machinalis/iepy/issues/89
 
 0.9.4
     - Added multicore preprocess
