@@ -11,8 +11,8 @@ with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
 base_reqs = """nltk==3.0.0
-numpy==1.8.0
-scipy==0.13.3
+numpy>=1.8.0
+scipy>=0.13.3
 scikit-learn==0.15.2
 REfO==0.13
 docopt==0.6.1
@@ -20,12 +20,12 @@ future==0.11.4
 appdirs==1.2.0
 wget==2.0
 colorama==0.2.7
-featureforge==0.1.5
+featureforge>=0.1.5
 Django==1.7.6
 django-relatives==0.3.1
 django-relatedadminwidget==0.0.3
-six==1.5.2
-django-extra-views==0.6.5
+six>=1.9.0
+django-extra-views==0.7.1
 jsonfield==1.0.0
 django-angular==0.7.8
 nose==1.3.0

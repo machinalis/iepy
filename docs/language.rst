@@ -6,7 +6,7 @@ By default IEPY will use English models, but it's also able to work with differe
 languages.
 
 The preprocess machinery that's provided by default (Stanford Core NLP) has support
-for some other language, so, check their models and documentation in case you need this.
+for some other languages, so, check their models and documentation in case you need this.
 
 .. note::
 
@@ -45,7 +45,7 @@ To change the instance language, change the settings file on the section where i
     IEPY_VERSION = 'en'
 
 
-For creating an IEPY instance for a different language, you should run
+To create an IEPY instance for a different language, you should run
 
 .. code-block:: bash
 

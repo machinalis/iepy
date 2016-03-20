@@ -20,7 +20,7 @@ class TokenizeSentencerRunner(BasePreProcessStepRunner):
     """
     step = PreProcessSteps.tokenization
 
-    def __init__(self, override=False, lang='en'):
+    def __init__(self, override=False, increment=False, lang='en'):
         if lang != 'en':
             # We are right now only providing english tokenization
             # and segmentation. But if you need something else, this
@@ -28,6 +28,7 @@ class TokenizeSentencerRunner(BasePreProcessStepRunner):
             raise NotImplemented
         self.lang = lang
         self.override = override
+        self.increment = increment
         # we'll be doing 2 PreProcess in one here
         self.tkn_step = PreProcessSteps.tokenization
         self.snt_step = PreProcessSteps.sentencer

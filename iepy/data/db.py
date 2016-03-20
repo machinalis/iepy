@@ -38,6 +38,8 @@ class DocumentManager(object):
     """
 
     ### Basic administration and pre-process
+    def __init__(self, base_queryset=None):
+        self.base_queryset = base_queryset
 
     def create_document(self, identifier, text, metadata=None, update_mode=False):
         """Creates a new Document with text ready to be inserted on the
@@ -73,23 +75,43 @@ class DocumentManager(object):
 
         return doc
 
+    def _docs(self):
+        if self.base_queryset:
+            docs = self.base_queryset
+        else:
+            docs = IEDocument.objects.all()
+        return docs
+
     def __iter__(self):
-        return iter(IEDocument.objects.all())
+        return iter(self._docs())
 
     def get_raw_documents(self):
         """returns an interator of documents that lack the text field, or it's
         empty.
         """
-        return IEDocument.objects.filter(text='')
+        return self._docs().filter(text='')
 
-    def get_documents_lacking_preprocess(self, step):
+    def get_documents_lacking_preprocess(self, step_or_steps):
         """Returns an iterator of documents that shall be processed on the given
         step."""
-        if step in PreProcessSteps:
-            flag_field_name = "%s_done_at" % step.name
-            query = {"%s__isnull" % flag_field_name: True}
-            return IEDocument.objects.filter(**query).order_by('id')
-        return IEDocument.objects.none()
+        from django.db.models import Q
+        if not isinstance(step_or_steps, (list, tuple)):
+            steps = [step_or_steps]
+        else:
+            steps = step_or_steps
+        query = None
+        for step in steps:
+            if step in PreProcessSteps:
+                flag_field_name = "%s_done_at" % step.name
+                q = Q(**{"%s__isnull" % flag_field_name: True})
+                if query is None:
+                    query = q
+                else:
+                    query = query | q
+        if query is not None:
+            return self._docs().filter(query).order_by('id')
+        else:
+            return IEDocument.objects.none()
 
 
 class TextSegmentManager(object):
@@ -233,7 +255,8 @@ class CandidateEvidenceManager(object):
         logger.info("Getting labels from DB")
         labels = EvidenceLabel.objects.filter(
             relation=relation,
-            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION, EvidenceLabel.NONSENSE],
+            label__in=[EvidenceLabel.NORELATION, EvidenceLabel.YESRELATION,
+                       EvidenceLabel.NONSENSE],
             labeled_by_machine=False
         )
         logger.info("Sorting labels them by evidence")

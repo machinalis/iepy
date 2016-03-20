@@ -21,7 +21,7 @@ def detect_java_version():
 
     here = os.path.dirname(os.path.realpath(__file__))
     jar = os.path.join(here, 'utils', 'get-java-version.jar')
-    jversion = subprocess.check_output([java_cmd, "-jar", jar], stderr=subprocess.STDOUT)
+    jversion = subprocess.check_output([java_cmd, "-jar", jar], stderr=subprocess.PIPE)
     return int(jversion.strip())
 
 
@@ -85,6 +85,10 @@ class StanfordCoreNLP:
             annotators.insert(annotators.index("ner") + 1, "regexner")
             cmd_args += " -regexner.mapping {}".format(gazettes_filepath)
 
+        tkn_opts = self._tokenizer_options()
+        if tkn_opts:
+            cmd_args += " " + tkn_opts
+
         lang = iepy.instance.settings.IEPY_LANG
         if lang == 'es':
             edu_mods = "edu/stanford/nlp/models"
@@ -96,6 +100,50 @@ class StanfordCoreNLP:
 
         cmd_args += " -annotators {}".format(",".join(annotators))
         return cmd_args.split()
+
+    def _tokenizer_options(self):
+        """As stated in
+        http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/process/PTBTokenizer.html
+        there are several tokenizer options that can be changed.
+        We'll only send to command line those that differ from the Stanford default.
+        """
+        extra_keys = ['ptb3Escaping']
+        defaults = {
+            'invertible': False,
+            'tokenizeNLs': False,
+            'americanize': True,
+            'normalizeSpace': True,
+            'normalizeAmpersandEntity': True,
+            'normalizeCurrency': True,
+            'normalizeFractions': True,
+            'normalizeParentheses': True,
+            'normalizeOtherBrackets': True,
+            'asciiQuotes': False,
+            'latexQuotes': True,
+            'unicodeQuotes': False,
+            'ptb3Ellipsis': True,
+            'unicodeEllipsis': False,
+            'ptb3Dashes': True,
+            'keepAssimilations': True,
+            'escapeForwardSlashAsterisk': True,
+            'untokenizable': "firstDelete",
+            'strictTreebank3': False
+        }
+        allowed_keys = set(defaults.keys()).union(extra_keys)
+        customizations = getattr(iepy.instance.settings, 'CORENLP_TKN_OPTS', {})
+        opts = []
+        for k, v in customizations.items():
+            if k not in allowed_keys:
+                raise ValueError('Invalid key "%s". Valid options are %s' % (k, allowed_keys))
+            if k in defaults and defaults[k] == v:
+                # valid option, but it's the defaults, so no need to provide it.
+                continue
+            if isinstance(v, bool):
+                v = ("%s" % v).lower()
+            opts.append("%s=%s" % (k, v))
+        if opts:
+            return '-tokenize.options "{}"'.format(','.join(opts))
+
 
     def iter_output_segments(self):
         while True:
