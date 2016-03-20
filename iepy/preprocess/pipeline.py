@@ -25,7 +25,10 @@ class PreProcessPipeline(object):
             then that runner will be treated as the responsible for
             accomplishing such a PreProcessStep.
         """
+        from iepy.data.db import DocumentManager  # circular imports safety
         self.step_runners = step_runners
+        if not isinstance(documents_manager, DocumentManager):
+            documents_manager = DocumentManager(documents_manager)
         self.documents = documents_manager
 
     def walk_document(self, doc):

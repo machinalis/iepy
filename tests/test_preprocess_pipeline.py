@@ -6,9 +6,17 @@ except ImportError:
 from unittest import TestCase
 
 from iepy.preprocess.pipeline import PreProcessPipeline, PreProcessSteps
+from iepy.data.db import DocumentManager
 
 
 class TestPreProcessPipeline(TestCase):
+
+    def patch_object(self, *args, **kwargs):
+        patcher = mock.patch.object(*args, **kwargs)
+        patched = patcher.start()
+        patched.patcher = patcher
+        self.addCleanup(patcher.stop)
+        return patched
 
     def test_walk_document_applies_all_step_runners_to_the_given_doc(self):
         step1_runner = mock.MagicMock()
@@ -60,15 +68,14 @@ class TestPreProcessPipeline(TestCase):
         step_runner = mock.MagicMock(step=PreProcessSteps.tokenization,
                                      override=False, increment=False)
         all_docs = [object() for i in range(5)]
-        docs_manager = mock.MagicMock()
-        docs_manager.__iter__.return_value = all_docs
-        docs_manager.get_documents_lacking_preprocess.side_effect = lambda x: all_docs[:2]
+        self.patch_object(DocumentManager, '__iter__', return_value=all_docs)
+        dm_get_docs = self.patch_object(DocumentManager, 'get_documents_lacking_preprocess',
+                                        return_value=all_docs[:2])
         # Ok, docs manager has 5 docs, but get_documents_lacking_preprocess will return
         # only 2 of them
-        p = PreProcessPipeline([step_runner], docs_manager)
+        p = PreProcessPipeline([step_runner], DocumentManager())
         p.process_step_in_batch(step_runner)
-        docs_filter = docs_manager.get_documents_lacking_preprocess
-        docs_filter.assert_called_once_with(step_runner.step)
+        dm_get_docs.assert_called_once_with(step_runner.step)
         self.assertNotEqual(step_runner.call_count, 5)
         self.assertEqual(step_runner.call_count, 2)
         self.assertEqual(step_runner.call_args_list, [mock.call(d) for d in all_docs[:2]])
