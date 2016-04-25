@@ -118,7 +118,7 @@ def run_from_command_line():
     tuning_mode = _get_tuning_mode(opts)
     relation = _get_relation(opts)
 
-    candidates = CandidateEvidenceManager.candidates_for_relation(relation)
+    candidates = list(CandidateEvidenceManager.candidates_for_relation(relation))
     labeled_evidences = load_labeled_evidences(relation, candidates)
 
     if opts.get('--trained-extractor'):
