@@ -39,24 +39,18 @@ class TokenSearcher(NLTKTokenSearcher):
     def __init__(self, tokens):
         # replace < and > inside tokens with \< and \>
         _raw = '><'.join(w.replace('<', '\<').replace('>', '\>') for w in tokens)
-        #  preprend >< instead of < for easier token counting
+        # preprend >< instead of < for easier token counting
         self._raw = '><' + _raw + '>'
-        # super(TokenSearcher, self).__init__(tokens)
 
     def finditer(self, regexp):
         regexp = preprocess_regexp(regexp)
 
         i = re.finditer(regexp, self._raw)
-        # last_start, last_end = 0, 0
-        # token_start, token_end = 0, 0
         while True:
             try:
                 m = next(i)
                 start, end = m.span()
                 # FIXME: do not count from the beggining
-                # token_start = token_start  + self._raw[last_start:start].count('><')
-                # token_end = token_end + self._raw[last_end:end].count('><')
-                # last_start, last_end = start, end
                 token_start = self._raw[:start].count('><')
                 token_end = self._raw[:end].count('><')
                 yield MatchObject(m, token_start, token_end)
