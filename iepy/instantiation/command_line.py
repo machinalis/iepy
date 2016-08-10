@@ -27,7 +27,7 @@ from iepy.preprocess.tagger import download as download_tagger
 from iepy.preprocess.corenlp import download as download_corenlp
 from iepy.preprocess.ner.stanford import download as download_ner
 
-_SUPPORTED_LANGS = ['en', 'es']
+_SUPPORTED_LANGS = ['en', 'es', 'de']
 
 
 def execute_from_command_line(argv=None):

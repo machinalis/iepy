@@ -11,7 +11,7 @@ for some other languages, so, check their models and documentation in case you n
 .. note::
 
     The main goal until now was to architecture IEPY to allow different languages.
-    Right now, the only fully supported languages are English and Spanish. If you need
+    Right now, the only fully supported languages are English, Spanish and German. If you need
     something else, do not hesitate in contacting us.
 
 
@@ -28,24 +28,32 @@ In order to download Spanish models you should run
 
     iepy --download-third-party-data --lang=es
 
+
+In order to download German models you should run
+
+.. code-block:: bash
+
+    iepy --download-third-party-data --lang=de
+
+
 .. note::
 
-    Check Stanford Core NLP documentation and files to download for more language packages.
+    check stanford core nlp documentation and files to download for more language packages.
 
 
-Language Definition and Instances
+language definition and instances
 ---------------------------------
 
-Every IEPY instance works for a single language, which is declared on the settings.py file like this:
+every iepy instance works for a single language, which is declared on the settings.py file like this:
 
-To change the instance language, change the settings file on the section where it says `IEPY_VERSION`:
+to change the instance language, change the settings file on the section where it says `iepy_version`:
 
 ::
 
-    IEPY_VERSION = 'en'
+    iepy_version = 'en'
 
 
-To create an IEPY instance for a different language, you should run
+to create an iepy instance for a different language, you should run
 
 .. code-block:: bash
 
