@@ -38,22 +38,22 @@ In order to download German models you should run
 
 .. note::
 
-    check stanford core nlp documentation and files to download for more language packages.
+    Check Stanford Core NLP documentation and files to download for more language packages.
 
 
-language definition and instances
+Language Definition and Instances
 ---------------------------------
 
-every iepy instance works for a single language, which is declared on the settings.py file like this:
+Every IEPY instance works for a single language, which is declared on the settings.py file like this:
 
-to change the instance language, change the settings file on the section where it says `iepy_version`:
+To change the instance language, change the settings file on the section where it says `IEPY_VERSION`:
 
 ::
 
-    iepy_version = 'en'
+    IEPY_VERSION = 'en'
 
 
-to create an iepy instance for a different language, you should run
+To create an IEPY instance for a different language, you should run
 
 .. code-block:: bash
 
