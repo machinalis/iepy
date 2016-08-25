@@ -10,7 +10,7 @@ with open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
 with open(path.join(HERE, 'iepy', 'version.txt'), encoding='utf-8') as f:
     iepy_version = f.read().strip()
 
-base_reqs = """nltk==3.0.0
+base_reqs = """nltk==3.2.1
 numpy>=1.8.0
 scipy>=0.13.3
 scikit-learn==0.15.2
@@ -21,7 +21,7 @@ appdirs==1.2.0
 wget==2.0
 colorama==0.2.7
 featureforge>=0.1.5
-Django==1.7.6
+Django==1.8.14
 django-relatives==0.3.1
 django-relatedadminwidget==0.0.3
 six>=1.9.0
