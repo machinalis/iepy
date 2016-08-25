@@ -55,6 +55,14 @@ Then simply install with **pip**:
 Full details about the installation is available on the
 `Read the Docs <http://iepy.readthedocs.org/en/latest/installation.html>`__ page.
 
+Running the tests
+-----------------
+
+If you are contributing to the project and want to run the tests, all you have to do is:
+
+    - Make sure your JAVAHOME is correctly set. `Read more about it here <http://iepy.readthedocs.io/en/latest/installation.html#install-iepy-package>`_
+    - In the root of the project run `nosetests`
+
 Learn more
 ----------
 
