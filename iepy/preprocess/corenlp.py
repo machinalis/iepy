@@ -36,12 +36,14 @@ if JAVA_VERSION < 8:
     _CORENLP_VERSION = "stanford-corenlp-full-2014-08-27"
     DOWNLOAD_URL = _STANFORD_BASE_URL + _CORENLP_VERSION + ".zip"
     DOWNLOAD_URL_ES = _STANFORD_BASE_URL + 'stanford-spanish-corenlp-2014-08-26-models.jar'
+    DOWNLOAD_URL_DE = _STANFORD_BASE_URL + 'stanford-german-2016-01-19-models.jar'
     _FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
     COMMAND_PATH = os.path.join(_FOLDER_PATH, "corenlp.sh")
 else:
     # Stanford Core NLP 3.5.2
     _CORENLP_VERSION = "stanford-corenlp-full-2015-04-20"
     DOWNLOAD_URL_ES = _STANFORD_BASE_URL + 'stanford-spanish-corenlp-2015-01-08-models.jar'
+    DOWNLOAD_URL_DE = _STANFORD_BASE_URL + 'stanford-german-2016-01-19-models.jar'
 
 DOWNLOAD_URL = _STANFORD_BASE_URL + _CORENLP_VERSION + ".zip"
 _FOLDER_PATH = os.path.join(DIRS.user_data_dir, _CORENLP_VERSION)
@@ -90,13 +92,19 @@ class StanfordCoreNLP:
             cmd_args += " " + tkn_opts
 
         lang = iepy.instance.settings.IEPY_LANG
+        edu_mods = "edu/stanford/nlp/models"
         if lang == 'es':
-            edu_mods = "edu/stanford/nlp/models"
             annotators.remove('dcoref')  # not supported for spanish on Stanford 3.4.1
             cmd_args += " -tokenize.language es"
             cmd_args += " -pos.model %s/pos-tagger/spanish/spanish-distsim.tagger" % edu_mods
             cmd_args += " -ner.model %s/ner/spanish.ancora.distsim.s512.crf.ser.gz" % edu_mods
             cmd_args += " -parse.model %s/lexparser/spanishPCFG.ser.gz" % edu_mods
+        if lang == 'de':
+            annotators.remove('dcoref')  # not supported for german on Stanford 3.4.1
+            cmd_args += " -tokenize.language de"
+            cmd_args += " -pos.model %s/pos-tagger/german/german-dewac.tagger" % edu_mods
+            cmd_args += " -ner.model %s/ner/german.dewac_175m_600.crf.ser.gz" % edu_mods
+            cmd_args += " -parse.model %s/lexparser/germanPCFG.ser.gz" % edu_mods
 
         cmd_args += " -annotators {}".format(",".join(annotators))
         return cmd_args.split()
@@ -143,7 +151,6 @@ class StanfordCoreNLP:
             opts.append("%s=%s" % (k, v))
         if opts:
             return '-tokenize.options "{}"'.format(','.join(opts))
-
 
     def iter_output_segments(self):
         while True:
@@ -204,12 +211,10 @@ def download(lang='en'):
                     break
 
     # Download extra data for specific language
-    if lang.lower() == 'es':
-        SPANISH_PATH = os.path.join(_FOLDER_PATH, 'edu', 'stanford', 'nlp', 'models')
-        if os.path.isdir(SPANISH_PATH):
-            print("Extra data for lang '{}' already downloaded.".format(lang))
-        else:
-            print("Downloading Stanford CoreNLP extra data for lang '{}'...".format(lang))
-            unzip_from_url(DOWNLOAD_URL_ES, _FOLDER_PATH)
+    download_urls = dict(es=DOWNLOAD_URL_ES, de=DOWNLOAD_URL_DE)
+    if lang.lower() in download_urls.keys():
+        print("Downloading Stanford CoreNLP extra data for lang '{}'...".format(lang))
+        unzip_from_url(download_urls[lang.lower()], _FOLDER_PATH)
     elif lang.lower() != 'en':
         print("There are no extra data to download for lang '{}'.".format(lang))
+

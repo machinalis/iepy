@@ -11,7 +11,7 @@ for some other languages, so, check their models and documentation in case you n
 .. note::
 
     The main goal until now was to architecture IEPY to allow different languages.
-    Right now, the only fully supported languages are English and Spanish. If you need
+    Right now, the only fully supported languages are English, Spanish and German. If you need
     something else, do not hesitate in contacting us.
 
 
@@ -27,6 +27,14 @@ In order to download Spanish models you should run
 .. code-block:: bash
 
     iepy --download-third-party-data --lang=es
+
+
+In order to download German models you should run
+
+.. code-block:: bash
+
+    iepy --download-third-party-data --lang=de
+
 
 .. note::
 
