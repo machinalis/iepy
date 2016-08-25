@@ -2,7 +2,7 @@ import os
 import os.path
 import logging
 
-from nltk.tag.stanford import POSTagger
+from nltk.tag.stanford import StanfordPOSTagger
 import wget
 
 from iepy.preprocess.pipeline import BasePreProcessStepRunner, PreProcessSteps
@@ -52,7 +52,7 @@ class StanfordTaggerRunner(TaggerRunner):
             raise LookupError("Stanford POS tagger not found. Try running the "
                               "command download_third_party_data.py")
 
-        postagger = POSTagger(
+        postagger = StanfordPOSTagger(
             os.path.join(tagger_path, 'models', 'english-bidirectional-distsim.tagger'),
             os.path.join(tagger_path, 'stanford-postagger.jar'),
             encoding='utf8')

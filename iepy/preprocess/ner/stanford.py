@@ -3,7 +3,7 @@ import os
 import os.path
 import logging
 
-from nltk.tag.stanford import NERTagger
+from nltk.tag.stanford import StanfordNERTagger
 import wget
 
 from iepy.preprocess.ner.base import BaseNERRunner
@@ -14,7 +14,7 @@ stanford_ner_name = 'stanford-ner-2014-01-04'
 download_url_base = 'http://nlp.stanford.edu/software/'
 
 
-class NonTokenizingNERTagger(NERTagger):
+class NonTokenizingNERTagger(StanfordNERTagger):
 
     @property
     def _cmd(self):
