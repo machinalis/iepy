@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
 from os import path
+import sys
+
+assert sys.version_info >= (3, 4, 0), "Python 3.4 or newer is required"
+
 
 HERE = path.abspath(path.dirname(__file__))
 
