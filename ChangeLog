@@ -1,3 +1,8 @@
+0.9.6
+    - Fixed some dependencies declarations to provide support for python 3.5
+    - Bug fix respect to active learning predictions
+    - Added support for German preprocess (thanks @sweh)
+
 0.9.5
     - Bug fix on TokenizerSentencerRunner (thanks ezesalta)
     - Fix on installation dependencies
