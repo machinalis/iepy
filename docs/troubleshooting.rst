@@ -29,3 +29,10 @@ Preprocess not running under MacOS
     be run. You need to change the file ``corenlp.sh`` that is located on
     ``/Users/<your user>/Library/Application Support/iepy/stanford-corenlp-full-2014-08-27/``
     and change ``scriptdir=`dirname $0``` for ``scriptdir=`dirname "$0"``` (ie, add double quotes around ``$0``)
+
+
+Can't install IEPY with python 2
+--------------------------------
+
+  Indeed, IEPY works with Python 3.4 or higher.
+
