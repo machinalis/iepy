@@ -133,6 +133,9 @@ def run_from_command_line():
     if not opts.get("--no-questions", False):
         questions_loop(iextractor, relation, was_ever_trained)
 
+    # Candidates generator was consumed when generating labeled_evidences, so we'll
+    # define it fresh again
+    candidates = CandidateEvidenceManager.candidates_for_relation(relation)
     # Predict and store output
     predictions = iextractor.predict(candidates)  # asking predictions for EVERYTHING
     if not predictions:
