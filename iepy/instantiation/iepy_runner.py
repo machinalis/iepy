@@ -7,7 +7,7 @@ Usage:
     iepy_runner.py -h | --help | --version
 
 Options:
-  --store-extractor=<extractor_output>   Stores the trained classifier
+  --store-extractor=<extractor_output>     Stores the trained classifier
   --trained-extractor=<extractor_path>     Load an already trained extractor
   --db-store                               Stores the predictions on the database
   --no-questions                           Won't generate questions to answer. Will predict
