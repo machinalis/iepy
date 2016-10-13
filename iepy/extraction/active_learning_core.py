@@ -146,7 +146,7 @@ class ActiveLearningCore:
         the relation is present on that evidence or not.
         """
         if not self.classifier:
-            logger.info("There is trained no classifier. Can't predict")
+            logger.info("There is no trained classifier. Can't predict")
             return {}
 
         # for every already labeled candidate, instead of asking the classifier we'll use
