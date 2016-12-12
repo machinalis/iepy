@@ -35,6 +35,17 @@ class RegExpNERRunner(BaseNERRunner):
 
 
 class TokenSearcher(NLTKTokenSearcher):
+    """
+    From nltk.text.TokenSearcher documentation:
+
+        A class that makes it easier to use regular expressions to search
+        over tokenized strings.  The tokenized string is converted to a
+        string where tokens are marked with angle brackets -- e.g.,
+        ``'<the><window><is><still><open>'``.  The regular expression
+        passed to the ``findall()`` method is modified to treat angle
+        brackets as non-capturing parentheses, in addition to matching the
+        token boundaries; and to have ``'.'`` not match the angle brackets.
+    """
 
     def __init__(self, tokens):
         # replace < and > inside tokens with \< and \>
