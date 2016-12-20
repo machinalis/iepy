@@ -61,7 +61,6 @@ class TokenSearcher(NLTKTokenSearcher):
             try:
                 m = next(i)
                 start, end = m.span()
-                # FIXME: do not count from the beggining
                 token_start = self._raw[:start].count('><')
                 token_end = self._raw[:end].count('><')
                 yield MatchObject(m, token_start, token_end)
@@ -97,7 +96,6 @@ def preprocess_regexp(regexp):
     # preprocess the regular expression
     regexp = re.sub(r'\s', '', regexp)
     # replace < and > only if not double (<< or >>):
-    # FIXME: avoid matching \< and \>.
     regexp = re.sub(r'(?<!<)<(?!<)', '(?:<(?:', regexp)
     regexp = re.sub(r'(?<!>)>(?!>)', ')>)', regexp)
     # now, replace << >> with < > resp.
